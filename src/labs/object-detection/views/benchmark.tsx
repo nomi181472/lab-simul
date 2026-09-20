@@ -78,8 +78,11 @@ export function BenchmarkView() {
           </div>
         </div>
 
-        <div className="mt-4">
-          <svg viewBox={`0 0 900 320`} className="w-full rounded-lg border border-zinc-800 bg-black/30">
+        <div className="mt-4 overflow-x-auto">
+          <svg
+            viewBox={`0 0 900 320`}
+            className="w-full min-w-[560px] rounded-lg border border-zinc-800 bg-black/30"
+          >
             {/* y gridlines (years) */}
             {Array.from({ length: yRange + 1 }, (_, i) => YEAR_MIN + i).map((y) => (
               <g key={y}>

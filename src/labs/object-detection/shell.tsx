@@ -25,9 +25,9 @@ export function LabShell({ children }: { children: React.ReactNode }) {
     <div className="flex flex-1 flex-col">
       {/* brand + lab-local top bar */}
       <header className="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 pt-3 sm:pt-3 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:pt-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-700/60 bg-emerald-950/40 font-mono text-[13px] font-bold text-emerald-300">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-emerald-700/60 bg-emerald-950/40 font-mono text-[13px] font-bold text-emerald-300">
               ⊙
             </div>
             <div className="leading-tight">
@@ -46,12 +46,12 @@ export function LabShell({ children }: { children: React.ReactNode }) {
         </div>
         {/* internal section nav */}
         <nav className="mx-auto w-full max-w-7xl overflow-x-auto px-4">
-          <div className="flex min-w-max gap-1 pb-2">
+          <div className="flex min-w-max gap-1 pb-2 pt-2 lg:pt-3">
             {SECTIONS.map((s) => (
               <button
                 key={s.id}
                 onClick={() => setSection(s.id)}
-                className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                className={`rounded-md px-3 py-1.5 text-[11px] font-medium transition-colors ${
                   section === s.id
                     ? "bg-emerald-600/20 text-emerald-300 border border-emerald-700/50"
                     : "text-zinc-400 border border-transparent hover:bg-zinc-900 hover:text-zinc-200"
