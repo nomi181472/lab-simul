@@ -1,0 +1,160 @@
+arxiv_id,title,published
+1404.7584v3,High-Speed Tracking with Kernelized Correlation Filters,2014-04-30T04:16:38Z
+1509.05520v1,An Experimental Survey on Correlation Filter-based Tracking,2015-09-18T07:07:15Z
+1510.07945v2,Learning Multi-Domain Convolutional Neural Networks for Visual Tracking,2015-10-27T15:53:00Z
+1512.01355v2,Staple: Complementary Learners for Real-Time Tracking,2015-12-04T09:56:48Z
+1602.00763v2,Simple Online and Realtime Tracking,2016-02-02T01:39:28Z
+1603.00831v2,MOT16: A Benchmark for Multi-Object Tracking,2016-03-02T19:07:56Z
+1604.01802v2,Learning to Track at 100 FPS with Deep Regression Networks,2016-04-06T20:39:34Z
+1605.05863v1,Siamese Instance Search for Tracking,2016-05-19T09:24:40Z
+1606.09549v3,Fully-Convolutional Siamese Networks for Object Tracking,2016-06-30T16:00:43Z
+1608.05571v1,Learning Spatially Regularized Correlation Filters for Visual Tracking,2016-08-19T11:11:49Z
+1611.09224v2,ECO: Efficient Convolution Operators for Tracking,2016-11-28T16:26:27Z
+1703.04590v2,Learning Background-Aware Correlation Filters for Visual Tracking,2017-03-14T17:16:23Z
+1703.07402v1,Simple Online and Realtime Tracking with a Deep Association Metric,2017-03-21T19:40:25Z
+1704.06036v1,End-to-end representation learning for Correlation Filter based tracking,2017-04-20T07:51:27Z
+1705.06368v3,Re3 : Real-Time Recurrent Regression Networks for Visual Tracking of Generic Objects,2017-05-17T23:20:28Z
+1707.02309v2,Adaptive Correlation Filters with Long-Term and Short-Term Memory for Object Tracking,2017-07-07T18:00:34Z
+1712.01358v4,Long-Term Visual Object Tracking Benchmark,2017-12-04T21:02:24Z
+1801.06729v1,EnKCF: Ensemble of Kernelized Correlation Filters for High-Speed Object Tracking,2018-01-20T21:22:46Z
+1803.08679v1,Learning Spatial-Temporal Regularized Correlation Filters for Visual Tracking,2018-03-23T07:55:24Z
+1804.08208v3,High Performance Visual Tracking with Circular and Structural Operators,2018-04-23T01:08:43Z
+1807.11348v3,Learning Adaptive Discriminative Correlation Filters via Temporal Consistency Preserving Spatial Feature Selection for Robust Visual Tracking,2018-07-30T13:46:46Z
+1808.06048v1,Distractor-aware Siamese Networks for Visual Object Tracking,2018-08-18T06:38:10Z
+1808.08834v1,Real-Time MDNet,2018-08-27T13:13:14Z
+1809.07845v2,LaSOT: A High-quality Benchmark for Large-scale Single Object Tracking,2018-09-20T20:37:24Z
+1810.11981v3,GOT-10k: A Large High-Diversity Benchmark for Generic Object Tracking in the Wild,2018-10-29T07:22:46Z
+1811.07628v2,ATOM: Accurate Tracking by Overlap Maximization,2018-11-19T11:40:17Z
+1812.05050v2,Fast Online Object Tracking and Segmentation: A Unifying Approach,2018-12-12T17:43:04Z
+1812.11703v1,SiamRPN++: Evolution of Siamese Visual Tracking with Very Deep Networks,2018-12-31T06:14:11Z
+1901.01660v3,Deeper and Wider Siamese Networks for Real-Time Visual Tracking,2019-01-07T04:17:43Z
+1903.05625v3,Tracking without bells and whistles,2019-03-13T17:45:49Z
+1904.07220v2,Learning Discriminative Model Prediction for Tracking,2019-04-15T17:57:09Z
+1905.02857v1,Learning Cascaded Siamese Networks for High Performance Visual Tracking,2019-05-08T01:06:23Z
+1906.01551v1,Learning Rotation Adaptive Correlation Filters in Robust Visual Object Tracking,2019-06-04T16:10:49Z
+1909.12605v2,Towards Real-Time Multi-Object Tracking,2019-09-27T10:35:23Z
+1911.06188v4,SiamFC++: Towards Robust and Accurate Visual Tracking with Target Estimation Guidelines,2019-11-14T15:43:37Z
+1911.07241v2,SiamCAR: Siamese Fully Convolutional Classification and Regression for Visual Tracking,2019-11-17T14:03:12Z
+1911.12836v2,Siam R-CNN: Visual Tracking by Re-Detection,2019-11-28T19:21:34Z
+2003.06761v2,Siamese Box Adaptive Network for Visual Tracking,2020-03-15T05:58:12Z
+2003.09003v1,MOT20: A benchmark for multi object tracking in crowded scenes,2020-03-19T20:08:24Z
+2003.12565v1,Probabilistic Regression for Visual Tracking,2020-03-27T17:58:37Z
+2003.12949v1,AutoTrack: Towards High-Performance Visual Tracking for UAV with Automatic Spatio-Temporal Regularization,2020-03-29T05:02:25Z
+2004.01177v2,Tracking Objects as Points,2020-04-02T17:58:40Z
+2004.01888v6,FairMOT: On the Fairness of Detection and Re-Identification in Multiple Object Tracking,2020-04-04T08:18:00Z
+2004.06711v2,Deformable Siamese Attention Networks for Visual Object Tracking,2020-04-14T17:59:08Z
+2006.06664v4,Quasi-Dense Similarity Learning for Multiple Object Tracking,2020-06-11T17:57:12Z
+2006.10721v2,Ocean: Object-aware Anchor-free Tracking,2020-06-18T17:51:39Z
+2008.00836v1,LSOTB-TIR:A Large-Scale High-Diversity Thermal Infrared Object Tracking Benchmark,2020-08-03T12:36:06Z
+2008.03467v2,RPT: Learning Point Set Representation for Siamese Visual Tracking,2020-08-08T07:42:58Z
+2009.03465v3,LaSOT: A High-quality Large-scale Single Object Tracking Benchmark,2020-09-08T00:31:56Z
+2009.09669v5,Learning Spatio-Appearance Memory Network for High-Performance Visual Tracking,2020-09-21T08:12:02Z
+2011.10875v2,Transparent Object Tracking Benchmark,2020-11-21T21:39:43Z
+2011.11204v1,Graph Attention Tracking,2020-11-23T04:26:45Z
+2012.15460v2,TransTrack: Multiple Object Tracking with Transformer,2020-12-31T06:03:00Z
+2101.02702v3,TrackFormer: Multi-Object Tracking with Transformers,2021-01-07T18:59:29Z
+2103.15436v1,Transformer Tracking,2021-03-29T09:06:55Z
+2103.17154v1,Learning Spatio-Temporal Transformer for Visual Tracking,2021-03-31T15:19:19Z
+2104.13202v2,LasHeR: A Large-scale High-diversity Benchmark for RGBT Tracking,2021-04-27T14:04:23Z
+2104.14545v1,LightTrack: Finding Lightweight Neural Networks for Object Tracking via One-Shot Architecture Search,2021-04-29T17:55:24Z
+2105.03247v4,MOTR: End-to-End Multiple-Object Tracking with Transformer,2021-05-07T13:27:01Z
+2105.11595v1,SiamMOT: Siamese Multi-Object Tracking,2021-05-25T01:09:26Z
+2110.06864v3,ByteTrack: Multi-Object Tracking by Associating Every Detection Box,2021-10-13T17:01:26Z
+2110.13027v1,TAPL: Dynamic Part-based Visual Tracking via Attention-guided Part Localization,2021-10-25T15:05:43Z
+2111.14690v3,DanceTrack: Multi-Object Tracking in Uniform Appearance and Diverse Motion,2021-11-29T16:49:06Z
+2112.00995v3,SwinTrack: A Simple and Strong Baseline for Transformer Tracking,2021-12-02T05:56:03Z
+2201.07425v4,WebUAV-3M: A Benchmark for Unveiling the Power of Million-Scale Deep UAV Tracking,2022-01-19T05:39:42Z
+2201.13066v1,"Single Object Tracking: A Survey of Methods, Datasets, and Evaluation Metrics",2022-01-31T08:45:50Z
+2202.13514v2,StrongSORT: Make DeepSORT Great Again,2022-02-28T02:37:19Z
+2203.01885v3,TCTrack: Temporal Contexts for Aerial Tracking,2022-03-03T18:04:20Z
+2203.05328v2,Backbone is All Your Need: A Simplified Architecture for Visual Object Tracking,2022-03-10T12:20:58Z
+2203.11082v2,MixFormer: End-to-End Tracking with Iterative Mixed Attention,2022-03-21T16:04:21Z
+2203.11991v4,Joint Feature Learning and Relation Modeling for Tracking: A One-Stream Framework,2022-03-22T18:37:11Z
+2203.13437v1,BCOT: A Markerless High-Precision 3D Object Tracking Benchmark,2022-03-25T03:55:03Z
+2203.14360v3,Observation-Centric SORT: Rethinking SORT for Robust Multi-Object Tracking,2022-03-27T17:57:08Z
+2203.16761v1,MeMOT: Multi-Object Tracking with Memory,2022-03-31T02:33:20Z
+2206.14651v2,BoT-SORT: Robust Associations Multi-Pedestrian Tracking,2022-06-29T13:45:03Z
+2207.07078v4,Towards Grand Unification of Object Tracking,2022-07-14T17:27:19Z
+2207.09603v2,AiATrack: Attention in Attention for Transformer Visual Tracking,2022-07-20T00:44:03Z
+2209.12010v1,Spiking SiamFC++: Deep Spiking Neural Network for Object Tracking,2022-09-24T13:54:28Z
+2210.15511v4,ProContEXT: Exploring Progressive Context Transformer for Tracking,2022-10-27T14:47:19Z
+2211.09791v2,MOTRv2: Bootstrapping End-to-End Multi-Object Tracking by Pretrained Object Detectors,2022-11-17T18:57:12Z
+2301.01482v5,Underwater Object Tracker: UOSTrack for Marine Organism Grasping of Underwater Vehicles,2023-01-04T08:22:34Z
+2303.10404v2,MotionTrack: Learning Robust Short-term and Long-term Motions for Multi-Object Tracking,2023-03-18T12:38:33Z
+2303.10826v2,Visual Prompt Multi-Modal Tracking,2023-03-20T01:51:07Z
+2303.10951v1,Tracker Meets Night: A Transformer Enhancer for UAV Tracking,2023-03-20T09:18:52Z
+2304.08408v1,OVTrack: Open-Vocabulary Multiple Object Tracking,2023-04-17T16:20:05Z
+2305.14298v1,MOTRv3: Release-Fetch Supervision for End-to-End Multi-Object Tracking,2023-05-23T17:40:13Z
+2305.15896v2,MixFormerV2: Efficient Fully Transformer Tracking,2023-05-25T09:50:54Z
+2306.05238v2,SparseTrack: Multi-Object Tracking by Performing Scene Decomposition based on Pseudo-Depth,2023-06-08T14:36:10Z
+2306.17440v1,STTracker: Spatio-Temporal Tracker for 3D Single Object Tracking,2023-06-30T07:25:11Z
+2307.01893v1,EANet: Enhanced Attribute-based RGBT Tracker Network,2023-07-04T19:34:53Z
+2308.08753v1,BOTT: Box Only Transformer Tracker for 3D Object Tracking,2023-08-17T03:04:55Z
+2308.09905v2,DiffusionTrack: Diffusion Model For Multi-Object Tracking,2023-08-19T04:48:41Z
+2308.09908v6,LEGO: Learning and Graph-Optimized Modular Tracker for Online Multi-Object Tracking with Point Clouds,2023-08-19T05:15:02Z
+2308.13266v3,Integrating Boxes and Masks: A Multi-Object Framework for Unified Visual Tracking and Segmentation,2023-08-25T09:37:51Z
+2310.05392v3,Lightweight Full-Convolutional Siamese Tracker,2023-10-09T04:07:35Z
+2310.10071v1,ZoomTrack: Target-aware Non-uniform Resizing for Efficient Visual Tracking,2023-10-16T05:06:13Z
+2311.15851v3,Single-Model and Any-Modality for Video Object Tracking,2023-11-27T14:17:41Z
+2311.18199v1,Hy-Tracker: A Novel Framework for Enhancing Efficiency and Accuracy of Object Tracking in Hyperspectral Videos,2023-11-30T02:38:45Z
+2403.02075v2,DiffMOT: A Real-time Diffusion-based Multiple Object Tracker with Non-linear Prediction,2024-03-04T14:21:51Z
+2403.05839v3,Long-Term Visual Object Tracking with Event Cameras: An Associative Memory Augmented Tracker and A Benchmark Dataset,2024-03-09T08:49:50Z
+2403.10826v2,MambaMOT: State-Space Model as Motion Predictor for Multi-Object Tracking,2024-03-16T06:26:52Z
+2404.05518v1,DepthMOT: Depth Cues Lead to a Strong Multi-Object Tracker,2024-04-08T13:39:12Z
+2405.10439v1,Beyond Traditional Single Object Tracking: A Survey,2024-05-16T20:55:31Z
+2405.14200v2,Awesome Multi-modal Object Tracking,2024-05-23T05:58:10Z
+2405.17773v2,XTrack: Multimodal Training Boosts RGB-X Video Object Trackers,2024-05-28T03:00:58Z
+2406.20024v3,eMoE-Tracker: Environmental MoE-based Transformer for Robust Event-guided Object Tracking,2024-06-28T16:13:55Z
+2407.00738v1,Engineering an Efficient Object Tracker for Non-Linear Motion,2024-06-30T15:50:54Z
+2407.08394v2,Diff-Tracker: Text-to-Image Diffusion Models are Unsupervised Trackers,2024-07-11T10:57:33Z
+2407.10485v3,MM-Tracker: Motion Mamba with Margin Loss for UAV-platform Multiple Object Tracking,2024-07-15T07:13:27Z
+2407.15707v1,Predicting the Best of N Visual Trackers,2024-07-22T15:17:09Z
+2408.07344v1,RTAT: A Robust Two-stage Association Tracker for Multi-Object Tracking,2024-08-14T07:37:24Z
+2408.15548v1,ConsistencyTrack: A Robust Multi-Object Tracker with a Generation Strategy of Consistency Model,2024-08-28T05:53:30Z
+2409.07904v1,FACT: Feature Adaptive Continual-learning Tracker for Multiple Object Tracking,2024-09-12T10:14:48Z
+2411.17468v1,Adversarial Bounding Boxes Generation (ABBG) Attack against Visual Object Trackers,2024-11-26T14:30:36Z
+2501.02467v1,DeTrack: In-model Latent Denoising Learning for Visual Object Tracking,2025-01-05T07:28:50Z
+2502.18143v1,LightFC-X: Lightweight Convolutional Tracker for RGB-X Tracking,2025-02-25T12:10:33Z
+2504.01457v1,Deep LG-Track: An Enhanced Localization-Confidence-Guided Multi-Object Tracker,2025-04-02T08:10:18Z
+2505.00752v2,DARTer: Dynamic Adaptive Representation Tracker for Nighttime UAV Tracking,2025-05-01T05:24:14Z
+2507.23251v1,A Deep Dive into Generic Object Tracking: A Survey,2025-07-31T05:19:26Z
+2508.11531v1,Multi-State Tracker: Enhancing Efficient Object Tracking via Multi-State Specialization and Interaction,2025-08-15T15:19:39Z
+2511.22896v1,DM$^3$T: Harmonizing Modalities via Diffusion for Multi-Object Tracking,2025-11-28T06:02:58Z
+2512.07385v1,How Far are Modern Trackers from UAV-Anti-UAV? A Million-Scale Benchmark and New Baseline,2025-12-08T10:19:54Z
+2604.00452v1,"Out of Sight, Out of Track: Adversarial Attacks on Propagation-based Multi-Object Trackers via Query State Manipulation",2026-04-01T04:04:45Z
+2605.26933v1,Leveraging Text-to-Image Diffusion Models for Unsupervised Visual Object Tracking,2026-05-26T12:26:56Z
+2606.02724v1,AVTrack: Audio-Visual Tracking in Human-centric Complex Scenes,2026-06-01T18:00:08Z
+2606.05587v1,HDST-GNN: Heterogeneous Dynamic Spatiotemporal Graph Neural Networks for Multi-Object Tracking in UAV Aerial Imagery,2026-06-04T02:04:52Z
+2606.14094v1,FEMOT: Multi-Object Tracking using Frame and Event Cameras,2026-06-12T04:17:41Z
+2606.23604v4,Polycepta: Object-Centric Appearance Estimation for Multi-Object Tracking,2026-06-22T17:06:32Z
+2606.26455v1,Active Adversarial Perturbation-driven Associative Memory Retrieval for RGB-Event Visual Object Tracking,2026-06-24T23:34:06Z
+2606.29783v1,FalconTrack: Photorealistic Auto-Labeled Perception and Physics-Aware Vision-Based Aerial Tracking,2026-06-29T05:03:57Z
+2607.01395v1,Rethinking Generic Object Tracking Toward Human-Level Perceptual Intelligence,2026-07-01T18:54:00Z
+2607.14726v1,AE-UAV: An Air-to-Air Event-Based UAV Tracking Benchmark and a Real-Time Frequency-Domain Tracker,2026-07-16T08:53:24Z
+2607.17120v1,The generator is the tracker: Multi-object tracking by painting persistent identity colours,2026-07-19T08:11:44Z
+2607.23209v1,Counterfactual Motion Reliability Learning for Robust UAV Tracking,2026-07-25T14:01:25Z
+2607.24701v1,Spatio-Temporal Conditional Denoising Transformer for Modality-Missing RGBT Tracking,2026-07-27T17:44:00Z
+2607.25239v1,CD-RMOT-Bench: Benchmarking the Cross-Domain Referring Multi-Object Tracking,2026-07-28T03:29:19Z
+2607.26511v1,Semantic-Aware Temporal Adaptation for UAV Anti-UAV Tracking,2026-07-29T06:22:03Z
+2608.00847v1,Models as Tools: An Agentic Coordination Framework for Unified Multimodal Visual Tracking,2026-08-01T19:58:09Z
+2608.01807v1,Parameter-Dynamic Adaptive Fusion and Calibration Network for RGBT Tracking,2026-08-03T07:15:57Z
+2608.06773v1,AnyTrack: Unifying Visual Object Tracking with Any Modalities,2026-08-07T03:47:34Z
+2608.08016v1,EgoTrack3D: A Modular Framework for Egocentric 3D Object Tracking,2026-08-08T08:53:54Z
+2608.09575v1,MSP-Net: Manifold-Guided Spectral Prompt Network for Hyperspectral Object Tracking,2026-08-10T13:09:25Z
+2608.09581v1,GenTrack3: Hybrid Stochastic-Deterministic Online Multi-Object Tracking with Cluster-Aware Association,2026-08-10T13:16:17Z
+2608.10790v1,MVTrack: Ultrafast Appearance-Free Moving Object Tracking from Compressed Bitstreams,2026-08-11T10:53:22Z
+2608.15688v1,Training-Free Long-Term Multi-Object Tracking for Sports Video Analytics,2026-08-16T11:33:00Z
+2608.24365v1,MaST: Motion-aware Sparse Pipeline for Lightweight Object Tracking,2026-08-25T10:25:15Z
+2608.29126v1,Efficient Language-to-Vision Feature Injection for Referring Single-Object Tracking,2026-08-29T08:09:08Z
+2609.00924v1,Beyond the Image Plane: World-Grounded Queries for Multi-Object Tracking,2026-09-01T08:48:14Z
+2609.02318v1,YesTrack: Referring Multi-Object Tracking via MLLM-based Yes/No Verification,2026-09-02T09:04:43Z
+2609.06302v1,CST-WM: A Causally Structured World Model for Embodied Visual Tracking,2026-09-05T23:24:32Z
+2609.07070v1,Continuous Token-Level Spatio-Temporal Context Modeling for Visual Object Tracking,2026-09-07T05:57:19Z
+2609.07547v1,Re-engineering SORT-based algorithms for low-cost small object tracking from omnidirectional footage,2026-09-07T14:29:21Z
+2609.07738v1,TFTrack: A Template-Free Framework for Efficient 3D Point Cloud Tracking,2026-09-07T16:43:18Z
+2609.08265v1,Tracking-by-detection in Multi-object Tracking: Survey and Experiments,2026-09-08T05:11:40Z
+2609.12261v1,Revisiting Multi-Object Tracking Baselines: Hyperparameter Optimization with Multi-Fidelity Greedy Coordinate Search,2026-09-10T22:36:08Z
+2609.15171v1,EECTracker: Swarm Motion Prior-Guided Feature Compensation for Airborne Optical UAV Swarm Tracking,2026-09-14T07:57:47Z
+2609.16662v1,SAVTrack: Selective Vote Aggregation for Reliability-Aware Point Cloud Tracking,2026-09-15T05:36:13Z
+2609.16695v1,MAETrack: Unleashing the Potential of Pretrained Geometric Priors for 3D Single Object Tracking,2026-09-15T06:21:44Z
+2609.17427v1,Tracking the Unseen: An Occlusion-Robust Framework for Target Tracking Under Full and Long-Term Occlusion,2026-09-15T16:41:57Z
