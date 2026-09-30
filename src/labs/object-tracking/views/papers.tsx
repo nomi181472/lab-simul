@@ -66,9 +66,9 @@ export function PapersView() {
       </div>
 
       {active && (
-        <Card tone="accent" className="space-y-4">
+        <Card tone="accent" className="space-y-4 overflow-hidden">
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <div>
+            <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded bg-sky-950 px-1.5 py-0.5 font-mono text-[11px] text-sky-300">{active.id}</span>
                 <Badge tone="zinc">{active.year}</Badge>
@@ -76,22 +76,22 @@ export function PapersView() {
                 <TaskBadge t={active.task} />
                 {active.venue && <Badge tone="emerald">{active.venue}</Badge>}
               </div>
-              <h2 className="mt-2 text-lg font-semibold text-zinc-50">{active.title}</h2>
-              <p className="font-mono text-[11px] text-zinc-500">{active.authors.join(", ")} · arXiv:{active.arxiv} · {active.fileName}</p>
+              <h2 className="mt-2 text-lg font-semibold text-zinc-50 truncate">{active.title}</h2>
+              <p className="font-mono text-[11px] text-zinc-500 truncate">{active.authors.join(", ")} · arXiv:{active.arxiv} · {active.fileName}</p>
             </div>
-            <button onClick={() => setSelectedPaper(null)} className="rounded-md border border-zinc-700 px-2 py-1 font-mono text-[11px] text-zinc-300 hover:bg-zinc-900">close ✕</button>
+            <button onClick={() => setSelectedPaper(null)} className="rounded-md border border-zinc-700 px-2 py-1 font-mono text-[11px] text-zinc-300 hover:bg-zinc-900 flex-shrink-0">close ✕</button>
           </div>
 
           <p className="text-[13px] leading-6 text-zinc-300">{active.summary}</p>
 
           <div className="grid gap-3 lg:grid-cols-2">
-            <div className="rounded-lg border border-zinc-800 p-3">
+            <div className="rounded-lg border border-zinc-800 p-3 min-w-0">
               <div className="font-mono text-[10px] uppercase tracking-wide text-rose-300">problem</div>
               <p className="mt-1 text-[12px] leading-5 text-zinc-400">{active.problem}</p>
               <div className="mt-2 font-mono text-[10px] uppercase tracking-wide text-amber-300">research gap</div>
               <p className="mt-1 text-[12px] italic leading-5 text-zinc-300">{active.researchGap}</p>
             </div>
-            <div className="rounded-lg border border-zinc-800 p-3">
+            <div className="rounded-lg border border-zinc-800 p-3 min-w-0">
               <div className="font-mono text-[10px] uppercase tracking-wide text-sky-300">contributions</div>
               <ul className="mt-1 list-disc space-y-1 pl-4 text-[12px] leading-5 text-zinc-300">
                 {active.contribution.map((c, i) => <li key={i}>{c}</li>)}
@@ -99,12 +99,12 @@ export function PapersView() {
             </div>
           </div>
 
-          <div className="rounded-lg border border-zinc-800 p-3">
+          <div className="rounded-lg border border-zinc-800 p-3 min-w-0">
             <div className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">pipeline</div>
             <div className="mt-2 flex flex-wrap items-center gap-1 font-mono text-[11px]">
               {active.method.pipeline.map((s, i) => (
                 <span key={s} className="flex items-center gap-1">
-                  <span className="rounded border border-sky-800/60 bg-sky-950/30 px-2 py-1 text-sky-200">{s}</span>
+                  <span className="rounded border border-sky-800/60 bg-sky-950/30 px-2 py-1 text-sky-200 whitespace-nowrap">{s}</span>
                   {i < active.method.pipeline.length - 1 && <span className="text-zinc-600">→</span>}
                 </span>
               ))}
@@ -112,7 +112,7 @@ export function PapersView() {
             <p className="mt-2 text-[12px] leading-5 text-zinc-400">{active.method.architecture}</p>
             <div className="mt-2 grid gap-1.5 text-[12px] sm:grid-cols-2">
               {Object.entries({ motionModel: active.method.motionModel, appearanceModel: active.method.appearanceModel, association: active.method.association, reid: active.method.reid, detectionDependency: active.method.detectionDependency, trackManagement: active.method.trackManagement, optimization: active.method.optimization, loss: active.method.loss }).filter(([, v]) => v).map(([k, v]) => (
-                <p key={k} className="text-zinc-500"><span className="font-mono text-[10px] uppercase text-zinc-600">{k} · </span><span className="text-zinc-400">{v}</span></p>
+                <p key={k} className="text-zinc-500 min-w-0"><span className="font-mono text-[10px] uppercase text-zinc-600">{k} · </span><span className="text-zinc-400 truncate">{v}</span></p>
               ))}
             </div>
           </div>
@@ -121,10 +121,10 @@ export function PapersView() {
             <div className="space-y-2">
               <div className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">equations ({active.equations.length})</div>
               {active.equations.map((eq) => (
-                <div key={eq.id} className="rounded-lg border border-zinc-800 bg-black/20 p-3">
+                <div key={eq.id} className="rounded-lg border border-zinc-800 bg-black/20 p-3 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[13px] font-semibold text-zinc-100">{eq.label}</span>
-                    {eq.simulator && <button onClick={() => setMathSim(eq.simulator!)} className="rounded border border-sky-800 px-1.5 py-0.5 font-mono text-[10px] text-sky-300 hover:bg-sky-950/40">simulate →</button>}
+                    <span className="text-[13px] font-semibold text-zinc-100 truncate">{eq.label}</span>
+                    {eq.simulator && <button onClick={() => setMathSim(eq.simulator!)} className="rounded border border-sky-800 px-1.5 py-0.5 font-mono text-[10px] text-sky-300 hover:bg-sky-950/40 flex-shrink-0">simulate →</button>}
                   </div>
                   <div className="mt-2"><Formula>{eq.formula}</Formula></div>
                   <p className="mt-1.5 text-[12px] text-zinc-400">{eq.intuition}</p>
@@ -136,7 +136,7 @@ export function PapersView() {
           )}
 
           <div className="grid gap-3 lg:grid-cols-3">
-            <div className="rounded-lg border border-zinc-800 p-3">
+            <div className="rounded-lg border border-zinc-800 p-3 min-w-0">
               <div className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">experiments</div>
               <p className="mt-1 font-mono text-[11px] text-zinc-400">datasets: {active.datasets.join(" · ") || "—"}</p>
               <p className="font-mono text-[11px] text-zinc-400">metrics: {active.metrics.join(" · ") || "—"}</p>
@@ -145,7 +145,7 @@ export function PapersView() {
               {active.ablations.length > 0 && <div className="mt-1.5 font-mono text-[10px] uppercase text-zinc-600">ablations</div>}
               <ul className="list-disc space-y-1 pl-4 text-[11px] text-zinc-500">{active.ablations.map((a, i) => <li key={i}>{a}</li>)}</ul>
             </div>
-            <div className="rounded-lg border border-zinc-800 p-3">
+            <div className="rounded-lg border border-zinc-800 p-3 min-w-0">
               <div className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">limitations</div>
               <div className="mt-1 font-mono text-[10px] uppercase text-amber-300">author-stated</div>
               <ul className="list-disc space-y-1 pl-4 text-[12px] text-zinc-300">{active.limitations.authorStated.map((l, i) => <li key={i}>{l}</li>)}</ul>
@@ -154,10 +154,10 @@ export function PapersView() {
               {active.assumptions && <p className="mt-1.5 text-[11px] text-zinc-500">assumes: {active.assumptions.join(" ")}</p>}
               {active.computation && <p className="mt-1 text-[11px] text-zinc-500">compute: {active.computation}</p>}
             </div>
-            <div className="rounded-lg border border-zinc-800 p-3">
+            <div className="rounded-lg border border-zinc-800 p-3 min-w-0">
               <div className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">lineage & impact</div>
-              <div className="mt-1 font-mono text-[11px] text-sky-300">← {active.relations.length ? active.relations.map((r) => `${r.to} (${r.type})`).join(" · ") : "root"}</div>
-              <div className="mt-1 font-mono text-[11px] text-emerald-300">→ {successorsOf(active.id).map((s) => s.id).join(" · ") || "open thread"}</div>
+              <div className="mt-1 font-mono text-[11px] text-sky-300 truncate">← {active.relations.length ? active.relations.map((r) => `${r.to} (${r.type})`).join(" · ") : "root"}</div>
+              <div className="mt-1 font-mono text-[11px] text-emerald-300 truncate">→ {successorsOf(active.id).map((s) => s.id).join(" · ") || "open thread"}</div>
               <p className="mt-1.5 text-[12px] leading-5 text-zinc-400">{active.impact}</p>
               <div className="mt-1.5 flex flex-wrap gap-1">
                 {active.concepts.map((c) => <Badge key={c} tone="violet">{CONCEPT_BY_ID[c]?.name ?? c}</Badge>)}
@@ -171,13 +171,13 @@ export function PapersView() {
         {filtered.map((p) => (
           <button key={p.id} onClick={() => setSelectedPaper(p.id)} className={`w-full rounded-xl border p-3 text-left transition-colors ${selectedPaper === p.id ? "border-sky-600 bg-sky-950/20" : "border-zinc-800 bg-zinc-900/40 hover:border-sky-700/60"}`}>
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="rounded bg-sky-950 px-1.5 py-0.5 font-mono text-[10px] text-sky-300">{p.id}</span>
+              <span className="rounded bg-sky-950 px-1.5 py-0.5 font-mono text-[10px] text-sky-300 flex-shrink-0">{p.id}</span>
               <Badge tone="zinc">{p.year}</Badge>
               <DifficultyBadge d={p.difficulty} />
               <TaskBadge t={p.task} />
               {p.tags.slice(0, 3).map((t) => <Badge key={t} tone="zinc">{t}</Badge>)}
             </div>
-            <div className="mt-1 text-sm font-semibold text-zinc-100">{p.shortTitle} <span className="font-normal text-zinc-500">· {p.title}</span></div>
+            <div className="mt-1 text-sm font-semibold text-zinc-100 truncate">{p.shortTitle} <span className="font-normal text-zinc-500">· {p.title}</span></div>
             <p className="mt-0.5 line-clamp-2 text-[12px] text-zinc-400">{p.summary}</p>
           </button>
         ))}

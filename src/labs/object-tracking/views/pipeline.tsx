@@ -10,7 +10,7 @@ function Flow({ steps, accent }: { steps: string[]; accent: string }) {
     <div className="flex flex-col items-stretch gap-1.5">
       {steps.map((s, i) => (
         <div key={s} className="flex flex-col items-center gap-1.5">
-          <div className={`w-full rounded-lg border px-3 py-2 text-center font-mono text-[11px] ${accent}`}>{s}</div>
+          <div className={`w-full rounded-lg border px-3 py-2 text-center font-mono text-[11px] ${accent} whitespace-normal break-words`}>{s}</div>
           {i < steps.length - 1 && <span className="font-mono text-xs text-zinc-600">↓</span>}
         </div>
       ))}

@@ -68,11 +68,11 @@ export function PathView() {
                     {c.simulator && <Badge tone="sky">sim</Badge>}
                   </div>
                   <p className="mt-1 text-[12px] leading-5 text-zinc-400">{c.intuition}</p>
-                  {c.prereqs.length > 0 && (
-                    <p className="mt-1 font-mono text-[10px] text-zinc-600">
-                      needs: {c.prereqs.join(" · ")}
-                    </p>
-                  )}
+{c.prereqs.length > 0 && (
+                      <p className="mt-1 font-mono text-[10px] text-zinc-600 truncate">
+                        needs: {c.prereqs.join(" · ")}
+                      </p>
+                    )}
                   <div className="mt-2 flex gap-2">
                     {c.simulator && (
                       <button

@@ -93,11 +93,11 @@ export function GraphView() {
         </Card>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-4 overflow-x-auto">
         {years.map((y) => (
-          <div key={y}>
-            <div className="mb-1.5 font-mono text-[11px] font-bold text-zinc-500">{y}</div>
-            <div className="flex flex-wrap gap-1.5">
+          <div key={y} className="min-w-0">
+            <div className="mb-1.5 font-mono text-[11px] font-bold text-zinc-500 whitespace-nowrap">{y}</div>
+            <div className="flex flex-wrap gap-1.5 min-w-max">
               {visible.filter((p) => p.year === y).map((p) => {
                 const isFocus = p.id === focus;
                 const isPred = predIds.has(p.id);
@@ -108,7 +108,7 @@ export function GraphView() {
                     key={p.id}
                     onClick={() => setFocus(p.id)}
                     title={`${p.id} · ${p.title}`}
-                    className={`rounded-lg border px-2 py-1.5 font-mono text-[10px] transition-all ${
+                    className={`rounded-lg border px-2 py-1.5 font-mono text-[10px] whitespace-nowrap transition-all ${
                       isFocus ? "border-sky-400 bg-sky-600/25 text-sky-100"
                       : isPred ? "border-sky-700 bg-sky-950/60 text-sky-200"
                       : isSucc ? "border-emerald-700 bg-emerald-950/50 text-emerald-200"

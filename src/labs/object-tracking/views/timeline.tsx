@@ -35,23 +35,23 @@ export function TimelineView() {
         </div>
       </div>
 
-      <div className="relative space-y-8 before:absolute before:bottom-0 before:left-[7px] before:top-0 before:w-px before:bg-sky-900/60">
+      <div className="relative space-y-8 before:absolute before:bottom-0 before:left-[7px] before:top-0 before:w-px before:bg-sky-900/60 overflow-x-auto">
         {byYear.map(([year, papers]) => (
-          <div key={year} className="relative pl-8">
-            <div className="absolute left-0 top-1 h-4 w-4 rounded-full border-2 border-sky-600 bg-zinc-950" />
-            <div className="mb-2 font-mono text-sm font-bold text-sky-300">{year} <span className="font-normal text-zinc-600">· {papers.length} papers</span></div>
-            <div className="grid gap-2 lg:grid-cols-2">
+          <div key={year} className="relative pl-8 min-w-0">
+            <div className="absolute left-0 top-1 h-4 w-4 rounded-full border-2 border-sky-600 bg-zinc-950 flex-shrink-0" />
+            <div className="mb-2 font-mono text-sm font-bold text-sky-300 whitespace-nowrap">{year} <span className="font-normal text-zinc-600">· {papers.length} papers</span></div>
+            <div className="grid gap-2 lg:grid-cols-2 min-w-0">
               {papers.sort((a, b) => a.id.localeCompare(b.id)).map((p) => {
                 const succs = successorsOf(p.id);
                 return (
-                  <Card key={p.id} className="!py-3">
+                  <Card key={p.id} className="!py-3 min-w-0">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="rounded bg-sky-950 px-1.5 py-0.5 font-mono text-[10px] text-sky-300">{p.id}</span>
+                      <span className="rounded bg-sky-950 px-1.5 py-0.5 font-mono text-[10px] text-sky-300 flex-shrink-0">{p.id}</span>
                       <DifficultyBadge d={p.difficulty} />
                       <TaskBadge t={p.task} />
                     </div>
-                    <div className="mt-1.5 text-sm font-semibold text-zinc-100">{p.shortTitle}</div>
-                    <div className="font-mono text-[10px] text-zinc-500">{p.title}</div>
+                    <div className="mt-1.5 text-sm font-semibold text-zinc-100 truncate">{p.shortTitle}</div>
+                    <div className="font-mono text-[10px] text-zinc-500 truncate">{p.title}</div>
                     <p className="mt-1.5 border-l-2 border-amber-700/60 pl-2 text-[12px] italic leading-5 text-zinc-400">
                       gap: {p.researchGap}
                     </p>

@@ -73,7 +73,7 @@ export function TrackPaperLink({ id, short = false }: { id: string; short?: bool
 
 export function Formula({ children }: { children: ReactNode }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-zinc-800 bg-black/40 px-3 py-2 font-mono text-[12px] leading-6 text-amber-200">
+    <div className="overflow-x-auto rounded-lg border border-zinc-800 bg-black/40 px-3 py-2 font-mono text-[12px] leading-6 text-amber-200 whitespace-nowrap max-w-full">
       {children}
     </div>
   );

@@ -19,23 +19,23 @@ export function DatasetsView() {
       </div>
       <div className="grid gap-3 lg:grid-cols-2">
         {DATASETS.map((d) => (
-          <Card key={d.id}>
+          <Card key={d.id} className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold text-zinc-100">{d.name}</span>
+              <span className="text-sm font-semibold text-zinc-100 truncate">{d.name}</span>
               {d.year > 0 && <Badge tone="zinc">{d.year}</Badge>}
               <Badge tone="violet">{d.trackingType}</Badge>
             </div>
             <p className="mt-1 text-[12px] text-zinc-400">{d.purpose}</p>
-            <p className="font-mono text-[10px] text-zinc-600">{d.domain}</p>
+            <p className="font-mono text-[10px] text-zinc-600 truncate">{d.domain}</p>
             <ul className="mt-2 list-disc space-y-0.5 pl-4 text-[12px] text-zinc-400">
               {d.characteristics.map((c, i) => <li key={i}>{c}</li>)}
             </ul>
             <div className="mt-2 flex flex-wrap gap-1">
               {d.metrics.map((m) => <Badge key={m} tone="sky">{m}</Badge>)}
             </div>
-            <div className="mt-2 font-mono text-[11px] text-zinc-500">
+            <div className="mt-2 font-mono text-[11px] text-zinc-500 flex flex-wrap gap-1">
               papers: {d.paperIds.length ? d.paperIds.map((id) => (
-                <span key={id} className="mr-1 rounded bg-sky-950 px-1 py-0.5 text-sky-300" title={PAPER_BY_ID[id]?.title ?? id}>{id}</span>
+                <span key={id} className="mr-1 rounded bg-sky-950 px-1 py-0.5 text-sky-300 whitespace-nowrap" title={PAPER_BY_ID[id]?.title ?? id}>{id}</span>
               )) : <span className="text-zinc-600">no structured paper yet</span>}
             </div>
           </Card>

@@ -47,7 +47,7 @@ export function GapsView() {
                 <span className="text-sm font-semibold text-zinc-100">{p.shortTitle}</span>
               </div>
               <div className="mt-3 grid gap-2 md:grid-cols-[1fr_1fr_1fr]">
-                <div className="rounded-lg border border-rose-900/50 bg-rose-950/15 p-3">
+                <div className="rounded-lg border border-rose-900/50 bg-rose-950/15 p-3 min-w-0">
                   <div className="font-mono text-[10px] uppercase tracking-wide text-rose-300">before · the gap</div>
                   <p className="mt-1 text-[12px] leading-5 text-zinc-300">{p.researchGap}</p>
                   {p.previousWork.slice(0, 2).map((w) => (
@@ -56,13 +56,13 @@ export function GapsView() {
                     </p>
                   ))}
                 </div>
-                <div className="rounded-lg border border-sky-800/50 bg-sky-950/15 p-3">
+                <div className="rounded-lg border border-sky-800/50 bg-sky-950/15 p-3 min-w-0">
                   <div className="font-mono text-[10px] uppercase tracking-wide text-sky-300">paper · what it solved</div>
                   <ul className="mt-1 list-disc space-y-1 pl-4 text-[12px] leading-5 text-zinc-300">
                     {p.contribution.slice(0, 4).map((c, i) => <li key={i}>{c}</li>)}
                   </ul>
                 </div>
-                <div className="rounded-lg border border-amber-800/50 bg-amber-950/15 p-3">
+                <div className="rounded-lg border border-amber-800/50 bg-amber-950/15 p-3 min-w-0">
                   <div className="font-mono text-[10px] uppercase tracking-wide text-amber-300">after · what remained</div>
                   <ul className="mt-1 list-disc space-y-1 pl-4 text-[12px] leading-5 text-zinc-300">
                     {p.limitations.authorStated.slice(0, 3).map((l, i) => <li key={i}>{l}</li>)}

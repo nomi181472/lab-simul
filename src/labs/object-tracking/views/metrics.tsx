@@ -26,9 +26,9 @@ export function MetricsView() {
       </div>
       <div className="grid gap-3 lg:grid-cols-2">
         {METRICS.map((m) => (
-          <Card key={m.id}>
+          <Card key={m.id} className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold text-zinc-100">{m.name}</span>
+              <span className="text-sm font-semibold text-zinc-100 truncate">{m.name}</span>
               <Badge tone={FAMILY_TONE[m.family] ?? "zinc"}>{m.family}</Badge>
               {m.simulator && (
                 <button onClick={() => m.simulator && setMathSim(m.simulator)} className="rounded border border-sky-800 px-1.5 py-0.5 font-mono text-[10px] text-sky-300 hover:bg-sky-950/40">simulate →</button>
@@ -49,7 +49,7 @@ export function MetricsView() {
           </Card>
         ))}
       </div>
-      <Card tone="accent">
+      <Card tone="accent" className="min-w-0">
         <div className="font-mono text-[10px] uppercase tracking-widest text-sky-300">try the error budget</div>
         <div className="mt-2"><SimShell id="metrics" /></div>
       </Card>

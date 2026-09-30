@@ -27,30 +27,30 @@ export function CompareView() {
           ))}
         </div>
       </div>
-      <Card className="!p-0 overflow-x-auto">
+      <div className="overflow-x-auto">
         <table className="w-full min-w-[1100px] border-collapse text-left text-[11px] leading-4">
           <thead>
             <tr className="border-b border-zinc-800 font-mono text-[10px] uppercase text-zinc-500">
-              {COLS.map((c) => <th key={c} className="px-3 py-2">{c}</th>)}
+              {COLS.map((c) => <th key={c} className="px-3 py-2 whitespace-nowrap">{c}</th>)}
             </tr>
           </thead>
           <tbody>
             {rows.map((p) => (
               <tr key={p.id} className="border-b border-zinc-900 align-top hover:bg-sky-950/10">
-                <td className="px-3 py-2"><span className="font-mono text-sky-300">{p.id}</span><div className="font-semibold text-zinc-200">{p.shortTitle}</div></td>
-                <td className="px-3 py-2 font-mono text-zinc-400">{p.year}</td>
-                <td className="px-3 py-2 font-mono text-violet-300">{p.task}</td>
+                <td className="px-3 py-2 whitespace-nowrap"><span className="font-mono text-sky-300">{p.id}</span><div className="font-semibold text-zinc-200">{p.shortTitle}</div></td>
+                <td className="px-3 py-2 font-mono text-zinc-400 whitespace-nowrap">{p.year}</td>
+                <td className="px-3 py-2 font-mono text-violet-300 whitespace-nowrap">{p.task}</td>
                 <td className="max-w-[180px] px-3 py-2 text-zinc-400">{p.method.motionModel ?? "—"}</td>
                 <td className="max-w-[180px] px-3 py-2 text-zinc-400">{p.method.appearanceModel ?? "—"}</td>
                 <td className="max-w-[180px] px-3 py-2 text-zinc-400">{p.method.association ?? "—"}</td>
                 <td className="max-w-[140px] px-3 py-2 text-zinc-400">{p.method.reid ?? "—"}</td>
-                <td className="px-3 py-2 font-mono text-zinc-500">{p.datasets.join(", ") || "—"}</td>
+                <td className="px-3 py-2 font-mono text-zinc-500 whitespace-nowrap">{p.datasets.join(", ") || "—"}</td>
                 <td className="max-w-[240px] px-3 py-2 text-zinc-400">{p.contribution[0]}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </Card>
+      </div>
     </div>
   );
 }

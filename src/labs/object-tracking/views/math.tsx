@@ -53,13 +53,13 @@ export function MathView() {
 
       <div className="grid gap-3 lg:grid-cols-2">
         {equations.map(({ paperId, short, eq }) => (
-          <Card key={`${paperId}-${eq.id}`}>
+          <Card key={`${paperId}-${eq.id}`} className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded bg-sky-950 px-1.5 py-0.5 font-mono text-[10px] text-sky-300">{paperId}</span>
-              <span className="font-mono text-[10px] text-zinc-500">{short}</span>
+              <span className="rounded bg-sky-950 px-1.5 py-0.5 font-mono text-[10px] text-sky-300 flex-shrink-0">{paperId}</span>
+              <span className="font-mono text-[10px] text-zinc-500 truncate">{short}</span>
               {eq.simulator && <Badge tone="sky">sim: {eq.simulator}</Badge>}
             </div>
-            <div className="mt-1.5 text-sm font-semibold text-zinc-100">{eq.label}</div>
+            <div className="mt-1.5 text-sm font-semibold text-zinc-100 truncate">{eq.label}</div>
             <div className="mt-2"><Formula>{eq.formula}</Formula></div>
             <div className="mt-2 space-y-1.5 text-[12px] leading-5">
               <p className="text-zinc-400"><span className="font-mono text-[10px] uppercase text-zinc-600">intuition · </span>{eq.intuition}</p>
