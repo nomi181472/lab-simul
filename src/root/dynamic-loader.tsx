@@ -13,14 +13,6 @@ const ObjectTrackerLab = dynamic(
   () => import("@/labs/object-tracker").then((m) => m.ObjectTrackerLab),
   { loading: RootTabLoading },
 );
-const EvolutionaryLab = dynamic(
-  () => import("@/labs/evolutionary").then((m) => m.EvolutionaryLab),
-  { loading: RootTabLoading },
-);
-const NatureInspiredLab = dynamic(
-  () => import("@/labs/nature-inspired").then((m) => m.NatureInspiredLab),
-  { loading: RootTabLoading },
-);
 const NeuroevolutionLab = dynamic(
   () => import("@/labs/neuroevolution").then((m) => m.NeuroevolutionLab),
   { loading: RootTabLoading },
@@ -33,8 +25,6 @@ const LlmsLab = dynamic(
 const LAB_COMPONENTS: Record<RootLabId, React.ComponentType> = {
   "object-detection": ObjectDetectionLab,
   "object-tracker": ObjectTrackerLab,
-  evolutionary: EvolutionaryLab,
-  "nature-inspired": NatureInspiredLab,
   neuroevolution: NeuroevolutionLab,
   llms: LlmsLab,
 };

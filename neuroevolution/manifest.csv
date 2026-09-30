@@ -1,0 +1,377 @@
+arxiv_id,title,published
+0405033v1,Optimization of Evolutionary Neural Networks Using Hybrid Learning Algorithms,2004-05-07T00:08:16Z
+0603004v1,Lamarckian Evolution and the Baldwin Effect in Evolutionary Neural Networks,2006-03-01T12:26:09Z
+0709.2990v1,On the deduction of galaxy abundances with evolutionary neural networks,2007-09-19T11:08:22Z
+0807.4652v2,Measurement of the top quark mass with dilepton events selected using neuroevolution at CDF,2008-07-29T13:07:49Z
+1004.3557v1,Neuroevolutionary optimization,2010-04-20T20:17:41Z
+1008.2412v3,"Discover & eXplore Neural Network (DXNN) Platform, a Modular TWEANN",2010-08-14T03:35:05Z
+1009.1513v2,"Artificial Neural Networks, Symmetries and Differential Evolution",2010-09-08T12:33:03Z
+1011.6022v4,DXNN Platform: The Shedding of Biological Inefficiencies,2010-11-28T09:10:11Z
+1107.0037v1,Competitive Coevolution through Evolutionary Complexification,2011-06-30T20:36:55Z
+1107.4470v1,Symmetry Breaking in Neuroevolution: A Technical Report,2011-07-22T10:08:58Z
+1204.3221v1,Neuroevolution Results in Emergence of Short-Term Memory for Goal-Directed Behavior,2012-04-14T22:15:39Z
+1212.3441v1,Evolution of Plastic Learning in Spiking Networks via Memristive Connections,2012-12-14T11:00:55Z
+1212.6521v1,A Frequency-Domain Encoding for Neuroevolution,2012-12-28T14:23:02Z
+1312.5355v1,Generative NeuroEvolution for Deep Learning,2013-12-18T22:14:31Z
+1407.3000v1,A Proposed Infrastructure for Adding Online Interaction to Any Evolutionary Domain,2014-07-11T01:11:32Z
+1408.0998v1,The Case for a Mixed-Initiative Collaborative Neuroevolution Approach,2014-08-05T15:18:13Z
+1410.7326v3,Neuroevolution in Games: State of the Art and Open Challenges,2014-10-27T17:46:28Z
+1512.01537v1,Reuse of Neural Modules for General Video Game Playing,2015-12-04T20:43:30Z
+1603.01112v1,If-Conversion Optimization using Neuro Evolution of Augmenting Topologies,2016-03-03T14:41:12Z
+1604.00644v2,An electronic-game framework for evaluating coevolutionary algorithms,2016-04-03T14:57:24Z
+1604.07806v1,Using Indirect Encoding of Multiple Brains to Produce Multimodal Behavior,2016-04-26T19:24:52Z
+1605.05216v1,Combinatorially Generated Piecewise Activation Functions,2016-05-17T15:45:08Z
+1608.02971v1,Neuroevolution-Based Inverse Reinforcement Learning,2016-08-09T20:04:40Z
+1609.08414v1,Reactive Collision Avoidance using Evolutionary Neural Networks,2016-09-27T13:26:10Z
+1703.00548v2,Evolving Deep Neural Networks,2017-03-01T23:40:42Z
+1703.05422v1,Large Scale Evolution of Convolutional Neural Networks Using Volunteer Computing,2017-03-15T23:17:24Z
+1703.07122v1,Evolving Parsimonious Networks by Mixing Activation Functions,2017-03-21T10:10:56Z
+1706.01330v1,Neuroevolution on the Edge of Chaos,2017-06-05T14:04:16Z
+1706.08493v1,Towards the Evolution of Multi-Layered Neural Networks: A Dynamic Structured Grammatical Evolution Approach,2017-06-26T17:34:14Z
+1707.03902v1,Autoencoder-augmented Neuroevolution for Visual Doom Playing,2017-07-12T20:46:21Z
+1709.02043v1,The Mating Rituals of Deep Neural Networks: Learning Compact Feature Representations through Sexual Evolutionary Synthesis,2017-09-07T01:43:19Z
+1709.09161v1,EDEN: Evolutionary Deep Networks for Efficient Machine Learning,2017-09-26T17:56:31Z
+1710.03753v1,Optimizing Long Short-Term Memory Recurrent Neural Networks Using Ant Colony Optimization to Predict Turbine Engine Vibration,2017-10-10T14:09:22Z
+1712.06563v3,Safe Mutations for Deep and Recurrent Neural Networks through Output Gradients,2017-12-18T18:16:51Z
+1712.06567v3,Deep Neuroevolution: Genetic Algorithms Are a Competitive Alternative for Training Deep Neural Networks for Reinforcement Learning,2017-12-18T18:22:05Z
+1802.08864v1,One Big Net For Everything,2018-02-24T15:23:46Z
+1803.10288v1,Neuroevolution for RTS Micro,2018-03-27T19:48:21Z
+1804.05364v2,Data-efficient Neuroevolution with Kernel-Based Surrogate Models,2018-04-15T14:54:49Z
+1804.07234v2,Limited Evaluation Cooperative Co-evolutionary Differential Evolution for Large-scale Neuroevolution,2018-04-19T15:34:39Z
+1805.01141v1,VINE: An Open Source Interactive Data Visualization Tool for Neuroevolution,2018-05-03T07:21:43Z
+1807.04505v1,Achieving Connectivity Between Wide Areas Through Self-Organising Robot Swarm Using Embodied Evolution,2018-07-12T10:08:21Z
+1807.07839v1,Distance-based Kernels for Surrogate Model-based Neuroevolution,2018-07-20T13:50:55Z
+1807.07979v1,Multi-criteria Evolution of Neural Network Topologies: Balancing Experience and Performance in Autonomous Systems,2018-07-20T18:00:28Z
+1808.05525v1,Experiential Robot Learning with Accelerated Neuroevolution,2018-08-16T14:51:49Z
+1808.05832v1,Importance mixing: Improving sample reuse in evolutionary policy search methods,2018-08-17T11:25:19Z
+1809.07098v1,Novelty-organizing team of classifiers in noisy and dynamic environments,2018-09-19T09:38:20Z
+1810.01125v1,Robust Optimization through Neuroevolution,2018-10-02T09:10:42Z
+1810.01222v3,CEM-RL: Combining evolutionary and gradient-based methods for policy search,2018-10-02T13:12:13Z
+1811.08286v1,Accelerating the Evolution of Convolutional Neural Networks with Node-Level Mutations and Epigenetic Weight Initialization,2018-11-17T21:41:48Z
+1903.01895v1,Evolutionary Construction of Convolutional Neural Networks,2019-01-02T12:30:51Z
+1902.06703v1,Spectrum-Diverse Neuroevolution with Unified Neural Models,2019-01-06T09:58:41Z
+1901.05195v1,GridSim: A Vehicle Kinematics Engine for Deep Neuroevolutionary Control in Autonomous Driving,2019-01-16T09:43:39Z
+1901.05203v1,Deep Grid Net (DGN): A Deep Learning System for Real-Time Driving Context Understanding,2019-01-16T10:03:08Z
+1901.05988v1,Optimizing Deep Neural Networks with Multiple Search Neuroevolution,2019-01-17T19:28:21Z
+1901.11090v1,Neuroevolution with Perceptron Turing Machines,2019-01-30T20:37:40Z
+1902.02390v2,Investigating Recurrent Neural Network Memory Structures using Neuro-Evolution,2019-02-06T20:33:12Z
+1902.03142v1,Novelty Search for Deep Reinforcement Learning Policy Network Weights by Action Sequence Edit Metric Distance,2019-02-08T15:14:09Z
+1902.03419v1,Improving NeuroEvolution Efficiency by Surrogate Model-based Optimization with Phenotypic Distance Kernels,2019-02-09T12:39:16Z
+1902.04346v3,Guiding Neuroevolution with Structural Objectives,2019-02-12T11:54:23Z
+1903.07107v1,Adaptive Genomic Evolution of Neural Network Topologies (AGENT) for State-to-Action Mapping in Autonomous Agents,2019-03-17T15:34:11Z
+1904.06239v1,Evolving Indoor Navigational Strategies Using Gated Recurrent Units In NEAT,2019-04-12T14:04:10Z
+1906.08857v1,Deep Neuroevolution of Recurrent and Discrete World Models,2019-04-28T10:00:59Z
+1905.00976v2,Collaborative Evolutionary Reinforcement Learning,2019-05-02T21:45:03Z
+1905.02969v1,Fast-DENSER++: Evolving Fully-Trained Deep Artificial Neural Networks,2019-05-08T09:14:32Z
+1905.03532v1,Automatic Design of Artificial Neural Networks for Gamma-Ray Detection,2019-05-09T11:13:06Z
+1905.04083v1,ES-CTC: A Deep Neuroevolution Model for Cooperative Intelligent Freeway Traffic Control,2019-05-10T11:48:27Z
+1905.08885v1,Evolving neural networks to follow trajectories of arbitrary complexity,2019-05-21T22:07:38Z
+1905.09691v1,Population-based Global Optimisation Methods for Learning Long-term Dependencies with RNNs,2019-05-23T14:55:28Z
+1906.00052v1,Training Detection-Range-Frugal Cooperative Collision Avoidance Models for Quadcopters via Neuroevolution,2019-05-31T20:02:09Z
+1906.07315v3,Evolutionary Reinforcement Learning for Sample-Efficient Multiagent Coordination,2019-06-18T00:25:27Z
+1906.10971v1,NeuroTrajectory: A Neuroevolutionary Approach to Local State Trajectory Learning for Autonomous Vehicles,2019-06-26T11:05:18Z
+1907.06912v1,Modeling User Selection in Quality Diversity,2019-07-16T09:39:55Z
+1907.07075v1,Prediction of neural network performance by phenotypic modeling,2019-07-16T15:37:51Z
+1907.09300v1,Surrogate Models for Enhancing the Efficiency of Neuroevolution in Reinforcement Learning,2019-07-22T13:14:23Z
+1908.08012v1,Efficient training and design of photonic neural network through neuroevolution,2019-08-04T14:45:07Z
+1909.02425v3,Random Error Sampling-based Recurrent Neural Network Architecture Optimization,2019-09-04T10:38:41Z
+1909.09502v3,An Empirical Exploration of Deep Recurrent Connections and Memory Cells Using Neuro-Evolution,2019-09-20T13:45:23Z
+1909.11849v2,The Ant Swarm Neuro-Evolution Procedure for Optimizing Recurrent Networks,2019-09-26T02:27:11Z
+1910.06854v1,Optimizing Convolutional Neural Networks for Embedded Systems by Means of Neuroevolution,2019-10-15T15:15:39Z
+1910.07225v1,Structural Analysis of Sparse Neural Networks,2019-10-16T09:08:42Z
+1910.12824v3,Neural Architecture Evolution in Deep Reinforcement Learning for Continuous Control,2019-10-28T17:33:26Z
+1912.06172v1,Coevolution of Generative Adversarial Networks,2019-12-12T19:29:09Z
+1912.06180v1,COEGAN: Evaluating the Coevolution Effect in Generative Adversarial Networks,2019-12-12T19:43:04Z
+2001.02160v2,Inferring Convolutional Neural Networks' accuracies from their architectural characterizations,2020-01-07T16:41:58Z
+2001.11272v1,A Study of Fitness Landscapes for Neuroevolution,2020-01-30T11:53:55Z
+2002.00539v2,Evolving Neural Networks through a Reverse Encoding Tree,2020-02-03T02:29:51Z
+2002.04634v1,Neuroevolution of Neural Network Architectures Using CoDeepNEAT and Keras,2020-02-11T19:03:34Z
+2003.01825v3,Scaling MAP-Elites to Deep Neuroevolution,2020-03-03T23:02:37Z
+2003.08165v2,Neuroevolution of Self-Interpretable Agents,2020-03-18T11:40:35Z
+2003.10306v3,Safe Crossover of Neural Networks Through Neuron Alignment,2020-03-23T14:50:00Z
+2004.00302v1,Incremental Evolution and Development of Deep Artificial Neural Networks,2020-04-01T09:23:15Z
+2004.04796v2,Using Skill Rating as Fitness on the Evolution of GANs,2020-04-09T20:26:51Z
+2004.07136v1,Transfer-Learning-Aware Neuro-Evolution for Diseases Detection in Chest X-Ray Images,2020-04-15T15:06:30Z
+2005.04536v1,Accelerating Deep Neuroevolution on Distributed FPGAs for Reinforcement Learning Problems,2020-05-10T00:41:39Z
+2005.06764v1,Rolling Horizon NEAT for General Video Game Playing,2020-05-14T07:25:23Z
+2005.07376v1,Improving Neuroevolution Using Island Extinction and Repopulation,2020-05-15T06:47:41Z
+2006.02655v1,Neuroevolutionary Transfer Learning of Deep Recurrent Neural Networks through Network-Aware Adaptation,2020-06-04T06:07:30Z
+2006.05415v1,Neuroevolution in Deep Neural Networks: Current Trends and Future Challenges,2020-06-09T17:28:25Z
+2006.15175v1,Application of Neuroevolution in Autonomous Cars,2020-06-26T19:06:32Z
+2007.02821v1,Online NEAT for Credit Evaluation -- a Dynamic Problem with Sequential Data,2020-07-06T15:27:14Z
+2007.07070v2,Inverse Design of a Graphene-Based Quantum Transducer via Neuroevolution,2020-07-14T14:53:37Z
+2007.08497v2,Co-generation of game levels and game-playing agents,2020-07-16T17:48:05Z
+2008.06643v3,Correspondence between neuroevolution and gradient descent,2020-08-15T03:53:53Z
+2008.11881v1,CLAN: Continuous Learning using Asynchronous Neuroevolution on Commodity Edge Devices,2020-08-27T01:49:21Z
+2009.09644v2,An Experimental Study of Weight Initialization and Weight Inheritance Effects on Neuroevolution,2020-09-21T07:06:47Z
+2010.00918v2,Are Artificial Dendrites useful in NeuroEvolution?,2020-10-02T10:53:46Z
+2010.05176v1,Complexity-based speciation and genotype representation for neuroevolution,2020-10-11T06:26:56Z
+2010.15792v1,A Framework for Learning Predator-prey Agents from Simulation to Real World,2020-10-29T17:33:38Z
+2011.02614v1,Harnessing Distribution Ratio Estimators for Learning Agents with Quality and Diversity,2020-11-05T02:02:44Z
+2011.08446v2,EvoPose2D: Pushing the Boundaries of 2D Human Pose Estimation using Accelerated Neuroevolution with Weight Transfer,2020-11-17T05:56:16Z
+2011.10389v2,Challenging the Security of Logic Locking Schemes in the Era of Deep Learning: A Neuroevolutionary Approach,2020-11-20T13:03:19Z
+2012.08676v1,Policy Manifold Search for Improving Diversity-based Neuroevolution,2020-12-15T23:59:49Z
+2012.11184v1,Optimizing Deep Neural Networks through Neuroevolution with Stochastic Gradient Descent,2020-12-21T08:54:14Z
+2012.11692v1,Evolving the Behavior of Machines: From Micro to Macroevolution,2020-12-21T21:35:15Z
+2012.11832v1,Neuroevolutionary learning of particles and protocols for self-assembly,2020-12-22T05:03:19Z
+2012.15131v2,Markovian Quantum Neuroevolution for Machine Learning,2020-12-30T12:42:38Z
+2101.01998v2,Can Transfer Neuroevolution Tractably Solve Your Differential Equations?,2021-01-06T13:07:52Z
+2102.05710v1,Derivative-Free Reinforcement Learning: A Review,2021-02-10T19:29:22Z
+2102.08475v1,Neuroevolution in Deep Learning: The Role of Neutrality,2021-02-16T22:29:59Z
+2102.08849v1,Automated Curriculum Learning for Embodied Agents: A Neuroevolutionary Approach,2021-02-17T16:19:17Z
+2102.12638v1,Neuroevolution of a Recurrent Neural Network for Spatial and Working Memory in a Simulated Robotic Environment,2021-02-25T02:13:52Z
+2103.16882v1,A Signal-Centric Perspective on the Evolution of Symbolic Communication,2021-03-31T08:05:01Z
+2104.05411v1,Epigenetic evolution of deep convolutional models,2021-04-12T12:45:16Z
+2104.05610v2,A coevolutionary approach to deep multi-agent reinforcement learning,2021-04-12T16:30:03Z
+2104.13424v1,Policy Manifold Search: Exploring the Manifold Hypothesis for Diversity-based Neuroevolution,2021-04-27T18:52:03Z
+2105.00117v4,InfoNEAT: Information Theory-based NeuroEvolution of Augmenting Topologies for Side-channel Analysis,2021-04-30T23:01:50Z
+2105.07960v1,Behavior-based Neuroevolutionary Training in Reinforcement Learning,2021-05-17T15:40:42Z
+2105.10907v1,An Efficient Application of Neuroevolution for Competitive Multiagent Learning,2021-05-23T10:34:48Z
+2105.12836v1,On the Exploitation of Neuroevolutionary Information: Analyzing the Past for a More Efficient Future,2021-05-26T20:55:29Z
+2106.11914v1,MONCAE: Multi-Objective Neuroevolution of Convolutional Autoencoders,2021-06-07T13:24:08Z
+2106.07611v2,Neuroevolution-Enhanced Multi-Objective Optimization for Mixed-Precision Quantization,2021-06-14T17:15:15Z
+2106.15295v1,Reliable and Fast Recurrent Neural Network Architecture Optimization,2021-06-29T12:16:19Z
+2107.08119v2,Neuroevolution machine learning potentials: Combining high accuracy and low cost in atomistic simulations and application to heat transport,2021-07-16T21:05:36Z
+2108.03585v1,Ensemble neuroevolution based approach for multivariate time series anomaly detection,2021-08-08T07:55:07Z
+2109.05663v1,Learning Robot Swarm Tactics over Complex Adversarial Environments,2021-09-13T01:35:05Z
+2109.05919v1,Evolving Architectures with Gradient Misalignment toward Low Adversarial Transferability,2021-09-13T12:41:53Z
+2109.10643v3,Improving the accuracy of the neuroevolution machine learning potential for multi-component systems,2021-09-22T10:42:08Z
+2109.13036v1,Learning Attacker's Bounded Rationality Model in Security Games,2021-09-27T13:22:30Z
+2201.07977v2,Adaptability of Improved NEAT in Variable Environments,2021-10-22T15:33:51Z
+2110.13633v1,Optimal non-pharmaceutical intervention policy for Covid-19 epidemic via neuroevolution algorithm,2021-10-23T16:26:50Z
+2112.07057v1,NEORL: NeuroEvolution Optimization with Reinforcement Learning,2021-12-01T17:55:45Z
+2112.03670v3,Hybrid Self-Attention NEAT: A novel evolutionary approach to improve the NEAT algorithm,2021-12-07T13:04:16Z
+2112.05640v6,Fast and scalable neuroevolution deep learning architecture search for multivariate anomaly detection,2021-12-10T16:14:43Z
+2112.12510v3,Neuroevolution deep learning architecture search for estimation of river surface elevation from photogrammetric Digital Surface Models,2021-12-22T11:25:23Z
+2112.12990v1,Deep Neuroevolution Squeezes More out of Small Neural Networks and Small Training Sets: Sample Application to MRI Brain Sequence Classification,2021-12-24T08:21:52Z
+2201.02523v1,Vertex finding in neutrino-nucleus interaction: A Model Architecture Comparison,2022-01-07T16:18:35Z
+2201.04815v2,Direct Mutation and Crossover in Genetic Algorithms Applied to Reinforcement Learning Tasks,2022-01-13T07:19:28Z
+2201.12896v3,Augmenting Novelty Search with a Surrogate Model to Engineer Meta-Diversity in Ensembles of Classifiers,2022-01-30T19:13:32Z
+2202.01258v3,Accelerated Quality-Diversity through Massive Parallelism,2022-02-02T19:44:17Z
+2202.05008v2,EvoJAX: Hardware-Accelerated Neuroevolution,2022-02-10T13:06:47Z
+2202.09353v1,Model Calibration of the Liquid Mercury Spallation Target using Evolutionary Neural Networks and Sparse Polynomial Expansions,2022-02-18T18:47:10Z
+2202.09679v4,Simple Genetic Operators are Universal Approximators of Probability Distributions (and other Advantages of Expressive Encodings),2022-02-19T20:54:37Z
+2202.13471v1,ONE-NAS: An Online NeuroEvolution based Neural Architecture Search for Time Series Forecasting,2022-02-27T22:58:32Z
+2203.10941v1,Transfer Dynamics in Emergent Evolutionary Curricula,2022-03-03T21:10:22Z
+2203.10844v3,Multitask Neuroevolution for Reinforcement Learning with Long and Short Episodes,2022-03-21T10:06:16Z
+2203.12853v1,Direct evaluation of progression or regression of disease burden in brain metastatic disease with Deep Neuroevolution,2022-03-24T05:29:09Z
+2203.14009v5,Combining Evolution and Deep Reinforcement Learning for Policy Search: a Survey,2022-03-26T07:15:22Z
+2203.15522v2,Collision-Free Navigation using Evolutionary Symmetrical Neural Networks,2022-03-29T13:02:14Z
+2204.04817v1,Effective Mutation Rate Adaptation through Group Elite Selection,2022-04-11T01:08:26Z
+2204.06901v1,RankNEAT: Outperforming Stochastic Gradient Search in Preference Learning Tasks,2022-04-14T12:01:00Z
+2204.06934v1,Procedural Content Generation using Neuroevolution and Novelty Search for Diverse Video Game Levels,2022-04-14T12:54:32Z
+2205.00671v3,Jack and Masters of all Trades: One-Pass Learning Sets of Model Sets From Large Pre-Trained Models,2022-05-02T06:23:00Z
+2205.02105v3,Neuroevolutionary Multi-objective approaches to Trajectory Prediction in Autonomous Vehicles,2022-05-04T15:03:26Z
+2205.06451v2,Towards Understanding the Link Between Modularity and Performance in Neural Networks for Reinforcement Learning,2022-05-13T05:18:18Z
+2205.10046v2,GPUMD: A package for constructing accurate machine-learned potentials and performing highly efficient atomistic simulations,2022-05-20T09:36:54Z
+2205.10541v1,Neuroevolutionary Feature Representations for Causal Inference,2022-05-21T09:13:04Z
+2206.04813v2,Low-dissipation self-assembly protocols of active sticky particles,2022-06-09T23:41:33Z
+2206.06796v1,Open-Ended Learning Strategies for Learning Complex Locomotion Skills,2022-06-14T12:33:09Z
+2206.07605v3,Quantum-corrected thickness-dependent thermal conductivity in amorphous silicon predicted by machine-learning molecular dynamics simulations,2022-06-15T15:36:22Z
+2206.07874v1,"Variable thermal transport in black, blue, and violet phosphorene from extensive atomistic simulations with a neuroevolution potential",2022-06-16T01:45:41Z
+2207.05451v1,Adversarial Robustness Assessment of NeuroEvolution Approaches,2022-07-12T10:40:19Z
+2207.13583v1,Towards the Neuroevolution of Low-level Artificial General Intelligence,2022-07-27T15:30:50Z
+2207.14140v1,Playing a 2D Game Indefinitely using NEAT and Reinforcement Learning,2022-07-28T15:01:26Z
+2208.02787v1,Modular Grammatical Evolution for the Generation of Artificial Neural Networks,2022-08-04T17:38:49Z
+2208.11058v1,Neuroevolution-based Classifiers for Deforestation Detection in Tropical Forests,2022-08-23T16:04:12Z
+2208.13632v1,Neuroevolution-Based Generation of Tests and Oracles for Games,2022-08-29T14:27:21Z
+2209.03618v1,Adaptive Combination of a Genetic Algorithm and Novelty Search for Deep Neuroevolution,2022-09-08T07:50:44Z
+2209.09007v1,Comparative Study of Q-Learning and NeuroEvolution of Augmenting Topologies for Self Driving Agents,2022-09-19T13:34:18Z
+2210.03516v4,Neuroevolution is a Competitive Alternative to Reinforcement Learning for Skill Discovery,2022-10-06T11:06:39Z
+2210.11406v1,ProSky: NEAT Meets NOMA-mmWave in the Sky of 6G,2022-10-13T01:35:12Z
+2211.16978v1,Combining Neuro-Evolution of Augmenting Topologies with Convolutional Neural Networks,2022-10-20T18:41:57Z
+2210.13156v1,Empirical analysis of PGA-MAP-Elites for Neuroevolution in Uncertain Domains,2022-10-24T12:17:18Z
+2211.02193v1,Benchmarking Quality-Diversity Algorithms on Neuroevolution for Reinforcement Learning,2022-11-04T00:14:42Z
+2211.11260v3,Discovering Evolution Strategies via Meta-Black-Box Optimization,2022-11-21T08:48:46Z
+2211.13742v2,Assessing Quality-Diversity Neuro-Evolution Algorithms Performance in Hard Exploration Problems,2022-11-24T18:04:12Z
+2211.14422v1,Quantitative Method for Security Situation of the Power Information Network Based on the Evolutionary Neural Network,2022-11-26T01:05:35Z
+2211.14499v1,"Deep neuroevolution for limited, heterogeneous data: proof-of-concept application to Neuroblastoma brain metastasis using a small virtual pooled image collection",2022-11-26T07:03:37Z
+2211.14500v1,Deep neuroevolution to predict primary brain tumor grade from functional MRI adjacency matrices,2022-11-26T07:13:31Z
+2211.14619v1,A Quantum Approach Towards the Adaptive Prediction of Cloud Workloads,2022-11-26T17:21:53Z
+2211.14753v3,A Self-adaptive Neuroevolution Approach to Constructing Deep Neural Network Architectures Across Different Types,2022-11-27T07:40:25Z
+2212.07624v3,Neuroevolution of Physics-Informed Neural Nets: Benchmark Problems and Comparative Results,2022-12-15T05:54:16Z
+2301.10802v1,NASCTY: Neuroevolution to Attack Side-channel Leakages Yielding Convolutional Neural Networks,2023-01-25T19:31:04Z
+2302.05832v1,Sparse Mutation Decompositions: Fine Tuning Deep Neural Networks with Subspace Evolution,2023-02-12T01:27:26Z
+2302.12328v2,Accurate prediction of heat conductivity of water by a neuroevolution potential,2023-02-18T13:16:05Z
+2302.09334v3,Eco-evolutionary Dynamics of Non-episodic Neuroevolution in Large Multi-agent Environments,2023-02-18T13:57:27Z
+2302.10347v1,Online Evolutionary Neural Architecture Search for Multivariate Non-Stationary Time Series Forecasting,2023-02-20T22:25:47Z
+2303.02801v1,Neuroevolutionary algorithms driven by neuron coverage metrics for semi-supervised classification,2023-03-05T23:38:44Z
+2303.16207v3,The Quality-Diversity Transformer: Generating Behavior-Conditioned Trajectories with Decision Transformers,2023-03-27T19:39:49Z
+2304.12431v1,Neuroevolution of Recurrent Architectures on Control Tasks,2023-04-03T16:29:18Z
+2304.12432v1,Generative Adversarial Neuroevolution for Control Behaviour Imitation,2023-04-03T16:33:22Z
+2304.06413v1,Learning by Viewing: Generating Test Inputs for Games by Integrating Human Gameplay Traces in Neuroevolution,2023-04-13T11:18:58Z
+2304.06981v1,QNEAT: Natural Evolution of Variational Quantum Circuit Architecture,2023-04-14T08:03:20Z
+2305.03612v4,Initial Steps Towards Tackling High-dimensional Surrogate Modeling for Neuroevolution Using Kriging Partial Least Squares,2023-05-05T15:17:03Z
+2305.08140v3,Large-scale machine-learning molecular dynamics simulation of primary radiation damage in tungsten,2023-05-14T12:21:02Z
+2305.10987v1,SPENSER: Towards a NeuroEvolutionary Approach for Convolutional Spiking Neural Networks,2023-05-18T14:06:37Z
+2305.16497v1,AD-NEV: A Scalable Multi-level Neuroevolution Framework for Multivariate Anomaly Detection,2023-05-25T21:52:38Z
+2306.01227v1,Modularity based linkage model for neuroevolution,2023-06-02T01:32:49Z
+2306.02091v1,Sub-micrometer phonon mean free paths in metal-organic frameworks revealed by machine-learning molecular dynamics simulations,2023-06-03T11:48:50Z
+2306.04971v1,A Melting Pot of Evolution and Learning,2023-06-08T06:59:21Z
+2306.09849v1,On Evolvability and Behavior Landscapes in Neuroevolutionary Divergent Search,2023-06-16T13:46:55Z
+2306.11761v1,Learning and evolution: factors influencing an effective combination,2023-06-20T09:03:52Z
+2307.00799v2,First Steps Towards a Runtime Analysis of Neuroevolution,2023-07-03T07:30:58Z
+2307.02661v1,Many-objective Optimization via Voting for Elites,2023-07-05T21:30:37Z
+2307.12578v1,Adaptive active Brownian particles searching for targets of unknown positions,2023-07-24T07:49:05Z
+2307.14237v1,Evolving Multi-Objective Neural Network Controllers for Robot Swarms,2023-07-26T15:05:17Z
+2308.02710v1,Evolutionary Multi-objective Optimisation in Neurotrajectory Prediction,2023-08-04T21:06:26Z
+2308.03665v1,QDax: A Library for Quality-Diversity and Population-based Algorithms with Hardware Acceleration,2023-08-07T15:29:44Z
+2308.10435v1,GPT-in-the-Loop: Adaptive Decision-Making for Multiagent Systems,2023-08-21T03:08:16Z
+2308.13876v1,Class Binarization to NeuroEvolution for Multiclass Classification,2023-08-26T13:26:13Z
+2309.12148v2,Neural Modelling of Dynamic Systems with Time Delays Based on an Adjusted NEAT Algorithm,2023-09-21T15:04:42Z
+2310.05279v1,Combining the D3 dispersion correction with the neuroevolution machine-learned potential,2023-10-08T21:01:40Z
+2310.15314v1,Combining linear-scaling quantum transport and machine-learning molecular dynamics to study thermal and electronic transports in complex materials,2023-10-23T19:31:01Z
+2311.01099v1,Dissimilar thermal transport properties in $κ$-Ga$_2$O$_3$ and $β$-Ga$_2$O$_3$ revealed by machine-learning homogeneous nonequilibrium molecular dynamics simulations,2023-11-02T09:07:05Z
+2311.12304v7,Discovering Effective Policies for Land-Use Planning with Neuroevolution,2023-11-21T02:46:14Z
+2311.12944v3,SkyCharge: Deploying Unmanned Aerial Vehicles for Dynamic Load Optimization in Solar Small Cell 5G Networks,2023-11-21T19:17:39Z
+2312.05233v2,Tensorial properties via the neuroevolution potential framework: Fast simulation of infrared and Raman spectra,2023-12-08T18:29:54Z
+2312.14963v1,Optimizing Mario Adventures in a Constrained Environment,2023-12-14T08:45:26Z
+2401.11427v2,Correcting force error-induced underestimation of lattice thermal conductivity in machine learning molecular dynamics,2024-01-21T08:30:40Z
+2401.16249v2,Molecular dynamics simulations of heat transport using machine-learned potentials: A mini review and tutorial on GPUMD with neuroevolution potentials,2024-01-29T15:52:11Z
+2402.00070v1,EvoMerge: Neuroevolution for Large Language Models,2024-01-30T19:37:21Z
+2401.17733v1,Towards Physical Plausibility in Neuroevolution Systems,2024-01-31T10:54:34Z
+2402.07949v2,Optimizing the Design of an Artificial Pancreas to Improve Diabetes Management,2024-02-10T00:49:46Z
+2402.06912v2,Solving Deep Reinforcement Learning Tasks with Evolution Strategies and Linear Policy Networks,2024-02-10T09:15:21Z
+2402.12699v2,Positive temperature-dependent thermal conductivity induced by wavelike phonons in complex Ag-based argyrodites,2024-02-20T03:55:48Z
+2402.15246v1,Artificial Bee Colony optimization of Deep Convolutional Neural Networks in the context of Biomedical Imaging,2024-02-23T10:21:03Z
+2402.18381v1,Large Language Models As Evolution Strategies,2024-02-28T15:02:17Z
+2403.02985v1,Evolution Transformer: In-Context Evolutionary Optimization,2024-03-05T14:04:13Z
+2403.10112v2,Evasive Active Hypothesis Testing with Deep Neuroevolution: The Single- and Multi-Agent Cases,2024-03-15T08:55:56Z
+2403.14224v1,Stitching for Neuroevolution: Recombining Deep Neural Networks without Breaking Them,2024-03-21T08:30:44Z
+2403.14273v1,Reactor Optimization Benchmark by Reinforcement Learning,2024-03-21T10:26:47Z
+2404.07968v1,AD-NEv++ : The multi-architecture neuroevolution-based multivariate anomaly detection framework,2024-03-25T08:40:58Z
+2403.19459v1,NeuroLGP-SM: A Surrogate-assisted Neuroevolution Approach using Linear Genetic Programming,2024-03-28T14:31:01Z
+2404.01159v4,GPU-accelerated Evolutionary Multiobjective Optimization Using Tensorized RVEA,2024-04-01T15:04:24Z
+2404.01817v3,Tensorized NeuroEvolution of Augmenting Topologies for GPU Acceleration,2024-04-02T10:20:12Z
+2404.04587v2,Neuroevolving Electronic Dynamical Networks,2024-04-06T10:54:35Z
+2404.08786v4,NeuroLGP-SM: Scalable Surrogate-Assisted Neuroevolution for Deep Neural Networks,2024-04-12T19:15:38Z
+2404.08853v1,Uncertainty Quantification in Detecting Choroidal Metastases on MRI via Evolutionary Strategies,2024-04-12T23:49:37Z
+2404.13694v1,Solute segregation in polycrystalline aluminum from hybrid Monte Carlo and molecular dynamics simulations with a unified neuroevolution potential,2024-04-21T15:49:12Z
+2404.18221v1,Automatically designing robot swarms in environments populated by other robots: an experiment in robot shepherding,2024-04-28T15:35:11Z
+2405.02579v1,Innate Motivation for Robot Swarms by Minimizing Surprise: From Simple Simulations to Real-World Experiments,2024-05-04T06:25:58Z
+2406.08243v3,Exploring mechanical and thermal properties of high-entropy ceramics via general machine learning potentials,2024-06-12T14:12:53Z
+2406.13147v3,A Simulation Environment for the Neuroevolution of Ant Colony Dynamics,2024-06-19T01:51:15Z
+2406.14073v1,Exploring Layerwise Adversarial Robustness Through the Lens of t-SNE,2024-06-20T07:50:11Z
+2406.14525v1,Towards evolution of Deep Neural Networks through contrastive Self-Supervised learning,2024-06-20T17:38:16Z
+2406.15042v1,Behaviour Distillation,2024-06-21T10:45:43Z
+2407.01501v2,Online Learning of Temporal Dependencies for Sustainable Foraging Problem,2024-07-01T17:47:31Z
+2407.04985v1,Combining Neuroevolution with the Search for Novelty to Improve the Generation of Test Inputs for Games,2024-07-06T07:36:44Z
+2407.09438v2,Neuroevolution of Decentralized Decision-Making in N-Bead Swimmers Leads to Scalable and Robust Collective Locomotion,2024-07-12T17:14:59Z
+2408.07671v1,NeuroEvolution algorithms applied in the designing process of biohybrid actuators,2024-08-14T17:11:41Z
+2408.09107v2,Using neuroevolution for designing soft medical devices,2024-08-17T06:12:04Z
+2408.10672v3,Neural Exploratory Landscape Analysis for Meta-Black-Box-Optimization,2024-08-20T09:17:11Z
+2408.12390v2,Density dependence of thermal conductivity in nanoporous and amorphous carbon with machine-learned molecular dynamics,2024-08-22T13:32:03Z
+2409.01765v1,Multi-Branch Attention Convolutional Neural Network for Online RIS Configuration with Discrete Responses: A Neuroevolution Approach,2024-09-03T10:20:53Z
+2409.04430v2,Highly efficient path-integral molecular dynamics simulations with GPUMD using neuroevolution potentials: Case studies on thermal properties of materials,2024-09-06T17:50:30Z
+2410.13535v2,Million-atom heat transport simulations of polycrystalline graphene approaching first-principles accuracy enabled by neuroevolution potential on desktop GPUs,2024-10-17T13:25:28Z
+2410.17212v1,Neuroevolution Neural Architecture Search for Evolving RNNs in Stock Return Prediction and Portfolio Trading,2024-10-22T17:37:18Z
+2411.00625v3,Toward Automated Algorithm Design: A Survey and Practical Guide to Meta-Black-Box-Optimization,2024-11-01T14:32:19Z
+2411.03726v1,PropNEAT -- Efficient GPU-Compatible Backpropagation over NeuroEvolutionary Augmenting Topology Networks,2024-11-06T07:44:14Z
+2411.04769v1,Insight into the effect of force error on the thermal conductivity from machine-learned potentials,2024-11-07T15:11:04Z
+2411.08261v1,Control of Biohybrid Actuators using NeuroEvolution,2024-11-13T00:24:43Z
+2411.09631v2,NEP-MB-pol: A unified machine-learned framework for fast and accurate prediction of water's thermodynamic and transport properties,2024-11-14T17:57:01Z
+2411.10536v1,Emergent kin selection of altruistic feeding via non-episodic neuroevolution,2024-11-15T19:17:51Z
+2411.10911v1,Constructing accurate machine-learned potentials and performing highly efficient atomistic simulations to predict structural and thermal properties,2024-11-16T23:16:59Z
+2411.19387v1,Enhancing Accuracy and Efficiency in Calibration of Drinking Water Distribution Networks Through Evolutionary Artificial Neural Networks and Expert Systems,2024-11-28T21:36:36Z
+2412.02191v2,Exploring the energy landscape of aluminas through machine learning interatomic potential,2024-12-03T06:13:11Z
+2412.03976v3,Copper delocalization leads to ultralow thermal conductivity in chalcohalide CuBiSeCl2,2024-12-05T08:50:36Z
+2412.04112v1,Nonlinear unitary circuits for photonic neural networks,2024-12-05T12:30:53Z
+2501.14736v1,NEAT Algorithm-based Stock Trading Strategy with Multiple Technical Indicators Resonance,2024-12-11T05:42:15Z
+2412.11112v4,Populating cellular metamaterials on the extrema of attainable elasticity through neuroevolution,2024-12-15T08:18:30Z
+2501.04747v2,Discovering new robust local search algorithms with neuro-evolution,2025-01-08T10:31:16Z
+2501.07954v1,Many-Objective Neuroevolution for Testing Games,2025-01-14T09:18:34Z
+2501.11191v1,Advances in modeling complex materials: The rise of neuroevolution potentials,2025-01-19T23:02:55Z
+2501.18723v1,Scaling Policy Gradient Quality-Diversity with Massive Parallelization via Behavioral Variations,2025-01-30T19:56:04Z
+2502.03114v1,Thermal transport of amorphous hafnia across the glass transition,2025-02-05T12:17:38Z
+2502.05580v2,Hyperparameter Optimization and Force Error Correction of Neuroevolution Potential for Predicting Thermal Conductivity of Wurtzite GaN,2025-02-08T14:13:58Z
+2502.05584v2,Softening of Vibrational Modes and Anharmonicity Induced Thermal Conductivity Reduction in a-Si:H at High Temperatures,2025-02-08T14:20:59Z
+2503.10869v1,Evaluating a Novel Neuroevolution and Neural Architecture Search System,2025-03-13T20:35:34Z
+2503.10879v2,Task-Specific Activation Functions for Neuroevolution using Grammatical Evolution,2025-03-13T20:50:21Z
+2503.20243v2,Structural and transport properties of LiTFSI/G3 electrolyte with machine-learned molecular dynamics,2025-03-26T05:17:42Z
+2504.03037v1,Low Rank Factorizations are Indirect Encodings for Deep Neuroevolution,2025-04-03T21:31:48Z
+2504.07393v1,State Estimation Using Particle Filtering in Adaptive Machine Learning Methods: Integrating Q-Learning and NEAT Algorithms with Noisy Radar Measurements,2025-04-10T02:20:45Z
+2504.08339v1,TensorNEAT: A GPU-accelerated Library for NeuroEvolution of Augmenting Topologies,2025-04-11T08:10:09Z
+2504.17794v1,Near-Driven Autonomous Rover Navigation in Complex Environments: Extensions to Urban Search-and-Rescue and Industrial Inspection,2025-04-11T20:00:23Z
+2504.12568v1,Evolutionary Policy Optimization,2025-04-17T01:33:06Z
+2504.21286v3,NEP89: Universal neuroevolution potential for inorganic and organic materials across 89 elements,2025-04-30T03:36:50Z
+2505.00186v1,Neuroevolution of Self-Attention Over Proto-Objects,2025-04-30T21:01:20Z
+2505.00353v5,PYSED: A tool for extracting kinetic-energy-weighted phonon dispersion and lifetime from molecular dynamics simulations,2025-05-01T06:52:18Z
+2505.15836v1,Quantum-Evolutionary Neural Networks for Multi-Agent Federated Learning,2025-05-16T20:51:37Z
+2505.13179v1,Lattice thermal conductivity of 16 elemental metals from molecular dynamics simulations with a unified neuroevolution potential,2025-05-19T14:35:00Z
+2505.18993v1,A high-efficiency neuroevolution potential for tobermorite and calcium silicate hydrate systems with ab initio accuracy,2025-05-25T06:30:17Z
+2505.22696v1,When Does Neuroevolution Outcompete Reinforcement Learning in Transfer Learning Tasks?,2025-05-28T13:15:18Z
+2506.01868v1,NepTrain and NepTrainKit: Automated Active Learning and Visualization Toolkit for Neuroevolution Potentials,2025-06-02T16:56:11Z
+2506.03847v1,Designing morphologies of soft medical devices using cooperative neuro coevolution,2025-06-04T11:26:55Z
+2506.04698v1,NEAT and HyperNEAT based Design for Soft Actuator Controllers,2025-06-05T07:20:16Z
+2506.10384v1,NeuroPAL: Punctuated Anytime Learning with Neuroevolution for Macromanagement in Starcraft: Brood War,2025-06-12T06:19:27Z
+2506.12812v1,Federated Neuroevolution O-RAN: Enhancing the Robustness of Deep Reinforcement Learning xApps,2025-06-15T10:58:10Z
+2506.19703v2,Learning-aided Bigraph Matching Approach to Multi-Crew Restoration of Damaged Power Networks Coupled with Road Transportation Networks,2025-06-24T15:12:45Z
+2506.20469v1,Surrogate-Assisted Evolution for Efficient Multi-branch Connection Design in Deep Neural Networks,2025-06-25T14:18:17Z
+2507.00528v1,Efficient GPU-Accelerated Training of a Neuroevolution Potential with Analytical Gradients,2025-07-01T07:44:22Z
+2507.03793v1,Learning Dark Souls Combat Through Pixel Input With Neuroevolution,2025-07-04T19:58:59Z
+2507.09414v1,Enhancing NeuroEvolution-Based Game Testing: A Branch Coverage Approach for Scratch Programs,2025-07-12T22:36:47Z
+2507.13549v1,Evolving Neural Controllers for Xpilot-AI Racing Using Neuroevolution of Augmenting Topologies,2025-07-17T21:53:08Z
+2508.20350v1,Atomistic understanding of hydrogen bubble-induced embrittlement in tungsten enabled by machine learning molecular dynamics,2025-08-28T01:53:59Z
+2509.15504v1,Machine-Learning Potentials for Efficient Simulations of Anisotropic Colloids,2025-09-19T01:00:32Z
+2510.13819v1,Joint Active RIS Configuration and User Power Control for Localization: A Neuroevolution-Based Approach,2025-09-25T07:36:04Z
+2510.16978v5,Lark: Biologically Inspired Neuroevolution for Multi-Stakeholder LLM Agents,2025-10-19T19:43:17Z
+2510.17151v3,Achieving Empirical Potential Efficiency with DFT Accuracy: A Neuroevolution Potential for the $α$-Fe--C--H System,2025-10-20T04:55:07Z
+2510.24510v1,Evaluating Fitness Averaging Strategies in Cooperative NeuroCoEvolution for Automated Soft Actuator Design,2025-10-28T15:22:26Z
+2511.03895v2,Learning to shine: Neuroevolution enables optical control of phase transitions,2025-11-05T22:42:40Z
+2511.12148v1,Towards Obstacle-Avoiding Control of Planar Snake Robots Exploring Neuro-Evolution of Augmenting Topologies,2025-11-15T10:29:05Z
+2511.16646v1,Revealing Phonon Bridge Effect for Amorphous vs Crystalline Metal-Silicide Layers at Si/Ti Interfaces by a Machine Learning Potential,2025-11-20T18:52:20Z
+2511.18915v2,Device-Scale Atomistic Simulations of Heat Transport in Advanced Field-Effect Transistors,2025-11-24T09:22:20Z
+2512.00362v1,Anisotropic and isotropic elasticity and thermal transport in monolayer C$_{24}$ networks from machine-learning molecular dynamics,2025-11-29T07:21:24Z
+2512.12940v1,Predicting the Thermal Conductivity Collapse in SWCNT Bundles: The Interplay of Symmetry Breaking and Scattering Revealed by Machine-Learning-Driven Quantum Transport,2025-12-15T02:59:01Z
+2512.18788v1,RIS-Enabled Smart Wireless Environments: Fundamentals and Distributed Optimization,2025-12-21T16:00:50Z
+2512.21490v1,Thermal conductivities of monolayer graphene oxide from machine learning molecular dynamics simulations,2025-12-25T03:55:10Z
+2512.23558v1,A NEAT Approach to Evolving Neural-Network-based Optimization of Chiral Photonic Metasurfaces: Application of a Neuro-Evolution Pipeline,2025-12-29T15:55:36Z
+2601.08657v1,NEVO-GSPT: Population-Based Neural Network Evolution Using Inflate and Deflate Operators,2026-01-13T15:35:16Z
+2601.10174v2,A Neuroevolution Potential for Gallium Oxide: Accurate and Efficient Modeling of Polymorphism and Swift Heavy-Ion Irradiation,2026-01-15T08:27:23Z
+2601.18446v3,Beyond Speedups: Hardware-Aware Evaluation of Evolutionary Algorithms on GPUs,2026-01-26T12:55:21Z
+2601.19034v1,qNEP: A highly efficient neuroevolution potential with dynamic charges for large-scale atomistic simulations,2026-01-26T23:38:29Z
+2601.22612v1,Turning Insulators into Accelerators: Deciphering the Interfacial Conductivity Boost in ZrO2-Li2ZrCl6 Composites through Machine Learning Molecular Dynamics Simulations,2026-01-30T06:08:39Z
+2602.03840v1,Investigating Quantum Circuit Designs Using Neuro-Evolution,2026-02-03T18:57:39Z
+2602.07299v2,Optimizing Chlorination in Water Distribution Systems via Surrogate-assisted Neuroevolution,2026-02-07T01:16:46Z
+2602.15053v1,One Rule to Bring Them All: Investigating Transport Connectivity in Public Transport Route Generation for Equitable Access,2026-02-11T15:19:33Z
+2602.18515v1,Weak-Form Evolutionary Kolmogorov-Arnold Networks for Solving Partial Differential Equations,2026-02-19T19:35:36Z
+2602.18042v1,PINEAPPLE: Physics-Informed Neuro-Evolution Algorithm for Prognostic Parameter Inference in Lithium-Ion Battery Electrodes,2026-02-20T07:51:59Z
+2603.01234v1,NEP-CG and NEP-AACG: Efficient coarse-grained and multiscale all-atom-coarse-grained neuroevolution potentials,2026-03-01T19:13:18Z
+2603.01345v2,"EmoPyLab: A Tensor-Native, Hardware-Accelerated Laboratory for High-Throughput Benchmarking and Decision-Making in Multi/Many-Objective Optimization",2026-03-02T00:56:32Z
+2603.17367v1,GPUMDkit: A User-Friendly Toolkit for GPUMD and NEP,2026-03-18T05:19:17Z
+2603.23851v3,"Coupling of phase transition, anharmonicity, and thermal transport in CaSnF$_6$",2026-03-25T02:21:43Z
+2603.25517v1,NERO-Net: A Neuroevolutionary Approach for the Design of Adversarially Robust CNNs,2026-03-26T14:51:30Z
+2603.25616v1,General-Purpose Machine-Learned Potential for CrCoNi Alloys Enabling Large-Scale Atomistic Simulations with First-Principles Accuracy,2026-03-26T16:31:44Z
+2604.01642v3,Benchmarking Chemically Scalable Machine-Learning Interatomic Potentials for Large-Scale Simulations of Multicomponent Alloys,2026-04-02T05:41:09Z
+2604.03565v1,Personality Requires Struggle: Three Regimes of the Baldwin Effect in Neuroevolved Chess Agents,2026-04-04T03:16:46Z
+2604.05769v1,ORION: Unifying Top-Down and Bottom-Up Chemical Space Sampling for a Universal Organic Force Field,2026-04-07T12:11:06Z
+2604.07077v1,Unveiling Mechanisms of SEI Formation and Sodium Loss in Sodium Batteries via Interface Reactor Sampling,2026-04-08T13:34:33Z
+2604.08204v1,Introducing Echo Networks for Computational Neuroevolution,2026-04-09T13:06:25Z
+2604.13456v1,MyoVision: A Mobile Research Tool and NEATBoost-Attention Ensemble Framework for Real Time Chicken Breast Myopathy Detection,2026-04-15T04:21:38Z
+2604.13848v1,NEPMaker: Active learning of neuroevolution machine learning potential for large cells,2026-04-15T13:18:23Z
+2604.15076v1,NEAT-NC: NEAT guided Navigation Cells for Robot Path Planning,2026-04-16T14:40:46Z
+2604.24816v1,Trillion-atom molecular dynamics simulations with ab initio accuracy,2026-04-27T13:06:23Z
+2605.09781v2,Parameter-Efficient Neuroevolution for Diverse LLM Generation: Quality-Diversity Optimization via Prompt Embedding Evolution,2026-05-10T22:00:15Z
+2605.26529v1,Anharmonic Quantum Transport Analysis of Thermal Transport Anomalies in Ultrathin Silicon Nanowires,2026-05-26T04:20:03Z
+2605.29437v1,Dynamic charges effect on infrared dielectric response of polar materials,2026-05-28T06:32:52Z
+2606.07664v1,Seq103: A Unified Neuroevolution Framework for Compact Sequence Architecture Discovery,2026-06-03T19:01:40Z
+2606.05984v1,Emergent swimming strategies of a smart three-bead swimmer,2026-06-04T10:26:07Z
+2606.14073v1,Extreme-Scale Atomistic Simulation of Real-Temperature Magnetic Skyrmion Dynamics by Coupled Spin-Lattice Modeling,2026-06-12T03:39:11Z
+2606.19557v1,TorchNEP: Ultra-Efficient and Accurate Training of Neuroevolution Potentials,2026-06-17T19:58:21Z
+2606.20817v1,Provably Sub-Linear Two-Timescale NeuroEvolution with Online Plasticity,2026-06-18T18:06:04Z
+2606.21796v1,The FAST Framework: Developing a Data-Efficient Machine Learning Potential to Decode Superionic Transition-Induced Thermophysical and Kinetic Anomalies in UO2 under Extreme Conditions,2026-06-19T23:17:19Z
+2607.00056v2,Active Sensing for RIS-Aided Tracking and Power Control: A Hybrid Neuroevolution and Supervised Learning Approach,2026-06-30T07:43:28Z
+2607.02954v1,Microcosmos: Reimagining Artificial Life for the GPU Era,2026-07-03T04:58:41Z
+2607.06414v4,Economised path integrals,2026-07-07T15:45:10Z
+2607.06969v2,AI2Pot: A scalable and unified framework for machine-learning interatomic potential development and large-scale molecular dynamic simulations,2026-07-08T03:47:18Z
+2607.14027v1,SPECS: Speciated Evolutionary Circuit Synthesis,2026-07-15T16:57:32Z
+2608.07539v3,AutoPSO: A Meta-framework for Automated Particle Swarm Optimization,2026-07-29T03:34:41Z
+2607.27608v1,Anisotropic Tensile Strength and Fracture Mechanism of $θ$-TaN: A Machine-Learning Potential Molecular Dynamics Study,2026-07-30T02:52:42Z
+2608.10323v1,Neuroevolution Arena: Nested Ecological Evaluation of Update-and-Inheritance Regimes across Neural Architectures,2026-08-10T23:48:18Z
+2608.24480v1,On Scaling Coordinate-Based Neuroevolution: The Quadtree Bottleneck in ES-HyperNEAT,2026-08-25T12:27:24Z
+2608.27612v1,Tensor-Accelerated Eager Multi-Resolution Grids for Evolving Large-Scale Substrates,2026-08-27T18:45:50Z
+2609.00449v2,Investigating Hyperparameter Optimization and Transferability for ES-HyperNEAT: A TPE Approach,2026-08-31T22:39:47Z
+2609.02397v2,Symmetry-based modal analysis of heat transport in molecular dynamics of quasi-1D systems,2026-09-02T10:09:08Z
+2609.07689v1,Emergent Charging Coordination in Electric Delivery Fleets,2026-09-07T16:09:13Z
+2609.11518v1,Breaking the Central Bias: Spatially Partitioned Experts for Coordinate-Based Neuroevolution,2026-09-10T13:22:15Z
+2609.15569v1,Big Brains and Changing Environments: Cause or Consequence?,2026-09-14T13:46:05Z

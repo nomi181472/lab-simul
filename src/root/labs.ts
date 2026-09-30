@@ -19,21 +19,9 @@ export const LABS = [
   },
   {
     id: "object-tracker",
-    label: "Object Tracker",
-    blurb: "coming soon",
+    label: "Object Tracking",
+    blurb: "159 papers · 2014–2026",
     accent: "sky",
-  },
-  {
-    id: "evolutionary",
-    label: "Evolutionary",
-    blurb: "coming soon",
-    accent: "amber",
-  },
-  {
-    id: "nature-inspired",
-    label: "Nature-Inspired Algorithms",
-    blurb: "coming soon",
-    accent: "violet",
   },
   {
     id: "neuroevolution",
