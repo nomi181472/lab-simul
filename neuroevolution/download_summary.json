@@ -1,0 +1,175 @@
+{
+  "success": [
+    "2003.03384",
+    "2005.06224",
+    "2006.12703",
+    "2006.15605",
+    "2012.06400",
+    "2101.00336",
+    "2101.10667",
+    "2102.12638",
+    "2108.06156",
+    "2109.04456",
+    "2111.15097",
+    "2112.07087",
+    "2202.03844",
+    "2202.12934",
+    "2202.12954",
+    "2205.03207",
+    "2205.10358",
+    "2205.10435",
+    "2206.08896",
+    "2209.05554",
+    "2210.14016",
+    "2302.14838",
+    "2303.03832",
+    "2303.06024",
+    "2303.12012",
+    "2303.16212",
+    "2303.16459",
+    "2304.05405",
+    "2304.11153",
+    "2304.11787",
+    "2305.13795",
+    "2308.07650",
+    "2308.10435",
+    "2308.15609",
+    "2309.12937",
+    "2310.12103",
+    "2310.13032",
+    "2311.12304",
+    "2312.14963",
+    "2401.11963",
+    "2402.01533",
+    "2402.06912",
+    "2402.12263",
+    "2402.18124",
+    "2402.18381",
+    "2403.09753",
+    "2403.10112",
+    "2404.01817",
+    "2404.14763",
+    "2405.03293",
+    "2405.18377",
+    "2408.16467",
+    "2409.03368",
+    "2412.02980",
+    "2504.05108",
+    "2504.06126",
+    "2504.08339",
+    "2504.15047",
+    "2505.12370",
+    "2506.00731",
+    "2506.14138",
+    "2508.14946",
+    "2509.02534",
+    "2509.04310",
+    "2509.24372",
+    "2510.01586",
+    "2510.10603",
+    "2511.16652",
+    "2511.17592",
+    "2512.11853",
+    "2512.13399",
+    "2512.24040",
+    "2512.24077",
+    "2601.14525",
+    "2601.20861",
+    "2602.02010",
+    "2602.02306",
+    "2602.03120",
+    "2602.08513",
+    "2602.11206",
+    "2602.23413",
+    "2603.01234",
+    "2603.08127",
+    "2603.11863",
+    "2603.14420",
+    "2603.19563",
+    "2603.21877",
+    "2604.12365",
+    "2604.19440",
+    "2604.21991",
+    "2604.26654",
+    "2604.26822",
+    "2605.29847"
+  ],
+  "failed": [
+    [
+      "2010.04340",
+      "Error: Paper '2010.04340' not found on the Hub.\nHint: set HF_DEBUG=1 as environment variable for full traceback.\n"
+    ],
+    [
+      "2011.12448",
+      "Error: Paper '2011.12448' not found on the Hub.\nHint: set HF_DEBUG=1 as environment variable for full traceback.\n"
+    ],
+    [
+      "2109.12894",
+      "Error: Paper '2109.12894' not found on the Hub.\nHint: set HF_DEBUG=1 as environment variable for full traceback.\n"
+    ],
+    [
+      "2209.02685",
+      "Error: Paper '2209.02685' not found on the Hub.\nHint: set HF_DEBUG=1 as environment variable for full traceback.\n"
+    ],
+    [
+      "2303.10112",
+      "Error: Paper '2303.10112' not found on the Hub.\nHint: set HF_DEBUG=1 as environment variable for full traceback.\n"
+    ],
+    [
+      "2512.20723",
+      "Error: Paper '2512.20723' not found on the Hub.\nHint: set HF_DEBUG=1 as environment variable for full traceback.\n"
+    ],
+    [
+      "2604.16555",
+      "Error: Paper '2604.16555' not found on the Hub.\nHint: set HF_DEBUG=1 as environment variable for full traceback.\n"
+    ],
+    [
+      "2606.00801",
+      "Error: (Request ID: Root=1-6abd12c1-2ebaa6776a8396970c97932a;914e1ea3-3616-4e8e-9d27-48135c0cc35d)\n\n429 Too Many Requests: you have reached your 'pages' rate limit.\nRetry after 130 seconds (0/100 requ"
+    ],
+    [
+      "2606.00813",
+      "Error: (Request ID: Root=1-6abd12c2-7d72634927b87a6849cf25ec;c0322163-d762-462b-8de9-fda2ae82d554)\n\n429 Too Many Requests: you have reached your 'pages' rate limit.\nRetry after 129 seconds (0/100 requ"
+    ],
+    [
+      "2606.13901",
+      "Error: (Request ID: Root=1-6abd12c3-67fd19290afb1052098c5d5d;99f9515d-faa9-40bb-9cee-ec7e9c9fea81)\n\n429 Too Many Requests: you have reached your 'pages' rate limit.\nRetry after 128 seconds (0/100 requ"
+    ],
+    [
+      "2606.25198",
+      "Error: (Request ID: Root=1-6abd12c3-5f67eda54883559f4f81d126;f49b7626-3094-4c23-a57b-63f2f8ac3ce3)\n\n429 Too Many Requests: you have reached your 'pages' rate limit.\nRetry after 128 seconds (0/100 requ"
+    ],
+    [
+      "2607.02954",
+      "Error: (Request ID: Root=1-6abd12c4-5ee99fea2d54133d18a1185a;db57d152-8b0a-4777-bf26-7f7de6b3af12)\n\n429 Too Many Requests: you have reached your 'pages' rate limit.\nRetry after 127 seconds (0/100 requ"
+    ],
+    [
+      "2607.22375",
+      "Error: (Request ID: Root=1-6abd12c5-6e36e32d4ef8d2a51cc6419a;db1dfd50-2ba2-4a91-98ef-fd6d397ddb00)\n\n429 Too Many Requests: you have reached your 'pages' rate limit.\nRetry after 126 seconds (0/100 requ"
+    ],
+    [
+      "2608.02391",
+      "Error: (Request ID: Root=1-6abd12c5-2e0da18d3f93c216359d69f7;2629497f-a63c-4b89-a5f5-f66f48b25276)\n\n429 Too Many Requests: you have reached your 'pages' rate limit.\nRetry after 126 seconds (0/100 requ"
+    ],
+    [
+      "2608.12679",
+      "Error: (Request ID: Root=1-6abd12c6-45c110e333b3615b49d242a1;1b3c4084-7642-4529-9d80-345f5b62e101)\n\n429 Too Many Requests: you have reached your 'pages' rate limit.\nRetry after 125 seconds (0/100 requ"
+    ],
+    [
+      "2608.27351",
+      "Error: (Request ID: Root=1-6abd12c7-5fc73fd26d057d2112742348;c1f307ea-379c-41bf-91af-bc42b82519b1)\n\n429 Too Many Requests: you have reached your 'pages' rate limit.\nRetry after 124 seconds (0/100 requ"
+    ],
+    [
+      "2609.00449",
+      "Error: (Request ID: Root=1-6abd12c7-6a0fcf9106eff66d1d9102cb;b6dfd245-6d60-4d1d-b8f9-34c6e98efd0e)\n\n429 Too Many Requests: you have reached your 'pages' rate limit.\nRetry after 124 seconds (0/100 requ"
+    ],
+    [
+      "2609.14896",
+      "Error: (Request ID: Root=1-6abd12c8-49fa9c33645f9d6611177f41;a80e8db6-e5a6-4f3b-b086-5044b6fd54b7)\n\n429 Too Many Requests: you have reached your 'pages' rate limit.\nRetry after 123 seconds (0/100 requ"
+    ],
+    [
+      "2609.16367",
+      "Error: (Request ID: Root=1-6abd12c9-2f902c854d5338147cd89201;baeacea9-3d65-4010-b26f-1f9cc19bf86a)\n\n429 Too Many Requests: you have reached your 'pages' rate limit.\nRetry after 122 seconds (0/100 requ"
+    ]
+  ]
+}
