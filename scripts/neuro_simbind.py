@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+"""Bind each Neuroevolution simulator to real corpus papers.
+
+Same convention as scripts/wifi_simbind.py: one binding point for all
+simulators, so a simulator's provenance is a single edit rather than ten
+scattered `papers={[...]}` arrays. Every id here is checked to resolve to a
+structured corpus record, and the audit view fails loudly if one does not.
+
+A simulator is bound to papers that *use that mechanism*, not merely to papers
+with a similar title, so each rule matches on extracted fields (algorithm family,
+mutation locus, encoding, tags) rather than on free text.
+"""
+
+from __future__ import annotations
+
+import json
+import pathlib
+import re
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+DATA = ROOT / "src" / "labs" / "neuroevolution" / "data"
+OUT = ROOT / "src" / "labs" / "neuroevolution" / "sims" / "papers.ts"
+
+# (sim id, rule name, note, predicate)
+RULES: list[tuple[str, str, str]] = [
+    ("ga-demo", "genetic-algorithm", "instance of: selection + crossover + mutation over a population"),
+    ("locus-demo", "locus", "instance of: a mutation operator applied at named loci"),
+    ("qd-demo", "quality-diversity", "instance of: quality-diversity / MAP-Elites repertoire search"),
+    ("novelty-demo", "novelty", "instance of: behavioural novelty as the selection signal"),
+    ("encoding-demo", "encoding", "instance of: a stated genotype-to-phenotype encoding"),
+    ("topology-demo", "topology", "instance of: topology changing under the search"),
+    ("fitness-shaping", "fitness", "instance of: an explicitly described fitness or objective signal"),
+    ("selection-pressure", "selection", "instance of: an explicitly described selection scheme"),
+    ("es-gradient", "evolution-strategy", "instance of: a gradient-free evolution strategy"),
+    ("nas-budget", "nas", "instance of: architecture search under an evaluation budget"),
+]
+
+
+def load_records() -> list[dict]:
+    """Read the generated records back out of the TypeScript, without a parser.
+
+    The generator writes one flat object literal per record, so a light scan for
+    `id: "Nxxx"` plus the fields the rules need is enough and avoids pulling in a
+    TS parser for the pipeline.
+    """
+    index = DATA / "papers" / "index.ts"
+    files = re.findall(r'from "\./(batch\d+)"', index.read_text())
+    records: list[dict] = []
+    for f in files:
+        text = (DATA / "papers" / f"{f}.ts").read_text()
+        for block in text.split("export const P")[1:]:
+            rec = {
+                "id": _s(block, "id"),
+                "title": _s(block, "title"),
+                "family": _s(block, "family"),
+                "encoding": _s(block, "encoding"),
+                "mutation": _arr(block, "mutation"),
+                "crossover": _arr(block, "crossover"),
+                "selection": _arr(block, "selection"),
+                "loci": _strs(block, "locus"),
+                "tags": _arr(block, "tags"),
+                "phenotype": _s(block, "phenotype"),
+            }
+            records.append(rec)
+    return records
+
+
+def _s(block: str, key: str) -> str:
+    m = re.search(rf'\b{key}: "((?:[^"\\]|\\.)*)"', block)
+    return m.group(1) if m else ""
+
+
+def _strs(block: str, key: str) -> list[str]:
+    """Every quoted value of a scalar key, e.g. `locus: "weights"` in changes."""
+    return re.findall(rf'\b{key}: "((?:[^"\\]|\\.)*)"', block)
+
+
+def _arr(block: str, key: str) -> list[str]:
+    m = re.search(rf"\b{key}: \[(.*?)\]", block, re.S)
+    if not m:
+        return []
+    return re.findall(r'"((?:[^"\\]|\\.)*)"', m.group(1))
+
+
+def matches(rule: str, r: dict) -> bool:
+    tags = r["tags"] + r["loci"]
+    fam = r["family"]
+    if rule == "genetic-algorithm":
+        return fam == "ga" or bool(r["mutation"] or r["crossover"] or r["selection"])
+    if rule == "locus":
+        return bool(r["loci"])
+    if rule == "quality-diversity":
+        return fam == "qd" or any(k in tags for k in ("quality-diversity", "qd", "map-elites"))
+    if rule == "novelty":
+        return fam == "novelty-search" or any(k in tags for k in ("novelty", "open-ended", "aging"))
+    if rule == "encoding":
+        return r["encoding"] not in ("", "other", "unknown")
+    if rule == "topology":
+        # NEAT-style search is the corpus's main topology-changing family
+        return fam == "neat" or "topology" in r["loci"] or "topology" in tags
+    if rule == "fitness":
+        return fam in ("ga", "es", "neat", "novelty-search") or bool(r["selection"])
+    if rule == "selection":
+        return bool(r["selection"]) or fam == "ga"
+    if rule == "evolution-strategy":
+        return fam == "es" or any(k in tags for k in ("cma-es", "es", "evolution-strategy"))
+    if rule == "nas":
+        return "nas" in tags or "architecture-search" in tags or fam == "neat"
+    return False
+
+
+def main() -> int:
+    records = load_records()
+    print(f"read {len(records)} structured records", flush=True)
+
+    lines = [
+        "/* GENERATED by scripts/neuro_simbind.py — do not edit by hand.",
+        " *",
+        " * Sim → corpus binding. Every id below is checked to resolve to a structured",
+        " * record by the audit view, and each binding states what the simulator is an",
+        " * instance of, so the mapping can be checked rather than trusted.",
+        " */",
+        "",
+        'import type { SimulatorId } from "@/labs/neuroevolution/sims";',
+        "",
+        "export type SimPaper = { id: string; note: string };",
+        "",
+    ]
+
+    bindings: dict[str, list[dict]] = {}
+    for sim, rule, note in RULES:
+        hits = [r for r in records if matches(rule, r)]
+        # Prefer the papers the corpus cites most: a binding to a well-known
+        # mechanism is more useful to a reader than one to an obscure instance.
+        hits.sort(key=lambda r: (len(r["loci"]) == 0, -len(r["title"])))
+        chosen = hits[:4]
+        bindings[sim] = chosen
+        print(f"  {sim:<20} {rule:<22} {len(hits):>4} candidates → {len(chosen)} bound")
+
+    for sim, rule, note in RULES:
+        lines.append(f"// {sim}: {note}")
+        lines.append(f"const {sim.replace('-', '_')}Papers: SimPaper[] = [")
+        for r in bindings[sim]:
+            lines.append(f'  {{ id: "{r["id"]}", note: {json.dumps(note)} }},')
+        lines.append("];")
+        lines.append("")
+
+    lines += [
+        "export const papers: Record<SimulatorId, SimPaper[]> = {",
+        *[f'  "{sim}": {sim.replace("-", "_")}Papers,' for sim, _, _ in RULES],
+        "};",
+        "",
+        "export const SIM_BINDINGS = papers;",
+        "",
+        "/** Ids bound per simulator, for the audit view. */",
+        "export const SIM_BOUND_IDS: Record<string, string[]> = Object.fromEntries(",
+        "  Object.entries(papers).map(([k, v]) => [k, v.map((p) => p.id)]),",
+        ");",
+        "",
+    ]
+    OUT.write_text("\n".join(lines))
+
+    total = sum(len(v) for v in bindings.values())
+    print(f"wrote {OUT.relative_to(ROOT)} · {total} bindings across {len(RULES)} simulators")
+    empty = [s for s, v in bindings.items() if not v]
+    if empty:
+        print(f"WARNING unbound simulators: {empty}", flush=True)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

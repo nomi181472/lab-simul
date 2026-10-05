@@ -1,0 +1,12 @@
+{
+  "records": 300,
+  "withSummary": 300,
+  "withArchitectureDiagram": 263,
+  "withLayers": 604,
+  "withChanges": 254,
+  "withMutation": 98,
+  "withFitness": 261,
+  "withResults": 256,
+  "withRelations": 279,
+  "totalRelations": 1880
+}

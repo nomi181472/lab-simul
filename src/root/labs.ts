@@ -32,7 +32,7 @@ export const LABS = [
   {
     id: "neuroevolution",
     label: "Neuroevolution",
-    blurb: "coming soon",
+    blurb: "300 papers · evolved architectures",
     accent: "rose",
   },
   {

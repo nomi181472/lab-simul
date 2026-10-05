@@ -1,0 +1,43 @@
+{
+  "count": 300,
+  "totalCitations": 15423,
+  "totalPages": 5669,
+  "withText": 300,
+  "byTask": {
+    "other": 87,
+    "policy": 21,
+    "mlp": 38,
+    "cnn": 53,
+    "program": 35,
+    "architecture-search": 11,
+    "rnn": 20,
+    "modular": 11,
+    "neurocontroller": 21,
+    "ensemble": 3
+  },
+  "byFamily": {
+    "neat": 63,
+    "es": 33,
+    "ga": 33,
+    "novelty-search": 20,
+    "gp": 36,
+    "qd": 62,
+    "other": 37,
+    "swarm": 16
+  },
+  "byEncoding": {
+    "other": 209,
+    "indirect": 52,
+    "direct": 13,
+    "graph": 15,
+    "developmental": 11
+  },
+  "byRelevance": {
+    "neuroevolution": 295,
+    "adjacent": 5
+  },
+  "yearRange": [
+    1993,
+    2026
+  ]
+}
