@@ -127,7 +127,7 @@ export const P102: PaperRecord = {
     evaluation: "After reviewing the previous works carried out in this area, we introduce a method that can be used to evolve robust solution that specify: how the fitness of candidate solutions can be evaluated,",
   },
   datasets: [],
-  metrics: ["success-rate", "final-fitness", "best-fitness", "evaluations", "generations", "accuracy", "inference-cost", "wall-clock"],
+  metrics: ["success-rate", "final-fitness", "evaluations", "generations", "accuracy", "inference-cost", "wall-clock"],
   baselines: ["N002", "N014", "N051", "N063"],
   results: ["Pagliuca, Milano, and Nolfi, 2018) and four state-of-the-art evolutionary algorithms: (1) the covariance matrix adaptation evolution strategy (CMA-ES, see Hansen and Ostermeier, 2001), (2) the exponential natural evolutionary strategy (xNES, see Wierstra, Schaul, Peters and Schmidhuber, 2008), (3) the separable natural evolutionary strategy (sNES, see Wierstra, Schaul, Peters and Schmidhuber, 2008), and (4) the neuroevolution of augmenting topologies (NEAT, Stanley and Miikkulainen, 2002).", "Moreover, the results show that the CMA-ES, xNES and sNES algorithms, that operate by optimizing distribution of parameters, outperform alternative algorithms, that operate by optimizing specific combination of parameters. 2.", "Different type of robustness can be promoted through the usage of fitness functions that reward for: (i) the maximization of the expected fitness, i.e. the average fitness obtained in all possible environmental conditions (Branke, 2012), (ii) the maximization of the worst-case fitness (McIlhagga, Husbands and Ives, 1996), (iii) the minimization of the variations of fitness in varying conditions (Branke, 2012), (iv) the maximum of the amount of tolerable disturbances (Deb, Gupta, Daum, Branke, Mall and Padmanabhan, 2009), (v) the maximization of the ratio between the standard deviation of the fitness and the amount of environmental variation (Jin and Sendhoff, 2003).", "Examples of such techniques include: (i) the usage of statistical tests to identify the minimal number of evaluations that can be used to differentiate with a sufficient level of precision the relative fitness of alternative candidate solutions (Stagge, 1998; Cantu-Paz, 2004; Hansen et al., 2009), (ii) the usage of a large population size that permits to average implicitly the outcome of the evaluations carried out on different but similar candidate solutions (Jin and Branke, 2005; Glenn, 2013), (iii) the utilization of a non-zero threshold for accepting offspring (Markon et al. 2001), and (iv) the re-usage of the outcome of the evaluation of similar candidate solutions (Branke, 1998; Sano, Kita, Kamihira and Yamaguchi, 2000)."],
   ablations: ["The most general approach to evolve robust systems consists in evaluating candidate solutions multiple times in varying environmental conditions, i.e. carrying out multiple evaluation episodes characterized by different environmental conditions.", "Different type of robustness can be promoted through the usage of fitness functions that reward for: (i) the maximization of the expected fitness, i.e. the average fitness obtained in all possible environmental conditions (Branke, 2012), (ii) the maximization of the worst-case fitness (McIlhagga, Husbands and Ives, 1996), (iii) the minimization of the variations of fitness in varying conditions (Branke, 2012), (iv) the maximum of the amount of tolerable disturbances (Deb, Gupta, Daum, Branke, Mall and Padmanabhan, 2009), (v) the maximization of the ratio between the standard deviation of the fitness and the amount of environmental variation (Jin and Sendhoff, 2003).", "This over and under-estimation effects create a noise in the fitness estimation unless the candidate solutions of each generation are evaluated on the same type of varying environmental conditions (Loughlin and Ranjithan, 1999; Markon, Arnold, Back, Beielstein, and Beyer, 2001).", "Varying the environmental conditions across generations should be beneficial since it reduces the probability of keep selecting candidate solutions that perform well on the current environmental conditions but perform poorly in other environmental conditions."],
@@ -687,6 +687,7 @@ export const P110: PaperRecord = {
     phenotype: "other",
     layers: [],
     details: [],
+    genotypeToPhenotype: "Alternatively, Policy Manifold Search [Rakicevic et al. 2021] and Data-Driven Encoding [Gaier et al. 2020] proposed mutations scheme relying on learned low-dimensional representation of the solutions space to scale QD to high-dimensional search-space.",
     quotes: [],
   },
   method: {
@@ -829,6 +830,7 @@ export const P112: PaperRecord = {
       { kind: "recurrent", label: "recurrent", quote: "First, a long-short term memory (LSTM) model is used to predict wind power." },
     ],
     details: ["This framework involves a learning agent that controls the depth of discharge of a Lithium-Ion battery.", "First, a long-short term memory (LSTM) model is used to predict wind power."],
+    genotypeToPhenotype: "At each generation, individuals are evaluated according to a multi-objective reward function over ℎ episodes, with 𝐫ℎ indicating the accumulated reward of each individual.",
     quotes: ["First, a long-short term memory (LSTM) model is used to predict wind power.", "If a weighted sum of objectives is utilized to solve a multiobjective problem, it is not possible to discover multiple tradeoffs among objectives in one run, and the derived solutions are constrained to the convex regions of the Pareto front; In order to provide multiple trade-offs among objectives, multipolicy multi-objective reinforcement learning (MORL) algorithms have emerged as a promising alternative to finding high-quality trade-off solutions.", "Generation sources RL Method Objectives Limitations Fossil-fueled Generators Q-Learning Minimize the operational cost and total pollutant emissions Only considers fossil-fueled generators and the two objectives are converted into one objective that represents the weighted sum.", "A Deep Q-Learning-based solution for a HEMS is also presented in, in which the objective is to minimize both the expected energy cost and the difference between the daily consumption and PV generation."],
   },
   method: {
@@ -1255,6 +1257,7 @@ export const P118: PaperRecord = {
       { kind: "conv", label: "conv", quote: "Much work on hyperparameter searching, has been extensively studied in applications containing Convolutional Neural networks (CNNs) for image recognition [8] or general deep learning models [5]." },
     ],
     details: ["Additional hyperparameters such as activation functions, \u000f, number of layers, and more, can also be explored."],
+    genotypeToPhenotype: "We ran the experiment for 44 generations, and best individuals in each generation was captured in Table 2. 6.4 Comparison of Multi-core Run Time Generation GA0 GA1 GA2 GA3 GA4 GA5 LR 0.001 0.01 0.1 0.001 0.01 0.01 Gamma 0.025 0.025 0.025 0.25 0.25 0.25 Table 2",
     quotes: ["Much work on hyperparameter searching, has been extensively studied in applications containing Convolutional Neural networks (CNNs) for image recognition or general deep learning models.", "It is frequently used as a standard environment with several categories such as Atari games, classical control problems, robotics, etc. 3 Bayesian Optimization for Hyperparameter Search Bayesian optimization methods emerged as an efficient way of hyperparameter search for the problems when the convexity is not guaranteed.", "Hyperparameter search itself is a laborious process that requires many iterations and computationally expensive to find the best settings that produce the best neural network architectures.", "However, a deep understanding of deep RL approaches is required due to the many challenges of discrete versus continuous state representations, exploration variances, and complex reward functions that can learn optimal actions by just observing the environment."],
   },
   method: {
@@ -1331,6 +1334,7 @@ export const P119: PaperRecord = {
       { kind: "output", label: "output", quote: "Compared to conventional ML-enabled SCA, network selection and hyperparameter tuning are handled automatically. with complex multi-class classification tasks, specifically when many output neurons are" },
     ],
     details: ["This has been well-studied in [WAGP20], where the first convolutional layer of the SOTA CNN configured by Zaid et al."],
+    genotypeToPhenotype: "The fundamental process taking place in NEAT is similar to the evolution of organism’s genomes, where genomes represent NNs, see Figure 2.",
     quotes: ["In doing so, the irregular topology of NNs (compared to the structure of multilayer perceptrons–MLPs) automatically discovered by NEAT is one of the most important aspects of our framework, which can lead to the robustness against desynchronization as defined in SCA (see Section 6.3).", "Compared to conventional ML-enabled SCA, network selection and hyperparameter tuning are handled automatically. with complex multi-class classification tasks, specifically when many output neurons are involved.", "Among them, multilayer perceptron (MLP) and convolutional neural networks (CNNs) are the two most widely used [Wei20, PSK+ 18, WPB19, HGG20].", "The performance of InfoNEAT is evaluated by applying it to publicly available datasets composed of real side-channel measurements."],
   },
   method: {
@@ -1343,6 +1347,7 @@ export const P119: PaperRecord = {
       crossover: ["Direct genotype recombination"],
       selection: ["Tournament selection"],
       changes: [
+        { locus: "activation", operator: "Selection", quote: "Furthermore, for output nodes, we have selected the softmax as our activation function which is one of the commonly used output layer activation function in multi-class classification problems." },
         { locus: "neurons", operator: "Hyperparameter tuning", quote: "Additionally, what is promised and offered by InfoNEAT is the automatic selection of the configuration and tuning of the hyperparameters, including the number of hidden layers, the number of nodes per layer, etc." },
         { locus: "topology", operator: "Selection", quote: "As explained in, e.g., [SM02], the selection of topology throughout evolution as performed by NEAT brings various advantages, including (1) saving time spent on selecting the topology manually, (2) faster learning speed " },
         { locus: "architecture", operator: "Not stated in retrieved text", quote: "Similarly, towards making the NN-enhanced SCA more automated, [RWPP21] uses Reinforcement Learning (RL) while [WPP20] uses Bayesian optimization to explore different network architectures." },
@@ -1406,6 +1411,7 @@ export const P120: PaperRecord = {
       { kind: "conv", label: "conv", quote: "GANs take a latent vector as input and generate convincing fakes based on their training set." },
     ],
     details: [],
+    genotypeToPhenotype: "The generator represents the learned genotypeto-phenotype mapping once training has been completed. 4.3 MAP-Elites The trained GANs are used as indirect genotype-to-phenotype mappings for the evolutionary quality diversity algorithm MAPElites,",
     quotes: ["GANs take a latent vector as input and generate convincing fakes based on their training set.", "Previous work demonstrates that GANs can generate convincing fake results that are indistinguishable from the original training data.", "A GAN is a type of neural network that is trained in an unsupervised way to generate convincing fakes based on the training set."],
   },
   method: {
@@ -1425,7 +1431,7 @@ export const P120: PaperRecord = {
     evaluation: "Unused inputs are all 0. 3 If the bin is occupied, then the new individual can only replace the previous occupant if its fitness is higher.",
   },
   datasets: [],
-  metrics: ["final-fitness", "best-fitness", "accuracy", "wall-clock", "coverage"],
+  metrics: ["final-fitness", "accuracy", "wall-clock", "coverage"],
   baselines: [],
   results: ["Training for 20,000 epochs was a slight improvement, though large training sets still had problems, as seen in the results. video games in past research."],
   ablations: [],
@@ -1763,6 +1769,7 @@ export const P125: PaperRecord = {
       { kind: "dense", label: "dense", quote: "For existing architectures, e.g., ResNet [12], DenseNet [16] and MobileNets [15, 29], our quantized models can outperform their 2/4/8/16 bits counterparts and even achieve higher accuracies than float" },
     ],
     details: ["Model Compression Model compression has received increasing attention."],
+    genotypeToPhenotype: "Another detail is that we use Huffman encoding for quantized value representation to save additional space.",
     quotes: ["Taking quantization for example, conventional quantization policies often compress all layers to the same level.", "Introduction Deep convolutional neural networks have successfully revolutionized various challenging tasks, e.g., image classification, object detection and semantic • Effectiveness Our method can jointly search for neural architectures and quantization policies.", "Thus, we propose a more convenient approach to provide complete schemes for deep learning practitioners. sulting models, i.e., JASQNet and JASQNet-Small, achieve competitive accuracy to state-of-the-art methods and have relatively small model size.", "By adjusting the multi-objective function, our search strategy can output suitable models for different accuracy or model size demands."],
   },
   method: {
@@ -1774,7 +1781,9 @@ export const P125: PaperRecord = {
       mutation: [],
       crossover: [],
       selection: ["Tournament selection"],
-      changes: [],
+      changes: [
+        { locus: "weights", operator: "Tournament selection", quote: "Specially, as the whole parameter vector usually has a huge dimension, magnitude imbalance We employ a classical evolutionary algorithm, tournament selection." },
+      ],
       fitness: "By adjusting the multi-objective function, our search strategy can output suitable models for different accuracy or model size demands.",
       phenotypeQuote: "However, another exhausting task appears, i.e., neural architecture design that also requires endless trails and errors.",
     },
@@ -1788,7 +1797,7 @@ export const P125: PaperRecord = {
   ablations: ["Ablation study on whether use small proxy networks for search.", "We make an ablation study on using small proxy networks as in Fig. 6."],
   limitations: {
     authorStated: ["not stated in the retrieved text"],
-    evident: ["No locus-level modification is described, so the paper's search is not reproducible from its own text alone."],
+    evident: [],
   },
   assumptions: [],
   computation: ["De- • Efficiency We need only 1 GPU across 3 days to accomplish the joint search of architectures and quantization policies.", "Given hand-craft networks, their quantization policies can be automatically found in a few hours on ImageNet. 2.", "Actually mixed precision storage and computation have been widely supported by most hardware platforms, e.g., CPUs and FPGAs.", "Algorithm 1: Search Strategy input : population size #P, sample size #S, training set Dtrain , validation set Dval , max num epochs #E output: a population of models P P(0) ← initialize(#E) 2 for i=1:#E do 3 S(i) ← sample(P(i−1) , #S) 4 Θbest ,Θworst ← select(S(i) ) 5 Amut ← mutate(Abest ) 6 Pmut ← mutate(Pbest ) 7 Θmut ← train(Dtrain , Amut ) 8 S(Θmut ) ← quantize(Θmut , Pmut ) 9 α(Θmut ) ← test(Θmut , Dval ) 10 F(Θmut ) ← Eq.(1)(α(Θmut ) ,S(Θmut )) 11 P(i−1) ← push(P(i−1) , Θmut ) 12 P(i) ← pop(P(i−1) , Θworst ) 13 end 1 architecture A and quantization policy P.", "Search Cost GPUs Days 100 1.5 500 4 500 4 500 4 450 7 1 0.5 1 1.5 1 4 1 3 1 3 1 3 1 3 PNASNet-5 NASNet-A∗ NASNet-B NASNet-C AmoebaNet-B∗ ENAS∗ DARTS (1st order)∗ DARTS (2nd order)∗ JASQNet (float)∗ JASQNet∗ JASQNet-Small (float)∗ JASQNet-Small∗ #Params/M 3.2 3.3 2.6 3.1 2.8 4.6 2.9 3.4 3.3 3.3 1.8 1.8 CIFAR-10 Size/MB Error/% 12.8 3.41 ± 0.09 13.2 2.65 10.4 3.73 12.4 3.59 11.2 2.55 ± 0.05 18.4 2.89 11.6 2.94 13.6 2.83± 0.06 13.2 2.94 2.5 2.90 7.2 3.08 0.9 2.97 #Params/M 5.1 5.3 5.3 4.9 5.3 4.9 4.7 4.7 2.8 2.8 ImageNet Size/MB 20.4 21.2 21.2 19.6 21.2 19.6 18.8 4.9 11.2 2.5 Error/% 25.8 26.0 27.2 27.5 26.0 26.9 27.25 27.22 34.14 34.10 ∗ Training with cutout on CIFAR-10."],
@@ -1854,7 +1863,7 @@ export const P126: PaperRecord = {
     evaluation: "In the experimentation, we focus on two well-known continuous optimization algorithms (assuming, without loss of generalization, minimization of the objective function/fitness),",
   },
   datasets: [],
-  metrics: ["final-fitness", "best-fitness", "evaluations", "generations", "inference-cost"],
+  metrics: ["final-fitness", "evaluations", "generations", "inference-cost"],
   baselines: ["N001", "N002", "N057", "N178"],
   results: ["The normalization of Δ𝑓 is fundamental to have stable training. • Intra-generational Δ𝑓 : For the last 𝑔 generations, we take the normalized difference between the maximum and minimum fitness of the current population at each generation: Δ𝑓𝑘𝑖𝑛𝑡𝑟𝑎 = |𝑓𝑘𝑚𝑎𝑥 − 𝑓𝑘𝑚𝑖𝑛 | |𝑓𝑘𝑚𝑎𝑥 − 𝑓𝑘𝑚𝑖𝑛 | + |𝑓𝑘∗ | + 10−5 (3) . ∗ 𝑿 𝑘∗ − 𝑿 𝑘−1 (4) Δ𝑿 𝑏𝑜𝑢𝑛𝑑𝑠 where 𝑿 𝑘∗ is the genotype associated to the best fitness at generah i 𝑏𝑜𝑢𝑛𝑑𝑠 is the vector tion 𝑘 and Δ𝑿 𝑏𝑜𝑢𝑛𝑑𝑠 = Δ𝑿 𝑏𝑜𝑢𝑛𝑑𝑠 , . . . , Δ𝑿 1 𝑑 containing, for each variable, the bounds of the search space, being 𝑑 the problem size.", "(3) For each run of both policies, we compute the two metrics (AUC and Best of Run).", "(4) For both metrics, we calculate the probability that 𝜋𝐴 performs better than 𝜋𝐵 as: 𝑛 𝑛 1 ∑︁ ∑︁ 𝑝 (𝜋𝐴 < 𝜋𝐵 ) = 2 1𝜋𝐴𝑖 <𝜋𝐵 𝑗 (13) 𝑛 𝑖 𝑗 where 1𝜋𝐴𝑖 <𝜋𝐵 𝑗 is 1 if the metric of 𝜋𝐴 on the 𝑖-th run is less than the metric of 𝜋𝐵 on the 𝑗-th run, otherwise it is 0. 3.4 Computational setup We ran our experiments on an Azure Virtual Machine with an 8 core 64-bit CPU (we noted that the CPU model would change over different sessions, but usually the machine used an Intel Xeon with >2GHz and >30MB cache) and 16GB RAM, running Ubuntu 20.04."],
   ablations: ["Finally, we draw the conclusions in Section 5. 2 BACKGROUND In the context of DE, several works have shown the effect of using an adaption strategy to choose 𝐹 and 𝐶𝑅.", "In fact, during the evolution, 𝐶𝑅, which determines the effect of the crossover, is initially small and within a small range (𝐶𝑅𝑚𝑎𝑥 and 𝐶𝑅𝑚𝑖𝑛 are < 0.5 and similar) while at the end it increases its variance (𝐶𝑅𝑚𝑎𝑥 = 0.75 and 𝐶𝑅𝑚𝑖𝑛 = 0.25)."],
@@ -1902,6 +1911,7 @@ export const P127: PaperRecord = {
       { kind: "conv", label: "conv", quote: "The idea conveys the importance of the body to properly learn the interaction between intelligence and outer world." },
     ],
     details: [],
+    genotypeToPhenotype: "Indeed, the locomotion patterns represent the phenotype for the evolutionary process, which means that they are the observable characteristics resulting from the interaction of the genotype of the robot with the environment.",
     quotes: ["On top of this, fine motor control is learned during the lifetime of the animal thanks to the plastic connections of the cerebellum that provide descending corrective inputs.", "The idea conveys the importance of the body to properly learn the interaction between intelligence and outer world.", "The paper is structured as follows: in section 2 we describe the architecture of the controller, the evolutionary process employed and the implementation details; in section 3 we show the results of the evolutionary procedure and of the subsequent tests that have been performed; finally, in section 4 we discuss the obtained results and we draw the conclusions on the advantages of combining evolutionary processes and adaptive control."],
   },
   method: {
@@ -2550,7 +2560,7 @@ export const P136: PaperRecord = {
     evaluation: "Therefore, the fitness function is crucial to guide the convergence of evolving desired neural networks.",
   },
   datasets: [],
-  metrics: ["success-rate", "best-fitness", "generations", "accuracy", "inference-cost"],
+  metrics: ["success-rate", "final-fitness", "generations", "accuracy", "inference-cost"],
   baselines: ["N116", "N141", "N166", "N198"],
   results: ["The classification of two and three classes quickly converges to the high accuracy of more than 95% with narrow confidence intervals which means their evolution processes are steady.", "In particular, the 10-classes classification (yellow line) converges to an accuracy of less than 50% slowly.", "Dataset Method Digit Standard NEAT Existing OvO-NEAT OvA-NEAT Minimal ECOC-NEAT 10-bit ECOC-NEAT 45-bit ECOC-NEAT Ours 100-bit ECOC-NEAT 250-bit ECOC-NEAT Number of Testing classifiers accuracy Average training time/Generation(s) 9.56×10−4 4.94×10−4 10.46×10−4 72.01×10−4 15.78×10−4 9.04×10−4 6.77×10−4 2.76×10−4 0.484 0.953 0.820 0.614 0.724 0.876 0.894 0.908 0.484 0.989 0.976 0.865 0.860 0.837 0.812 0.793 13.74 0.99 8.40 10.49 8.49 5.62 4.96 4.60 511 0.899 0.95×10−4 0.909 0.783 4.53 1 28 8 3 8 15 28 0.754 0.842 0.787 0.765 0.790 0.828 0.849 −4 0.99×10 0.79×10−4 1.53×10−4 2.28×10−4 3.24×10−4 3.90×10−4 0.79×10−4 0.774 0.914 0.848 0.816 0.844 0.870 0.881 0.774 0.989 0.979 0.922 0.926 0.922 0.917 5.09 0.12 0.75 1.11 0.94 0.84 0.73 40-bit ECOC-NEAT 60-bit ECOC-NEAT Exhaustive ECOC-NEAT Standard NEAT Existing OvO-NEAT OvA-NEAT Minimal ECOC-NEAT 8-bit ECOC-NEAT 15-bit ECOC-NEAT Ours 28-bit ECOC-NEAT 40 60 127 1 28 8 3 8 15 28 0.848 0.848 0.837 0.754 0.842 0.787 0.765 0.790 0.828 0.849 0.46×10−4 2.16×10−4 0.88×10−4 0.99×10−4 0.79×10−4 1.53×10−4 2.28×10−4 3.24×10−4 3.90×10−4 0.79×10−4 0.885 0.885 0.873 0.774 0.914 0.848 0.816 0.844 0.870 0.881 0.914 0.910 0.900 0.774 0.989 0.979 0.922 0.926 0.922 0.917 0.68 0.62 0.55 5.09 0.12 0.75 1.11 0.94 0.84 0.73 40-bit ECOC-NEAT 60-bit ECOC-NEAT Exhaustive ECOC-NEAT 40 60 127 0.848 0.848 0.837 0.46×10−4 2.16×10−4 0.88×10−4 0.885 0.885 0.873 0.914 0.910 0.900 0.68 0.62 0.55 NEAT that outperforms minimal ECOC-NEAT.", "Intriguingly, minimal ECOC-NEAT with a few bases learners still significantly performs better than the standard NEAT for multiclass classification. 1.0 0.9 Testing accuracy Ab 0.449 0.866 0.740 0.535 0.651 0.819 0.845 0.876 Standard NEAT Existing OvO-NEAT OvA-NEAT Minimal ECOC-NEAT Satellite 8-bit ECOC-NEAT 15-bit ECOC-NEAT Ours 28-bit ECOC-NEAT 0.8 0.7 Standard NEAT OvO-NEAT OvA-NEAT Minimal ECOC-NEAT Mid-length ECOC-NEAT Exhaustive ECOC-NEAT 0.6 0.5 0.4 Training accuracy 1 45 10 4 10 45 100 250 Exhaustive ECOC-NEAT Ecoli."],
   ablations: ["Fig. 5 presents the performance of the standard NEAT, OvONEAT, OvO-NEAT, and three ECOC-NEAT for multiclass classifications with a varying number of classes from three to ten.", "JOURNAL OF LATEX CLASS FILES, VOL. 7 form sensitive to the quality of ECOC.", "The number of generations for each evolution of ECOC-NEAT is G/N which is different for various ECOC-NEAT.", "In summary, we recommend OvO-NEAT and ECOC-NEAT with a great number of binary classifiers (e.g. mid-length ECOC-NEAT, or exhaustive ECOC-NEAT with moderate classes) for the tasks when a considerable number of generations is allowed."],
@@ -2739,6 +2749,7 @@ export const P139: PaperRecord = {
       { kind: "conv", label: "conv", quote: "RL-based neural architecture search yielded success in automatic design of state-of-the-art RNN cells [50], convolutional blocks [51], activation functions [32], optimizers [3, 42] and data augmentati" },
     ],
     details: ["However, unlike the Evolutionary agent, the mutations are not sampled at random among the possible architectural choices, but are sampled from distributions inferred by a recurrent neural network (RNN)."],
+    genotypeToPhenotype: "The other tower is a wide-shallow layer that directly connects the one-hot token encodings to the softmax classification layer with a linear projection.",
     quotes: ["RL-based neural architecture search yielded success in automatic design of state-of-the-art RNN cells, convolutional blocks, activation functions, optimizers and data augmentation strategies.", "Evolutionary-Neural Hybrid Agents for Architecture Search Algorithm 1: Sampling algorithm for the Evo-NAS agent Parameters: mutation probability p ∈, parent sequence A = (a 1 , ..., an ); Initialize the state of the RNN h to 0; Initialize input to the next RNN time-step x in to 0; Initialize the output child sequence A′ to ; Initialize loдProbability to 0; Initialize totalEntropy to 0; for i = 1, 2, ..., n do Feed x in to the RNN and run it for one time-step to update h and obtain the output loдitsi ; Sample m ∼ Bernoulli(p); if m is 0 then ai′ = ai ; else Sample ai′ according to the distribution: so f tmax(loдitsi ); end if Append ai′ to A′ ; Set x in to the embedding of ai′ ; loдProbability += loд(p(ai′ |loдitsi )); totalEntropy += entropy(so f tmax(loдitsi )); end for return A′ defining the child model; return loдProbability to compute the loss; return totalEntropy to compute the entropy regularization factor to add to the loss; To highlight the properties of the different approaches, we propose to consider two characteristics: 1) whether the agent has learnable parameters, enabling it to learn patterns; 2) whether the agent is capable of efficiently leveraging good past experiences by using mutations.", "In particular, two computationally efficient techniques are ENAS, which relies on parameter sharing between child models, and DARTS, which uses a continuous relaxation of the architecture search problem."],
   },
   method: {
@@ -3240,6 +3251,7 @@ export const P146: PaperRecord = {
     phenotype: "modular",
     layers: [],
     details: [],
+    genotypeToPhenotype: "The color of a square maps to the fitness value of the behavior in that bin.",
     quotes: ["This robot, consists of 3 struts vibrational motors, 3 passive struts without motors, and 18 springs. ‘flop and roll,’.", "The first phase consists of an initial random sampling of the parameter space, where sets of parameters p ∈ P are randomly selected and evaluated on the robot.", "If in either phase a set of parameters is evaluated where multiple behaviors occupy the same bin, a fitness function (quality metric) is employed to select the ”better” behavior."],
   },
   method: {

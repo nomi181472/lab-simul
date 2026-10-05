@@ -397,8 +397,8 @@ CONCEPT_MATCH: dict[str, tuple[str, ...]] = {
 METRIC_MATCH: dict[str, tuple[str, ...]] = {
     "mean-reward": ("mean reward", "average reward", "episodic return", "average return", "cumulative reward"),
     "success-rate": ("success rate", "solved", "completion rate"),
-    "final-fitness": ("best fitness", "final fitness", "maximum fitness", "best individual"),
-    "best-fitness": ("best fitness", "highest fitness"),
+    "final-fitness": ("best fitness", "highest fitness", "final fitness",
+                      "maximum fitness", "best individual", "fitness of the best"),
     "evaluations": ("fitness evaluations", "number of evaluations", "objective evaluations", "evaluations"),
     "generations": ("generations", "number of generations"),
     "swept-areas": ("swept areas", "swept", "archive cells", "cells filled"),

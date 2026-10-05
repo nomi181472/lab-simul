@@ -71,8 +71,10 @@ export type ArchitectureLayer = {
   label: string;
   /** node/channel count when the paper states one */
   units?: number;
-  /** quoted sentence from the paper that establishes this layer */
-  quote?: string;
+  /** quoted sentence from the paper that establishes this layer.
+   * Required: a layer with no evidence is not a finding, so the generator
+   * omits the layer instead. */
+  quote: string;
 };
 
 /**
@@ -96,8 +98,9 @@ export type LocusChange = {
   locus: Locus;
   /** how the operator alters this locus */
   operator: string;
-  /** quoted sentence from the paper that establishes it */
-  quote?: string;
+  /** quoted sentence from the paper that establishes it.
+   * Required for the same reason as ArchitectureLayer.quote. */
+  quote: string;
 };
 
 export type Encoding =

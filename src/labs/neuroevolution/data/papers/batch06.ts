@@ -30,6 +30,7 @@ export const P251: PaperRecord = {
       { kind: "conv", label: "conv", quote: "CONVERSION FROM BIT-STRING TO REAL REPRESENTATION ................................................... 8 FIGURE 1.3." },
     ],
     details: [],
+    genotypeToPhenotype: "ShowCurve:=Module {t}, t=MapThread[List, SolutionSet]; ListPlot[MapThread[List, {Join[t[], t[]], Join[t[], t[]]}], PlotRange->{{0, 51}, {0,1}}] ShowCurve displays a graph of the minimum and maximum fitnesses of each generation.",
     quotes: ["CONVERSION FROM BIT-STRING TO REAL REPRESENTATION ................................................... 8 FIGURE 1.3.", "MAXIMUM/MINIMUM FITNESS VALUES - EXP 1.3 ................................................................. 68 FIGURE 3.9."],
   },
   method: {
@@ -95,6 +96,7 @@ export const P252: PaperRecord = {
       { kind: "recurrent", label: "recurrent", quote: "Our methodology leverages deep learning techniques, particularly Recurrent Neural Networks (RNNs) and Long Short-Term Memory (LSTM) networks, in conjunction with the Genetic Algorithm (GA) to optimize" },
     ],
     details: ["Our methodology leverages deep learning techniques, particularly Recurrent Neural Networks (RNNs) and Long Short-Term Memory (LSTM) networks, in conjunction with the Genetic Algorithm (GA) to optimize hyperparameters.", "Conversely, The authors of compare ARIMA, deep learning (LSTM), and Hybrid ARIMA-SVM in different scenarios for specific cryptocurrency prediction tasks.", "Authors of proposed an LSTM and GRU-based hybrid cryptocurrency prediction scheme, focusing on Litecoin and Monero.", "On the other hand, a comparison between LSTM as a deep learning-based algorithm and ARIMA was conducted. 2.2."],
+    genotypeToPhenotype: "Versatility in Parameter Coding: GAs are versatile in encoding parameter sets, making them suitable for various problems.",
     quotes: ["Our methodology leverages deep learning techniques, particularly Recurrent Neural Networks (RNNs) and Long Short-Term Memory (LSTM) networks, in conjunction with the Genetic Algorithm (GA) to optimize hyperparameters.", "Conversely, The authors of compare ARIMA, deep learning (LSTM), and Hybrid ARIMA-SVM in different scenarios for specific cryptocurrency prediction tasks.", "Authors of proposed an LSTM and GRU-based hybrid cryptocurrency prediction scheme, focusing on Litecoin and Monero."],
   },
   method: {
@@ -613,7 +615,7 @@ export const P259: PaperRecord = {
     evaluation: "Their objective function assigned monetary values to costs arising from infection, lockdown, and value of life.",
   },
   datasets: [],
-  metrics: ["best-fitness", "generations", "inference-cost"],
+  metrics: ["final-fitness", "generations", "inference-cost"],
   baselines: ["N002", "N004", "N061", "N126"],
   results: ["We compared the optimal intervention policies obtained from PMP and neuroevolution policies (Fig S1).", "The policies are obtained using the r1 reward function (equation 6) with α2 = 1e − 1, α3 = 5e − 3 and same initial conditions.", "That is, the PMP optimal intervention for a given initial condition is obtained by solving the boundary-value problem formulated in equations (1-5) and (10-16).", "In the remainder of the paper, our optimal solutions are obtained via the neuroevolutionary approach. 5 Algorithm 1 Neuroevolution algorithm Require: Population size M , Number of generations G, Elite population size L, Mutation rate σ Initialize M policy functions, Pj1 , with random initial weights θj1 for i do=1 to G. # Iterate G generations for j do=1 to M fj ← Roll out a trajectory by running the model using Pii # Fitness score end for Sort θji by fj in descending order i−1 i θElite = {θji |j < L} ∪ θM ost elite for j do=1 to M Draw sample t ∼ U (1, L) # Select a parent Draw sample \u000f ∼ N (0, 1) # Gaussian noise θji+1 = θti + σ\u000f # Mutate end for end for G return PMost elite Figure 2: Schematic representation of policy function Pig , represents the policy function i of generation g.", "The Cumulative imposed control is obtained by summing the daily implemented control strength (c(t)), divided by total number of days with c(t) > 0 for each scenario.", "Figure 5B also confirms the fact that implementing the optimal intervention policy from earlier stages of epidemic would reduce the overall required control measures."],
   ablations: ["In the remainder of the paper, our optimal solutions are obtained via the neuroevolutionary approach. 5 Algorithm 1 Neuroevolution algorithm Require: Population size M , Number of generations G, Elite population size L, Mutation rate σ Initialize M policy functions, Pj1 , with random initial weights θj1 for i do=1 to G. # Iterate G generations for j do=1 to M fj ← Roll out a trajectory by running the model using Pii # Fitness score end for Sort θji by fj in descending order i−1 i θElite = {θji |j < L} ∪ θM ost elite for j do=1 to M Draw sample t ∼ U (1, L) # Select a parent Draw sample \u000f ∼ N (0, 1) # Gaussian noise θji+1 = θti + σ\u000f # Mutate end for end for G return PMost elite Figure 2: Schematic representation of policy function Pig , represents the policy function i of generation g.", "In contrast, we found the reward function to be highly sensitive to variation in α3 ."],
@@ -681,7 +683,7 @@ export const P260: PaperRecord = {
     evaluation: "Pn each train with their own dedicated fitness function.",
   },
   datasets: [],
-  metrics: ["best-fitness", "evaluations", "accuracy", "inference-cost", "wall-clock", "coverage"],
+  metrics: ["final-fitness", "evaluations", "accuracy", "inference-cost", "wall-clock", "coverage"],
   baselines: ["N011", "N017", "N095", "N126"],
   results: ["The larger the rate of improvement of the curve, the higher the fitness (detailed in Section 3.1). 4.", "Section 3.1 describes how the training curve of an evaluator assigned to ρparent is used to compute the fitness of ρparent .", "This mechanism is how weights are propagated between sub-populations. 3.1 Computing the fitness of parent sub-population members As in regular PBT, evolution in parent sub-populations is decided based on a fitness assigned to its members.", "The circled numbers indicate the step in the best_score_diff procedure: 1) Smooth the curves, 2) Find the starts of the overlapping sections, 3) Find the length of the overlapping sections, and 4) Compare the best score within each overlapping section. is that we can use the improvement rate of the training curve as a proxy for the quality of the original weights θρparent ."],
   ablations: ["To show the impact of population size, we also run FIRE PBT experiments with 22 workers and 36 workers."],
@@ -731,6 +733,7 @@ export const P261: PaperRecord = {
       { kind: "conv", label: "conv", quote: "In a Shortest Path setting, [2] proposes an algorithm that addresses this by finding weights to reduce network congestion for a set of DMs and a convex combination of them." },
     ],
     details: ["On the other hand, looking at the individual flows, the ones from a delay-sensitive application (e.g. an online game) might be routed through a low delay path, whereas others from a bandwidth-sensitive application (such as video-on-demand streaming) may use a less noisy path."],
+    genotypeToPhenotype: "The procedure is repeated until a termination criterion is met. 9 10 11 12 In particular, the search distribution in CMA-ES from which the individuals are sampled is a Multi Variate Gaussian distribution N (m,",
     quotes: ["From the point of view of a router, we abstract a network view that is partially updated each time a router routing as a black box where the inputs are the packet header queries the controller for a decision and gives it its local and the node’s local view of the network (e.g. queue sizes), and network measurements. the output is the packet’s next hop.", "In build this black-box in different ways and may have different Section II we describe the network model used, explain what inputs. is routing and how it can be addressed with Reinforcement For example, in Shortest Path based routing, each link in Learning.", "In a Shortest Path setting, proposes an algorithm that addresses this by finding weights to reduce network congestion for a set of DMs and a convex combination of them.", "In that context, Reinforcement Learning (RL), which can learn to adapt in dynamic conditions and offers flexibility of behavior through the reward function, presents as a suitable tool to find good routing strategies."],
   },
   method: {
@@ -801,6 +804,7 @@ export const P262: PaperRecord = {
       { kind: "conv", label: "conv", quote: "Quantum-inspired evolutionary algorithms present promising results regarding faster convergence." },
     ],
     details: ["I wish to thank my parents, Dilza and Moisés, for their constant support, patience, and advice, but most of all, for their love and attention.", "Deep neural networks are powerful and flexible models that have gained the attention of the machine learning community over the last decade."],
+    genotypeToPhenotype: "The CGP encoding scheme defines the network as a directed acyclic graph in a two-dimensional grid of computational nodes.",
     quotes: ["Quantum-inspired evolutionary algorithms present promising results regarding faster convergence.", "Our best accuracies on the CIFAR-10 task were 93.85% for a residual network and 93.70% for a convolutional network, overcoming hand-designed models, and some NAS works.", "Os algoritmos evolutivos de inspiração quântica (AEIQ) apresentam resultados promissores em relação à convergência mais rápida."],
   },
   method: {
@@ -877,6 +881,7 @@ export const P263: PaperRecord = {
       { kind: "output", label: "output", quote: "The number of neurons in the hidden layer is determined empirically, but in most cases the rule is used N h  N i  N o , where N h is the number of neurons in the hidden layer, N i in the input and N" },
     ],
     details: ["The number of neurons in the hidden layer is determined empirically, but in most cases the rule is used N h  N i  N o , where N h is the number of neurons in the hidden layer, N i in the input and N o output layers. 2.", "Increasing the number of inputs and outputs of the network leads to the need to increase the number of neurons in the hidden layer. 3.", "For the ANNs modeling multistage processes required additional hidden layer, but, on the other hand, the addition of hidden layers may lead to overwriting and the wrong decision at the output of the network.", "Based on these recommendations, the number of layers and the number of neurons in the hidden layers is chosen by the researcher, based on his personal experience. 3 Review of the literature The ANN are attractive from an intuitive point of view, because they are based on a primitive biological model of nervous systems."],
+    genotypeToPhenotype: "This information can be obtained indirectly from the value of the characteristic. 4.3 The calculation of the output layer of ANN On condition using the support vector machine, the optimality criterion for calculating the output weights may not be specified.",
     quotes: ["In the training process, the input of the neural network is fed a sequence of initial parameters along with the diagnoses that characterize these parameters.", "Each neuron can be represented as a microprocessor with several inputs and one output.", "Vertically aligned neurons form layers: input, hidden and output.", "In the process of evaluation, based on the genetic information of the individual under consideration, a neural network is first built, and then its performance is checked, which determines the fitness function ( f fitness ) of the individual."],
   },
   method: {
@@ -1293,6 +1298,7 @@ export const P269: PaperRecord = {
       { kind: "conv", label: "conv", quote: "In addition, BOP-Elites produces high quality surrogate models which can be used after convergence to predict solutions with any behaviour in a continuous range." },
     ],
     details: [],
+    genotypeToPhenotype: "SPHEN does not directly drive exploration in the descriptor/phenotype space, instead it updates its descriptor model indirectly through the observations gained using SAILs acquisition function over the objective.",
     quotes: ["In addition, BOP-Elites produces high quality surrogate models which can be used after convergence to predict solutions with any behaviour in a continuous range.", "Quality-Diversity Algorithms QD has its origins in the field of evolutionary computation where, when searching for a single global optimum, maintaining genetic diversity is important to avoid premature convergence and to escape local optima.", "I NTRODUCTION Optimisation algorithms are ubiquitous in science, engineering, and research and typically attempt to find the best feasible solution for a given objective function."],
   },
   method: {
@@ -1568,6 +1574,7 @@ export const P273: PaperRecord = {
       { kind: "dense", label: "dense", quote: "For both the policy and value networks, we add the width and depth of the Multi-layer Perceptron (mlp) and a binary flag on whether to use spectral normalization. 3 Bayesian Generational Population-Ba" },
     ],
     details: ["For both the policy and value networks, we add the width and depth of the Multi-layer Perceptron (mlp) and a binary flag on whether to use spectral normalization. 3 Bayesian Generational Population-Based Training (BG-PBT) We present bg-pbt in Algorithm 1 which Algorithm 1 bg-pbt; distillation and nas steps consists of two major components."],
+    genotypeToPhenotype: "Specifically: • Starting each generation: We fill the population of 𝐵 agents by generating a diverse set of architectures for both the policy and value networks.",
     quotes: ["For both the policy and value networks, we add the width and depth of the Multi-layer Perceptron (mlp) and a binary flag on whether to use spectral normalization. 3 Bayesian Generational Population-Based Training (BG-PBT) We present bg-pbt in Algorithm 1 which Algorithm 1 bg-pbt; distillation and nas steps consists of two major components.", "We then ex- 1: Input: pop size 𝐵, 𝑡ready , max steps 𝑇 , 𝑞 (% agents replaced per iteration) tend the search space to accommodate archi(𝑖) 𝐵 2: Initialize 𝐵 agents with weights {𝜃 0 }𝑖=1 , random hytecture search, allowing agents to choose their (𝑖) 𝐵 (𝑖) 𝐵 perparameters {z0 }𝑖=1 and architectures {y0 }𝑖=1 , own networks (parameterized by y ∈ Y) and 3: for 𝑡 = 1, . . . ,𝑇 (in parallel for all 𝐵 agents) do use on-policy distillation to transfer between 4: Train models & record data for all agents different architectures (§3.2). 5: if 𝑡 mod 𝑡 ready = 0 then 3.1 High-Dimensional BO Agents in MixedInput Configuration Space for PBT 6: 7: Replace the weights & architectures of the bottom 𝑞% agents with those of the top 𝑞% agents.", "To address these issues, bg-pbt explicitly accounts for the characteristics of typical rl hyperparameter search space by making several novel extensions to Casmopolitan (Wan et al., 2021), a state-of-the-art bo method for high-dimensional, mixed-input problems for our setting.", "We model the environment as a Markov Decision Process (mdp) (Sutton and Barto, 2018), defined as a tuple 𝑀 = (S, A, 𝑃, 𝑅, 𝜌 0, 𝛾), where S and A denote the state and action spaces respectively, 𝑃 (𝑠𝑡 +1 |𝑠𝑡 , 𝑎𝑡 ) the transition dynamics, 𝑅(𝑠𝑡 , 𝑎𝑡 ) the reward function, 𝜌 0 the initial state distribution, and 𝛾 ∈ (0, 1) the discount factor. \u0002Í∞The𝑡 goal is to\u0003 optimize a policy 𝜋 (𝑎𝑡 |𝑠𝑡 ) that maximizes the expected discounted return E \u0002Í∞𝜋,𝑃,𝜌𝑡0 𝑡 =0 𝛾 𝑅(𝑠𝑡 , 𝑎\u0003 𝑡 ) ."],
   },
   method: {
@@ -2060,6 +2067,7 @@ export const P280: PaperRecord = {
       { kind: "conv", label: "conv", quote: "Conventional robots contain numerous smaller components (legs, wheels, end effectors, servomotors, sensors, battery packs) but these parts are highly specialized, interdependent, and incapable of inde" },
     ],
     details: [],
+    genotypeToPhenotype: "Here, we demonstrate how fractals can provide a more scalable encoding.",
     quotes: ["Conventional robots contain numerous smaller components (legs, wheels, end effectors, servomotors, sensors, battery packs) but these parts are highly specialized, interdependent, and incapable of independent or self-similar behavior.", "At the largest known length scale, the universe itself consists of a fractal clustering of spiraling galaxies.", "The resulting robots yielded an order of magnitude more physical elements than any other simulated robots at that time: Whereas Sims and Bongard and Pfeifer evolved simulated robots composed of no more than 14 and 50 parts, respectively, Hornby and Pollack utilized Lindenmayer-systems to produce branching structures of up to 350 parts.", "The fitness of a scale invariant design is the least amount of net displacement it generates across the three size scales (body lengths per minute; Eq. 2). which describes the space filled by a fractal geometry in the limit."],
   },
   method: {
@@ -2079,7 +2087,7 @@ export const P280: PaperRecord = {
     evaluation: "The fitness of a scale invariant design is the least amount of net displacement it generates across the three size scales (body lengths per minute; Eq. 2). which describes the space filled by a fractal geometry in the limit.",
   },
   datasets: [],
-  metrics: ["success-rate", "l1-error", "inference-cost", "wall-clock", "coverage"],
+  metrics: ["success-rate", "final-fitness", "l1-error", "inference-cost", "wall-clock", "coverage"],
   baselines: [],
   results: ["fitness, F , is taken to be the least performance achieved across the three size scales: F = min(d1 , d2 , d3 ).", "Here we introduce a molding technique, which reduces the weight of silicone required for module fabrication, and allows for the creation of custom-shaped basal modules. 10 10 3 cm 9 cm 27 cm 8 Body lengths Body lengths 8 3 cm 9 cm 27 cm 6 4 2 6 4 2 0 0 0 50 100 150 200 250 300 0 100 200 Generation Fig. 6.", "The mean fitness of the best design (in body lengths per minute) is plotted for ten independent evolutionary trials (95% confidence intervals).", "The mean fitness of the best design (in body lengths per minute) is plotted for 15 independent evolutionary trials (95% CIs).", "Once assembled, robots were placed on top of a sheet of ABS Plastic (MyStudio MS20CYC Background Cyclorama), which was covered in cornstarch (Argo®, ACH Food Companies, Inc.) to reduce the friction between the silicone body of the robot and the plastic substrate.", "Fig. 6 shows evolutionary improvement occurring on all three size scales."],
   ablations: ["Using a distribution-free rank sum test (Wilcoxon), we reject the null hypothesis that there is no evolutionary effect of fractals (p < 0.001). with 2 mm thickness to seal its top side."],
@@ -2226,7 +2234,7 @@ export const P282: PaperRecord = {
     evaluation: "Probably, the simplest definition of FL is the following one: a FL is a plot where the points in the horizontal direction represent the different individual genotypes in a search space and the points in the vertical direction represent the fitness of each one",
   },
   datasets: ["1806.03762"],
-  metrics: ["final-fitness", "best-fitness", "generations", "accuracy", "inference-cost", "wall-clock", "coverage"],
+  metrics: ["final-fitness", "generations", "accuracy", "inference-cost", "wall-clock", "coverage"],
   baselines: [],
   results: ["A walk on a FL is a sequence of solutions (s0 , s1 , ..., sn ), such that for each t = 1, 2, ..., n, st is a neighbor of st−1 or, in other words, st is obtained by applying mutation to st−1 .", "Because of the large complexity of neuroevolution, and given the relatively short length of the walks that we are able to generate with the available computational resources1 (n = 30 in our experiments), we have decided to calculate ρ̂(k) several times (10 in our experiments), using independent selective walks, and to report boxplots of the results obtained over these different walks.", "For each i = 1, 2, ..., n, xi ∈ S(ε) is obtained using the following function:   1̄, if fi − fi−1 < −ε xi = Ψft (i, ε) = 0, if |fi − fi−1 | ≤ −ε   1, if fi − fi−1 > −ε where ε is a real number that determines the accuracy of the calculation of S(ε), and increasing this value results in increasing the neutrality of the landscape.", "Now we consider the results obtained for the FMNIST dataset, reported in Fig. 3."],
   ablations: ["To determine the values of the main parameters (e.g., population size and number of generations for neuroevolution, length of the walk and number of neighbors for selective walks) we have performed some benchmark tests with multiple values, and selected ones that allowed us to obtain results in “reasonable” time2 with our available computational resources."],
@@ -2368,7 +2376,7 @@ export const P284: PaperRecord = {
     evaluation: "Reward and Fitness Alternatives This section presents alternatives to how fitness is assigned to individuals.",
   },
   datasets: [],
-  metrics: ["final-fitness", "best-fitness", "generations", "inference-cost", "coverage"],
+  metrics: ["final-fitness", "generations", "inference-cost", "coverage"],
   baselines: ["N033", "N095", "N157", "N166"],
   results: ["Figure 2 shows the win rate for each one of the games and, in most cases, rhNEAT(+sp,+cp) achieves the highest victory rate, with a similar ranking of the performance of the algorithms as observed in Table II.", "Although the overall win rate is not significantly different to the other two options (34.2% versus 35.15% for rhNEAT-acc and 36.5% for rhNEAT - see second row group in Table II), the number of games where rhNEAT-accdisc achieves the highest win rate is clearly lower (3 versus 9 and 8 respectively).", "Figure 3 sheds some light into this discrepancy: per game, rhNEAT-accdisc tends to achieve marginally worse results in most games, with rhNEAT and rhNEAT-acc normally achieving higher win rates.", "Given that rhNEAT obtains a higher count of games with the highest achieved scores, the version of the algorithm that only uses the final state’s evaluation is considered to be better (and therefore used in the comparison against the alternative versions of rhNEAT and other approaches). 2) rhNEAT Fitness: This experiment set focuses on the capacity to adapt to potential changes of the environment."],
   ablations: [],
@@ -2415,6 +2423,7 @@ export const P285: PaperRecord = {
       { kind: "input", label: "input", quote: "The inputs to the first layer of the deep neural network are state features." },
     ],
     details: [],
+    genotypeToPhenotype: "In a direct encoding scheme, all neurons and connections in the neural network are explicitly specified by the genotype.",
     quotes: ["The inputs to the first layer of the deep neural network are state features.", "The reason for this is that the premise of both algorithms is similar: they use state features as input to a neural network and evaluate state reward or state value as the output of the neural network.", "Specification of network structure can limit the efficiency of the generated network.", "Fitness of a network is determined by closeness of the optimal policy generated from rewards based on that network, to the demonstrated policy."],
   },
   method: {
@@ -2552,6 +2561,7 @@ export const P287: PaperRecord = {
       { kind: "input", label: "input", quote: "Another property which is an inherent feature of coding is the number of nodes that responds to an individual input." },
     ],
     details: ["Moreover, the minimum description length (MDL) algorithm, which enables efficient predictive coding, is successfully applied to neuroevolution while paying particular attention to the growth of the nodal structure of the ANN during evolution."],
+    genotypeToPhenotype: "This process is derived from biological genes which duplicates and grows across each generation.",
     quotes: ["Another property which is an inherent feature of coding is the number of nodes that responds to an individual input.", "A node is rendered active during the lifetime of an ANN system if it represents an input at every instance for which, the whole architecture is exposed to inputs.", "However, considering the case of a specific input, such input can either be broadcast within the architecture or reside within a specific node depending on the representation local or distributed.", "Moreover, in neuroevolution, the number of active nodes is determined by their fitness value, that is, the fitness value provides evidence for their level of contribution to the overall performance of the system."],
   },
   method: {
@@ -2763,6 +2773,7 @@ export const P290: PaperRecord = {
       { kind: "dense", label: "dense", quote: "Originally developed for evolutionary robotics, most QD studies are conducted on a limited set of domains – mainly applied to locomotion, where the fitness and the behavior signal are dense." },
     ],
     details: [],
+    genotypeToPhenotype: "Plus, the optimized fitness functions associate to each generated grasp a quality label that can be straightforwardly used for training. 3 Problem 3.1 Notations This section introduces the notations used throughout this paper.",
     quotes: ["Originally developed for evolutionary robotics, most QD studies are conducted on a limited set of domains – mainly applied to locomotion, where the fitness and the behavior signal are dense.", "Finally, this study led to insights into how QD methods can do efficient exploration in sparse interaction problems, showing that contrary to tasks where the behavior function is dense, novelty-driven approaches have poor exploration capabilities on sparse interaction problems.", "Even if the fitness function is usually orthogonal to the targeted task – e.g. energy minimization while trying to generate locomotion policies – the function is always defined such that the algorithm can continuously optimize both the diversity and the quality of the processed solutions."],
   },
   method: {
@@ -3062,7 +3073,7 @@ export const P294: PaperRecord = {
     evaluation: "Each sampled point 𝜃𝑖 is then evaluated on the objective function 𝐹 and used to estimate the search gradient to update the parameters of the distribution: ∇𝐸𝜃 ∼N (𝜃 𝜇 ,𝜎 2 𝐼 ) [𝐹 (𝜃 )] ≈ 1 ∑︁ 𝐹 (𝜃𝑖 )𝜖𝑖 𝑁𝜎 (1) We give the pseudo-code for one ES optimisation ste",
   },
   datasets: [],
-  metrics: ["best-fitness", "evaluations", "generations", "inference-cost", "wall-clock"],
+  metrics: ["final-fitness", "evaluations", "generations", "inference-cost", "wall-clock"],
   baselines: ["N001", "N002", "N004", "N006"],
   results: [],
   ablations: ["Inputs: sample size 𝑁 , number of generations 𝑁𝑔𝑒𝑛 , number of emitters 𝑁𝑒𝑚𝑖𝑡𝑡𝑒𝑟 , proportion of exploit emitter 𝑝𝑒𝑥𝑝𝑙𝑜𝑖𝑡 2 Initialisation: archive of elites A and novelty-archive N 1 3 // Set objective for each emitter 𝑛 = 𝑁𝑒𝑚𝑖𝑡𝑡𝑒𝑟 ∗ 𝑝𝑒𝑥𝑝𝑙𝑜𝑖𝑡 5 foreach 𝑒 = 1, ...𝑛 do 𝐹𝑒 ← fitness_objective 6 foreach 𝑒 = 𝑛, ...𝑁𝑒𝑚𝑖𝑡𝑡𝑒𝑟 do 𝐹𝑒 ← novelty_objective ( N ) 4 7 // Main loop for 𝑔 = 1, ...𝑁𝑔𝑒𝑛 do do in parallel for 𝑒 = 1, ...𝑁𝑒𝑚𝑖𝑡𝑡𝑒𝑟 10 if require_reset then 11 𝜃 ← uniform_selection ( A ) 12 𝑆 =0 13 require_reset = 𝐹𝑎𝑙𝑠𝑒 14 𝜃˜ ← ES_step (𝐹𝑒 , 𝑁 , 𝜃 ) 15 A, N ← update_archives (𝜃˜ ) 16 if added_to_archive ( A, 𝜃˜ ) then 17 𝑆 =0 18 else 19 𝑆 =𝑆 +1 20 if 𝑆 > 𝑆𝑚𝑎𝑥 then require_reset = 𝑇 𝑟𝑢𝑒 21 return A 8 9 on their usefulness to the QD optimisation.", "We demonstrate the benefits of this mechanism in an ablation study in the experimental section.", "In our evaluation, all three metrics provide valuable insights: the effect of explore and exploit emitters can be respectively assessed from the Coverage and Maximum-Fitness scores, while the QD-score evaluates the overall algorithm performance."],
@@ -3125,7 +3136,6 @@ export const P295: PaperRecord = {
       crossover: [],
       selection: ["SPEA-II"],
       changes: [
-        { locus: "learning-rate", operator: "Not stated in retrieved text", quote: "Typically, also the numerical step size of the parameter update is adapted according to some inter- and intra-generation fitness measures." },
         { locus: "behavior", operator: "Not stated in retrieved text", quote: "A fascinating body of work exists around the question of how neural and non-neural problem-solving capacities evolved, and how neuro-behavioral intelligence affects evolution14–31 ." },
         { locus: "hyperparameters", operator: "Mutation operator (variant not named)", quote: "However, one should keep in mind that such results are always susceptible to chance in initial conditions or mutations in the EA, but also to the developmental noise; moreover, hyperparameters of the evolutionary search " },
       ],

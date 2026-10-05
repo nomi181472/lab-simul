@@ -48,13 +48,56 @@ TASK_RULES: list[tuple[str, tuple[str, ...]]] = [
     ("benchmark", ("benchmark", "dataset for", "we release", "data set of")),
 ]
 
+# Signals that are compared by how often they occur, because a paper may
+# legitimately be about more than one and the dominant one should win.
 MODALITY_RULES: list[tuple[str, tuple[str, ...]]] = [
     ("wifi-radar", ("fmcw", "frequency-modulated continuous wave", "wifi radar", "chirp", "radar signal", "doppler radar")),
     ("wifi-sonar", ("sonar", "acoustic echolocation", "ultrasound")),
-    ("csi-toolkit", ("csi tool", "toolkit for csi", "csi toolbox", "linux csi", "openwifi", "csikit", "intel 5300", "atheros 9k", "aixcl", "wifi-csi")),
     ("csi-80211n", ("channel state information", "csi", "mimo", "subcarrier", "802.11n", "802.11ac", "802.11ax")),
     ("rssi", ("rssi", "received signal strength")),
 ]
+
+# Signals that are decided by the title alone. A paper is about a *tool* when
+# its own title says so; checking the body instead was useless here, because
+# "toolkit" turns up in the related work of nearly every paper in this corpus,
+# and merely naming a chipset (Intel 5300, Atheros 9k) in an experimental setup
+# describes the apparatus, not the contribution.
+MODALITY_TITLE: list[tuple[str, str]] = [
+    ("csi-toolkit", r"\b(toolkit|toolbox|sdk)\b|\blibrary\b|sensing platform"),
+]
+
+# Breaks frequency ties in favour of the more specific claim, since a paper that
+# genuinely uses a radar front-end is more usefully filed as radar than as the
+# generic CSI signal it is built on.
+MODALITY_TIE_ORDER = ("csi-toolkit", "wifi-radar", "wifi-sonar", "rssi", "csi-80211n")
+
+
+def classify_modality(hay: str, title: str = "") -> tuple[str, list[str]]:
+    """The modality a paper is actually about, and every signal it showed.
+
+    Earlier this was first-match-wins, which mislabelled most toolkit papers:
+    one passing mention of "toolkit" outranked the signal the paper was really
+    built on. Now a named tool decides outright, and otherwise the signal that
+    dominates the title/abstract wins.
+    """
+    counts: dict[str, int] = {}
+    fired: list[str] = []
+    for name, keys in MODALITY_RULES:
+        c = sum(hay.count(k) for k in keys)
+        counts[name] = c
+        if c:
+            fired.append(name)
+    for name, pat in MODALITY_TITLE:
+        if re.search(pat, title or hay.split("\n", 1)[0], re.I):
+            fired.append(name)
+            return name, fired
+    if not fired:
+        return "other", []
+    best = max(
+        fired,
+        key=lambda n: (counts.get(n, 0), -MODALITY_TIE_ORDER.index(n)),
+    )
+    return best, fired
 
 # How a paper obtains the measurement it reasons about, when it is stated.
 CAPTURE_RULES: list[tuple[str, tuple[str, ...]]] = [
@@ -202,7 +245,7 @@ def enrich_row(row: dict) -> dict:
     hay = (row["title"] + "\n" + head_text(text)).lower()
 
     task, _ = first_match(hay, TASK_RULES)
-    modality, _ = first_match(hay, MODALITY_RULES)
+    modality, _ = classify_modality(hay, row["title"])
     bandwidth, _ = first_match(hay, BANDWIDTH_RULES)
     _, tags = first_match(hay, TAG_RULES)
 
@@ -242,6 +285,10 @@ def emit_ts(rows: list[dict]) -> None:
         " * task / modality / bandwidth / tags are keyword classifications over each",
         " * paper's own title + abstract + opening text (see scripts/wifi_index.py), not",
         " * editorial judgements.",
+        " *",
+        " * modality is the signal a paper is *about*: a named tool in the title wins,",
+        " * otherwise the signal that dominates the text wins, rather than whichever",
+        " * rule happened to be listed first.",
         " */",
         "",
         "export type ManifestEntry = {",

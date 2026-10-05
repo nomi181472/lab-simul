@@ -18,7 +18,7 @@
     "pdfBytes": 7877676,
     "pages": 32,
     "task": "localization",
-    "modality": "wifi-radar",
+    "modality": "rssi",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -52,7 +52,7 @@
     "pdfBytes": 3161883,
     "pages": 13,
     "task": "localization",
-    "modality": "csi-80211n",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "deep-learning",
@@ -241,7 +241,7 @@
     "pdfBytes": 2965566,
     "pages": 10,
     "task": "vital-signs",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -311,7 +311,7 @@
     "pdfBytes": 1305207,
     "pages": 10,
     "task": "breathing",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "40 MHz",
     "tags": [
       "benchmark-tooling",
@@ -343,7 +343,7 @@
     "pdfBytes": 910102,
     "pages": 10,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "40 MHz",
     "tags": [
       "localization",
@@ -469,7 +469,7 @@
     "pdfBytes": 1326156,
     "pages": 17,
     "task": "vital-signs",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "160 MHz",
     "tags": [
       "deep-learning",
@@ -597,7 +597,7 @@
     "pdfBytes": 889438,
     "pages": 6,
     "task": "gesture-recognition",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -697,7 +697,7 @@
     "pdfBytes": 948076,
     "pages": 13,
     "task": "breathing",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "deep-learning",
@@ -729,7 +729,7 @@
     "pdfBytes": 7651892,
     "pages": 7,
     "task": "localization",
-    "modality": "wifi-radar",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "edge-deployment",
@@ -790,7 +790,7 @@
     "pdfBytes": 2967002,
     "pages": 10,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "40 MHz",
     "tags": [
       "benchmark-tooling",
@@ -884,7 +884,7 @@
     "pdfBytes": 2112305,
     "pages": 7,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "deep-learning",
@@ -979,7 +979,7 @@
     "pdfBytes": 4143691,
     "pages": 12,
     "task": "vital-signs",
-    "modality": "csi-80211n",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -1015,7 +1015,7 @@
     "pdfBytes": 142865,
     "pages": 6,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -1078,7 +1078,7 @@
     "pdfBytes": 4949610,
     "pages": 12,
     "task": "vital-signs",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "40 MHz",
     "tags": [
       "benchmark-tooling",
@@ -1145,7 +1145,7 @@
     "pdfBytes": 4930405,
     "pages": 6,
     "task": "gesture-recognition",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "160 MHz",
     "tags": [
       "deep-learning",
@@ -1216,7 +1216,7 @@
     "pdfBytes": 6704628,
     "pages": 17,
     "task": "fall-detection",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "40 MHz",
     "tags": [
       "benchmark-tooling",
@@ -1310,7 +1310,7 @@
     "pdfBytes": 1418894,
     "pages": 14,
     "task": "gesture-recognition",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -1532,7 +1532,7 @@
     "pdfBytes": 2468034,
     "pages": 13,
     "task": "gesture-recognition",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -1564,7 +1564,7 @@
     "pdfBytes": 3651685,
     "pages": 11,
     "task": "localization",
-    "modality": "csi-80211n",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "deep-learning",
@@ -1596,7 +1596,7 @@
     "pdfBytes": 18590951,
     "pages": 17,
     "task": "localization",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "edge-deployment",
@@ -1631,7 +1631,7 @@
     "pdfBytes": 1017529,
     "pages": 15,
     "task": "occupancy-presence",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "edge-deployment",
@@ -1667,7 +1667,7 @@
     "pdfBytes": 12945676,
     "pages": 39,
     "task": "fall-detection",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "deep-learning",
@@ -1796,7 +1796,7 @@
     "pdfBytes": 1258161,
     "pages": 7,
     "task": "breathing",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -1891,7 +1891,7 @@
     "pdfBytes": 797318,
     "pages": 6,
     "task": "activity-recognition",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "80 MHz",
     "tags": [
       "edge-deployment",
@@ -1928,7 +1928,7 @@
     "pdfBytes": 3249954,
     "pages": 20,
     "task": "breathing",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "40 MHz",
     "tags": [
       "benchmark-tooling",
@@ -2022,7 +2022,7 @@
     "pdfBytes": 776436,
     "pages": 9,
     "task": "other",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "deep-learning",
@@ -2117,7 +2117,7 @@
     "pdfBytes": 2721653,
     "pages": 6,
     "task": "gesture-recognition",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -2244,7 +2244,7 @@
     "pdfBytes": 5480883,
     "pages": 11,
     "task": "localization",
-    "modality": "csi-80211n",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -2372,7 +2372,7 @@
     "pdfBytes": 5086819,
     "pages": 14,
     "task": "vital-signs",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "deep-learning",
@@ -2470,7 +2470,7 @@
     "pdfBytes": 21103775,
     "pages": 19,
     "task": "vital-signs",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -2599,7 +2599,7 @@
     "pdfBytes": 29403725,
     "pages": 11,
     "task": "gesture-recognition",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -2698,7 +2698,7 @@
     "pdfBytes": 929249,
     "pages": 5,
     "task": "localization",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "deep-learning",
@@ -2768,7 +2768,7 @@
     "pdfBytes": 1748975,
     "pages": 19,
     "task": "vital-signs",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "deep-learning",
@@ -2804,7 +2804,7 @@
     "pdfBytes": 1244821,
     "pages": 12,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -2869,7 +2869,7 @@
     "pdfBytes": 2215342,
     "pages": 11,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "deep-learning",
@@ -3020,7 +3020,7 @@
     "pdfBytes": 4543415,
     "pages": 32,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -3053,7 +3053,7 @@
     "pdfBytes": 2469595,
     "pages": 15,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -3085,7 +3085,7 @@
     "pdfBytes": 4722850,
     "pages": 14,
     "task": "localization",
-    "modality": "csi-80211n",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -3350,7 +3350,7 @@
     "pdfBytes": 2599462,
     "pages": 9,
     "task": "gesture-recognition",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -3382,7 +3382,7 @@
     "pdfBytes": 1946542,
     "pages": 14,
     "task": "vital-signs",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "deep-learning",
@@ -3415,7 +3415,7 @@
     "pdfBytes": 8316563,
     "pages": 14,
     "task": "occupancy-presence",
-    "modality": "wifi-sonar",
+    "modality": "csi-80211n",
     "bandwidth": "80 MHz",
     "tags": [
       "benchmark-tooling",
@@ -3775,7 +3775,7 @@
     "pdfBytes": 2029029,
     "pages": 13,
     "task": "gesture-recognition",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -3872,7 +3872,7 @@
     "pdfBytes": 1117021,
     "pages": 16,
     "task": "localization",
-    "modality": "wifi-sonar",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "edge-deployment",
@@ -4204,7 +4204,7 @@
     "pdfBytes": 1796971,
     "pages": 11,
     "task": "localization",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "deep-learning",
@@ -4269,7 +4269,7 @@
     "pdfBytes": 1600415,
     "pages": 20,
     "task": "occupancy-presence",
-    "modality": "csi-80211n",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -4365,7 +4365,7 @@
     "pdfBytes": 772532,
     "pages": 6,
     "task": "gesture-recognition",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -4398,7 +4398,7 @@
     "pdfBytes": 1154856,
     "pages": 10,
     "task": "localization",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "deep-learning",
@@ -4464,7 +4464,7 @@
     "pdfBytes": 2038667,
     "pages": 8,
     "task": "localization",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "deep-learning",
@@ -4587,7 +4587,7 @@
     "pdfBytes": 2775914,
     "pages": 9,
     "task": "fall-detection",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -4698,7 +4698,7 @@
     "pdfBytes": 4765601,
     "pages": 11,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -4729,7 +4729,7 @@
     "pdfBytes": 3015832,
     "pages": 10,
     "task": "gesture-recognition",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "80 MHz",
     "tags": [
       "deep-learning",
@@ -4947,7 +4947,7 @@
     "pdfBytes": 4101778,
     "pages": 17,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -5011,7 +5011,7 @@
     "pdfBytes": 1780491,
     "pages": 12,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "deep-learning",
@@ -5075,7 +5075,7 @@
     "pdfBytes": 4236988,
     "pages": 15,
     "task": "gesture-recognition",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -5633,7 +5633,7 @@
     "pdfBytes": 655862,
     "pages": 6,
     "task": "posture-pose",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -5781,7 +5781,7 @@
     "pdfBytes": 1014727,
     "pages": 13,
     "task": "vital-signs",
-    "modality": "csi-80211n",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "deep-learning",
@@ -5877,7 +5877,7 @@
     "pdfBytes": 606429,
     "pages": 5,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -6494,7 +6494,7 @@
     "pdfBytes": 2641789,
     "pages": 5,
     "task": "other",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -6778,7 +6778,7 @@
     "pdfBytes": 447183,
     "pages": 6,
     "task": "fall-detection",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "40 MHz",
     "tags": [
       "deep-learning",
@@ -6806,7 +6806,7 @@
     "pdfBytes": 356260,
     "pages": 4,
     "task": "fall-detection",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "deep-learning",
@@ -6835,7 +6835,7 @@
     "pdfBytes": 3527150,
     "pages": 6,
     "task": "breathing",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -6869,7 +6869,7 @@
     "pdfBytes": 2222153,
     "pages": 26,
     "task": "breathing",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "80 MHz",
     "tags": [
       "benchmark-tooling",
@@ -6933,7 +6933,7 @@
     "pdfBytes": 2332554,
     "pages": 17,
     "task": "localization",
-    "modality": "wifi-radar",
+    "modality": "rssi",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -6997,7 +6997,7 @@
     "pdfBytes": 11861358,
     "pages": 6,
     "task": "occupancy-presence",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "80 MHz",
     "tags": [
       "benchmark-tooling",
@@ -7028,7 +7028,7 @@
     "pdfBytes": 8577281,
     "pages": 48,
     "task": "gesture-recognition",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "40 MHz",
     "tags": [
       "benchmark-tooling",
@@ -7088,7 +7088,7 @@
     "pdfBytes": 1269812,
     "pages": 17,
     "task": "vital-signs",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -7205,7 +7205,7 @@
     "pdfBytes": 10674856,
     "pages": 11,
     "task": "gesture-recognition",
-    "modality": "wifi-sonar",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "fingerprinting",
@@ -7335,7 +7335,7 @@
     "pdfBytes": 925601,
     "pages": 7,
     "task": "occupancy-presence",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "deep-learning",
@@ -7464,7 +7464,7 @@
     "pdfBytes": 1704550,
     "pages": 6,
     "task": "vital-signs",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "160 MHz",
     "tags": [
       "benchmark-tooling",
@@ -7592,7 +7592,7 @@
     "pdfBytes": 3475334,
     "pages": 6,
     "task": "fall-detection",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -7658,7 +7658,7 @@
     "pdfBytes": 7586383,
     "pages": 15,
     "task": "gesture-recognition",
-    "modality": "wifi-sonar",
+    "modality": "csi-80211n",
     "bandwidth": "80 MHz",
     "tags": [
       "deep-learning",
@@ -7975,7 +7975,7 @@
     "pdfBytes": 7526374,
     "pages": 13,
     "task": "localization",
-    "modality": "csi-80211n",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -8040,7 +8040,7 @@
     "pdfBytes": 1185776,
     "pages": 5,
     "task": "vital-signs",
-    "modality": "csi-toolkit",
+    "modality": "other",
     "bandwidth": "40 MHz",
     "tags": [
       "edge-deployment",
@@ -8173,7 +8173,7 @@
     "pdfBytes": 469392,
     "pages": 5,
     "task": "localization",
-    "modality": "wifi-radar",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -8270,7 +8270,7 @@
     "pdfBytes": 415812,
     "pages": 8,
     "task": "localization",
-    "modality": "csi-80211n",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -8338,7 +8338,7 @@
       "edge-deployment",
       "localization"
     ],
-    "textChars": 45142
+    "textChars": 45112
   },
   {
     "id": "W262",
@@ -8754,7 +8754,7 @@
     "pdfBytes": 885861,
     "pages": 6,
     "task": "occupancy-presence",
-    "modality": "wifi-sonar",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -8928,7 +8928,7 @@
     "pdfBytes": 4296675,
     "pages": 8,
     "task": "gesture-recognition",
-    "modality": "csi-80211n",
+    "modality": "rssi",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",
@@ -9087,7 +9087,7 @@
     "pdfBytes": 699041,
     "pages": 3,
     "task": "vital-signs",
-    "modality": "csi-80211n",
+    "modality": "csi-toolkit",
     "bandwidth": "160 MHz",
     "tags": [
       "benchmark-tooling",
@@ -9150,7 +9150,7 @@
     "pdfBytes": 3152324,
     "pages": 15,
     "task": "gesture-recognition",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "20 MHz",
     "tags": [
       "benchmark-tooling",
@@ -9182,7 +9182,7 @@
     "pdfBytes": 1916912,
     "pages": 22,
     "task": "benchmark",
-    "modality": "csi-toolkit",
+    "modality": "csi-80211n",
     "bandwidth": "unknown",
     "tags": [
       "benchmark-tooling",

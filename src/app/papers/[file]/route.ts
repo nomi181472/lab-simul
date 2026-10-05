@@ -1,16 +1,17 @@
 import { createReadStream, promises as fs } from "node:fs";
 import path from "node:path";
 import { Readable } from "node:stream";
-import { MANIFEST } from "@/labs/wifi-sensing/data/manifest";
+import { MANIFEST as WIFI_MANIFEST } from "@/labs/wifi-sensing/data/manifest";
+import { MANIFEST as NEURO_MANIFEST } from "@/labs/neuroevolution/data/manifest";
 
 /* Serves corpus PDFs to the in-app viewer.
  *
  * Two security properties, both deliberate:
  *  1. ALLOWLIST — a request is only served if its filename is exactly a
- *     `fileName` in the generated manifest. Nothing else on disk is reachable,
- *     regardless of what the path contains.
- *  2. TRAVERSAL GUARD — the resolved path is re-checked to be inside the corpus
- *     directory, so a crafted filename cannot escape even in principle.
+ *     `fileName` in some lab's generated manifest. Nothing else on disk is
+ *     reachable, regardless of what the path contains.
+ *  2. TRAVERSAL GUARD — the resolved path is re-checked to be inside that lab's
+ *     corpus directory, so a crafted filename cannot escape even in principle.
  *
  * Range requests are supported because the browser's native PDF viewer issues
  * them; without this, large PDFs fail to load in Chrome.
@@ -19,8 +20,28 @@ import { MANIFEST } from "@/labs/wifi-sensing/data/manifest";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const CORPUS_DIR = path.join(process.cwd(), "papers", "wifi_sensing");
-const ALLOWED = new Set(MANIFEST.map((p) => p.fileName));
+/* Both labs share this route, so the filename has to resolve to a corpus
+ * directory as well as to an allowed name. A filename that appears in *both*
+ * manifests is dropped rather than guessed, so an ambiguity can only ever
+ * produce a 404, never the wrong lab's PDF. */
+const CORPORA = [
+  { dir: "wifi_sensing", manifest: WIFI_MANIFEST },
+  { dir: "neuroevolution", manifest: NEURO_MANIFEST },
+] as const;
+
+const ALLOWED = new Map<string, string>();
+const ambiguous = new Set<string>();
+for (const { dir, manifest } of CORPORA) {
+  for (const p of manifest) {
+    if (ambiguous.has(p.fileName)) continue;
+    if (ALLOWED.has(p.fileName)) {
+      ALLOWED.delete(p.fileName);
+      ambiguous.add(p.fileName);
+      continue;
+    }
+    ALLOWED.set(p.fileName, path.join(process.cwd(), "papers", dir));
+  }
+}
 
 const TYPES: Record<string, string> = {
   ".pdf": "application/pdf",
@@ -48,6 +69,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ file
 
   if (!ALLOWED.has(name)) return notFound("not in corpus manifest");
 
+  const CORPUS_DIR = ALLOWED.get(name)!;
   const full = path.resolve(CORPUS_DIR, name);
   const root = path.resolve(CORPUS_DIR);
   if (full !== path.join(root, name)) return notFound("bad request");
@@ -120,6 +142,7 @@ export async function HEAD(request: Request, { params }: { params: Promise<{ fil
     return new Response(null, { status: 400 });
   }
   if (!ALLOWED.has(name)) return new Response(null, { status: 404 });
+  const CORPUS_DIR = ALLOWED.get(name)!;
   const full = path.resolve(CORPUS_DIR, name);
   if (full !== path.join(path.resolve(CORPUS_DIR), name)) return new Response(null, { status: 400 });
   let stat: Awaited<ReturnType<typeof fs.stat>>;

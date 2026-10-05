@@ -34,6 +34,7 @@ export const P201: PaperRecord = {
       { kind: "output", label: "output", quote: "More formally, given shared layers W1 ,W2 , . . . ,WD , the soft orN is given dering model yt = f (x t ) for the t-th task {(yt i , x t i )}i=1 D 0 by yt = Dt (yt ), where yt = Et (x t ) and \u0001 ytd = s" },
     ],
     details: ["More formally, given shared layers W1 ,W2 , . . . ,WD , the soft orN is given dering model yt = f (x t ) for the t-th task {(yt i , x t i )}i=1 D 0 by yt = Dt (yt ), where yt = Et (x t ) and \u0001 ytd = softmerge W1 (ytd −1 ), . . . ,WD (ytd −1 ) ∀ d ∈ 1..D , (2) where Et is a task-specific encoder mapping the task input to the input of the shared layers, Dt is a task-specific decoder mapping the output of the shared layers to an output layer, e.g., classification.", "One unique approach uses reinforcement learning to develop an LSTM policy for generating appropriate network topologies and hyperparameters for a given task.", "An individual in the module population is a DAG where each node represents a particular DNN layer and its corresponding hyperparameters (number of neurons, activation function, etc)."],
+    genotypeToPhenotype: "This flag is evolved as part of the module genotype in CoDeepNEAT.",
     quotes: ["For instance, given an image as input, it can recognize the objects in it, identify the type of scene, and generate a verbal caption for it.", "In the future it can be applied to various problems in vision, language, and control, and in particular to domains with multimodal inputs and outputs.", "In the convex optimization setting, this idea has been implemented via various regularization penalties on shared parameter matrices.", "Each individual in this population is then evaluated by training it on a supervised learning task, and assigning its performance as fitness."],
   },
   method: {
@@ -323,6 +324,7 @@ export const P205: PaperRecord = {
       { kind: "output", label: "output", quote: "Feedforward neural networks, consist of an input layer, one or more hidden layers, and an output layer." },
     ],
     details: ["These networks have garnered significant attention due to their capacity to automatically learn hierarchical feature representations from raw data, which results in exceptional performance in a wide range of tasks, including image recognition, natural language processing, and speech recognition.", "Feedforward neural networks, consist of an input layer, one or more hidden layers, and an output layer.", "Each layer contains multiple neurons that are fully connected to the neurons in the previous and following layers.", "The neurons in the input layer receive the raw input data, which is then passed through the network to produce an output.", "The hidden layers contain non-linear activation functions, such as the sigmoid or ReLU function, that allow the network to model complex relationships in the data."],
+    genotypeToPhenotype: "To conclude the discussion concerning the fundamental differences in existing neuroevolution methods, the remaining part of this section describes the different encoding space strategies commonly used in the literature.",
     quotes: ["We test the proposed framework considering the ResNet and DenseNet architectures to compare the performance between training complete architectures traditionally and evolving them by progressively adding new layers of neurons until the given architecture is completed.", "The foundations of deep learning can be traced back to early works such as LeCun et al.’s Convolutional Neural Networks (CNNs).", "Feedforward neural networks, consist of an input layer, one or more hidden layers, and an output layer.", "Each individual’s fitness is measured by running the program and evaluating its performance on some problem tasks."],
   },
   method: {
@@ -349,7 +351,7 @@ export const P205: PaperRecord = {
     evaluation: "Each individual’s fitness is measured by running the program and evaluating its performance on some problem tasks.",
   },
   datasets: [],
-  metrics: ["final-fitness", "best-fitness", "generations", "accuracy", "inference-cost", "wall-clock"],
+  metrics: ["final-fitness", "generations", "accuracy", "inference-cost", "wall-clock"],
   baselines: [],
   results: ["This threshold is a hyperparameter and was introduced to prevent very small improvements from leading to large models with little improvement in performance (see Fig. 4).", "Parent ← Initialize empty model Elite ← Parent for i in 1 to g do for j in 1 to p do Individual ← Parent Randomly choose block type (linear or convolutional) Randomly choose block connection based on CW Randomly choose block configuration and number of layers for new block Randomly select parameters for each layer Mutate Individual – Add new block with chosen options if LRF = True then η ← LearningRateFinder(Indiv idual) end if Train – Fit Individual with backpropagation for n epochs Compute the top-1 accuracy of Individual on the validation dataset if Indiv idualAcc > EliteAcc ∗ t then Elite ← Individual end if end for Parent ← Elite end for return Elite 6 F.J.J.B.", "To achieve this partial last layer optimization, we break down the last linear layer into Output Layers and a Merge Block (Fig. 9).", "ResNet-18 Fig. 10 displays the learning curves achieved when evolving the ResNet-18 architecture."],
   ablations: ["Require: Number of generations (g), population size (p), connection weights (CW ), performance threshold (t), number of training epochs (n), Learning Rate (η), Use Learn Rate Finder (LRF , bool) 3.2.1.", "Progression of validation accuracy for sub-experiments with varying hyperparameters. key difference between sub-experiments B and E is that the entire model trains throughout the evolution in sub-experiment B, with every block connecting directly to the Merge Block.", "This design feature likely influenced the closely ranged performance of all sub-experiments, which presented test accuracies varying from 87.68% to 88.54%, very different results from previous experiments on the ResNet architecture."],
@@ -391,6 +393,7 @@ export const P206: PaperRecord = {
     phenotype: "other",
     layers: [],
     details: [],
+    genotypeToPhenotype: "RandomMAP-Elites generates random solutions at each generation and add them to a MAP-Elites grid following the MAP-Elites addition condition.",
     quotes: ["Then, an iteration of MAP-Elites consists of the following steps: 1. sample uniformly parent solutions from the archive A, 2. apply variation operators to these solutions to produce offspring solutions, 3. evaluate the offspring solutions to get their descriptor d and fitness f , and finally 4. attempt to add the offspring back to the archive A.", "Overall, MAP-Elites aims to maximise the QD-Score of the archive A, defined as follow: X max (QDScore(A)) = max fi A A (1) i∈A w.r.t ∀i ∈ A, di ∈ celli Where fi is the fitness of solution i and di is its descriptor, which determines its cells in the archive celli ."],
   },
   method: {
@@ -767,6 +770,7 @@ export const P211: PaperRecord = {
       { kind: "dense", label: "dense", quote: "A particular advancement in the field of ANN in the last decade is related to the fact that the research community has been gradually learning to deal with the engineering problem of training neural n" },
     ],
     details: ["A particular advancement in the field of ANN in the last decade is related to the fact that the research community has been gradually learning to deal with the engineering problem of training neural networks comprised of several hidden layers.", "A prerequisite to training a neural network model is to come up with a particular combination of values of hyperparameters, such as the number of hidden layers, the number of artificial neurons in each, the learning rate, the activation functions to be used, to name a few."],
+    genotypeToPhenotype: "Solutions are generated from normal multivariate distribution sampling, where the covariance matrix and mean of the sampling is adapted during each generation for the choice of candidates.",
     quotes: ["A particular advancement in the field of ANN in the last decade is related to the fact that the research community has been gradually learning to deal with the engineering problem of training neural networks comprised of several hidden layers.", "A prerequisite to training a neural network model is to come up with a particular combination of values of hyperparameters, such as the number of hidden layers, the number of artificial neurons in each, the learning rate, the activation functions to be used, to name a few.", "As a result, Grid Search may exploit many unimportant areas in ΓA if the input grid is not carefully designed by a domain expert."],
   },
   method: {
@@ -1000,7 +1004,7 @@ export const P214: PaperRecord = {
     evaluation: "The accumulated torque provides the first term in our fitness function.",
   },
   datasets: [],
-  metrics: ["final-fitness", "best-fitness", "generations", "inference-cost", "coverage"],
+  metrics: ["final-fitness", "generations", "inference-cost", "coverage"],
   baselines: ["N002", "N051", "N063", "N094"],
   results: ["Figure 1 visually demonstrates the differences between two legs evolved using direct and indirect methods.", "Figure 4(i) demonstrates how the change in thresholds affects the appearance of a leg. 2) Scaling: The rescaling of occupied voxels has several steps that allow for an acceptable leg to be produced.", "The best fitness achieved by the thresholding approach in soil was 29.0705 with the average best of the 10 runs being 20.1488."],
   ablations: [],
@@ -1348,6 +1352,7 @@ export const P219: PaperRecord = {
       { kind: "input", label: "input", quote: "Also by defining internal and external inputs for each agent we managed to create independent agents that are able to cooperate and form teams for their mutual benefit and at the same time eliminate u" },
     ],
     details: [],
+    genotypeToPhenotype: "The process of selecting the best performing phenotypes from the population and the creation of offspring from them is the main goal of this agent.",
     quotes: ["We use an ontology based template to create suitable input and outputs for unit agents enabling them to cooperate and form teams for their mutual benefit and eliminating communication overhead.", "Also by defining internal and external inputs for each agent we managed to create independent agents that are able to cooperate and form teams for their mutual benefit and at the same time eliminate unnecessary communication overhead.", "We used rtNEAT algorithm in order to obtain customized neural network topologies, thus avoiding to complex network architecture."],
   },
   method: {
@@ -2416,6 +2421,7 @@ export const P234: PaperRecord = {
       { kind: "conv", label: "conv", quote: "Convolutional neural networks (CNNs) can be used to solve various computer vision problems, including medical image classification and segmentation." },
     ],
     details: [],
+    genotypeToPhenotype: "At the beginning of the 20th century, research on encoding ways had a breakthrough.",
     quotes: ["Convolutional neural networks (CNNs) can be used to solve various computer vision problems, including medical image classification and segmentation.", "This indicates that better performance can be obtained while exploring the block-based search space by simply changing the block structure, that is, changing the number and the sizes of convolutional kernels.", "The ENAS algorithm forces all models to share the same weights, rather than training the model to converge from scratch, and the weights in previous models can be applied.", "NAS only needs to set state-action space and reward function to complete the search process."],
   },
   method: {
@@ -2566,6 +2572,7 @@ export const P236: PaperRecord = {
       { kind: "conv", label: "conv", quote: "Without loss of generality, the objective value f (·) is assumed (or converted) to be nonnegative, to prevent solutions from decreasing the QD-Score." },
     ],
     details: [],
+    genotypeToPhenotype: "After that, in each generation t (where (t) t > 1), NSS-ME first selects N parent solutions Bp from the archive A by NSS Select(A, N ) in line 6, which selects N solutions from the top-ranked non-surrounded-dominated fronts of A obtained by NSS in Algorithm 1.",
     quotes: ["Without loss of generality, the objective value f (·) is assumed (or converted) to be nonnegative, to prevent solutions from decreasing the QD-Score.", "(2) x∈X The objective function vector (f1 (x), . . . , fk (x)) is also represented as f (x) for convenience.", "Given an objective function to be maximized and a behavior descriptor vector function, QD algorithms attempt to find a set of solutions that can cover the space of the behavior descriptor and have high objective values."],
   },
   method: {
@@ -2852,6 +2859,7 @@ export const P240: PaperRecord = {
       { kind: "input", label: "input", quote: "At training time, the latent variable is drawn from a static distribution and fed as an input alongside the state to the policy, effectively defining a mixture of policies." },
     ],
     details: [],
+    genotypeToPhenotype: "Success in inducing diversity is instead typically assessed indirectly through performance on adaptation or hierarchical learning experiments where either the tasks are modified or new ones are introduced (Eysenbach et al., 2019; Kumar et al., 2020;",
     quotes: ["At training time, the latent variable is drawn from a static distribution and fed as an input alongside the state to the policy, effectively defining a mixture of policies.", "(2.) Policies share the same neural network architecture but have their own sets of parameters.", "This is typically realized by including a diversity term - often derived from information theory - in the objective function optimized by RL."],
   },
   method: {
@@ -2991,6 +2999,7 @@ export const P242: PaperRecord = {
       { kind: "input", label: "input", quote: "Given a dataset (X, y), where each point has inputs Xi ∈ Rn and response yi ∈ R, symbolic regression aims to identify a function f : Rn → R that best fits the dataset, where the functional form of f i" },
     ],
     details: ["This approach works by using a recurrent neural network (RNN) to stochastically emit batches of expressions as a sequence of mathematical operators or “tokens.” Expressions are evaluated for goodness of fit and a training strategy is used to improve the quality of generated formulas.", "The sequence generator may be any discrete distribution or generative process that creates a sequence of tokens, e.g. a recurrent neural network or transformer."],
+    genotypeToPhenotype: "In each generation of GP, each individual has a probability of undergoing mutation and a probability of undergoing crossover; selection is performed until the new generation’s population has the same size as the current generation’s population.",
     quotes: ["Given a dataset (X, y), where each point has inputs Xi ∈ Rn and response yi ∈ R, symbolic regression aims to identify a function f : Rn → R that best fits the dataset, where the functional form of f is a short closed-form mathematical expression.", "Any mathematical expression f can be represented by an algebraic expression tree, where internal nodes are operators (e.g. ×, sin) and terminal nodes are input variables (e.g. x) or constants [Petersen et al., 2021].", "Each τi is an operator, input variable, or constant selected from a library of possible tokens, e.g.", "A fitness function acts to improve the population over many generations."],
   },
   method: {
@@ -3015,7 +3024,7 @@ export const P242: PaperRecord = {
     evaluation: "A fitness function acts to improve the population over many generations.",
   },
   datasets: [],
-  metrics: ["mean-reward", "best-fitness", "generations", "l1-error", "inference-cost"],
+  metrics: ["mean-reward", "final-fitness", "generations", "l1-error", "inference-cost"],
   baselines: [],
   results: ["Hyperparameters are shown in Appendix 6 Table 2: Recovery rate of several algorithms on the Nguyen, R, and Livermore benchmark problem sets across 25 independent training runs. 95% confidence intervals are obtained from the standard error between mean recovery on 37 unique benchmark problems.", "Table 2 shows that our method ties with GEGL on the R benchmark set and outperforms the other three methods overall."],
   ablations: ["In addition to GEGL, we compare against a “GP only” and “RNN only” version of our method, which are the most critical ablations."],
@@ -3562,6 +3571,7 @@ export const P250: PaperRecord = {
       { kind: "conv", label: "conv", quote: "Furthermore, the bootstrap problem does not allow convergence on the first generations, preventing the generation of simple solutions with a minimum fitness value that could guide the evolutionary pat" },
     ],
     details: ["Evolutionary robotics pays more attention to the processes that build a controller than how the final controller is."],
+    genotypeToPhenotype: "So, the genotype for each hidden unit will contain those values in a direct encoding scheme.",
     quotes: ["Furthermore, the bootstrap problem does not allow convergence on the first generations, preventing the generation of simple solutions with a minimum fitness value that could guide the evolutionary path towards the final solution.", "However, up to date, evolutionary methods do not achieve the generation of behaviors for complex robots with a fixed body structure composed of lots of sensors and actuators.", "The architecture allows the introduction of external knowledge on selected stages of the evolutionary process, affecting only selected parts of the controller that need to accommodate that information."],
   },
   method: {

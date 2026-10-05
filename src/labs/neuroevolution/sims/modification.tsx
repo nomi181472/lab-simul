@@ -15,7 +15,7 @@ import {
   type RunConfig,
 } from "@/labs/neuroevolution/sims/evolve";
 import { GenomeStrip, ModificationDiagram } from "@/labs/neuroevolution/architecture";
-import { LOCUS_COLOR, type Locus } from "@/labs/neuroevolution/data/types";
+import { LOCUS_COLOR, type Locus, type LocusChange } from "@/labs/neuroevolution/data/types";
 import { SIM_BINDINGS } from "@/labs/neuroevolution/sims/papers";
 
 /* The modification simulators.
@@ -186,9 +186,12 @@ export function LocusDemoSim() {
   const moved = current
     .map((v, i) => (v === base[i] ? -1 : i))
     .filter((i) => i >= 0);
-  const changes: { locus: Locus; operator: string; quote?: string }[] = moved.map((i) => ({
-    locus: "architecture" as Locus,
+  // Simulator output, not a corpus quote: say so, so the diagram is not read
+  // as evidence from a paper.
+  const changes: LocusChange[] = moved.map((i) => ({
+    locus: "architecture",
     operator: `point mutation · gene ${i + 1}: ${base[i]} → ${current[i]}`,
+    quote: `simulator run: gene ${i + 1} mutated from ${base[i]} to ${current[i]}`,
   }));
 
   return (

@@ -31,6 +31,7 @@ export const P001: PaperRecord = {
       { kind: "input", label: "input", quote: "The control input is usually defined 3 Fig. 2." },
     ],
     details: [],
+    genotypeToPhenotype: "The one hot encoding of action space resulted in abrupt steering control.",
     quotes: ["The control input is usually defined 3 Fig. 2.", "RL agents are not told explicitly how to act by an expert; rather an agent’s performance is evaluated by a reward function R ."],
   },
   method: {
@@ -741,6 +742,7 @@ export const P011: PaperRecord = {
       { kind: "conv", label: "conv", quote: "We demonstrate the effectiveness of PBT on deep reinforcement learning problems, showing faster wall-clock convergence and higher final performance of agents by optimising over a suite of hyperparamet" },
     ],
     details: [],
+    genotypeToPhenotype: "While there are many improvements and extensions to be explored going forward, we believe that the ability of PBT to enhance the optimisation process of new, unfamiliar models, to adapt to non-stationary learning problems,",
     quotes: ["We demonstrate the effectiveness of PBT on deep reinforcement learning problems, showing faster wall-clock convergence and higher final performance of agents by optimising over a suite of hyperparameters.", "In more detail, iterations of parameter update steps: θ ← step(θ|h) (2) are chained to form a sequence of updates that ideally converges to the optimal solution θ∗ = optimise(θ|h) = optimise(θ|(ht )Tt=1 ) = step(step(. . . step(θ|h1 ) . . . |hT −1 )|hT ).", "Incorrectly chosen hyperparameters can lead to bad solutions or even a failure of the optimisation of θ to converge.", "Finally, there are parallels to work such as Salustowicz & Schmidhuber (1997) which perform program search with genetic algorithms. 3 Population Based Training The most common formulation in machine learning is to optimise the parameters θ of a model f to maximise a given objective function Q̂, (e.g. classification, reconstruction, or prediction)."],
   },
   method: {
@@ -816,6 +818,7 @@ export const P012: PaperRecord = {
       { kind: "recurrent", label: "recurrent", quote: "Generally, for time series forecasting problems, the most DL algorithms which have been used by researchers in the literature are recurrent neural network (RNN), stacked autoencoder (SAE), long short-" },
     ],
     details: ["Recently, with rapid development of artificial intelligence, deep learning (DL) is the latest achievement of the machine learning era attracting remarkable attention due to its outstanding performance in various domains including machine vision, recommendation systems and natural language processing.", "Generally, for time series forecasting problems, the most DL algorithms which have been used by researchers in the literature are recurrent neural network (RNN), stacked autoencoder (SAE), long short-term memory (LSTM), deep belief networks (DBNs), and their modification.", "They showed that their algorithm outperforms LSTM and CNN networks.", "From the point of view of DL network optimization, to the best of our knowledge, a modified version of GWO has been applied to three different datasets of various prediction problems, including individual household electric power consumption, air pollution, and human activity recognition by considering the optimization of CNNLSTM deep neural network.", "Compared to this article, in our work, we tune the CNN hyperparameters while they considered the tuning of CNN-LSTM architecture which is a different DL TABLE I TAXONOMY OF THE REVIEWED WORKS FOR GWO AND ITS VARIANTS model with CNN."],
+    genotypeToPhenotype: "In order to lessen the feature maps to a single 1-D vector, a flatten layer is utilized between the pooling layer and dense layer.",
     quotes: ["A Novel Evolutionary-Based Deep Convolutional Neural Network Model for Intelligent Load Forecasting Author(s): Jalali, Seyed Mohammad Jafar; Ahmadian, Sajad; Khosravi, Abbas; Shafie-khah, Miadreza; Nahavandi, Saeid; Catalão, João P.", "A Novel EvolutionaryBased Deep Convolutional Neural Network Model for Intelligent Load Forecasting.", "Over the past few years, convolutional neural networks (CNNs) have been used to solve several complex deep learning challenges, making substantial progress in some fields and contributing to state of the art performances."],
   },
   method: {
@@ -893,6 +896,7 @@ export const P013: PaperRecord = {
       { kind: "dense", label: "dense", quote: "We discuss the commonly used search space in this context in Section 2.4. 3 Martin Wistuba, Ambrish Rawat, Tejaswini Pedapati z (1) max pool ŷ ŷ ŷ softmax softmax z (n) z (n) on on o2 o2 z (1) soft" },
     ],
     details: ["Another common task tackled with neural architecture search is language modeling where search methods seek to find the architecture for recurrent neural networks (RNNs)."],
+    genotypeToPhenotype: "While one class of RL methods indirectly learns this policy with the use of value functions and state-action value functions, other approaches directly learn a parameterized policy.",
     quotes: ["Neural Architecture Search Space From a computational standpoint, neural networks represent a function that transforms input variables x to output variables ŷ through a series of operations.", "The only exception is the input node x which has neither a set of parent nodes nor an operation associated to it and is only considered as an input to other nodes.", "(1) The set of operations includes unary operations such as convolutions, pooling, activation functions or multivariate operations such as concatenation or addition.", "Methods that simultaneously handle multiple objective functions have become relevant."],
   },
   method: {
@@ -967,6 +971,7 @@ export const P014: PaperRecord = {
     phenotype: "cnn",
     layers: [],
     details: [],
+    genotypeToPhenotype: "Similar to NAS-RL, GeNet also adopts the concept of encoding the network structure.",
     quotes: ["A Comprehensive Survey of Neural Architecture Search: Challenges and Solutions Input 𝑧𝑧 (1) 𝑧𝑧 (2) 𝑧𝑧 (𝑛𝑛) Input 𝑜𝑜1 𝑜𝑜2 𝑜𝑜𝑛𝑛 Output 111:5 𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆 𝑧𝑧 (2) 𝑧𝑧 (1) 𝑧𝑧 (2) 𝑧𝑧 (𝑛𝑛) 𝑜𝑜1 𝑜𝑜2 𝑜𝑜3 𝑧𝑧 (1) 𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆 Output Fig. 2.", "For example, early incarnations of NAS trained each candidate neural architecture from scratch during the architecture search phase, leading to a surge in computation.", "ENAS proposes to accelerate the architecture search process using a parameter sharing strategy."],
   },
   method: {
@@ -1043,6 +1048,7 @@ export const P015: PaperRecord = {
       { kind: "dense", label: "dense", quote: "In their simplest terms a DNN is a feedforward artificial neural network (ANN) with many hidden layers." },
     ],
     details: ["In their simplest terms a DNN is a feedforward artificial neural network (ANN) with many hidden layers.", "Usually having two or more hidden layers in an ANN qualifies as a DNN.", "In this work, we focus our attention exclusively in architecture EAs-based search methods in DNNs as well EAs-based approaches in training DNNs.", "Other deep learning architectures considered in this study include Recurrent Neural Networks and Long Short Term Memory. 1 Evolutionary Programming is another landmark EA, but to the best of our knowledge, there are no neuroevolution works using this paradigm. 2 Previous literature reviews in the area include those conducted by Floreano et al.", "We expect this article will attract the attention of researchers in the DL and EA communities to further investigate effective and efficient approaches to addressing new challenges in neuroevolution in DNNs."],
+    genotypeToPhenotype: "Encoding autoencoders within a chromosone representation means that such an approach could be broad enough to consider most autoencoder variations.",
     quotes: ["In their simplest terms a DNN is a feedforward artificial neural network (ANN) with many hidden layers.", "Usually having two or more hidden layers in an ANN qualifies as a DNN.", ", that have been used in neuroevolution, including Autoencoders, Convolutional Neural Networks, Deep Belief Networks, and Restricted Boltzmann Machines,."],
   },
   method: {
@@ -1196,6 +1202,7 @@ export const P017: PaperRecord = {
       { kind: "output", label: "output", quote: "A regular 3-layer neural network consists of input – hidden layer 1 – hidden layer 2 – output layer." },
     ],
     details: ["Similarly, if the computers are able to recognize or classifying object and environment by looking for low-level features such as edges and curves, then it can build more abstract concepts of what it recognizes through a series of convolutional layers.", "Due to these flaws, the idea of automating hyperparameter search is getting attention in machine learning.", "Convolutional Neural Network Convolutional neural network gain advantages over inputs that consist of images which neurons are arranged in 3 dimensions of width, height, and depth.", "For examples, CIFAR-10 datasets have volume dimensions of 32x32x3 (width, height, depth).", "A regular 3-layer neural network consists of input – hidden layer 1 – hidden layer 2 – output layer."],
+    genotypeToPhenotype: "In the search space, GA works with populations of solutions which each generation is subjected to selection, crossover and mutation operations.",
     quotes: ["(IJACSA) International Journal of Advanced Computer Science and Applications, Vol. 10, No. 6, 2019 Hyperparameter Optimization in Convolutional Neural Network using Genetic Algorithms Nurshazlyn Mohd Aszemi1, P.D.D Dominic2 Department of Computer and Information Sciences, Universiti Teknologi Petronas, Seri Iskandar, Perak, Malaysia Abstract—Optimizing hyperparameters in Convolutional Neural Network (CNN) is a tedious problem for many researchers and practitioners.", "Similarly, if the computers are able to recognize or classifying object and environment by looking for low-level features such as edges and curves, then it can build more abstract concepts of what it recognizes through a series of convolutional layers.", "Hence, image recognition and classification in the neural network are called Convolutional Neural Network (CNN)."],
   },
   method: {
@@ -1269,6 +1276,7 @@ export const P018: PaperRecord = {
       { kind: "pool", label: "pool", units: 7, quote: "The operator space O is the following set of 8 functions, each of which operates on a single tensor5 : • 3x3 depthwise-separable convolution • 5x5 depthwise-separable convolution • 7x7 depthwise-separ" },
     ],
     details: ["In the original paper, they use the REINFORCE algorithm to estimate the parameters of a recurrent neural network (RNN), which represents a policy to generate a sequence of symbols (actions) specifying the structure of the CNN; the reward function is the classification accuracy on the validation set of a CNN generated from this sequence.", "Other related works include, who focus on MLP rather than CNNs;, who used an incremental approach in the context of evolutionary algorithms; who used a schedule of increasing number of layers; and who search through the space of latent factor models specified by a grammar."],
+    genotypeToPhenotype: "In a fixed-length binary string encoding of CNN architecture 6 5 symbols per block, times 5 blocks, times 2 for Normal and Reduction cells. 6 C.",
     quotes: ["We propose a new method for learning the structure of convolutional neural networks (CNNs) that is more efficient than recent state-of-the-art methods based on reinforcement learning and evolutionary algorithms.", "Liu et al. structured search space proposed by, in which the search algorithm is tasked with searching for a good convolutional “cell”, as opposed to a full CNN.", "A cell contains B “blocks”, where a block is a combination operator (such as addition) applied to two inputs (tensors), each of which can be transformed (e.g., using convolution) before being combined.", "In the original paper, they use the REINFORCE algorithm to estimate the parameters of a recurrent neural network (RNN), which represents a policy to generate a sequence of symbols (actions) specifying the structure of the CNN; the reward function is the classification accuracy on the validation set of a CNN generated from this sequence."],
   },
   method: {
@@ -1802,7 +1810,7 @@ export const P025: PaperRecord = {
     evaluation: "The hybrid algorithm employs CMA-ES’s ability to efficiently navigate continuous search spaces by maintaining a mixture of normal distributions (candidate solutions) dynamically augmented by objective function feedback.",
   },
   datasets: [],
-  metrics: ["success-rate", "final-fitness", "best-fitness", "evaluations", "inference-cost", "coverage"],
+  metrics: ["success-rate", "final-fitness", "evaluations", "inference-cost", "coverage"],
   baselines: ["N001", "N002", "N006", "N028"],
   results: [],
   ablations: ["Previous work shows that varying σ can greatly affect both the precision and coverage of MAP-Elites."],
@@ -1852,6 +1860,7 @@ export const P026: PaperRecord = {
       { kind: "conv", label: "conv", quote: "Especially for industrial systems, domain experts are more likely to deploy autonomously learned controllers if they are understandable and convenient to evaluate." },
     ],
     details: [],
+    genotypeToPhenotype: "In each generation, a certain portion (according to terminal mutation ratio rm ) of the best-performing individuals for each complexity is selected.",
     quotes: ["Especially for industrial systems, domain experts are more likely to deploy autonomously learned controllers if they are understandable and convenient to evaluate.", "Keane, Koza, and Streeter (2002) automatically synthesized a controller by using GP, outperforming conventional PID controllers for an industrially representative set of plants.", "In the proposed GPRL approach, the performance of a population of basic algebraic equations is evaluated by testing the individuals on a world model using the Monte Carlo method (Sutton and Barto, 1998)."],
   },
   method: {
@@ -1921,6 +1930,7 @@ export const P027: PaperRecord = {
       { kind: "conv", label: "conv", quote: "Of course, multiple objectives can in principle be aggregated into a single metric, which converts a multi-objective optimization (MOO) problem to a single-objective optimization problem." },
     ],
     details: [],
+    genotypeToPhenotype: "What can be implemented in an automatic fashion, is the evaluation of each generated Pareto front on its associated outer test set in an unbiased fashion.",
     quotes: ["Of course, multiple objectives can in principle be aggregated into a single metric, which converts a multi-objective optimization (MOO) problem to a single-objective optimization problem.", "Let D be a dataset with 𝑛 input-output \u0001 pairs x (𝑖 ) , 𝑦 (𝑖 ) ∈ X × Y, which are independent and identically distributed (i.i.d.) from a datagenerating distribution ℙ𝑥 𝑦 .", "For classification, 𝑔 is the number of classes and given a certain input, I outputs a probability score for each class . 4 Karl and Pielok, et al. with the expectation taken over the random data D of size 𝑛 and a fresh test sample (x, 𝑦), both independently sampled from ℙ𝑥 𝑦 .", "Objective functions 𝑐𝑖 , 𝑖 ∈ {1, 2, ..., 𝑚} can be characterized by their evaluation cost and stochasticity."],
   },
   method: {
@@ -2424,6 +2434,7 @@ export const P034: PaperRecord = {
       { kind: "dense", label: "dense", quote: "After that, a GA-DLNN hybrid model was developed to select optimal parameters for the DLNN model, including: network algorithm, activation function for hidden neurons, number of hidden layers, and the" },
     ],
     details: ["After that, a GA-DLNN hybrid model was developed to select optimal parameters for the DLNN model, including: network algorithm, activation function for hidden neurons, number of hidden layers, and the number of neurons in each hidden layer.", "It is worth noticing that the development of the artificial neural network (ANN) algorithm has gained intense attention to treat design issues in pile foundation.", "used GA to optimize parameters of three hidden layers deep belief neural network (DBNN), include number of epochs, number of hidden units and learning rates in the hidden layers.", "Besides, DLNN model can be optimized to better estimate axial load capacity of pile, including number of hidden layers, number of neurons in each hidden layer, activation function for hidden layers and training algorithm.", "For this, the contribution of the present work can be marked through the following ideas: (i) large data set, including 472 experimental tests; (ii) reduce the input variables from 10 to 4 which help the model achieve more accurate results with faster training time, (iii) automatically design the optimal architecture for the DLNN model, all key parameters are considered, include: the number of hidden layers, the number of neurons in each hidden layer, the activation function and the training algorithm."],
+    genotypeToPhenotype: "Considering the chromosome, each gene is associated with a unique value, i.e., 1 when it is selected or 0 in the other case.",
     quotes: ["After that, a GA-DLNN hybrid model was developed to select optimal parameters for the DLNN model, including: network algorithm, activation function for hidden neurons, number of hidden layers, and the number of neurons in each hidden layer.", "The GA-DLNN hybrid model was shown to exhibit the ability to find the most optimal set of parameters for the prediction process.The results showed that the performance of the hybrid model using only the most critical features gave the highest accuracy, compared with those obtained by the hybrid model using all input variables. 1.", "used GA to optimize parameters of three hidden layers deep belief neural network (DBNN), include number of epochs, number of hidden units and learning rates in the hidden layers."],
   },
   method: {
@@ -2954,7 +2965,7 @@ export const P041: PaperRecord = {
       selection: ["Tournament selection", "SPEA-II", "NSGA-II"],
       changes: [
         { locus: "activation", operator: "Not stated in retrieved text", quote: "However, for computationally tractability, we constrain the search space such that each node in a phase carries the same sequence of operations, i.e. a 3 × 3 convolution followed by batch-normalization and ReLU." },
-        { locus: "architecture", operator: "Archive insertion", quote: "(5) Bayesian Learning: We construct and employ a Bayesian Network inspired by the Bayesian Optimization Algorithm (BOA) to fully utilize the promising solutions present in our search history archive and the inherent corr" },
+        { locus: "architecture", operator: "Point mutation", quote: "We develop an algorithm to quickly and approximately identify these duplicate genomes (see Appendix for details). 3.2 Mutation: To enhance the diversity (having different network architectures) of the population and the " },
       ],
       fitness: "A policy gradient method seeks to approximate some not differentiable reward function to train a model that requires parameter gradients, like a neural network architecture.",
       phenotypeQuote: "NSGA-Net is designed with three goals in mind: (1) a procedure considering multiple and conflicting objectives, (2) an efficient procedure balancing exploration and exploitation of the space of potential neural network architectures,",

@@ -18,12 +18,12 @@
     "through-wall": 1
   },
   "byModality": {
-    "csi-80211n": 138,
-    "rssi": 42,
-    "csi-toolkit": 40,
-    "wifi-radar": 37,
-    "other": 37,
-    "wifi-sonar": 6
+    "csi-80211n": 190,
+    "rssi": 57,
+    "other": 38,
+    "wifi-radar": 11,
+    "csi-toolkit": 3,
+    "wifi-sonar": 1
   },
   "byBandwidth": {
     "unknown": 196,

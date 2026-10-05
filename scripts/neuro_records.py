@@ -204,7 +204,9 @@ JUNK_RE = re.compile(
 # These are background, not this paper's operators, so they must not become
 # evidence of what the paper modified.
 FRAMING_RE = re.compile(
-    r"\b(?:often|typically|usually|commonly|generally|frequently)\s+\w+"
+    r"^(?:often|typically|usually|commonly|generally|frequently|in general|many)\b"
+    r"|\b(?:approaches|methods|works|algorithms|systems|researchers|authors)\s+"
+    r"(?:often|typically|usually|commonly|generally|frequently)\b"
     r"|requires expert (?:knowledge|effort)"
     r"|is (?:an?|the) (?:open|challenging|difficult) problem"
     r"|has been (?:widely |extensively |long )?(?:studied|proposed|explored|investigated)"
@@ -212,6 +214,36 @@ FRAMING_RE = re.compile(
     r"|prior (?:work|works|approaches)",
     re.I,
 )
+
+# Generalising language ("often", "commonly") is only acceptable when the paper
+# is talking about itself. "we commonly use lr=0.01" is this paper's operator;
+# "learning-rate schedules are often hand-crafted" is not.
+GENERALIZING_RE = re.compile(
+    r"\b(?:often|typically|usually|commonly|generally|frequently)\b", re.I
+)
+FIRST_PERSON_RE = re.compile(
+    r"\b(?:we|our|ours|us|i)\b|\bthis (?:paper|work|article|study|section)\b",
+    re.I,
+)
+# pdftotext often runs a section heading into the next sentence
+RUNON_HEADING_RE = re.compile(
+    r"^(?:Related Work|Related Works|Background|Introduction|Conclusion|"
+    r"Discussion|Experiments?|Method|Methods|Results|Evaluation)\b",
+    re.I,
+)
+
+
+def is_framing(sent: str) -> bool:
+    """True when a sentence describes general practice, not this paper's search."""
+    if RUNON_HEADING_RE.match(sent.strip()):
+        return True
+    if FRAMING_RE.search(sent):
+        # an explicit framing phrase, unless the sentence is first-person
+        return not FIRST_PERSON_RE.search(sent)
+    if GENERALIZING_RE.search(sent):
+        return not FIRST_PERSON_RE.search(sent)
+    return False
+
 
 # A locus claim only counts if the sentence also reads as search description.
 SEARCH_CONTEXT_RE = re.compile(
@@ -341,8 +373,15 @@ def build_record(row: dict, corpus_by_id: dict[str, dict]) -> dict:
         5,
         50,
     )
+    # Encoding is usually described in the method section rather than the
+    # introduction, so the intro alone would leave most papers with none.
     genotype = first_pick(
         intro_sents,
+        ("genotype", "genome", "genome is", "each gene", "gene encodes",
+         "maps to", "encoding", "phenotype", "indirect", "developmental"),
+        60,
+    ) or first_pick(
+        [x for x in body_sents if x not in intro_sents],
         ("genotype", "genome", "genome is", "each gene", "gene encodes",
          "maps to", "encoding", "phenotype", "indirect", "developmental"),
         60,
@@ -374,7 +413,7 @@ def build_record(row: dict, corpus_by_id: dict[str, dict]) -> dict:
             low = sent.lower()
             if not any(re.search(c, sent, re.I) for c in cues):
                 continue
-            if not SEARCH_CONTEXT_RE.search(low) or FRAMING_RE.search(sent):
+            if not SEARCH_CONTEXT_RE.search(low) or is_framing(sent):
                 continue
             op = bind_operator(sent)
             named = op != "described by the paper, operator unnamed"
