@@ -1,0 +1,301 @@
+rank,arxiv_id,file,title,published,year,citations
+1,1611.08050v2,1611.08050v2.pdf,Realtime Multi-Person 2D Pose Estimation using Part Affinity Fields,2016-11-24T01:58:16Z,2016,7481
+2,1812.08008v2,1812.08008v2.pdf,OpenPose: Realtime Multi-Person 2D Pose Estimation using Part Affinity Fields,2018-12-18T18:50:33Z,2018,5919
+3,1603.06937v2,1603.06937v2.pdf,Stacked Hourglass Networks for Human Pose Estimation,2016-03-22T19:56:42Z,2016,5575
+4,1902.09212v1,1902.09212v1.pdf,Deep High-Resolution Representation Learning for Human Pose Estimation,2019-02-25T11:55:28Z,2019,5372
+5,1312.4659v3,1312.4659v3.pdf,DeepPose: Human Pose Estimation via Deep Neural Networks,2013-12-17T06:36:10Z,2013,3127
+6,1602.00134v4,1602.00134v4.pdf,Convolutional Pose Machines,2016-01-30T16:15:28Z,2016,2940
+7,1711.00199v3,1711.00199v3.pdf,PoseCNN: A Convolutional Neural Network for 6D Object Pose Estimation in Cluttered Scenes,2017-11-01T04:10:58Z,2017,2406
+8,1712.06584v2,1712.06584v2.pdf,End-to-end Recovery of Human Shape and Pose,2017-12-18T18:57:40Z,2017,2147
+9,1804.06208v2,1804.06208v2.pdf,Simple Baselines for Human Pose Estimation and Tracking,2018-04-17T12:55:23Z,2018,2131
+10,1607.08128v1,1607.08128v1.pdf,Keep it SMPL: Automatic Estimation of 3D Human Pose and Shape from a Single Image,2016-07-27T14:46:36Z,2016,1847
+11,1612.00137v5,1612.00137v5.pdf,RMPE: Regional Multi-person Pose Estimation,2016-12-01T04:36:52Z,2016,1794
+12,1711.07319v2,1711.07319v2.pdf,Cascaded Pyramid Network for Multi-Person Pose Estimation,2017-11-20T14:36:31Z,2017,1699
+13,1802.00434v1,1802.00434v1.pdf,DensePose: Dense Human Pose Estimation In The Wild,2018-02-01T18:53:26Z,2018,1636
+14,1406.2984v2,1406.2984v2.pdf,Joint Training of a Convolutional Network and a Graphical Model for Human Pose Estimation,2014-06-11T18:16:29Z,2014,1624
+15,1705.03098v2,1705.03098v2.pdf,A simple yet effective baseline for 3d human pose estimation,2017-05-08T21:48:37Z,2017,1548
+16,1611.09813v5,1611.09813v5.pdf,Monocular 3D Human Pose Estimation In The Wild Using Improved CNN Supervision,2016-11-29T20:03:19Z,2016,1369
+17,1811.11742v2,1811.11742v2.pdf,3D human pose estimation in video with temporal convolutions and semi-supervised training,2018-11-28T18:56:36Z,2018,1326
+18,1603.01249v3,1603.01249v3.pdf,"HyperFace: A Deep Multi-task Learning Framework for Face Detection, Landmark Localization, Pose Estimation, and Gender Recognition",2016-03-03T20:30:53Z,2016,1309
+19,1704.07809v1,1704.07809v1.pdf,Hand Keypoint Detection in Single Images using Multiview Bootstrapping,2017-04-25T17:37:48Z,2017,1240
+20,1909.12828v1,1909.12828v1.pdf,Learning to Reconstruct 3D Human Pose and Shape via Model-fitting in the Loop,2019-09-27T17:56:35Z,2019,1206
+21,1912.05656v3,1912.05656v3.pdf,VIBE: Video Inference for Human Body Pose and Shape Estimation,2019-12-11T21:47:26Z,2019,1205
+22,1901.04780v1,1901.04780v1.pdf,DenseFusion: 6D Object Pose Estimation by Iterative Dense Fusion,2019-01-15T11:58:04Z,2019,1197
+23,1605.03170v3,1605.03170v3.pdf,"DeeperCut: A Deeper, Stronger, and Faster Multi-Person Pose Estimation Model",2016-05-10T19:49:40Z,2016,1186
+24,1812.11788v1,1812.11788v1.pdf,PVNet: Pixel-wise Voting Network for 6DoF Pose Estimation,2018-12-31T13:24:10Z,2018,1104
+25,2204.12484v3,2204.12484v3.pdf,ViTPose: Simple Vision Transformer Baselines for Human Pose Estimation,2022-04-26T17:55:04Z,2022,1101
+26,2012.13392v5,2012.13392v5.pdf,Deep Learning-Based Human Pose Estimation: A Survey,2020-12-24T18:49:06Z,2020,1041
+27,1511.06645v2,1511.06645v2.pdf,DeepCut: Joint Subset Partition and Labeling for Multi Person Pose Estimation,2015-11-20T15:37:55Z,2015,1031
+28,1711.10006v1,1711.10006v1.pdf,SSD-6D: Making RGB-based 3D detection and 6D pose estimation great again,2017-11-27T21:17:51Z,2017,1014
+29,1611.05424v2,1611.05424v2.pdf,Associative Embedding: End-to-End Learning for Joint Detection and Grouping,2016-11-16T20:04:28Z,2016,1006
+30,1611.07828v2,1611.07828v2.pdf,Coarse-to-Fine Volumetric Prediction for Single-Image 3D Human Pose,2016-11-23T15:06:18Z,2016,993
+31,1711.08229v4,1711.08229v4.pdf,Integral Human Pose Regression,2017-11-22T11:15:06Z,2017,958
+32,1901.02970v2,1901.02970v2.pdf,Normalized Object Coordinate Space for Category-Level 6D Object Pose and Size Estimation,2019-01-09T23:31:40Z,2019,942
+33,2006.10204v1,2006.10204v1.pdf,BlazePose: On-device Real-time Body Pose tracking,2020-06-17T23:52:46Z,2020,936
+34,1711.08848v5,1711.08848v5.pdf,Real-Time Seamless Single Shot 6D Object Pose Prediction,2017-11-24T00:56:37Z,2017,900
+35,1705.01583v1,1705.01583v1.pdf,VNect: Real-time 3D Human Pose Estimation with a Single RGB Camera,2017-05-03T19:13:23Z,2017,889
+36,1701.01779v2,1701.01779v2.pdf,Towards Accurate Multi-person Pose Estimation in the Wild,2017-01-06T23:56:02Z,2017,881
+37,1703.10896v2,1703.10896v2.pdf,"BB8: A Scalable, Accurate, Robust to Partial Occlusion Method for Predicting the 3D Poses of Challenging Objects without Using Depth",2017-03-31T13:56:35Z,2017,874
+38,1908.10357v3,1908.10357v3.pdf,HigherHRNet: Scale-Aware Representation Learning for Bottom-Up Human Pose Estimation,2019-08-27T17:54:08Z,2019,848
+39,1705.01389v3,1705.01389v3.pdf,Learning to Estimate 3D Hand Pose from Single RGB Images,2017-05-03T12:50:18Z,2017,834
+40,1507.06550v3,1507.06550v3.pdf,Human Pose Estimation with Iterative Error Feedback,2015-07-23T16:20:57Z,2015,819
+41,1804.00175v4,1804.00175v4.pdf,DeepIM: Deep Iterative Matching for 6D Pose Estimation,2018-03-31T14:02:25Z,2018,812
+42,2012.09760v3,2012.09760v3.pdf,End-to-End Human Pose and Mesh Reconstruction with Transformers,2020-12-17T17:17:29Z,2020,809
+43,2312.08344v2,2312.08344v2.pdf,FoundationPose: Unified 6D Pose Estimation and Tracking of Novel Objects,2023-12-13T18:28:09Z,2023,807
+44,2211.03375v1,2211.03375v1.pdf,AlphaPose: Whole-Body Regional Multi-Person Pose Estimation and Tracking in Real-Time,2022-11-07T09:15:38Z,2022,779
+45,2104.13586v2,2104.13586v2.pdf,Revisiting Skeleton-based Action Recognition,2021-04-28T06:32:17Z,2021,770
+46,1809.10790v1,1809.10790v1.pdf,Deep Object Pose Estimation for Semantic Robotic Grasping of Household Objects,2018-09-27T22:45:53Z,2018,768
+47,1610.08336v4,1610.08336v4.pdf,"The Event-Camera Dataset and Simulator: Event-based Data for Pose Estimation, Visual Odometry, and SLAM",2016-10-26T13:59:39Z,2016,754
+48,2103.10455v3,2103.10455v3.pdf,3D Human Pose Estimation with Spatial and Temporal Transformers,2021-03-18T18:14:37Z,2021,724
+49,1706.09911v1,1706.09911v1.pdf,Grasp Pose Detection in Point Clouds,2017-06-29T18:03:44Z,2017,702
+50,1702.07432v1,1702.07432v1.pdf,Multi-Context Attention for Human Pose Estimation,2017-02-24T01:10:53Z,2017,691
+51,1805.04092v1,1805.04092v1.pdf,Learning to Estimate 3D Human Pose and Shape from a Single Color Image,2018-05-10T17:46:12Z,2018,652
+52,1812.00324v2,1812.00324v2.pdf,CrowdPose: Efficient Crowded Scenes Pose Estimation and A New Benchmark,2018-12-02T04:40:40Z,2018,649
+53,1506.03607v2,1506.03607v2.pdf,P-CNN: Pose-based CNN Features for Action Recognition,2015-06-11T10:02:03Z,2015,641
+54,1710.00925v5,1710.00925v5.pdf,Fine-Grained Head Pose Estimation Without Keypoints,2017-10-02T22:01:20Z,2017,638
+55,1904.03345v3,1904.03345v3.pdf,Semantic Graph Convolutional Networks for 3D Human Pose Regression,2019-04-06T02:52:02Z,2019,637
+56,1704.02447v2,1704.02447v2.pdf,Towards 3D Human Pose Estimation in the Wild: a Weakly-supervised Approach,2017-04-08T06:21:48Z,2017,618
+57,1911.04231v2,1911.04231v2.pdf,PVN3D: A Deep Point-wise 3D Keypoints Voting Network for 6DoF Pose Estimation,2019-11-11T13:13:21Z,2019,612
+58,1701.05498v1,1701.05498v1.pdf,T-LESS: An RGB-D Dataset for 6D Pose Estimation of Texture-less Objects,2017-01-19T16:16:36Z,2017,610
+59,1803.08225v1,1803.08225v1.pdf,"PersonLab: Person Pose Estimation and Instance Segmentation with a Bottom-Up, Part-Based, Geometric Embedding Model",2018-03-22T04:31:02Z,2018,607
+60,2012.05877v3,2012.05877v3.pdf,INeRF: Inverting Neural Radiance Fields for Pose Estimation,2020-12-10T18:36:40Z,2020,600
+61,1701.07732v1,1701.07732v1.pdf,Pose Invariant Embedding for Deep Person Re-identification,2017-01-26T14:59:19Z,2017,597
+62,1704.00159v3,1704.00159v3.pdf,Compositional Human Pose Regression,2017-04-01T11:59:41Z,2017,597
+63,1506.02897v2,1506.02897v2.pdf,Flowing ConvNets for Human Pose Estimation in Videos,2015-06-09T13:17:33Z,2015,587
+64,1612.06524v2,1612.06524v2.pdf,3D Human Pose Estimation = 2D Pose Estimation + Matching,2016-12-20T06:45:49Z,2016,579
+65,1704.02463v2,1704.02463v2.pdf,First-Person Hand Action Benchmark with RGB-D Videos and 3D Hand Pose Annotations,2017-04-08T09:45:12Z,2017,577
+66,1808.08319v1,1808.08319v1.pdf,BOP: Benchmark for 6D Object Pose Estimation,2018-08-24T21:38:53Z,2018,565
+67,2008.08465v1,2008.08465v1.pdf,CosyPose: Consistent multi-view multi-object 6D pose estimation,2020-08-19T14:11:56Z,2020,565
+68,1609.01743v1,1609.01743v1.pdf,Human pose estimation via Convolutional Part Heatmap Regression,2016-09-06T20:25:30Z,2016,551
+69,1910.06278v1,1910.06278v1.pdf,Distribution-Aware Coordinate Representation for Human Pose Estimation,2019-10-14T17:03:56Z,2019,547
+70,1908.07433v1,1908.07433v1.pdf,Pix2Pose: Pixel-Wise Coordinate Regression of Objects for 6D Pose Estimation,2019-08-20T15:34:13Z,2019,545
+71,1802.09232v2,1802.09232v2.pdf,2D/3D Pose Estimation and Action Recognition using Multitask Deep Learning,2018-02-26T10:16:48Z,2018,539
+72,2011.14672v4,2011.14672v4.pdf,HybrIK: A Hybrid Analytical-Neural Inverse Kinematics Solution for 3D Human Pose and Shape Estimation,2020-11-30T10:32:30Z,2020,539
+73,1710.10000v2,1710.10000v2.pdf,PoseTrack: A Benchmark for Human Pose Estimation and Tracking,2017-10-27T06:20:30Z,2017,538
+74,1701.00295v4,1701.00295v4.pdf,Lifting from the Deep: Convolutional 3D Pose Estimation from a Single Image,2017-01-01T22:50:51Z,2017,534
+75,1407.3399v2,1407.3399v2.pdf,Articulated Pose Estimation by a Graphical Model with Image Dependent Pairwise Relations,2014-07-12T17:04:21Z,2014,530
+76,1808.05942v1,1808.05942v1.pdf,Neural Body Fitting: Unifying Deep Learning and Model-Based Human Pose and Shape Estimation,2018-08-17T17:56:10Z,2018,530
+77,1708.01101v1,1708.01101v1.pdf,Learning Feature Pyramids for Human Pose Estimation,2017-08-03T11:26:04Z,2017,527
+78,2008.03713v2,2008.03713v2.pdf,I2L-MeshNet: Image-to-Lixel Prediction Network for Accurate 3D Human Pose and Mesh Estimation from a Single RGB Image,2020-08-09T12:13:31Z,2020,518
+79,1903.00812v2,1903.00812v2.pdf,3D Hand Shape and Pose Estimation from a Single RGB Image,2019-03-03T02:27:13Z,2019,516
+80,1902.11020v3,1902.11020v3.pdf,DPOD: 6D Pose Object Detector and Refiner,2019-02-28T11:15:02Z,2019,504
+81,2204.06806v1,2204.06806v1.pdf,YOLO-Pose: Enhancing YOLO for Multi Person Pose Estimation Using Object Keypoint Similarity Loss,2022-04-14T08:02:40Z,2022,500
+82,2008.09047v3,2008.09047v3.pdf,Pose2Mesh: Graph Convolutional Network for 3D Human Pose and Mesh Recovery from a 2D Human Pose,2020-08-20T16:01:56Z,2020,488
+83,1903.06593v2,1903.06593v2.pdf,PifPaf: Composite Fields for Human Pose Estimation,2019-03-15T15:14:42Z,2019,487
+84,2303.07399v2,2303.07399v2.pdf,RTMPose: Real-Time Multi-Person Pose Estimation based on MMPose,2023-03-13T18:26:11Z,2023,483
+85,1609.09475v3,1609.09475v3.pdf,Multi-view Self-supervised Deep Learning for 6D Pose Estimation in the Amazon Picking Challenge,2016-09-29T19:39:13Z,2016,482
+86,1711.07399v3,1711.07399v3.pdf,V2V-PoseNet: Voxel-to-Voxel Prediction Network for Accurate 3D Hand and Human Pose Estimation from a Single Depth Map,2017-11-20T16:41:13Z,2017,474
+87,1502.05908v2,1502.05908v2.pdf,Learning Descriptors for Object Recognition and 3D Pose Estimation,2015-02-20T15:39:42Z,2015,465
+88,1712.03453v3,1712.03453v3.pdf,Single-Shot Multi-Person 3D Pose Estimation From Monocular RGB,2017-12-09T23:57:23Z,2017,465
+89,1901.03642v1,1901.03642v1.pdf,A General Optimization-based Framework for Global Pose Estimation with Multiple Sensors,2019-01-11T16:41:12Z,2019,464
+90,2105.04668v2,2105.04668v2.pdf,HuMoR: 3D Human Motion Model for Robust Pose Estimation,2021-05-10T21:04:55Z,2021,451
+91,1903.07504v1,1903.07504v1.pdf,Understanding the Limitations of CNN-based Absolute Camera Pose Regression,2019-03-18T15:24:11Z,2019,447
+92,1901.07973v1,1901.07973v1.pdf,"DeepFashion2: A Versatile Benchmark for Detection, Pose Estimation, Segmentation and Re-Identification of Clothing Images",2019-01-23T16:06:17Z,2019,446
+93,1511.09439v2,1511.09439v2.pdf,Sparseness Meets Deepness: 3D Human Pose Estimation from Monocular Video,2015-11-30T19:41:06Z,2015,442
+94,1905.05754v1,1905.05754v1.pdf,Learnable Triangulation of Human Pose,2019-05-14T17:59:20Z,2019,441
+95,2203.00859v4,2203.00859v4.pdf,MixSTE: Seq2seq Mixed Spatio-Temporal Encoder for 3D Human Pose Estimation in Video,2022-03-02T04:20:59Z,2022,440
+96,2307.15880v2,2307.15880v2.pdf,Effective Whole-body Pose Estimation with Two-stages Distillation,2023-07-29T03:49:28Z,2023,439
+97,2111.12707v4,2111.12707v4.pdf,MHFormer: Multi-Hypothesis Transformer for 3D Human Pose Estimation,2021-11-24T18:59:02Z,2021,430
+98,1703.04670v1,1703.04670v1.pdf,6-DoF Object Pose from Semantic Keypoints,2017-03-14T18:58:46Z,2017,425
+99,2008.09309v1,2008.09309v1.pdf,InterHand2.6M: A Dataset and Baseline for 3D Interacting Hand Pose Estimation from a Single RGB Image,2020-08-21T05:15:58Z,2020,424
+100,2006.01423v1,2006.01423v1.pdf,Monocular Human Pose Estimation: A Survey of Deep Learning-based Methods,2020-06-02T07:07:45Z,2020,418
+101,1611.09010v1,1611.09010v1.pdf,3D Human Pose Estimation from a Single Image via Distance Matrix Regression,2016-11-28T07:36:31Z,2016,413
+102,1908.06963v1,1908.06963v1.pdf,Resolving 3D Human Pose Ambiguities with 3D Scene Constraints,2019-08-20T17:23:00Z,2019,412
+103,1805.04095v1,1805.04095v1.pdf,Ordinal Depth Supervision for 3D Human Pose Estimation,2018-05-10T17:47:26Z,2018,410
+104,2104.03516v3,2104.03516v3.pdf,TokenPose: Learning Keypoint Tokens for Human Pose Estimation,2021-04-08T05:12:38Z,2021,407
+105,1411.6067v2,1411.6067v2.pdf,Viewpoints and Keypoints,2014-11-22T03:14:21Z,2014,403
+106,2103.16507v4,2103.16507v4.pdf,PyMAF: 3D Human Pose and Shape Regression with Pyramidal Mesh Alignment Feedback Loop,2021-03-30T17:07:49Z,2021,402
+107,1805.05563v1,1805.05563v1.pdf,Facial Landmark Detection: a Literature Survey,2018-05-15T05:22:16Z,2018,399
+108,1803.09722v2,1803.09722v2.pdf,3D Human Pose Estimation in the Wild by Adversarial Learning,2018-03-26T17:24:40Z,2018,398
+109,2012.14214v5,2012.14214v5.pdf,TransPose: Keypoint Localization via Transformer,2020-12-28T12:33:52Z,2020,397
+110,1502.06807v2,1502.06807v2.pdf,Hands Deep in Deep Learning for Hand Pose Estimation,2015-02-24T13:39:55Z,2015,387
+111,1907.11346v2,1907.11346v2.pdf,Camera Distance-aware Top-down Approach for 3D Multi-person Pose Estimation from a Single RGB Image,2019-07-26T01:02:45Z,2019,380
+112,1703.08014v2,1703.08014v2.pdf,Sparse Inertial Poser: Automatic 3D Human Pose Estimation from Sparse IMUs,2017-03-23T11:35:41Z,2017,379
+113,1804.01984v1,1804.01984v1.pdf,Look into Person: Joint Body Parsing & Pose Estimation Network and A New Benchmark,2018-04-05T07:41:15Z,2018,379
+114,2212.07388v3,2212.07388v3.pdf,NoPe-NeRF: Optimising Neural Radiance Field with No Pose Prior,2022-12-14T18:16:41Z,2022,377
+115,1711.08585v4,1711.08585v4.pdf,Exploiting temporal information for 3D pose estimation,2017-11-23T06:20:51Z,2017,373
+116,2007.11858v1,2007.11858v1.pdf,Whole-Body Human Pose Estimation in the Wild,2020-07-23T08:35:26Z,2020,373
+117,2208.00571v2,2208.00571v2.pdf,CLIFF: Carrying Location Information in Full Frames into Human Pose and Shape Estimation,2022-08-01T02:08:46Z,2022,371
+118,2104.02300v1,2104.02300v1.pdf,Bottom-Up Human Pose Estimation Via Disentangled Keypoint Regression,2021-04-06T05:54:46Z,2021,368
+119,1810.02936v2,1810.02936v2.pdf,FD-GAN: Pose-guided Feature Distilling GAN for Robust Person Re-identification,2018-10-06T05:17:18Z,2018,365
+120,1804.09534v1,1804.09534v1.pdf,Hand Pose Estimation via Latent 2.5D Heatmap Regression,2018-04-25T13:16:26Z,2018,364
+121,1705.00053v1,1705.00053v1.pdf,The Pose Knows: Video Forecasting by Generating Pose Futures,2017-04-28T19:46:47Z,2017,363
+122,2103.09213v2,2103.09213v2.pdf,Back to the Feature: Learning Robust Camera Localization from Pixels to Pose,2021-03-16T17:40:12Z,2021,355
+123,1705.00389v2,1705.00389v2.pdf,Adversarial PoseNet: A Structure-aware Convolutional Network for Human Pose Estimation,2017-04-30T23:54:43Z,2017,352
+124,2103.02242v1,2103.02242v1.pdf,FFB6D: A Full Flow Bidirectional Fusion Network for 6D Pose Estimation,2021-03-03T08:07:29Z,2021,352
+125,1811.12004v1,1811.12004v1.pdf,Real-time 2D Multi-Person Pose Estimation on CPU: Lightweight OpenPose,2018-11-29T08:05:05Z,2018,348
+126,1802.00977v2,1802.00977v2.pdf,Pose Flow: Efficient Online Pose Tracking,2018-02-03T14:08:36Z,2018,339
+127,1904.00889v3,1904.00889v3.pdf,Key.Net: Keypoint Detection by Handcrafted and Learned CNN Filters,2019-04-01T14:47:24Z,2019,339
+128,1804.07739v1,1804.07739v1.pdf,Synthesizing Images of Humans in Unseen Poses,2018-04-20T17:34:44Z,2018,328
+129,1803.04108v4,1803.04108v4.pdf,Style Aggregated Network for Facial Landmark Detection,2018-03-12T03:46:12Z,2018,327
+130,1605.02914v3,1605.02914v3.pdf,Recurrent Human Pose Estimation,2016-05-10T09:58:11Z,2016,325
+131,1812.02541v3,1812.02541v3.pdf,Segmentation-driven 6D Object Pose Estimation,2018-12-06T14:15:24Z,2018,322
+132,1903.06684v2,1903.06684v2.pdf,kPAM: KeyPoint Affordances for Category-Level Robotic Manipulation,2019-03-15T17:31:00Z,2019,320
+133,2003.04583v2,2003.04583v2.pdf,"TailorNet: Predicting Clothing in 3D as a Function of Human Pose, Shape and Garment Style",2020-03-10T08:49:51Z,2020,318
+134,2101.11228v2,2101.11228v2.pdf,GaitGraph: Graph Convolutional Network for Skeleton-Based Gait Recognition,2021-01-27T07:14:06Z,2021,318
+135,2103.14304v8,2103.14304v8.pdf,Exploiting Temporal Contexts with Strided Transformer for 3D Human Pose Estimation,2021-03-26T07:35:08Z,2021,314
+136,1803.00455v3,1803.00455v3.pdf,LCR-Net++: Multi-person 2D and 3D Pose Detection in Natural Images,2018-03-01T15:39:38Z,2018,313
+137,1803.11404v1,1803.11404v1.pdf,Cross-modal Deep Variational Hand Pose Estimation,2018-03-30T10:27:06Z,2018,313
+138,2107.11291v3,2107.11291v3.pdf,Human Pose Regression with Residual Log-likelihood Estimation,2021-07-23T15:06:31Z,2021,313
+139,2102.12145v5,2102.12145v5.pdf,GDRNPP: A Geometry-guided and Fully Learning-based Object Pose Estimator,2021-02-24T09:11:31Z,2021,310
+140,2212.06870v1,2212.06870v1.pdf,MegaPose: 6D Pose Estimation of Novel Objects via Render & Compare,2022-12-13T19:30:03Z,2022,309
+141,2007.08454v1,2007.08454v1.pdf,Shape Prior Deformation for Categorical 6D Object Pose and Size Estimation,2020-07-16T16:45:05Z,2020,304
+142,1903.02330v2,1903.02330v2.pdf,Self-Supervised Learning of 3D Human Pose using Multi-view Geometry,2019-03-06T11:41:32Z,2019,303
+143,1812.02781v3,1812.02781v3.pdf,ROI-10D: Monocular Lifting of 2D Detection to 6D Pose and Metric Shape,2018-12-06T20:08:39Z,2018,302
+144,2001.01869v4,2001.01869v4.pdf,HybridPose: 6D Object Pose Estimation under Hybrid Representations,2020-01-07T03:08:27Z,2020,302
+145,2011.08627v4,2011.08627v4.pdf,Beyond Static Features for Temporally Consistent 3D Human Pose and Shape from a Video,2020-11-17T13:41:34Z,2020,302
+146,1803.09894v3,1803.09894v3.pdf,Multi-Scale Structure-Aware Network for Human Pose Estimation,2018-03-27T04:37:20Z,2018,300
+147,1604.02703v6,1604.02703v6.pdf,Synthesizing Training Images for Boosting Human 3D Pose Estimation,2016-04-10T15:22:04Z,2016,299
+148,1606.07253v3,1606.07253v3.pdf,Robust 3D Hand Pose Estimation in Single Depth Images: from Single-View CNN to Multi-View CNNs,2016-06-23T10:00:03Z,2016,299
+149,1607.06038v1,1607.06038v1.pdf,Deep Learning of Local RGB-D Patches for 3D Object Detection and 6D Pose Estimation,2016-07-20T17:38:15Z,2016,294
+150,2103.16385v1,2103.16385v1.pdf,Graph Stacked Hourglass Networks for 3D Human Pose Estimation,2021-03-30T14:25:43Z,2021,290
+151,1811.05419v2,1811.05419v2.pdf,Fast Human Pose Estimation,2018-11-13T17:18:14Z,2018,287
+152,2004.00605v1,2004.00605v1.pdf,EPOS: Estimating 6D Pose of Objects with Symmetries,2020-04-01T17:41:08Z,2020,286
+153,2103.08833v5,2103.08833v5.pdf,Skeleton Aware Multi-modal Sign Language Recognition,2021-03-16T03:38:17Z,2021,285
+154,1609.09698v1,1609.09698v1.pdf,Training a Feedback Loop for Hand Pose Estimation,2016-09-30T12:35:26Z,2016,284
+155,1607.02046v2,1607.02046v2.pdf,MoCap-guided Data Augmentation for 3D Pose Estimation in the Wild,2016-07-07T15:30:05Z,2016,283
+156,1605.05180v1,1605.05180v1.pdf,Structured Prediction of 3D Human Pose with Deep Neural Networks,2016-05-17T14:26:14Z,2016,282
+157,1911.02050v2,1911.02050v2.pdf,"Satellite Pose Estimation Challenge: Dataset, Competition Design and Results",2019-11-05T19:29:18Z,2019,281
+158,2410.24207v1,2410.24207v1.pdf,"No Pose, No Problem: Surprisingly Simple 3D Gaussian Splats from Sparse Unposed Images",2024-10-31T17:58:22Z,2024,279
+159,1609.05317v1,1609.05317v1.pdf,Deep Kinematic Pose Regression,2016-09-17T11:22:11Z,2016,278
+160,1807.04067v1,1807.04067v1.pdf,MultiPoseNet: Fast Multi-Person Pose Estimation using Pose Residual Network,2018-07-11T10:56:49Z,2018,278
+161,1512.07506v2,1512.07506v2.pdf,Recovering 6D Object Pose and Predicting Next-Best-View in the Crowd,2015-12-23T15:06:05Z,2015,276
+162,1710.02322v1,1710.02322v1.pdf,Human Pose Regression by Combining Indirect Part Detection and Contextual Information,2017-10-06T09:27:44Z,2017,275
+163,1912.11913v2,1912.11913v2.pdf,Category-Level Articulated Object Pose Estimation,2019-12-26T18:34:37Z,2019,275
+164,1901.00148v4,1901.00148v4.pdf,Rethinking on Multi-Stage Networks for Human Pose Estimation,2019-01-01T12:52:37Z,2019,272
+165,2104.06976v1,2104.06976v1.pdf,Pose Recognition with Cascade Transformers,2021-04-14T17:00:22Z,2021,272
+166,1603.09065v1,1603.09065v1.pdf,Structured Feature Learning for Pose Estimation,2016-03-30T07:52:22Z,2016,269
+167,1704.02612v2,1704.02612v2.pdf,BigHand2.2M Benchmark: Hand Pose Dataset and State of the Art Analysis,2017-04-09T15:00:31Z,2017,269
+168,2108.06428v1,2108.06428v1.pdf,FrankMocap: A Monocular 3D Whole-Body Pose Estimation System via Regression and Integration,2021-08-13T23:57:27Z,2021,269
+169,1902.09868v2,1902.09868v2.pdf,RepNet: Weakly Supervised Training of an Adversarial Reprojection Network for 3D Human Pose Estimation,2019-02-26T11:23:54Z,2019,268
+170,2205.12257v1,2205.12257v1.pdf,OnePose: One-Shot Object Pose Estimation without CAD Models,2022-05-24T17:59:21Z,2022,265
+171,1803.04775v2,1803.04775v2.pdf,Learning Monocular 3D Human Pose Estimation from Multi-view Images,2018-03-13T13:14:47Z,2018,264
+172,1807.03146v2,1807.03146v2.pdf,Discovery of Latent 3D Keypoints via End-to-end Geometric Reasoning,2018-07-05T17:41:49Z,2018,262
+173,1902.09305v3,1902.09305v3.pdf,End-to-end Hand Mesh Recovery from a Monocular RGB Image,2019-02-25T14:47:11Z,2019,262
+174,1911.07524v2,1911.07524v2.pdf,The Devil is in the Details: Delving into Unbiased Data Processing for Human Pose Estimation,2019-11-18T10:17:12Z,2019,261
+175,1905.09304v1,1905.09304v1.pdf,PoseRBPF: A Rao-Blackwellized Particle Filter for 6D Object Pose Tracking,2019-05-22T18:01:55Z,2019,260
+176,1708.08325v1,1708.08325v1.pdf,DeepPrior++: Improving Fast and Accurate 3D Hand Pose Estimation,2017-08-28T14:15:49Z,2017,259
+177,1905.04266v1,1905.04266v1.pdf,Exploiting temporal context for 3D human pose estimation in the wild,2019-05-10T17:12:27Z,2019,258
+178,1712.09184v2,1712.09184v2.pdf,Detect-and-Track: Efficient Pose Estimation in Videos,2017-12-26T05:56:39Z,2017,257
+179,1909.01203v1,1909.01203v1.pdf,Cross View Fusion for 3D Human Pose Estimation,2019-09-03T14:15:30Z,2019,255
+180,2004.13985v1,2004.13985v1.pdf,Motion Guided 3D Pose Estimation from Videos,2020-04-29T06:59:30Z,2020,255
+181,1908.09220v1,1908.09220v1.pdf,Single-Stage Multi-Person Pose Machines,2019-08-24T22:05:51Z,2019,254
+182,1406.3474v1,1406.3474v1.pdf,Heterogeneous Multi-task Learning for Human Pose Estimation with Deep Convolutional Neural Network,2014-06-13T10:11:18Z,2014,249
+183,1504.06378v2,1504.06378v2.pdf,"Depth-based hand pose estimation: methods, data, and challenges",2015-04-24T02:37:37Z,2015,247
+184,1904.04196v2,1904.04196v2.pdf,Pushing the Envelope for RGB-based Dense 3D Hand Pose Estimation via Neural Rendering,2019-04-08T17:15:55Z,2019,247
+185,1907.04298v2,1907.04298v2.pdf,Deep Learning for Spacecraft Pose Estimation from Photorealistic Rendering,2019-07-09T17:32:38Z,2019,247
+186,2107.03332v3,2107.03332v3.pdf,SimCC: a Simple Coordinate Classification Perspective for Human Pose Estimation,2021-07-07T16:20:12Z,2021,247
+187,1904.05547v1,1904.05547v1.pdf,Generating Multiple Hypotheses for 3D Human Pose Estimation with Mixture Density Network,2019-04-11T06:26:57Z,2019,246
+188,1611.07727v3,1611.07727v3.pdf,PoseTrack: Joint Multi-Person Pose Estimation and Tracking,2016-11-23T10:30:06Z,2016,243
+189,2112.02906v2,2112.02906v2.pdf,ALIKE: Accurate and Lightweight Keypoint Detection and Descriptor Extraction,2021-12-06T10:10:30Z,2021,243
+190,2211.07214v3,2211.07214v3.pdf,Robust Collaborative 3D Object Detection in Presence of Pose Errors,2022-11-14T09:11:14Z,2022,243
+191,1804.01110v1,1804.01110v1.pdf,Unsupervised Geometry-Aware Representation for 3D Human Pose Estimation,2018-04-03T18:01:54Z,2018,242
+192,1804.03959v3,1804.03959v3.pdf,Making Deep Heatmaps Robust to Partial Occlusions for 3D Object Pose Estimation,2018-04-11T12:39:19Z,2018,241
+193,2003.04030v3,2003.04030v3.pdf,Learning Delicate Local Representations for Multi-Person Pose Estimation,2020-03-09T10:40:49Z,2020,240
+194,2004.00060v1,2004.00060v1.pdf,HOPE-Net: A Graph-based Model for Hand-Object Pose Estimation,2020-03-31T19:01:42Z,2020,240
+195,2303.17472v1,2303.17472v1.pdf,PoseFormerV2: Exploring Frequency Domain for Efficient and Robust 3D Human Pose Estimation,2023-03-30T15:45:51Z,2023,239
+196,1508.06708v1,1508.06708v1.pdf,Maximum-Margin Structured Learning with Deep Networks for 3D Human Pose Estimation,2015-08-27T03:21:15Z,2015,237
+197,1909.10159v2,1909.10159v2.pdf,Self-supervised 6D Object Pose Estimation for Robot Manipulation,2019-09-23T05:10:26Z,2019,237
+198,2204.10776v2,2204.10776v2.pdf,Gen6D: Generalizable Model-Free 6-DoF Object Pose Estimation from RGB Images,2022-04-22T15:48:29Z,2022,236
+199,1707.07548v5,1707.07548v5.pdf,Towards Accurate Markerless Human Shape and Pose Estimation over Time,2017-07-24T13:31:37Z,2017,234
+200,1902.11026v1,1902.11026v1.pdf,Towards Multi-pose Guided Virtual Try-on Network,2019-02-28T11:34:52Z,2019,234
+201,1909.08453v1,1909.08453v1.pdf,Pose-aware Multi-level Feature Network for Human Object Interaction Detection,2019-09-18T13:47:37Z,2019,230
+202,1504.07159v1,1504.07159v1.pdf,Combining Local Appearance and Holistic View: Dual-Source Deep Neural Networks for Human Pose Estimation,2015-04-27T17:00:30Z,2015,228
+203,1901.04111v1,1901.04111v1.pdf,Fast and Robust Multi-Person 3D Pose Estimation from Multiple Views,2019-01-14T03:27:05Z,2019,228
+204,2007.09389v1,2007.09389v1.pdf,SRNet: Improving Generalization in 3D Human Pose Estimation with a Split-and-Recombine Approach,2020-07-18T10:02:36Z,2020,228
+205,2203.07628v2,2203.07628v2.pdf,P-STMO: Pre-Trained Spatial Temporal Many-to-One Model for 3D Human Pose Estimation,2022-03-15T04:00:59Z,2022,228
+206,1911.08324v2,1911.08324v2.pdf,Single-Stage 6D Object Pose Estimation,2019-11-19T14:56:54Z,2019,226
+207,1810.04703v1,1810.04703v1.pdf,Deep Inertial Poser: Learning to Reconstruct Human Pose from Sparse Inertial Measurements in Real Time,2018-10-10T18:45:55Z,2018,225
+208,1908.05806v2,1908.05806v2.pdf,Cross-Domain Adaptation for Animal Pose Estimation,2019-08-16T01:16:30Z,2019,225
+209,2303.12787v3,2303.12787v3.pdf,EPro-PnP: Generalized End-to-End Probabilistic Perspective-n-Points for Monocular Object Pose Estimation,2023-03-22T17:57:36Z,2023,225
+210,1712.03866v1,1712.03866v1.pdf,Using a single RGB frame for real time 3D hand pose estimation in the wild,2017-12-11T16:16:05Z,2017,223
+211,1805.09707v1,1805.09707v1.pdf,Jointly Optimize Data Augmentation and Network Training: Adversarial Data Augmentation in Human Pose Estimation,2018-05-24T14:53:04Z,2018,223
+212,1406.2282v1,1406.2282v1.pdf,Robust Estimation of 3D Human Poses from a Single Image,2014-06-09T18:55:31Z,2014,222
+213,1511.06692v4,1511.06692v4.pdf,Direct Prediction of 3D Body Poses from Motion Compensated Sequences,2015-11-20T17:08:18Z,2015,222
+214,1708.03383v1,1708.03383v1.pdf,Joint Multi-Person Pose Estimation and Semantic Part Segmentation,2017-08-10T20:59:31Z,2017,222
+215,1312.7302v6,1312.7302v6.pdf,Learning Human Pose Estimation Features with Convolutional Networks,2013-12-27T17:41:13Z,2013,221
+216,1804.06534v2,1804.06534v2.pdf,Falling Things: A Synthetic Dataset for 3D Object Detection and Pose Estimation,2018-04-18T03:03:42Z,2018,221
+217,1809.01995v1,1809.01995v1.pdf,Dense Pose Transfer,2018-09-06T13:53:00Z,2018,220
+218,1904.04812v1,1904.04812v1.pdf,Unsupervised 3D Pose Estimation with Geometric Self-Supervision,2019-04-09T17:53:50Z,2019,220
+219,1509.01277v2,1509.01277v2.pdf,A Dataset for Improved RGBD-based Object Detection and Pose Estimation for Warehouse Pick-and-Place,2015-09-03T20:53:06Z,2015,219
+220,1912.11850v2,1912.11850v2.pdf,Graph Embedded Pose Clustering for Anomaly Detection,2019-12-26T12:11:08Z,2019,219
+221,2103.07054v2,2103.07054v2.pdf,FS-Net: Fast Shape-based Network for Category-Level 6D Object Pose Estimation with Decoupled Rotation Mechanism,2021-03-12T03:07:24Z,2021,219
+222,2108.12617v2,2108.12617v2.pdf,AP-10K: A Benchmark for Animal Pose Estimation in the Wild,2021-08-28T10:23:34Z,2021,218
+223,1707.09733v2,1707.09733v2.pdf,Camera Relocalization by Computing Pairwise Relative Poses Using Convolutional Neural Network,2017-07-31T06:36:55Z,2017,217
+224,2108.11944v1,2108.11944v1.pdf,Probabilistic Modeling for Human Mesh Recovery,2021-08-26T17:55:11Z,2021,216
+225,2106.05266v1,2106.05266v1.pdf,Semi-Supervised 3D Hand-Object Poses Estimation with Interactions in Time,2021-06-09T17:59:34Z,2021,215
+226,1702.01381v3,1702.01381v3.pdf,Relative Camera Pose Estimation Using Convolutional Neural Networks,2017-02-05T08:53:24Z,2017,214
+227,1903.11326v1,1903.11326v1.pdf,Dense Intrinsic Appearance Flow for Human Pose Transfer,2019-03-27T10:11:09Z,2019,214
+228,1904.03167v2,1904.03167v2.pdf,HomebrewedDB: RGB-D Dataset for 6D Pose Estimation of 3D Objects,2019-04-05T17:16:09Z,2019,211
+229,1508.04546v1,1508.04546v1.pdf,Learning Analysis-by-Synthesis for 6D Pose Estimation in RGB-D Images,2015-08-19T07:24:14Z,2015,210
+230,1708.03416v2,1708.03416v2.pdf,Pose Guided Structured Region Ensemble Network for Cascaded Hand Pose Estimation,2017-08-11T00:36:24Z,2017,209
+231,1807.00966v2,1807.00966v2.pdf,Supervision-by-Registration: An Unsupervised Approach to Improve the Precision of Facial Landmark Detectors,2018-07-03T03:52:45Z,2018,209
+232,2110.04573v1,2110.04573v1.pdf,Space-Time-Separable Graph Convolutional Network for Pose Forecasting,2021-10-09T13:59:30Z,2021,208
+233,2309.17448v3,2309.17448v3.pdf,SMPLer-X: Scaling Up Expressive Human Pose and Shape Estimation,2023-09-29T17:58:06Z,2023,206
+234,1704.04793v1,1704.04793v1.pdf,Harvesting Multiple Views for Marker-less 3D Human Pose Annotations,2017-04-16T16:19:19Z,2017,205
+235,2012.15175v4,2012.15175v4.pdf,Rethinking the Heatmap Regression for Bottom-up Human Pose Estimation,2020-12-30T14:39:41Z,2020,204
+236,2203.09418v2,2203.09418v2.pdf,ZebraPose: Coarse to Fine Surface Encoding for 6DoF Object Pose Estimation,2022-03-17T16:16:24Z,2022,204
+237,1509.06720v2,1509.06720v2.pdf,A Dual-Source Approach for 3D Pose Estimation from a Single Image,2015-09-22T18:38:16Z,2015,203
+238,1606.06854v1,1606.06854v1.pdf,Model-based Deep Hand Pose Estimation,2016-06-22T08:47:06Z,2016,203
+239,1910.00116v2,1910.00116v2.pdf,DenseRaC: Joint 3D Pose and Shape Estimation by Dense Render-and-Compare,2019-09-30T21:34:31Z,2019,203
+240,1809.07238v1,1809.07238v1.pdf,Pose Estimation for Non-Cooperative Spacecraft Rendezvous Using Convolutional Neural Networks,2018-09-19T15:19:45Z,2018,202
+241,1908.07172v2,1908.07172v2.pdf,Human Mesh Recovery from Monocular Images via a Skeleton-disentangled Representation,2019-08-20T05:35:58Z,2019,201
+242,2010.06449v3,2010.06449v3.pdf,A review of 3D human pose estimation algorithms for markerless motion capture,2020-10-13T15:07:01Z,2020,201
+243,1703.00862v2,1703.00862v2.pdf,Binarized Convolutional Landmark Localizers for Human Pose Estimation and Face Alignment with Limited Resources,2017-03-02T17:26:46Z,2017,197
+244,2311.15707v2,2311.15707v2.pdf,SAM-6D: Segment Anything Model Meets Zero-Shot 6D Object Pose Estimation,2023-11-27T10:50:47Z,2023,197
+245,1512.04134v1,1512.04134v1.pdf,Evaluation of Pose Tracking Accuracy in the First and Second Generations of Microsoft Kinect,2015-12-13T22:58:55Z,2015,196
+246,1707.05388v2,1707.05388v2.pdf,Benchmarking and Error Diagnosis in Multi-Instance Pose Estimation,2017-07-17T20:32:37Z,2017,196
+247,1712.03917v2,1712.03917v2.pdf,Depth-Based 3D Hand Pose Estimation: From Current Achievements to Future Goals,2017-12-11T17:55:19Z,2017,194
+248,2310.16288v1,2310.16288v1.pdf,MotionAGFormer: Enhancing 3D Human Pose Estimation with a Transformer-GCNFormer Network,2023-10-25T01:46:35Z,2023,194
+249,1908.07201v2,1908.07201v2.pdf,"Three-D Safari: Learning to Estimate Zebra Pose, Shape, and Texture from Images ""In the Wild""",2019-08-20T07:45:57Z,2019,193
+250,2211.16940v3,2211.16940v3.pdf,DiffPose: Toward More Reliable 3D Pose Estimation,2022-11-30T12:22:22Z,2022,193
+251,2104.14639v2,2104.14639v2.pdf,Keypoint Transformer: Solving Joint Identification in Challenging Hands and Object Interactions for Accurate 3D Pose Estimation,2021-04-29T20:19:20Z,2021,192
+252,2112.01524v2,2112.01524v2.pdf,GLAMR: Global Occlusion-Aware Human Mesh Recovery with Dynamic Cameras,2021-12-02T18:59:54Z,2021,192
+253,1708.01885v1,1708.01885v1.pdf,Long Short-Term Memory Kalman Filters:Recurrent Neural Estimators for Pose Regularization,2017-08-06T13:08:56Z,2017,191
+254,2003.09282v2,2003.09282v2.pdf,Weakly Supervised 3D Hand Pose Estimation via Biomechanical Constraints,2020-03-20T14:03:13Z,2020,191
+255,2110.03101v2,2110.03101v2.pdf,SPEED+: Next-Generation Dataset for Spacecraft Pose Estimation across Domain Gap,2021-10-06T23:22:24Z,2021,191
+256,1810.09676v1,1810.09676v1.pdf,Action-Agnostic Human Pose Forecasting,2018-10-23T06:17:53Z,2018,190
+257,1908.09999v1,1908.09999v1.pdf,A2J: Anchor-to-Joint Regression Network for 3D Articulated Pose Estimation from a Single Depth Image,2019-08-27T02:58:47Z,2019,190
+258,2301.07673v1,2301.07673v1.pdf,OnePose++: Keypoint-Free One-Shot Object Pose Estimation without CAD Models,2023-01-18T17:47:13Z,2023,190
+259,2203.07918v2,2203.07918v2.pdf,GPV-Pose: Category-level Object Pose Estimation via Geometry-guided Point-wise Voting,2022-03-15T13:58:50Z,2022,188
+260,1805.06184v2,1805.06184v2.pdf,Graph Edge Convolutional Neural Networks for Skeleton Based Action Recognition,2018-05-16T08:18:33Z,2018,187
+261,1812.03595v3,1812.03595v3.pdf,PoseFix: Model-agnostic General Human Pose Refinement Network,2018-12-10T01:58:12Z,2018,185
+262,1904.01324v2,1904.01324v2.pdf,Monocular 3D Human Pose Estimation by Generation and Ordinal Ranking,2019-04-02T10:35:14Z,2019,185
+263,2006.07778v3,2006.07778v3.pdf,Cascaded deep monocular 3D human pose estimation with evolutionary training data,2020-06-14T03:09:52Z,2020,185
+264,1511.04031v2,1511.04031v2.pdf,Facial Landmark Detection with Tweaked Convolutional Neural Networks,2015-11-12T19:50:53Z,2015,184
+265,1908.11542v1,1908.11542v1.pdf,Satellite Pose Estimation with Deep Landmark Regression and Nonlinear Pose Refinement,2019-08-30T05:49:45Z,2019,184
+266,2103.17265v1,2103.17265v1.pdf,Human POSEitioning System (HPS): 3D Human Pose Estimation and Self-localization in Large Scenes from Body-Mounted Sensors,2021-03-31T17:58:31Z,2021,184
+267,2104.11536v1,2104.11536v1.pdf,Recent Advances in Monocular 2D and 3D Human Pose Estimation: A Deep Learning Perspective,2021-04-23T11:07:07Z,2021,184
+268,1712.03452v1,1712.03452v1.pdf,SPP-Net: Deep Absolute Pose Regression with Synthetic Views,2017-12-09T23:45:03Z,2017,183
+269,2303.16160v1,2303.16160v1.pdf,One-Stage 3D Whole-Body Mesh Recovery with Component Aware Transformer,2023-03-28T17:24:42Z,2023,183
+270,1705.02407v2,1705.02407v2.pdf,Knowledge-Guided Deep Fractal Neural Networks for Human Pose Estimation,2017-05-05T22:06:55Z,2017,182
+271,1803.02622v2,1803.02622v2.pdf,3D Human Pose Estimation in RGBD Images for Robotic Task Learning,2018-03-07T12:46:18Z,2018,182
+272,2004.01314v2,2004.01314v2.pdf,Towards Better Generalization: Joint Depth-Pose Learning without PoseNet,2020-04-03T00:28:09Z,2020,182
+273,2003.03771v3,2003.03771v3.pdf,Pixel-in-Pixel Net: Towards Efficient Facial Landmark Detection in the Wild,2020-03-08T12:23:42Z,2020,181
+274,2007.00394v2,2007.00394v2.pdf,"The IKEA ASM Dataset: Understanding People Assembling Furniture through Actions, Objects and Pose",2020-07-01T11:34:46Z,2020,181
+275,2306.15667v4,2306.15667v4.pdf,PoseDiffusion: Solving Pose Estimation via Diffusion-aided Bundle Adjustment,2023-06-27T17:59:07Z,2023,181
+276,1910.10750v1,1910.10750v1.pdf,6-PACK: Category-level 6D Pose Tracker with Anchor-Based Keypoints,2019-10-23T18:16:53Z,2019,180
+277,2207.13784v1,2207.13784v1.pdf,AvatarPoser: Articulated Full-Body Pose Tracking from Sparse Motion Sensing,2022-07-27T20:52:39Z,2022,179
+278,2105.02465v1,2105.02465v1.pdf,PoseAug: A Differentiable Pose Augmentation Framework for 3D Human Pose Estimation,2021-05-06T06:57:42Z,2021,178
+279,2004.03686v3,2004.03686v3.pdf,Exemplar Fine-Tuning for 3D Human Model Fitting Towards In-the-Wild 3D Human Pose Estimation,2020-04-07T20:21:18Z,2020,176
+280,1409.7963v1,1409.7963v1.pdf,MoDeep: A Deep Learning Framework Using Motion Features for Human Pose Estimation,2014-09-28T21:32:15Z,2014,175
+281,2108.00516v1,2108.00516v1.pdf,BundleTrack: 6D Pose Tracking for Novel Objects without Instance or Category-Level 3D Models,2021-08-01T18:14:46Z,2021,175
+282,2303.02091v2,2303.02091v2.pdf,Delicate Textured Mesh Recovery from NeRF via Adaptive Surface Refinement,2023-03-03T17:14:44Z,2023,175
+283,2303.11579v2,2303.11579v2.pdf,Diffusion-Based 3D Human Pose Estimation with Multi-Hypothesis Aggregation,2023-03-21T04:00:47Z,2023,175
+284,2103.02440v2,2103.02440v2.pdf,OpenPifPaf: Composite Fields for Semantic Keypoint Detection and Spatio-Temporal Association,2021-03-03T14:44:14Z,2021,174
+285,1608.03049v1,1608.03049v1.pdf,Fashion Landmark Detection in the Wild,2016-08-10T05:07:10Z,2016,173
+286,1711.08996v1,1711.08996v1.pdf,Dense 3D Regression for Hand Pose Estimation,2017-11-24T14:50:23Z,2017,173
+287,1907.02499v2,1907.02499v2.pdf,Sim2real transfer learning for 3D human pose estimation: motion to the rescue,2019-07-04T17:27:18Z,2019,173
+288,1608.03075v2,1608.03075v2.pdf,3D Human Pose Estimation Using Convolutional Neural Networks with 2D Pose Information,2016-08-10T08:18:30Z,2016,172
+289,1707.02439v2,1707.02439v2.pdf,Self Adversarial Training for Human Pose Estimation,2017-07-08T13:24:44Z,2017,172
+290,1802.10367v1,1802.10367v1.pdf,Deep-6DPose: Recovering 6D Object Pose from a Single RGB Image,2018-02-28T11:27:41Z,2018,172
+291,1810.03065v1,1810.03065v1.pdf,Deep Model-Based 6D Pose Refinement in RGB,2018-10-07T01:22:57Z,2018,172
+292,2311.14155v2,2311.14155v2.pdf,GigaPose: Fast and Robust Novel Object Pose Estimation via One Correspondence,2023-11-23T18:55:03Z,2023,172
+293,1406.5212v1,1406.5212v1.pdf,R-CNNs for Pose Estimation and Action Detection,2014-06-19T20:56:08Z,2014,171
+294,1803.08103v2,1803.08103v2.pdf,A Unified Framework for Multi-View Multi-Class Object Pose Estimation,2018-03-21T19:41:33Z,2018,171
+295,2108.08367v1,2108.08367v1.pdf,SO-Pose: Exploiting Self-Occlusion for Direct 6D Pose Estimation,2021-08-18T19:49:29Z,2021,171
+296,1912.00416v3,1912.00416v3.pdf,LatentFusion: End-to-End Differentiable Reconstruction and Rendering for Unseen Object Pose Estimation,2019-12-01T14:32:58Z,2019,170
+297,2104.00683v1,2104.00683v1.pdf,SimPoE: Simulated Character Control for 3D Human Pose Estimation,2021-04-01T17:59:50Z,2021,170
+298,2508.10934v1,2508.10934v1.pdf,ViPE: Video Pose Engine for 3D Geometric Perception,2025-08-12T18:39:13Z,2025,170
+299,1603.08212v1,1603.08212v1.pdf,Human Pose Estimation using Deep Consensus Voting,2016-03-27T12:45:33Z,2016,169
+300,2212.04246v3,2212.04246v3.pdf,ViTPose++: Vision Transformer for Generic Body Pose Estimation,2022-12-07T12:33:28Z,2022,169
