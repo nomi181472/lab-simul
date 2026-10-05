@@ -1,0 +1,56 @@
+{
+  "count": 300,
+  "totalCitations": 11136,
+  "totalPages": 3838,
+  "byTask": {
+    "localization": 75,
+    "vital-signs": 51,
+    "gesture-recognition": 44,
+    "other": 31,
+    "occupancy-presence": 24,
+    "breathing": 23,
+    "fall-detection": 17,
+    "tracking": 13,
+    "activity-recognition": 8,
+    "benchmark": 7,
+    "posture-pose": 4,
+    "keystroke-identification": 2,
+    "through-wall": 1
+  },
+  "byModality": {
+    "csi-80211n": 138,
+    "rssi": 42,
+    "csi-toolkit": 40,
+    "wifi-radar": 37,
+    "other": 37,
+    "wifi-sonar": 6
+  },
+  "byBandwidth": {
+    "unknown": 196,
+    "20 MHz": 67,
+    "80 MHz": 14,
+    "40 MHz": 13,
+    "160 MHz": 10
+  },
+  "byRelevance": {
+    "human-sensing": 300
+  },
+  "byYear": {
+    "2024": 45,
+    "2025": 44,
+    "2022": 41,
+    "2023": 37,
+    "2020": 30,
+    "2021": 29,
+    "2019": 22,
+    "2017": 15,
+    "2018": 11,
+    "2026": 8,
+    "2016": 7,
+    "2015": 4,
+    "2012": 4,
+    "2009": 1,
+    "2011": 1,
+    "2014": 1
+  }
+}

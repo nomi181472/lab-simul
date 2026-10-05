@@ -24,6 +24,12 @@ export const LABS = [
     accent: "sky",
   },
   {
+    id: "wifi-sensing",
+    label: "WiFi Sensing",
+    blurb: "300 papers · citation-ordered",
+    accent: "cyan",
+  },
+  {
     id: "neuroevolution",
     label: "Neuroevolution",
     blurb: "coming soon",

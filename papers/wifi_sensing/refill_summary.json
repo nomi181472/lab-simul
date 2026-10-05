@@ -1,0 +1,98 @@
+{
+  "keptFromOriginal": 291,
+  "dropped": [
+    {
+      "id": "W080",
+      "title": "No NAT'd User left Behind: Fingerprinting Users behind NAT from NetFlow Records alone",
+      "relevance": "off-topic"
+    },
+    {
+      "id": "W100",
+      "title": "RIDS : Real-time Intrusion Detection System for WPA3 enabled Enterprise Networks",
+      "relevance": "off-topic"
+    },
+    {
+      "id": "W124",
+      "title": "RadIoT: Radio Communications Intrusion Detection for IoT - A Protocol Independent Approach",
+      "relevance": "off-topic"
+    },
+    {
+      "id": "W162",
+      "title": "The Dark (and Bright) Side of IoT: Attacks and Countermeasures for Identifying Smart Home Devices and Services",
+      "relevance": "off-topic"
+    },
+    {
+      "id": "W219",
+      "title": "Position-based Rogue Access Point Detection",
+      "relevance": "off-topic"
+    },
+    {
+      "id": "W243",
+      "title": "Collecting Channel State Information in Wi-Fi Access Points for IoT Forensics",
+      "relevance": "off-topic"
+    },
+    {
+      "id": "W244",
+      "title": "Behavioral Model For Live Detection of Apps Based Attack",
+      "relevance": "off-topic"
+    },
+    {
+      "id": "W268",
+      "title": "Securing WiFi Fingerprint-based Indoor Localization Systems from Malicious Access Points",
+      "relevance": "off-topic"
+    },
+    {
+      "id": "W282",
+      "title": "Design of a Simplified Wireless Sensor Network Node based on MQTT Protocol",
+      "relevance": "off-topic"
+    }
+  ],
+  "added": [
+    {
+      "arxiv": "2503.23883",
+      "title": "Algorithm Design and Prototype Validation for Reconfigurable Intelligent Sensing Surface: Forward-Only Transmission",
+      "citations": 9
+    },
+    {
+      "arxiv": "2010.14861",
+      "title": "ORBBuf: A Robust Buffering Method for Remote Visual SLAM",
+      "citations": 9
+    },
+    {
+      "arxiv": "2407.14643",
+      "title": "Double-Layer Soft Data Fusion for Indoor Robot WiFi-Visual Localization",
+      "citations": 6
+    },
+    {
+      "arxiv": "2402.11478",
+      "title": "Federated Reinforcement Learning for Uplink Centric Broadband Communication Optimization over Unlicensed Spectrum",
+      "citations": 4
+    },
+    {
+      "arxiv": "2504.04829",
+      "title": "Attentional Graph Meta-Learning for Indoor Localization Using Extremely Sparse Fingerprints",
+      "citations": 3
+    },
+    {
+      "arxiv": "1208.0054",
+      "title": "Network Agile Preference-Based Prefetching for Mobile Devices",
+      "citations": 3
+    },
+    {
+      "arxiv": "2501.08871",
+      "title": "Joint Detection and Decoding: A Graph Neural Network Approach",
+      "citations": 2
+    },
+    {
+      "arxiv": "2508.09756",
+      "title": "The Paradigm of Massive Wireless Human Sensing: Concept, Architecture and Challenges",
+      "citations": 1
+    },
+    {
+      "arxiv": "2406.16894",
+      "title": "An Initial Study of Human-Scale Blockage in sub-THz Radio Propagation with Application to Indoor Passive Localization",
+      "citations": 1
+    }
+  ],
+  "finalCount": 300
+}

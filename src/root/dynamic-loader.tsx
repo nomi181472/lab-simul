@@ -13,6 +13,10 @@ const ObjectTrackerLab = dynamic(
   () => import("@/labs/object-tracker").then((m) => m.ObjectTrackerLab),
   { loading: RootTabLoading },
 );
+const WifiSensingLab = dynamic(
+  () => import("@/labs/wifi-sensing").then((m) => m.WifiSensingLab),
+  { loading: RootTabLoading },
+);
 const NeuroevolutionLab = dynamic(
   () => import("@/labs/neuroevolution").then((m) => m.NeuroevolutionLab),
   { loading: RootTabLoading },
@@ -25,6 +29,7 @@ const LlmsLab = dynamic(
 const LAB_COMPONENTS: Record<RootLabId, React.ComponentType> = {
   "object-detection": ObjectDetectionLab,
   "object-tracker": ObjectTrackerLab,
+  "wifi-sensing": WifiSensingLab,
   neuroevolution: NeuroevolutionLab,
   llms: LlmsLab,
 };
