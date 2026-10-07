@@ -37,9 +37,9 @@ export const LABS = [
   },
   {
     id: "llms",
-    label: "LLMs",
-    blurb: "coming soon",
-    accent: "cyan",
+    label: "Transformers → LLMs",
+    blurb: "transformers to micro-LLM · 400+ papers",
+    accent: "emerald",
   },
 ] as const;
 

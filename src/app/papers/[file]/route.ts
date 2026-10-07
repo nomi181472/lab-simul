@@ -3,6 +3,7 @@ import path from "node:path";
 import { Readable } from "node:stream";
 import { MANIFEST as WIFI_MANIFEST } from "@/labs/wifi-sensing/data/manifest";
 import { MANIFEST as NEURO_MANIFEST } from "@/labs/neuroevolution/data/manifest";
+import { MANIFEST as TF_MANIFEST } from "@/labs/llms/data/manifest";
 
 /* Serves corpus PDFs to the in-app viewer.
  *
@@ -20,20 +21,30 @@ import { MANIFEST as NEURO_MANIFEST } from "@/labs/neuroevolution/data/manifest"
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/* Both labs share this route, so the filename has to resolve to a corpus
- * directory as well as to an allowed name. A filename that appears in *both*
- * manifests is dropped rather than guessed, so an ambiguity can only ever
- * produce a 404, never the wrong lab's PDF. */
+/* Three labs share this route, so the filename has to resolve to a corpus
+ * directory as well as to an allowed name. A filename that appears in *more
+ * than one* manifest is dropped rather than guessed, so an ambiguity can only
+ * ever produce a 404, never the wrong lab's PDF. */
 const CORPORA = [
   { dir: "wifi_sensing", manifest: WIFI_MANIFEST },
   { dir: "neuroevolution", manifest: NEURO_MANIFEST },
+  { dir: "transformers", manifest: TF_MANIFEST },
 ] as const;
+
+/* The older labs emit a bare array of entries; the transformers manifest is an
+ * object that carries corpus stats alongside its entries. Normalise both so
+ * adding a lab does not require touching this loop again. */
+function entriesOf(manifest: unknown): { fileName: string }[] {
+  if (Array.isArray(manifest)) return manifest as { fileName: string }[];
+  const m = manifest as { papers?: { fileName: string }[] } | null;
+  return m?.papers ?? [];
+}
 
 const ALLOWED = new Map<string, string>();
 const ambiguous = new Set<string>();
 for (const { dir, manifest } of CORPORA) {
-  for (const p of manifest) {
-    if (ambiguous.has(p.fileName)) continue;
+  for (const p of entriesOf(manifest)) {
+    if (!p.fileName || ambiguous.has(p.fileName)) continue;
     if (ALLOWED.has(p.fileName)) {
       ALLOWED.delete(p.fileName);
       ambiguous.add(p.fileName);
