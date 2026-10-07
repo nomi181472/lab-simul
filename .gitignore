@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 .logs
 .cache
+
+# python bytecode (scripts/)
+__pycache__/
+*.py[cod]

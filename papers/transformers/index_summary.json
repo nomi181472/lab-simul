@@ -1,0 +1,45 @@
+{
+  "papers": 418,
+  "withText": 418,
+  "withArchitectureLayers": 269,
+  "architectureLayers": 638,
+  "withChanges": 142,
+  "withObjectives": 348,
+  "withResults": 77,
+  "withReferences": 349,
+  "references": 8540,
+  "byYear": {
+    "2018": 20,
+    "2017": 19,
+    "2020": 81,
+    "2019": 92,
+    "2021": 61,
+    "2022": 50,
+    "2023": 81,
+    "2024": 13,
+    "2025": 1
+  },
+  "byOperator": {
+    "calibration": 39,
+    "distillation": 36,
+    "quantization": 29,
+    "pruning": 23,
+    "architecture-search": 22,
+    "caching": 4,
+    "low-rank-adaptation": 5,
+    "attention-approximation": 8,
+    "weight-sharing": 9,
+    "mixed-precision": 12,
+    "layer-reduction": 5,
+    "token-reduction": 2
+  },
+  "kb": {
+    "concepts": 18,
+    "metrics": 4,
+    "datasets": 5
+  },
+  "sims": {
+    "simulators": 7,
+    "bindings": 28
+  }
+}

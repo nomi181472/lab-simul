@@ -1,0 +1,1812 @@
+{
+  "source": "openalex",
+  "window": "2017-01-01..2026-10-05",
+  "success": [
+    "W2896457183",
+    "W2626778328",
+    "W3094502228",
+    "W1910657905",
+    "W2970641574",
+    "W2493916176",
+    "W2979826702",
+    "W2982399380",
+    "W2911489562",
+    "W3159481202",
+    "W2787091153",
+    "W2978017171",
+    "W4221143046",
+    "W2798812533",
+    "W2777406049",
+    "W3127751679",
+    "W2606974598",
+    "W4322718191",
+    "W4319662928",
+    "W2593864460",
+    "W2999607073",
+    "W2981852735",
+    "W3119997354",
+    "W2948223045",
+    "W3015883388",
+    "W2964110616",
+    "W3198377975",
+    "W2970771982",
+    "W3027879771",
+    "W2996331899",
+    "W2885185669",
+    "W3030163527",
+    "W3152956381",
+    "W3169320628",
+    "W2990957769",
+    "W3102100346",
+    "W2607045400",
+    "W3098605233",
+    "W3156636935",
+    "W3153990350",
+    "W4384918448",
+    "W3147387781",
+    "W3212386989",
+    "W3168867926",
+    "W2789541106",
+    "W2958089299",
+    "W4327810158",
+    "W3175515048",
+    "W3036601975",
+    "W2936695845",
+    "W3174770825",
+    "W2970231061",
+    "W3195577433",
+    "W4286702585",
+    "W3136635488",
+    "W2910705748",
+    "W3046375318",
+    "W3015468748",
+    "W2887258823",
+    "W2798362442",
+    "W2897042519",
+    "W4224308101",
+    "W4281485151",
+    "W3017961061",
+    "W3006143078",
+    "W2800819102",
+    "W2947476638",
+    "W2971296908",
+    "W3111535274",
+    "W4319083882",
+    "W3010336026",
+    "W2886641317",
+    "W2747680751",
+    "W4389437528",
+    "W2950813464",
+    "W2970476646",
+    "W4297676427",
+    "W4372347372",
+    "W2550821151",
+    "W3105966348",
+    "W2918777711",
+    "W4205807230",
+    "W2966715458",
+    "W3169483174",
+    "W2970419734",
+    "W2597655663",
+    "W4225747866",
+    "W3126686235",
+    "W3033513666",
+    "W3036851434",
+    "W3006881356",
+    "W4362515116",
+    "W4321351832",
+    "W4360836968",
+    "W2909338255",
+    "W2899457523",
+    "W3001279689",
+    "W2962814013",
+    "W1504190881",
+    "W3037109418",
+    "W2953337107",
+    "W3132191748",
+    "W2953356739",
+    "W3142630836",
+    "W3177813494",
+    "W3157506437",
+    "W2740168486",
+    "W2994536315",
+    "W3198685994",
+    "W4221142221",
+    "W3013507463",
+    "W2793978524",
+    "W2934413201",
+    "W2946417913",
+    "W2891177506",
+    "W3122484828",
+    "W2977814456",
+    "W2939710050",
+    "W2489487449",
+    "W2948947170",
+    "W3132503749",
+    "W3171649327",
+    "W2937843571",
+    "W4368367885",
+    "W4225323055",
+    "W3002104146",
+    "W3098267758",
+    "W2971196067",
+    "W2968124245",
+    "W2995753487",
+    "W2952638691",
+    "W3144314306",
+    "W3092172514",
+    "W4327808545",
+    "W2770387316",
+    "W3208687975",
+    "W3111278950",
+    "W4307079201",
+    "W4384662964",
+    "W4320495408",
+    "W3146097248",
+    "W3145444543",
+    "W4385763767",
+    "W3021338988",
+    "W2964161024",
+    "W2938704169",
+    "W4362663195",
+    "W2946794439",
+    "W4281557260",
+    "W2954731415",
+    "W4221141623",
+    "W2995321487",
+    "W4389326242",
+    "W4366208220",
+    "W4313506322",
+    "W2963854351",
+    "W4226167525",
+    "W4392353733",
+    "W3034723486",
+    "W2757541972",
+    "W3116489684",
+    "W3032388710",
+    "W2614034469",
+    "W4399083018",
+    "W3133696297",
+    "W4283026156",
+    "W3022140654",
+    "W2987283559",
+    "W2763421725",
+    "W3194329900",
+    "W2957182830",
+    "W4229011615",
+    "W3092129462",
+    "W3016254928",
+    "W2975059944",
+    "W3008390291",
+    "W4400591407",
+    "W4366817968",
+    "W2996264288",
+    "W4362581834",
+    "W2955419283",
+    "W4285294723",
+    "W2891555348",
+    "W2516038988",
+    "W4385632485",
+    "W2968210605",
+    "W2951286828",
+    "W3022265721",
+    "W4318718936",
+    "W3170863103",
+    "W3160284783",
+    "W4377079715",
+    "W2950339735",
+    "W3088682211",
+    "W3130319171",
+    "W4323848232",
+    "W3096655658",
+    "W3033529678",
+    "W3027440908",
+    "W4226182655",
+    "W2963101956",
+    "W3112516115",
+    "W2971569798",
+    "W4320487943",
+    "W4404356490",
+    "W3017604292",
+    "W2959471610",
+    "W3022113899",
+    "W2973727699",
+    "W3036600965",
+    "W4392193048",
+    "W4389519254",
+    "W2946609015",
+    "W4321649710",
+    "W3137278571",
+    "W2939627158",
+    "W2944378183",
+    "W2949678053",
+    "W2986154550",
+    "W4221146106",
+    "W2938830017",
+    "W3044960932",
+    "W4389984066",
+    "W2940805846",
+    "W4321455981",
+    "W2948131150",
+    "W3176828726",
+    "W2971220558",
+    "W4385573131",
+    "W3201174429",
+    "W2889518897",
+    "W2987206775",
+    "W4379259169",
+    "W3034457371",
+    "W4221161695",
+    "W2972219719",
+    "W2941531368",
+    "W3085177480",
+    "W4385567149",
+    "W3212604410",
+    "W4366330503",
+    "W3094002940",
+    "W4226399820",
+    "W2970986510",
+    "W4389793309",
+    "W2969515962",
+    "W4385572634",
+    "W3034266838",
+    "W2948140294",
+    "W4392669753",
+    "W3088599783",
+    "W4225591000",
+    "W2962717047",
+    "W2798240283",
+    "W4311642023",
+    "W4353016766",
+    "W3031696893",
+    "W3034617555",
+    "W4385430679",
+    "W3008686018",
+    "W2964926209",
+    "W4386065512",
+    "W3008374555",
+    "W2943121181",
+    "W4404782964",
+    "W4221166942",
+    "W4402670856",
+    "W3130033937",
+    "W3087597081",
+    "W2937845937",
+    "W3037057938",
+    "W4385430674",
+    "W2751694392",
+    "W4383995031",
+    "W3170092793",
+    "W2963545917",
+    "W4322622443",
+    "W3170647102",
+    "W4282981352",
+    "W2943584607",
+    "W2970854433",
+    "W3107826490",
+    "W2972140869",
+    "W3048606076",
+    "W4304195432",
+    "W4294628862",
+    "W2949202705",
+    "W3155500647",
+    "W3026254524",
+    "W4321010063",
+    "W3021636956",
+    "W3187255235",
+    "W2760560443",
+    "W4404303854",
+    "W4377130677",
+    "W4389519587",
+    "W4224315052",
+    "W3105816068",
+    "W2944165510",
+    "W4281690148",
+    "W3205068155",
+    "W4310416691",
+    "W2606891064",
+    "W3159645096",
+    "W3155807546",
+    "W3122241445",
+    "W4225494949",
+    "W3014265582",
+    "W4385027818",
+    "W4330336443",
+    "W3039695075",
+    "W2969624041",
+    "W2996035354",
+    "W4406779522",
+    "W3126792443",
+    "W3011344527",
+    "W3126337037",
+    "W4324144441",
+    "W2985377636",
+    "W4360891289",
+    "W4393160302",
+    "W4229042118",
+    "W4396545724",
+    "W4318919287",
+    "W3037880470",
+    "W4411630045",
+    "W4389523832",
+    "W4378509449",
+    "W4402128637",
+    "W3033411150",
+    "W2767206889",
+    "W3035453001",
+    "W4389520749",
+    "W4389210056",
+    "W3209374680",
+    "W2798170643",
+    "W4381930847",
+    "W2937808806",
+    "W3156470785",
+    "W3153832461",
+    "W3175362188",
+    "W4380353763",
+    "W3176851559",
+    "W2983995706",
+    "W4401306886",
+    "W4366850747",
+    "W3111507638",
+    "W4283705032",
+    "W4376626501",
+    "W3042667808",
+    "W4389523957",
+    "W3169291081",
+    "W3135921327",
+    "W3025993830",
+    "W2933562539",
+    "W3035231859",
+    "W2940744433",
+    "W2979314664",
+    "W4205201623",
+    "W4281758439",
+    "W4389519118",
+    "W4387338457",
+    "W2948120406",
+    "W4312249545",
+    "W3203711169",
+    "W2798638375",
+    "W4387409844",
+    "W4386728933",
+    "W3034379414",
+    "W2921848006",
+    "W3033187248",
+    "W4375949262",
+    "W4321506460",
+    "W4386185625",
+    "W3089430725",
+    "W4388725043",
+    "W3156666908",
+    "W4391013663",
+    "W4285225959",
+    "W3159727696",
+    "W3202406646",
+    "W2964910501",
+    "W4379010216",
+    "W4323706279",
+    "W4376312115",
+    "W3139049060",
+    "W4391830676",
+    "W4320165837",
+    "W2954582488",
+    "W4389518760",
+    "W2917767146",
+    "W4226013992",
+    "W3105232955",
+    "W4402667093",
+    "W2990818246",
+    "W3211686893",
+    "W3025165719",
+    "W3152694111",
+    "W3023035014",
+    "W4385571689",
+    "W4281492411",
+    "W4404784276",
+    "W4381587418",
+    "W3156978626",
+    "W3034689979",
+    "W4385469325",
+    "W4384389802",
+    "W4391301614",
+    "W4386302153",
+    "W4389524555",
+    "W2947609478",
+    "W2962785754",
+    "W4400118952",
+    "W4328049044",
+    "W4385570088",
+    "W3016489761",
+    "W3154632195",
+    "W4361866125",
+    "W4317553041",
+    "W4303443398"
+  ],
+  "failed": [
+    [
+      "W2575505363",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2581108109",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2581828022",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2584508145",
+      "not a pdf (content-type=text/html; charset=UTF-8)"
+    ],
+    [
+      "W2603442821",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2604799547",
+      "not a pdf (content-type=text/html;charset=UTF-8)"
+    ],
+    [
+      "W2609275912",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2613828822",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2625135129",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2627092521",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2683672249",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2708872728",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2727482182",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2731987565",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2738062132",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2742809615",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2753709519",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2762341360",
+      "HTTPError: HTTP Error 404: Not Found"
+    ],
+    [
+      "W2767327746",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2769436221",
+      "HTTPError: HTTP Error 429: Too Many Requests"
+    ],
+    [
+      "W2769483102",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2780195716",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2782898451",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2783489174",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2787153680",
+      "URLError: <urlopen error timed out>"
+    ],
+    [
+      "W2788231085",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2788376297",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2788810909",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2789207181",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2789855094",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2790410554",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2791124749",
+      "URLError: <urlopen error [Errno -2] Name or service not know"
+    ],
+    [
+      "W2791461645",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2791518841",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2793263498",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2793333522",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2794609696",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W2796031183",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2800279715",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2802815532",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2809472441",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2810384774",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2883445328",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2883600665",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2888358068",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2889377484",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2890605989",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2892077605",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2892402642",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2898604175",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2900153411",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2900182564",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2903010511",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2903739847",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2907648650",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W2911892655",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2912919760",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2942231644",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W2943160824",
+      "TimeoutError: The read operation timed out"
+    ],
+    [
+      "W2944285188",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2945102769",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W2947337027",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2950568498",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2950865323",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W2951991161",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2952138241",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2955639361",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W2956046114",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2962790412",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2962818281",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W2962946486",
+      "RemoteDisconnected: Remote end closed connection without response"
+    ],
+    [
+      "W2963085847",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2963355537",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W2963532813",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2963557767",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2964010366",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2964189376",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2964300796",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2967070597",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2969656782",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2970332014",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2974087526",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2979040987",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W2982569617",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2984353870",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2990628128",
+      "HTTPError: HTTP Error 404: Not Found"
+    ],
+    [
+      "W2992693294",
+      "RemoteDisconnected: Remote end closed connection without response"
+    ],
+    [
+      "W2993536313",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2995245562",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2996345146",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2996851481",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2996931760",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2997006708",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2997316506",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2997532515",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2997591391",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2997848713",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2998183051",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2998291476",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W2998385486",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2998617917",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W2999409984",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W2999472659",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W3004911392",
+      "not a pdf (content-type=text/html; charset=UTF-8)"
+    ],
+    [
+      "W3005957464",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3007209283",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3008345757",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3011176674",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3011525985",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3011785450",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W3012871709",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3015126118",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3015790912",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3017637887",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3020873385",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3025120169",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3025576489",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3027225766",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3036131095",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3036165455",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3037032032",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W3037930154",
+      "not a pdf (content-type=text/html)"
+    ],
+    [
+      "W3043869244",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3044815875",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3047335959",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3047855151",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3048861795",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3080359515",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3081426492",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3084223432",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3085414015",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3087508233",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3094034327",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3094550259",
+      "not a pdf (content-type=text/html)"
+    ],
+    [
+      "W3095319910",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3097532599",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3108545247",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3109004077",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3112666381",
+      "HTTPError: HTTP Error 404: Not Found"
+    ],
+    [
+      "W3114973248",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3118164373",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3119044526",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3119286420",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3120491054",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3120986671",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3122214732",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3128592650",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3128776197",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3131590295",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3137125108",
+      "not a pdf (content-type=text/html)"
+    ],
+    [
+      "W3137147200",
+      "not a pdf (content-type=text/html; charset=UTF-8)"
+    ],
+    [
+      "W3138815606",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3139434170",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W3139657805",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W3140854437",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3141186455",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3142080073",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3147262955",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3148271110",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3154258817",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3155535021",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3155966371",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W3157175643",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3158253560",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W3158304688",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3160137267",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3161478110",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3164956625",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3165265377",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3166791908",
+      "RemoteDisconnected: Remote end closed connection without response"
+    ],
+    [
+      "W3168997536",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3169450514",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W3169893408",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3171950886",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W3173875945",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3174086521",
+      "RemoteDisconnected: Remote end closed connection without response"
+    ],
+    [
+      "W3175137827",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3176923149",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3177318507",
+      "RemoteDisconnected: Remote end closed connection without response"
+    ],
+    [
+      "W3178738300",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3185256938",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3185341429",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3187418919",
+      "HTTPError: HTTP Error 404: Not Found"
+    ],
+    [
+      "W3189223768",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3197232629",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3197957534",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W3198874703",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3199093552",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W3199189488",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W3199633733",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3200188836",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3202582446",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3202698164",
+      "HTTPError: HTTP Error 404: Not Found"
+    ],
+    [
+      "W3203321135",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3204076343",
+      "HTTPError: HTTP Error 404: Not Found"
+    ],
+    [
+      "W3211916953",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3211992861",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W3212516020",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4200053447",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4200522319",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4205208574",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4206095984",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4211263275",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4213025374",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W4214513770",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4220852564",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4220949944",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4223581484",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4223610593",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4224227775",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4224912036",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4229036110",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4280610169",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4281763794",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4283170666",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4283696483",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4286669150",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4289236186",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4290876361",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4293163051",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4293212596",
+      "URLError: <urlopen error timed out>"
+    ],
+    [
+      "W4293770403",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4298110867",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4302362254",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4306840209",
+      "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING]"
+    ],
+    [
+      "W4307135222",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4309811444",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4310078553",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4312220150",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4313451803",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4315498228",
+      "HTTPError: HTTP Error 401: Unauthorized"
+    ],
+    [
+      "W4317910584",
+      "RemoteDisconnected: Remote end closed connection without response"
+    ],
+    [
+      "W4318263917",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4318566866",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4319162181",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4319163914",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4319460874",
+      "not a pdf (content-type=text/html; charset=UTF-8)"
+    ],
+    [
+      "W4321368061",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4321499901",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4321605350",
+      "URLError: <urlopen error timed out>"
+    ],
+    [
+      "W4322008312",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4322624932",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4322761615",
+      "not a pdf (content-type=text/html; charset=UTF-8)"
+    ],
+    [
+      "W4322766882",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4323536358",
+      "not a pdf (content-type=text/html; charset=UTF-8)"
+    ],
+    [
+      "W4323655724",
+      "URLError: <urlopen error timed out>"
+    ],
+    [
+      "W4324046518",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4324143928",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4324373918",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4327946446",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4353029260",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4360620450",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4360980141",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4361204578",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4362602778",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4362704312",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4365143687",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4366091323",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4366420437",
+      "RemoteDisconnected: Remote end closed connection without response"
+    ],
+    [
+      "W4366548330",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4366989525",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4366989878",
+      "RemoteDisconnected: Remote end closed connection without response"
+    ],
+    [
+      "W4367598041",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4368340908",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4376139682",
+      "RemoteDisconnected: Remote end closed connection without response"
+    ],
+    [
+      "W4376226279",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W4376866715",
+      "not a pdf (content-type=text/html; charset=UTF-8)"
+    ],
+    [
+      "W4378189609",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4378214315",
+      "not a pdf (content-type=text/html; charset=UTF-8)"
+    ],
+    [
+      "W4378574344",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4379769651",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4379985979",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4380319827",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4380874786",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4380995257",
+      "not a pdf (content-type=text/html; charset=UTF-8)"
+    ],
+    [
+      "W4381982883",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4382202677",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W4382203079",
+      "RemoteDisconnected: Remote end closed connection without response"
+    ],
+    [
+      "W4382246105",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4382462760",
+      "URLError: <urlopen error [Errno 111] Connection refused>"
+    ],
+    [
+      "W4382584043",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4383346782",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4383818129",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4383913712",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4384071683",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4384200891",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4384464487",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4385342469",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4385346076",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4385416665",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4385452929",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W4385839827",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4385878593",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4386098991",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4386141641",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4386251129",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4386697749",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4386711999",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4386867830",
+      "not a pdf (content-type=text/html; charset=UTF-8)"
+    ],
+    [
+      "W4387105517",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4387195417",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4387321091",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4387500346",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4387835442",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4387954002",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4388333366",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4388488609",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4388778348",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4388886073",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4389203481",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4389636360",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4389727268",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4389991792",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4390175962",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4390221451",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4390490761",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4390793092",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4390906246",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4391109864",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4391221150",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4391514872",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4391836235",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4391855109",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W4391876619",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4392240262",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4393065402",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4394828156",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W4394828356",
+      "HTTPError: HTTP Error 418: Unknown Code"
+    ],
+    [
+      "W4395052272",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4396723768",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4399803256",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4400324908",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4400578758",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4400949264",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4401386758",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4401587065",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4401857375",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4401889742",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4402909345",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4404046121",
+      "HTTPError: HTTP Error 403: Forbidden"
+    ],
+    [
+      "W4404821554",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4406152279",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4406170795",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4406488712",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4406778273",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ],
+    [
+      "W4414281281",
+      "not a pdf (content-type=text/html; charset=utf-8)"
+    ]
+  ]
+}
