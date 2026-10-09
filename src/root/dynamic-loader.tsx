@@ -25,6 +25,10 @@ const LlmsLab = dynamic(
   () => import("@/labs/llms").then((m) => m.LlmsLab),
   { loading: RootTabLoading },
 );
+const NetworkingLab = dynamic(
+  () => import("@/labs/networking").then((m) => m.NetworkingLab),
+  { loading: RootTabLoading },
+);
 
 const LAB_COMPONENTS: Record<RootLabId, React.ComponentType> = {
   "object-detection": ObjectDetectionLab,
@@ -32,6 +36,7 @@ const LAB_COMPONENTS: Record<RootLabId, React.ComponentType> = {
   "wifi-sensing": WifiSensingLab,
   neuroevolution: NeuroevolutionLab,
   llms: LlmsLab,
+  networking: NetworkingLab,
 };
 
 function RootTabLoading() {

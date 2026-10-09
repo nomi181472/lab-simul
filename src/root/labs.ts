@@ -41,6 +41,12 @@ export const LABS = [
     blurb: "transformers to micro-LLM · 400+ papers",
     accent: "emerald",
   },
+  {
+    id: "networking",
+    label: "Networking",
+    blurb: "300 papers · 2011–2023 · citation-ordered",
+    accent: "sky",
+  },
 ] as const;
 
 export type RootLabId = (typeof LABS)[number]["id"];

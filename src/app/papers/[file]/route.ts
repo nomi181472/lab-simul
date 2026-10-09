@@ -4,6 +4,7 @@ import { Readable } from "node:stream";
 import { MANIFEST as WIFI_MANIFEST } from "@/labs/wifi-sensing/data/manifest";
 import { MANIFEST as NEURO_MANIFEST } from "@/labs/neuroevolution/data/manifest";
 import { MANIFEST as TF_MANIFEST } from "@/labs/llms/data/manifest";
+import { MANIFEST as NET_MANIFEST } from "@/labs/networking/data/manifest";
 
 /* Serves corpus PDFs to the in-app viewer.
  *
@@ -29,6 +30,7 @@ const CORPORA = [
   { dir: "wifi_sensing", manifest: WIFI_MANIFEST },
   { dir: "neuroevolution", manifest: NEURO_MANIFEST },
   { dir: "transformers", manifest: TF_MANIFEST },
+  { dir: "networking", manifest: NET_MANIFEST },
 ] as const;
 
 /* The older labs emit a bare array of entries; the transformers manifest is an
