@@ -1,0 +1,122 @@
+{
+  "id": "OD094",
+  "arxiv": "2211.15444",
+  "title": "DAMO-YOLO : A Report on Real-Time Object Detection Design",
+  "year": 2022,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "Industry needs real-time detectors with strong accuracy-latency trade-offs, but existing YOLO designs are still manually engineered, the balance between neck and head size was unverified, dynamic label assignment misaligns classification and regression, knowledge distillation on YOLO series often fails to help, and FLOPs do not reliably predict real latency.",
+    "statements": [
+      "Prior YOLO backbones were manually designed rather than searched under latency constraints.",
+      "Dynamic label assignment still suffers misalignment between classification and regression.",
+      "Knowledge distillation on YOLO series sometimes yields no significant improvement because hyperparameters are hard to optimize and features carry noise.",
+      "A model's FLOPs and its latency are not necessarily consistent, so FLOPs-driven design misleads deployment."
+    ],
+    "problemTags": ["speed-latency", "label-assignment", "deployability", "real-time-edge"],
+    "evidence": [
+      { "quote": "Although object detection has achieved great progress, there are still new techs that can be brought in to further improve performance.", "location": "Introduction" },
+      { "quote": "However, the misalignment problem is still unsolved in these works.", "location": "Introduction" },
+      { "quote": "applying KD on YOLO series sometimes can not achieve significant improvements as hyperparameters are hard to optimize and features carry too much noise.", "location": "Introduction" },
+      { "quote": "the relationship between a model's flops and latency is not necessarily consistent.", "location": "Sec 2.1" }
+    ]
+  },
+  "background": {
+    "summary": "DAMO-YOLO extends the YOLO lineage (YOLOv4-7, YOLOX, PP-YOLOE) and reuses MAE-NAS for backbone search, Generalized-FPN's queen-fusion for the neck, CSPNet plus ELAN and reparameterization for feature fusion, OTA/TOOD-style dynamic label assignment, and feature-based knowledge distillation, while noting Darknet's early dominance and the superiority of NAS-found structures over manual designs.",
+    "relatedWork": [
+      { "name": "YOLO series (YOLOv5/6/7, YOLOX, PP-YOLOE)", "relation": "industrial real-time baselines the report aims to surpass", "quote": "YOLOv5/6/7 [18, 32, 34], YOLOX [9] and PP-YOLOE [38] have achieved significant AP-Latency trade-offs on COCO, making YOLO series object detection methods widely used in the industry.", "location": "Introduction" },
+      { "name": "Generalized-FPN (GFPN)", "relation": "neck design that RepGFPN accelerates", "quote": "Generalized-FPN (GFPN) [17] improves FPN with a novel queen-fusion.", "location": "Introduction" },
+      { "name": "MAE-NAS", "relation": "training-free architecture search used to obtain backbones", "quote": "MAE-NAS is a heuristic and training-free neural architecture search method without supernet dependence and can be utilized to archive backbones at different scales.", "location": "Introduction" },
+      { "name": "OTA and TOOD", "relation": "dynamic label assignment methods AlignOTA improves upon", "quote": "dynamic label assignment, such as OTA [8] and TOOD [7], is widely acclaimed and achieves significant improvement compared to the static label assignment [43].", "location": "Introduction" }
+    ],
+    "evidence": [
+      { "quote": "Darknet holds a dominant position in the early stages of YOLO history", "location": "Introduction" },
+      { "quote": "there are many detection-friendly network structures found through the NAS techs [4, 16, 30], which have shown great superiority over previous manually designed networks.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "DAMO-YOLO builds a real-time detector from a MAE-NAS-searched backbone under latency budgets, an Efficient RepGFPN neck (per-scale channels, accelerated queen-fusion, CSP + reparameterization + ELAN), and a ZeroHead containing only task projection layers following the rule of large neck, small head; it adds AlignOTA label assignment that aligns classification and regression costs, QFL/DFL/GIoU losses, and a two-stage feature-distillation scheme with align module and channel-wise temperature.",
+    "approach": "Search a latency-constrained backbone and shift capacity from head to neck (large neck, small head), then close the gap with aligned label assignment (AlignOTA) and carefully balanced distillation.",
+    "components": [
+      "MAE-NAS backbone with Res-block, CSP-block or Mob-block variants",
+      "Efficient RepGFPN neck with accelerated queen-fusion and reparameterized CSP fusion blocks",
+      "ZeroHead consisting only of one classification and one regression projection layer",
+      "AlignOTA label assignment with focal classification cost and IoU soft labels",
+      "Quality Focal Loss, Distribution Focal Loss and GIoU loss",
+      "two-stage distillation with CWD, align module and channel-wise dynamic temperature",
+      "Mosaic, Mixup and SADA box-level augmentation"
+    ],
+    "solutionTags": ["one-stage", "real-time-backbone", "reparameterization", "nas", "distillation", "dynamic-assignment"],
+    "evidence": [
+      { "quote": "In the design of necks and heads, we follow the rule of “large neck, small head”.", "location": "Introduction" },
+      { "quote": "we use MAE-NAS [30] to obtain optimal networks under different latency budgets.", "location": "Sec 2.1" },
+      { "quote": "We named our head as ZeroHead as there is no other training layers in our head.", "location": "Sec 2.3" },
+      { "quote": "we introduce the focal loss [22] into the classification cost, and use the IoU of prediction and ground truth box as the soft label", "location": "Sec 2.3" },
+      { "quote": "We name our label assignment as AlignOTA.", "location": "Sec 2.3" }
+    ]
+  },
+  "experiments": {
+    "summary": "Models are trained 300 epochs with SGD on COCO, compared against YOLO-series and lightweight detectors using TensorRT-FP16 latency on a T4 GPU and OpenVINO latency on an Intel-8163 CPU; ablations cover CSP-Darknet vs MAE-NAS backbones, neck depth/width, queen-fusion connections, merge style, neck/head balance, assigners (ATSS, simOTA, TOOD, AlignOTA), distillation methods, and large-scale pre-training on Objects365 and OpenImages.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "mAP", "value": "43.6", "split": "val, DAMO-YOLO-T, 2.78 ms on T4 GPU", "location": "Abstract / Table 9" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "47.7", "split": "val, DAMO-YOLO-S, 3.83 ms on T4 GPU", "location": "Abstract / Table 9" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "50.2", "split": "val, DAMO-YOLO-M, 5.62 ms on T4 GPU", "location": "Abstract / Table 9" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "51.9", "split": "val, DAMO-YOLO-L, 7.95 ms on T4 GPU", "location": "Abstract / Table 9" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "32.3", "split": "val, DAMO-YOLO-Ns lightweight, 4.08 ms on X86 CPU", "location": "Table 10" },
+      { "dataset": "VisDrone", "metric": "mAP", "value": "26.6", "split": "fine-tuned 300 epochs from Objects365+OpenImages pre-trained model", "location": "Table 11" }
+    ],
+    "baselines": ["YOLOv5", "YOLOv6", "YOLOv7", "YOLOX", "PP-YOLOE", "YOLOE", "Picodet", "Nanodet"],
+    "evidence": [
+      { "quote": "They can achieve 43.6/47.7/50.2/51.9 mAPs on COCO with the latency of 2.78/3.83/5.62/7.95 ms on T4 GPUs respectively.", "location": "Abstract" },
+      { "quote": "We can see that AlignOTA outperforms all other label assignment methods.", "location": "Sec 2.3" },
+      { "quote": "achieved a 1.1% mAP improvement compared to the DAMO-YOLO-S baseline on COCO.", "location": "Sec 2.5" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors note that distillation is sensitive to its loss weight (heavy weights slow the student's classification convergence), that KD on YOLO series often fails without careful tuning, and that FLOPs-based reasoning misleads latency decisions; design conclusions are empirical trade-offs rather than guarantees.",
+    "items": [
+      "Distillation loss weight must stay small, otherwise the student's classification loss converges slowly and accuracy suffers.",
+      "Knowledge distillation on YOLO series often fails to bring significant gains because hyperparameters are hard to optimize.",
+      "FLOPs do not consistently predict latency, so compute-based comparisons can misjudge deployment cost."
+    ],
+    "evidence": [
+      { "quote": "when we focus more on distillation (weight=10), the classification loss in student has a slow convergence, which results in a negative effect.", "location": "Sec 2.4" },
+      { "quote": "applying KD on YOLO series sometimes can not achieve significant improvements as hyperparameters are hard to optimize and features carry too much noise.", "location": "Sec 2.4" },
+      { "quote": "the relationship between a model's flops and latency is not necessarily consistent.", "location": "Sec 2.1" }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["COCO", "Objects365", "OpenImages", "VisDrone"],
+    "backbones": ["MAE-Res", "MAE-CSP", "MAE-Mob", "CSP-Darknet"],
+    "models": ["DAMO-YOLO-T", "DAMO-YOLO-S", "DAMO-YOLO-M", "DAMO-YOLO-L", "DAMO-YOLO-Ns", "DAMO-YOLO-Nm", "DAMO-YOLO-Nl", "YOLOv5", "YOLOv6", "YOLOv7", "YOLOX", "PP-YOLOE"],
+    "algorithms": ["MAE-NAS", "reparameterization", "ELAN", "queen-fusion", "AlignOTA", "Quality Focal Loss", "Distribution Focal Loss", "GIoU loss", "channel-wise knowledge distillation", "Mosaic", "Mixup", "SADA", "TensorRT", "OpenVINO"],
+    "metrics": ["mAP", "AP50", "AP75", "latency", "FPS", "FLOPs", "params"],
+    "equations": [
+      { "name": "Training loss", "expr": "Loss = alpha * loss_QFL + beta * loss_DFL + gamma * loss_GIOU", "location": "Sec 2.3, Eq. 1" },
+      { "name": "AlignOTA assignment cost", "expr": "AssignCost = C_reg + C_cls, C_reg = -ln(alpha), C_cls = (alpha - cls_pred)^2 * CE(cls_pred, alpha), alpha = IoU(reg_gt, reg_pred)", "location": "Sec 2.3, Eq. 2" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "industrial real-time detection", "detail": "General-purpose DAMO-YOLO-T/S/M/L models target industry requirements, delivering 43.6-51.9 mAP on COCO at 2.78-7.95 ms latency on T4 GPUs.", "quote": "For general industry requirements, we propose DAMO-YOLO-T/S/M/L.", "location": "Abstract" },
+      { "domain": "edge and CPU deployments", "detail": "DAMO-YOLO-Ns/Nm/Nl lightweight models serve edge devices with limited computing power, reaching 32.3-40.5 mAP on COCO at 4.08-6.69 ms on X86 CPU.", "quote": "Additionally, for edge devices with limited computing power, we have also proposed DAMO-YOLO-Ns/Nm/Nl lightweight models.", "location": "Abstract" }
+    ],
+    "deploymentClaims": [
+      "43.6/47.7/50.2/51.9 mAP on COCO at 2.78/3.83/5.62/7.95 ms latency on T4 GPUs (TensorRT FP16)",
+      "32.3/38.2/40.5 mAP on COCO at 4.08/5.05/6.69 ms on X86 CPU (Intel-8163 with OpenVINO)",
+      "Code and pre-trained models released with ONNX and TensorRT supported",
+      "Latency-priority design: backbone searched under low latency constraints via MAE-NAS"
+    ],
+    "evidence": [
+      { "quote": "They can achieve 43.6/47.7/50.2/51.9 mAPs on COCO with the latency of 2.78/3.83/5.62/7.95 ms on T4 GPUs respectively.", "location": "Abstract" },
+      { "quote": "The code is available at https://github.com/tinyvision/damo-yolo.", "location": "Abstract" },
+      { "quote": "Latency is tested by ourself on T4 GPUs using TensorRT engine in FP16, while other results are from the corresponding papers.", "location": "Table 9" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2211.15444",
+    "arxivUrl": "https://arxiv.org/abs/2211.15444",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/2211.15444"
+  }
+}

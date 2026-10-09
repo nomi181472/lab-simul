@@ -1,0 +1,117 @@
+{
+  "id": "OD013",
+  "arxiv": "1703.06211",
+  "title": "Deformable Convolutional Networks",
+  "year": 2017,
+  "venue": "IEEE International Conference on Computer Vision (ICCV)",
+  "problem": {
+    "summary": "The paper argues that CNNs have fixed geometric structures in their building modules (convolution, pooling, RoI pooling), so they can only model geometric variation through data augmentation and hand-crafted priors. As a result they cannot adapt to unknown transformations and use the same receptive field everywhere.",
+    "statements": [
+      "CNN modules sample at fixed locations and pool at fixed ratios, so they lack internal mechanisms to handle geometric transformations.",
+      "All activation units in a CNN layer share the same receptive field size, which is undesirable when objects at different locations have different scales or deformation.",
+      "Object detectors rely on primitive bounding-box-based feature extraction, which is sub-optimal for non-rigid objects."
+    ],
+    "problemTags": ["scale-variance", "localization", "small-objects"],
+    "evidence": [
+      { "quote": "Convolutional neural networks (CNNs) are inherently limited to model geometric transformations due to the fixed geometric structures in their building modules.", "location": "Abstract" },
+      { "quote": "In short, CNNs are inherently limited to model large, unknown transformations.", "location": "Introduction" },
+      { "quote": "For one example, the receptive field sizes of all activation units in the same CNN layer are the same.", "location": "Introduction" },
+      { "quote": "still rely on the primitive bounding box based feature extraction. This is clearly sub-optimal, especially for non-rigid objects.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on region-based detectors (Fast/Faster R-CNN, R-FCN), DeepLab segmentation, and prior work on learning spatial transformations (Spatial Transformer Networks, Active Convolution, Deformable Part Models, atrous convolution). The claimed gap is that none of these learn dense, input-conditioned sampling locations end-to-end inside CNNs.",
+    "relatedWork": [
+      { "name": "Spatial Transform Networks", "relation": "prior work that learns a global parametric spatial transformation from data", "quote": "It is the first work to learn spatial transformation from data in a deep learning framework.", "location": "Sec 3.1" },
+      { "name": "Atrous convolution", "relation": "prior multi-scale receptive-field technique that deformable convolution generalizes", "quote": "Deformable convolution is a generalization of atrous convolution, as easily seen in Figure 1 (c).", "location": "Sec 3.1" },
+      { "name": "Deformable Part Models", "relation": "prior shallow model of part deformation that deformable RoI pooling simplifies", "quote": "Deformable RoI pooling is similar to DPM because both methods learn the spatial deformation of object parts to maximize the classification score.", "location": "Sec 3.1" },
+      { "name": "Faster R-CNN", "relation": "state-of-the-art detector used as a host architecture for the new modules", "quote": "Faster R-CNN [47] is the state-of-the-art detector.", "location": "Sec 2.3" }
+    ],
+    "evidence": [
+      { "quote": "A key challenge in visual recognition is how to accommodate geometric variations or model geometric transformations in object scale, pose, viewpoint, and part deformation.", "location": "Introduction" },
+      { "quote": "The offset learning in deformable convolution can be considered as an extremely light-weight spatial transformer in STN [26].", "location": "Sec 3.1" }
+    ]
+  },
+  "solution": {
+    "summary": "The paper introduces deformable convolution and deformable RoI pooling, which augment the fixed sampling grids of standard convolution and RoI pooling with offsets learned from the input features and the target task, requiring no extra supervision.",
+    "approach": "Learn task-driven 2D offsets for convolution sampling locations and RoI-pooling bin positions so that receptive fields adapt to object scale and shape.",
+    "components": [
+      "deformable convolution with per-location 2D offsets predicted by an extra convolutional layer",
+      "deformable RoI pooling with per-bin offsets predicted by a fully connected layer",
+      "deformable position-sensitive (PS) RoI pooling for R-FCN",
+      "bilinear interpolation for evaluating fractional sampling locations",
+      "zero-initialized offset layers that plug into ResNet-101 and Aligned-Inception-ResNet"
+    ],
+    "solutionTags": ["deformable-sampling", "dense-prediction"],
+    "evidence": [
+      { "quote": "Both are based on the idea of augmenting the spatial sampling locations in the modules with additional offsets and learning the offsets from the target tasks, without additional supervision.", "location": "Abstract" },
+      { "quote": "The first is deformable convolution. It adds 2D offsets to the regular grid sampling locations in the standard convolution.", "location": "Introduction" },
+      { "quote": "The second is deformable RoI pooling. It adds an offset to each bin position in the regular bin partition of the previous RoI pooling [15, 7].", "location": "Introduction" },
+      { "quote": "Hence, they can readily replace their plain counterparts in existing CNNs.", "location": "Sec 2.3" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation is by ablation on PASCAL VOC 2007 (semantic segmentation on VOC 2012/Cityscapes also reported) and by full comparison on COCO test-dev, always against the plain-ConvNet version of DeepLab, class-aware RPN, Faster R-CNN and R-FCN with ResNet-101 or Aligned-Inception-ResNet.",
+    "benchmarks": [
+      { "dataset": "COCO test-dev", "metric": "mAP@[0.5:0.95]", "value": "34.5", "split": "test-dev", "location": "Table 5" },
+      { "dataset": "COCO test-dev", "metric": "mAP@[0.5:0.95]", "value": "37.5", "split": "test-dev (multi-scale + box averaging)", "location": "Table 5" },
+      { "dataset": "COCO test-dev", "metric": "mAP@[0.5:0.95]", "value": "33.1", "split": "test-dev", "location": "Table 5" },
+      { "dataset": "COCO test-dev", "metric": "mAP@[0.5:0.95]", "value": "25.8", "split": "test-dev", "location": "Table 5" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP@0.5", "value": "82.6", "split": "test 2007", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP@0.7", "value": "68.5", "split": "test 2007", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP@0.5", "value": "79.3", "split": "test 2007", "location": "Table 3" },
+      { "dataset": "Cityscapes", "metric": "mIoU", "value": "75.2", "split": "val", "location": "Table 3" }
+    ],
+    "baselines": ["plain ResNet-101 ConvNets", "atrous convolution", "DeepLab", "class-aware RPN", "Faster R-CNN", "R-FCN"],
+    "evidence": [
+      { "quote": "The deformable versions of class-aware RPN, Faster R-CNN and R-FCN achieve mAP@[0.5:0.95] scores of 25.8%, 33.1%, and 34.5% respectively", "location": "Sec 4.3" },
+      { "quote": "By further testing on multiple image scales (the image shorter side is in [480, 576, 688, 864, 1200, 1400]) and performing iterative bounding box average [14], the mAP@[0.5:0.95] scores are increased to 37.5% for the deformable version of R-FCN.", "location": "Sec 4.3" },
+      { "quote": "Extensive ablation studies are performed to validate the efficacy and efficiency of our approach.", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper has no explicit limitations section; evident limitations are small runtime/parameter overhead, gains that saturate with the number of deformable layers, application only to the last few convolutional layers, and the use of a simplified (slightly less accurate) Faster R-CNN head.",
+    "items": [
+      "Deformable modules add parameters and runtime (e.g., Faster R-CNN runtime rises from 0.190 s to 0.234 s in Table 4).",
+      "Accuracy improvement saturates after 3 deformable layers (6 for detection heads), so deformable convolution is not applied network-wide.",
+      "The simplified Faster R-CNN design (2 fc layers instead of a 10-layer conv5 block) slightly decreases accuracy.",
+      "No real-time, mobile or edge deployment evaluation is reported."
+    ],
+    "evidence": [
+      { "quote": "Although such simplification (from 10 layer conv5 block to 2 fc layers) would slightly decrease the accuracy, it still makes a strong enough baseline and is not a concern in this work.", "location": "Sec 2.3" },
+      { "quote": "The improvement saturates when using 3 deformable layers for DeepLab, and 6 for others.", "location": "Sec 4.2" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Extend deformable RoI pooling to pooling regions of multiple sizes as in spatial pyramid pooling.", "quote": "While the regions are of the same size currently, extension to multiple sizes as in spatial pyramid pooling [34] is straightforward.", "location": "Sec 3.1" },
+    { "direction": "Extend the deformable modules beyond 2D to 3D feature maps.", "quote": "Extension to 3D is straightforward.", "location": "Sec 2" }
+  ],
+  "technical": {
+    "datasets": ["PASCAL VOC", "COCO", "CityScapes", "ImageNet"],
+    "backbones": ["ResNet-101", "Aligned-Inception-ResNet", "Inception-ResNet-v2"],
+    "models": ["Faster R-CNN", "R-FCN", "DeepLab", "class-aware RPN", "SSD"],
+    "algorithms": ["deformable convolution", "deformable RoI pooling", "bilinear interpolation", "atrous convolution", "NMS"],
+    "metrics": ["mAP", "mAP@0.5", "mAP@0.7", "mAP@[0.5:0.95]", "mIoU"],
+    "equations": [
+      { "name": "deformable convolution", "expr": "y(p0) = sum_{pn in R} w(pn) * x(p0 + pn + delta_pn)", "location": "Sec 2.1, Eq. 2" },
+      { "name": "bilinear interpolation", "expr": "x(p) = sum_q G(q, p) * x(q),  G(q,p) = g(qx,px) * g(qy,py)", "location": "Sec 2.1, Eq. 3-4" },
+      { "name": "deformable RoI pooling", "expr": "y(i, j) = sum_{p in bin(i,j)} x(p0 + p + delta_pij) / nij", "location": "Sec 2.2, Eq. 6" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "Deformable ConvNets add only small overhead in parameters and runtime over their plain counterparts (e.g., R-FCN runtime 0.193 s vs 0.170 s per image)."
+    ],
+    "evidence": [
+      { "quote": "Deformable ConvNets only add small overhead over model parameters and computation.", "location": "Sec 4.2" },
+      { "quote": "Runtime is counted on a workstation with Intel E5-2650 v2 CPU and Nvidia K40 GPU.", "location": "Table 4" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/iccv.2017.89",
+    "arxivUrl": "https://arxiv.org/abs/1703.06211",
+    "venue": "IEEE International Conference on Computer Vision (ICCV)",
+    "pdfUrl": "https://arxiv.org/pdf/1703.06211"
+  }
+}

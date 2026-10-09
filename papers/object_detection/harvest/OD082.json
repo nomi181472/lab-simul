@@ -1,0 +1,221 @@
+{
+  "id": "OD082",
+  "arxiv": "2201.12329",
+  "title": "DAB-DETR: Dynamic Anchor Boxes are Better Queries for DETR",
+  "year": 2022,
+  "venue": "ICLR 2022",
+  "problem": {
+    "summary": "DETR's learnable queries are an ineffective design that causes extremely slow training convergence (about 500 epochs) and produce multi-mode, nearly uniform positional attention maps that cannot localize objects reliably. Prior DETR follow-ups only associate queries with 2D positions and assume a fixed-size isotropic positional prior, ignoring object scale.",
+    "statements": [
+      "DETR suffers from significantly slow training convergence, usually requiring 500 epochs, due to its ineffective design and use of queries.",
+      "Learned positional queries in DETR carry undesirable properties: multiple modes and nearly uniform attention weights, making it hard to locate objects.",
+      "Prior DETR variants only leverage 2D positions as anchor points without considering object scales.",
+      "Existing methods assume an isotropic Gaussian positional prior of a fixed size, which is inappropriate for objects of different scales."
+    ],
+    "problemTags": ["convergence", "anchor-design", "localization", "scale-variance"],
+    "evidence": [
+      {
+        "quote": "However, due to its ineffective design and use of queries, DETR suffers from significantly slow training convergence, usually requiring 500 epochs to achieve a good performance.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Although they serve as a positional constraint, they also carry undesirable properties: multiple modes and nearly uniform attention weights.",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "But all the above works only leverage 2D positions as anchor points without considering of the object scales.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Most prior works improve DETR by associating each query with a specific location, but they assume an isotropic Gaussian positional prior of a fixed size, which is inappropriate for objects of different scales.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on DETR (anchor-free set prediction with Hungarian matching), Conditional DETR (conditional spatial queries decoupling content and position), Deformable DETR (2D reference points with deformable attention) and Anchor DETR (2D anchor points), claiming the gap is that none formulates queries as full 4D anchor boxes whose width and height modulate cross-attention.",
+    "relatedWork": [
+      {
+        "name": "DETR",
+        "relation": "base end-to-end anchor-free detector using learnable vectors as queries",
+        "quote": "DETR (Carion et al., 2020) is a fully anchor-free detector using a set of learnable vectors as queries.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "Conditional DETR",
+        "relation": "closest prior stage; generates positional queries from reference coordinates but cannot adapt to object scales",
+        "quote": "Conditional DETR (Meng et al., 2021) decouples the attention formulation and generates positional queries based on reference coordinates.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "Deformable DETR",
+        "relation": "treats 2D reference points as queries with deformable sampling, no explicit anchor formulation",
+        "quote": "Deformable DETR directly treats 2D reference points as queries and performs deformable cross-attention operation at each reference points",
+        "location": "Introduction"
+      },
+      {
+        "name": "Anchor DETR",
+        "relation": "concurrent work learning 2D anchor points, but discarding width and height information",
+        "quote": "A concurrent work Anchor DETR (Wang et al., 2021) also suggests learning anchor points directly, while it ignores the anchor width and height information as in other prior works.",
+        "location": "Sec 2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Many follow-up works attempted to solve the slow convergence of DETR from different perspectives.",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "Despite their improved performance, they did not give a proper explanation of the slow training and the roles of queries in DETR.",
+        "location": "Sec 2"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "DAB-DETR formulates queries as dynamic 4D anchor boxes (x, y, w, h): the box coordinates are positionally encoded into positional queries, updated layer-by-layer by a shared prediction head, and the box width and height modulate the Gaussian positional attention map (plus a tunable temperature), so cross-attention behaves like a cascade of soft ROI pooling.",
+    "approach": "Directly learn 4D anchor boxes as decoder queries, refine them layer-by-layer, and use their width and height to modulate the positional cross-attention.",
+    "components": [
+      "anchor boxes (x, y, w, h) as positional queries via shared MLP over sinusoidal encodings",
+      "layer-by-layer anchor update from predicted relative offsets",
+      "width and height modulated Gaussian positional attention",
+      "temperature tuning of positional encoding (T = 20)",
+      "conditional spatial query scaling inherited from Conditional DETR",
+      "300 anchor queries with 3 pattern embeddings"
+    ],
+    "solutionTags": ["transformer-query", "anchors", "attention", "set-prediction", "nms-free"],
+    "evidence": [
+      {
+        "quote": "This new formulation directly uses box coordinates as queries in Transformer decoders and dynamically updates them layer-by-layer.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Such a design makes it clear that queries in DETR can be implemented as performing soft ROI pooling layer-by-layer in a cascade manner.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "we propose to directly learn query boxes or say anchor boxes and derive positional queries from these anchors.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "To improve the positional prior, we propose to inject the scale information into the attention maps.",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "In this work, we empirically choose T = 20 in all our models.",
+        "location": "Sec 4.5"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluated on COCO 2017 val with ResNet-50/101 and DC5 variants trained 50 epochs against DETR, Faster R-CNN, Anchor DETR, Conditional DETR, Deformable DETR, SMCA and TSP-RCNN, plus component ablations (4D box vs 2D point, anchor update, modulated attention, temperature), temperature/decoder-layer studies, and a DAB-Deformable-DETR variant.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "AP", "value": "45.7", "split": "val2017, ResNet-50-DC5 with pattern embeddings, 50 epochs", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "44.5", "split": "val2017, ResNet-50-DC5 standard, 50 epochs", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "42.6", "split": "val2017, ResNet-50 with pattern embeddings, 50 epochs", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "44.1", "split": "val2017, ResNet-101 with pattern embeddings, 50 epochs", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "46.6", "split": "val2017, ResNet-101-DC5 with pattern embeddings, 50 epochs", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "46.8", "split": "val2017, DAB-Deformable-DETR R50 multi-scale", "location": "Table 5" },
+      { "dataset": "COCO", "metric": "AP", "value": "45.0", "split": "ablation, R50-DC5 without modulated attention", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "AP", "value": "44.0", "split": "ablation, R50-DC5 with 2D anchor points instead of 4D boxes", "location": "Table 3" }
+    ],
+    "baselines": ["DETR", "Faster R-CNN with FPN", "Anchor DETR", "Conditional DETR", "Deformable DETR", "SMCA", "TSP-RCNN"],
+    "evidence": [
+      {
+        "quote": "it leads to the best performance on MS-COCO benchmark among the DETR-like detection models under the same setting, e.g., AP 45.7% using ResNet50-DC5 as backbone trained in 50 epochs.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "The anchor box formulation improves the performance from 44.0% AP to 45.0% AP compared with anchor point formulation",
+        "location": "Sec 5.2"
+      },
+      {
+        "quote": "With no more than 10 lines of code modified, our DAB-Deformable-DETR (row 4) results in a significant performance improvement (+0.5 AP) compared with the original Deformable DETR (row 3).",
+        "location": "Appendix C"
+      },
+      {
+        "quote": "Our standard models outperform Conditional DETR with a large margin.",
+        "location": "Sec 5.1"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "There is no dedicated limitations section; the authors acknowledge failure cases on dense, very small and very large objects, a slight GFLOPs increase over Conditional DETR, and that the single-scale design still lacks a multi-scale technique.",
+    "items": [
+      "The model has trouble with dense objects, very small objects, and very large objects.",
+      "The design is single-scale: no feature pyramid or multi-scale technique is used.",
+      "Reported GFLOPs show a slight increase over Conditional DETR (per the authors' comparison of published numbers).",
+      "In DAB-Deformable-DETR, total loss over all decoder layers stays higher than Deformable DETR even though the final-layer loss is lower."
+    ],
+    "evidence": [
+      {
+        "quote": "We find our model may have some troubles when facing dense objects, very small objects, or very large objects in an image.",
+        "location": "Appendix I"
+      },
+      {
+        "quote": "We notice that our model introduce a slight increase of GFLOPs.",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "While the loss of all layers of DAB-Deformable-DETR is larger than that in Deformable DETR",
+        "location": "Appendix C"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Introduce a multi-scale technique to improve detection of small and large objects.",
+      "quote": "we will introduce a multi-scale technique into our model to improve the detection performance on small and large objects.",
+      "location": "Appendix I"
+    }
+  ],
+  "technical": {
+    "datasets": ["COCO 2017 (train2017 / val2017)"],
+    "backbones": ["ResNet-50", "ResNet-50-DC5", "ResNet-101", "ResNet-101-DC5"],
+    "models": ["DAB-DETR", "DAB-Deformable-DETR", "DETR", "Conditional DETR", "Anchor DETR", "Deformable DETR", "Sparse RCNN", "SMCA", "TSP-RCNN", "Faster R-CNN"],
+    "algorithms": ["Hungarian bipartite matching", "focal loss", "L1 loss", "GIoU loss", "sinusoidal positional encoding", "soft ROI pooling interpretation", "AdamW"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "GFLOPs", "Params", "time(s/img)"],
+    "equations": [
+      { "name": "Positional query from anchor", "expr": "P_q = MLP(PE(A_q)) with A_q = (x_q, y_q, w_q, h_q) and PE(A_q) = Cat(PE(x_q), PE(y_q), PE(w_q), PE(h_q))", "location": "Sec 4.2 (Eq 1-2)" },
+      { "name": "Width/height modulated attention", "expr": "ModulateAttn((x,y),(x_ref,y_ref)) = (PE(x)·PE(x_ref) * w_q,ref/w_q + PE(y)·PE(y_ref) * h_q,ref/h_q) / sqrt(D)", "location": "Sec 4.4 (Eq 6)" },
+      { "name": "Temperature-tuned positional encoding", "expr": "PE(x)_2i = sin(x / T^(2i/D)), PE(x)_(2i+1) = cos(x / T^(2i/D)), with T = 20", "location": "Sec 4.5 (Eq 8)" },
+      { "name": "Anchor update", "expr": "new anchor = (x, y, w, h) + (dx, dy, dw, dh) predicted by a shared MLP head each layer", "location": "Sec 4.3 (Fig 5)" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving",
+        "detail": "The ethics statement identifies autonomous vehicles as a primary application that depends on object detection to perceive and interact with the environment.",
+        "quote": "To visually perceive and interact with the environment, autonomous vehicles highly depend on this technique and will benefit from any of its improvement.",
+        "location": "Ethics Statement"
+      },
+      {
+        "domain": "medical imaging and document analysis",
+        "detail": "The authors note detection advances in medical imaging, word recognition, and instance segmentation on natural images, with failure modes that could affect downstream tasks.",
+        "quote": "It has also led to advances in medical imaging, word recognition, instance segmentation on natural images, and so on.",
+        "location": "Ethics Statement"
+      }
+    ],
+    "deploymentClaims": [
+      "DAB-DETR-R50 runs at 0.059 s/img versus 0.057 for Conditional DETR-R50 and 0.048 for DETR-R50 on a single Nvidia A100 (Table 9).",
+      "Similar inference speed to Conditional DETR with better accuracy, at 44M parameters (41M for DETR-R50).",
+      "All models trained on Nvidia A100 GPUs; DC5 variants need 13-16 GB GPU memory at batch size 1 per GPU (Table 4)."
+    ],
+    "evidence": [
+      {
+        "quote": "Our DAB-DETR has a similar inference speed but better performance compared with Conditional DETR, which is our direct competitor.",
+        "location": "Appendix J"
+      },
+      {
+        "quote": "All models are trained on Nvidia A100 GPU.",
+        "location": "Appendix A"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2201.12329",
+    "arxivUrl": "https://arxiv.org/abs/2201.12329",
+    "venue": "ICLR 2022",
+    "pdfUrl": "https://arxiv.org/pdf/2201.12329"
+  }
+}

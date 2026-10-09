@@ -1,0 +1,227 @@
+{
+  "id": "OD101",
+  "arxiv": "2401.17270",
+  "title": "YOLO-World: Real-Time Open-Vocabulary Object Detection",
+  "year": 2024,
+  "venue": null,
+  "problem": {
+    "summary": "YOLO-style detectors are efficient but can only detect a fixed set of categories seen during training, while existing open-vocabulary detectors rely on heavy backbones and online text encoding, making them computationally expensive and hard to deploy in real-world/edge scenarios.",
+    "statements": [
+      "Trained detectors can only detect the specific categories defined and labeled at training time, limiting applicability in open scenarios.",
+      "Distillation-based open-vocabulary methods are limited by scarce training data with limited vocabulary diversity.",
+      "Large open-vocabulary detectors suffer from heavy computation burden and complicated deployment for edge devices.",
+      "Pre-training small detectors to endow them with open recognition capabilities remains unexplored."
+    ],
+    "problemTags": ["open-vocabulary", "deployability", "real-time-edge", "speed-latency"],
+    "evidence": [
+      {
+        "quote": "their reliance on predefined and trained object categories limits their applicability in open scenarios.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "those methods still struggle for detection in realworld scenarios, which suffer from two aspects: (1) heavy computation burden and (2) complicated deployment for edge devices.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "pre-training small detectors to endow them with open recognition capabilities remains unexplored.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "Builds on the YOLO family (YOLOv8/PAN, path-aggregation and re-parameterization designs) and on vision-language open-vocabulary detectors (GLIP, Grounding DINO, DetCLIP, GLIPv2, MDETR, ViLD, Detic) that reformulate detection as region-text matching; the claimed gap is that these methods use heavy detectors with Swin-L backbones and online text encoding, so small/efficient detectors pre-trained at scale were missing.",
+    "relatedWork": [
+      {
+        "name": "GLIP",
+        "relation": "phrase-grounding pre-training framework for open-vocabulary detection",
+        "quote": "GLIP [24] presents a pre-training framework for openvocabulary detection based on phrase grounding and evaluates in a zero-shot setting.",
+        "location": "Sec 2.2"
+      },
+      {
+        "name": "Grounding DINO",
+        "relation": "integrates grounded pre-training into detection transformers with cross-modality fusion",
+        "quote": "Grounding DINO [30] incorporates the grounded pre-training [24] into detection transformers [60] with cross-modality fusions.",
+        "location": "Sec 2.2"
+      },
+      {
+        "name": "YOLO series",
+        "relation": "efficient one-stage architecture that YOLO-World extends to open vocabulary",
+        "quote": "Several works [10, 23, 33, 52, 55] propose various architectures or designs for YOLO, including path aggregation networks [29], cross-stage partial networks [51], and re-parameterization [6], which further improve both speed and accuracy.",
+        "location": "Sec 2.1"
+      },
+      {
+        "name": "ZSD-YOLO",
+        "relation": "only prior YOLO-based open-vocabulary attempt, aligned via language models",
+        "quote": "Differing from ZSD-YOLO [54], which also explores open-vocabulary detection [58] with YOLO through language model alignment, YOLO-World introduces a novel YOLO framework with an effective pre-training strategy",
+        "location": "Sec 2.2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "these methods often use heavy detectors like ATSS [61] or DINO [60] with Swin-L [32] as a backbone, leading to high computational demands and deployment challenges.",
+        "location": "Sec 2.2"
+      },
+      {
+        "quote": "they only handle object detection with a fixed vocabulary, e.g., 80 categories in the COCO [26] dataset.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "YOLO-World pairs a YOLOv8 detector with a frozen CLIP text encoder and a Re-parameterizable Vision-Language PAN (RepVL-PAN) for cross-modality fusion, trained with a region-text contrastive loss over detection, grounding, and pseudo-labeled image-text data; at deployment the text encoder is dropped and vocabulary embeddings are re-parameterized into network weights under a prompt-then-detect paradigm.",
+    "approach": "Reformulate detection annotations as region-text pairs, fuse text embeddings into multi-scale YOLO features with T-CSPLayer and Image-Pooling Attention, and re-parameterize offline vocabulary embeddings into the detector weights for fast inference.",
+    "components": [
+      "CLIP text encoder (frozen during pre-training)",
+      "RepVL-PAN with Text-guided CSPLayer (T-CSPLayer)",
+      "Image-Pooling Attention for image-aware text embeddings",
+      "text contrastive head with L2-normalized region-text similarity",
+      "region-text contrastive loss combined with IoU loss and distributed focal loss",
+      "prompt-then-detect offline vocabulary re-parameterized into layer weights",
+      "pseudo-labeling pipeline (n-gram noun extraction, GLIP boxes, CLIP filtering)"
+    ],
+    "solutionTags": ["open-vocabulary-clip", "one-stage", "reparameterization", "feature-fusion", "attention"],
+    "evidence": [
+      {
+        "quote": "an innovative approach that enhances YOLO with openvocabulary detection capabilities through vision-language modeling and pre-training on large-scale datasets.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "During inference, the text encoder can be removed and the text embeddings can be re-parameterized into weights of RepVL-PAN for efficient deployment.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "we present a prompt-then-detect strategy with an offline vocabulary for further efficiency.",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "we sample and label 246k images from CC3M [47] with 821k pseudo annotations.",
+        "location": "Sec 3.4"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Pre-trained 100 epochs on Objects365, GoldG (GQA/Flickr30k) and pseudo-labeled CC3M, then evaluated zero-shot on LVIS minival (Fixed AP) and COCO, fine-tuned for COCO/LVIS detection and open-vocabulary instance segmentation, with ablations over pre-training data, RepVL-PAN components, and text encoders; speed measured on a single NVIDIA V100.",
+    "benchmarks": [
+      { "dataset": "LVIS", "metric": "AP (Fixed, zero-shot)", "value": "35.4", "split": "minival, YOLO-World-L + CC3M", "location": "Table 2" },
+      { "dataset": "LVIS", "metric": "AP (Fixed, zero-shot)", "value": "31.0", "split": "minival, YOLO-World-M", "location": "Table 2" },
+      { "dataset": "LVIS", "metric": "AP (Fixed, zero-shot)", "value": "26.2", "split": "minival, YOLO-World-S", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "53.3", "split": "val2017, fine-tuned YOLO-World-L w/o RepVL-PAN", "location": "Table 6" },
+      { "dataset": "COCO", "metric": "AP (zero-shot)", "value": "45.1", "split": "val2017, YOLO-World-L + CC3M", "location": "Table 6" },
+      { "dataset": "LVIS", "metric": "AP (fine-tuned)", "value": "34.1", "split": "val, YOLO-World-L on LVIS-base", "location": "Table 7" },
+      { "dataset": "LVIS", "metric": "Mask AP", "value": "28.7", "split": "val2017, YOLO-World-L, LVIS-base, all modules", "location": "Table 8" }
+    ],
+    "baselines": ["GLIP-T", "GLIPv2-T", "Grounding DINO-T", "DetCLIP-T", "MDETR", "YOLOv6", "YOLOv7", "YOLOv8", "ViLD", "RegionCLIP", "Detic", "DetPro", "BARON"],
+    "evidence": [
+      {
+        "quote": "On the challenging LVIS dataset, YOLO-World achieves 35.4 AP with 52.0 FPS on V100, which outperforms many state-of-the-art methods in terms of both accuracy and speed.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "YOLO-World-L outperforms YOLOv8-L by 7.2 AP and 10.2 APr",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "the proposed RepVL-PAN improves the baseline (YOLOv8-PAN [20]) by 1.1 AP on LVIS",
+        "location": "Sec 4.3"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors note that fine-tuning all modules for closed-set performance can erode zero-shot ability, that fine-tuning the CLIP text encoder severely hurts performance, and that excessive pseudo-labeled image-text data can hurt the smallest model.",
+    "items": [
+      "Fine-tuning all modules degrades open-vocabulary performance (0.6 box APr drop for YOLO-World-L).",
+      "Fine-tuning the CLIP text encoder during pre-training causes a severe performance drop (attributed to O365's limited vocabulary).",
+      "Excessive pseudo-labeled image-text data has negative effects for small models (YOLO-World-S).",
+      "Removing RepVL-PAN for COCO fine-tuning limits vision-language interaction to small vocabularies.",
+      "Reported speed depends on the re-parameterized/offline-vocabulary setting and hardware (single V100)."
+    ],
+    "evidence": [
+      {
+        "quote": "the fine-tuning might degrade the open-vocabulary performance and lead to a 0.6 box APr drop for YOLO-World-L.",
+        "location": "Sec 4.5"
+      },
+      {
+        "quote": "while fine-tuning CLIP leads to a severe performance drop.",
+        "location": "Sec 4.3"
+      },
+      {
+        "quote": "using an excessive amount of pseudo-labeled data may have some negative effects for small models",
+        "location": "Appendix C"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Study what data is needed to pre-train small models / YOLO detectors at scale.",
+      "quote": "We will explore more about the data for pre-training small models or YOLO detectors in future work.",
+      "location": "Appendix C"
+    },
+    {
+      "direction": "Position YOLO-World as a benchmark for real-world open-vocabulary detection and release code/weights for practical applications.",
+      "quote": "We hope YOLO-World can serve as a new benchmark for addressing real-world open-vocabulary detection.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["LVIS", "COCO", "Objects365", "GQA", "Flickr30k", "CC3M"],
+    "backbones": ["YOLOv8-S", "YOLOv8-M", "YOLOv8-L (Darknet backbone)", "Swin-T (baselines)"],
+    "models": ["YOLO-World-S", "YOLO-World-M", "YOLO-World-L", "RepVL-PAN", "CLIP text encoder", "GLIP labeler"],
+    "algorithms": [
+      "region-text contrastive loss",
+      "task-aligned label assignment",
+      "pseudo-labeling (n-gram + GLIP + CLIP filtering)",
+      "NMS",
+      "mosaic augmentation",
+      "re-parameterization of text embeddings into conv/linear weights"
+    ],
+    "metrics": ["AP", "APr", "APc", "APf", "AP50", "AP75", "Mask AP", "FPS", "params"],
+    "equations": [
+      { "name": "text contrastive head", "expr": "s_k,j = α · L2-Norm(e_k)⊤ · L2-Norm(w_j) + β", "location": "Eq (1), Sec 3.3" },
+      { "name": "Text-guided CSPLayer", "expr": "X_l' = X_l · δ(max_j∈{1..C}(X_l W_j⊤))⊤", "location": "Eq (2), Sec 3.3" },
+      { "name": "Image-Pooling Attention", "expr": "W' = W + MultiHead-Attention(W, X̃, X̃)", "location": "Eq (3), Sec 3.3" },
+      { "name": "total training loss", "expr": "L(I) = L_con + λ_I · (L_iou + L_dfl)", "location": "Sec 3.4" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "robotics and autonomous vehicles",
+        "detail": "Object detection is framed as serving image understanding, robotics, and autonomous vehicles.",
+        "quote": "Object detection has been a long-standing and fundamental challenge in computer vision with numerous applications in image understanding, robotics, and autonomous vehicles.",
+        "location": "Introduction"
+      },
+      {
+        "domain": "edge / real-world deployment",
+        "detail": "Prompt-then-detect with an offline vocabulary lets users pre-encode categories and re-parameterize them into model weights, removing the text encoder at inference for easier deployment on edge devices."
+      },
+      {
+        "domain": "downstream vision-language tasks",
+        "detail": "Fine-tuned YOLO-World transfers to open-vocabulary instance segmentation and referring/referring-style object detection with user-defined vocabularies.",
+        "quote": "the fine-tuned YOLO-World achieves remarkable performance on several downstream tasks, including object detection and openvocabulary instance segmentation.",
+        "location": "Abstract"
+      }
+    ],
+    "deploymentClaims": [
+      "35.4 AP with 52.0 FPS on an NVIDIA V100 (re-parameterized, w/o TensorRT).",
+      "YOLO-World-S has 13M parameters while still supporting vision-language pre-training.",
+      "Fine-tuned YOLO-World-L reaches 53.3 AP on COCO val2017 at 156 FPS with TensorRT.",
+      "Text encoder removed at inference; offline vocabulary embeddings folded into network weights."
+    ],
+    "evidence": [
+      {
+        "quote": "we measure the inference speeds of all models on one NVIDIA V100 GPU without extra acceleration mechanisms, e.g., FP16 or TensorRT.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "During inference, the text encoder can be removed and the text embeddings can be re-parameterized into weights of RepVL-PAN for efficient deployment.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2401.17270",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2401.17270"
+  }
+}

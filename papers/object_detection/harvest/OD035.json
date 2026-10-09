@@ -1,0 +1,122 @@
+{
+  "id": "OD035",
+  "arxiv": "1807.00980",
+  "title": "MetaAnchor: Learning to Detect Objects with Customized Anchors",
+  "year": 2018,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "Anchor-based detectors enumerate a hand-designed set of prior boxes whose associated anchor functions are fixed at training and inference, so anchor choices need careful design, the number of anchors is capped, parameter counts grow with anchors, and the predefined priors may not fit a target dataset's box distribution.",
+    "statements": [
+      "Predefined anchor strategies fix anchor choices and anchor functions in both training and inference.",
+      "Anchor boxes require careful hand or clustering design, which is critical for specialized tasks such as face and pedestrian detection.",
+      "Too few anchors cover rare boxes poorly while more anchors imply more parameters and possible overfitting.",
+      "Predefined priors can be suboptimal when train and test box distributions differ across datasets."
+    ],
+    "problemTags": ["anchor-design", "domain-shift", "label-assignment"],
+    "evidence": [
+      { "quote": "In addition, the number of available anchors is limited by the predefined B.", "location": "Introduction" },
+      { "quote": "too few anchors may be insufficient to cover rare boxes, or result in coarse predictions; however, more anchors usually imply more parameters, which may suffer from overfitting.", "location": "Introduction" },
+      { "quote": "anchor boxes need careful design, e.g. via clustering [30], which is especially critical on specific detection tasks such as anchor-based face [39, 44, 27, 35, 42] and pedestrian [40, 3, 43, 25] detections.", "location": "Sec 2" },
+      { "quote": "it is nontrivial for convolutional neural networks (CNNs) to directly predict an orderless set of arbitrary cardinality", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on the enumeration-based anchor designs of Faster R-CNN, SSD, YOLO and RetinaNet, and on hypernetwork-style weight prediction (Ha et al.), noting that prior weight-prediction work generated mask weights from box weights for domain adaption rather than generating anchor functions from priors.",
+    "relatedWork": [
+      { "name": "RetinaNet", "relation": "state-of-the-art single-stage host framework into which MetaAnchor is embedded", "quote": "We choose the state-of-the-art single-stage detector RetinaNet [22] to apply MetaAnchor for instance.", "location": "Sec 3.2" },
+      { "name": "Enumeration-based anchors (Faster R-CNN, SSD, YOLO)", "relation": "prior strategy of hand-crafted or clustered priors with per-anchor layers", "quote": "To model anchors with deep neural networks, one straight-forward strategy is via enumeration, which is adopted by most of the previous work [31, 38, 24, 29, 30, 22, 10, 21].", "location": "Introduction" },
+      { "name": "Hypernetworks / weight prediction", "relation": "mechanism reused to generate anchor function parameters", "quote": "Weight prediction means a mechanism in neural networks where weights are predicted by another structure rather than directly learned", "location": "Sec 2" },
+      { "name": "Hu et al. Learning to segment everything", "relation": "closest weight-prediction application, but for mask weights and domain adaption", "quote": "in our work weights are generated almost \u201cfrom scratch\u201d, while in [14] the source is the learned box weights.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "Currently most of the detectors model anchors via enumeration, i.e. predefining a number of anchor boxes with all kinds of positions, sizes and class labels", "location": "Sec 2" },
+      { "quote": "Anchors (maybe called with other names, e.g. \u201cdefault boxes\u201d in [24], \u201cpriors\u201d in [38] or \u201cgrid cells\u201d in [29]) are employed in most of the state-of-the-art detection systems", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "MetaAnchor introduces an anchor function generator G that maps any customized box prior to the corresponding anchor function parameters as a residual over shared parameters, implemented as a small two-layer ReLU network (optionally conditioned on pooled image features) and jointly trained inside RetinaNet's detection heads.",
+    "approach": "Predict anchor-function weights from a log-encoded box prior with a two-layer residual MLP so that anchor functions are generated on demand instead of enumerated and fixed.",
+    "components": [
+      "anchor function generator G with residual form theta_bi = theta* + R(bi; w)",
+      "two-layer ReLU MLP R with 128 hidden neurons",
+      "log-size encoding of the anchor prior bi relative to a standard box",
+      "data-dependent generator variant using globally averaged-pooled features",
+      "random augmentation of anchor priors during training (within +/-0.5)",
+      "greedy anchor-configuration search at inference without retraining"
+    ],
+    "solutionTags": ["anchors", "one-stage", "weight-prediction"],
+    "evidence": [
+      { "quote": "in MetaAnchor anchor functions could be dynamically generated from the arbitrary customized prior boxes.", "location": "Abstract" },
+      { "quote": "in MetaAnchor the prior set B is not necessarily predefined; instead, it works as a customized manner", "location": "Introduction" },
+      { "quote": "anchor function is dynamically generated from the customized box prior (or anchor box) bi rather than fixed function associated with predefined anchor box.", "location": "Sec 3.1" },
+      { "quote": "we also use two independent anchor function generators G(\u00b7, wcls ) and G(\u00b7, wreg ) to predict their weights respectively.", "location": "Sec 3.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "MetaAnchor is evaluated on COCO (COCO-mini ablations and COCO-full results) on top of RetinaNet with a ResNet-50 backbone, including anchor-configuration, threshold, distribution-shift and generator-variant ablations, plus transfer to PASCAL VOC 2007 and a plug-in test on YOLOv2.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "mmAP", "value": "37.5", "split": "minival, MetaAnchor 9x9 train + search inference", "location": "Table 8" },
+      { "dataset": "MS COCO", "metric": "mmAP", "value": "37.9", "split": "minival, MetaAnchor data-dependent variant", "location": "Table 8" },
+      { "dataset": "MS COCO", "metric": "mmAP", "value": "34.0", "split": "minival, RetinaNet baseline", "location": "Table 8" },
+      { "dataset": "MS COCO", "metric": "mmAP", "value": "36.9", "split": "minival, RetinaNet* with searched anchors", "location": "Table 8" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP@0.5", "value": "83.3", "split": "test, MetaAnchor with search, COCO-full trained", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "mmAP", "value": "21.2", "split": "minival, MetaAnchor on YOLOv2", "location": "Table 7" }
+    ],
+    "baselines": ["RetinaNet", "RetinaNet*", "YOLOv2"],
+    "evidence": [
+      { "quote": "our MetaAnchor model achieves 37.5% mmAP on COCO minival, which is 1.7% better than the original RetinaNet (our implemented) and 0.6% better than the best searched entry of RetinaNet.", "location": "Sec 4.2" },
+      { "quote": "MetaAnchor outperforms the counterpart baselines on each of anchor configurations and evaluation metrics, for instance, 0.2 \u223c 0.8% increase for mmAP and 0.8 \u223c 1.5% for AP50", "location": "Sec 4.1.1" },
+      { "quote": "MetaAnchor is better than YOLOv2 baseline and boosts the performace with greedy search method.", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "Gains are modest once strong baselines are used, the method is studied mainly on single-stage detectors (no benefit to final two-stage predictions), transfer experiments are preliminary, and more complex generator designs brought no improvement.",
+    "items": [
+      "Improvement over the best searched RetinaNet baseline on COCO minival is only 0.6 mmAP (36.9 to 37.5).",
+      "On PASCAL VOC 2007 the gain over the RetinaNet baseline is about 0.3 mAP (80.3 to 80.6).",
+      "In two-stage frameworks MetaAnchor improved proposal recall but not final predictions.",
+      "Domain adaption/transfer was outside the design purpose and only preliminarily evaluated.",
+      "More complex designs for the generator G produced comparable benchmark results."
+    ],
+    "evidence": [
+      { "quote": "The gain is less significant compared with that on COCO, as we find the distribution of boxes on PASCAL VOC is much simpler than COCO.", "location": "Sec 4.2" },
+      { "quote": "however, it seems no use to the final predictions, whose quality we believe is mainly determined by the second stage.", "location": "Sec 3.2" },
+      { "quote": "We also survey more complex designs for G(\u00b7), however, which results in comparable benchmarking results.", "location": "Sec 3.1" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Explore MetaAnchor on transfer tasks, where it shows potential under shifted box distributions.", "quote": "which shows the potential on the transfer tasks.", "location": "Sec 4.1.3" },
+    { "direction": "Further evaluate whether generated anchors can bridge the box-distribution gap between datasets.", "quote": "So, for MetaAnchor it is interesting to evaluate whether it is able to bridge the distribution gap between two dataset.", "location": "Sec 4.1.3" }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "PASCAL VOC 2007", "ImageNet"],
+    "backbones": ["ResNet-50"],
+    "models": ["MetaAnchor", "RetinaNet", "RetinaNet*", "YOLOv2"],
+    "algorithms": ["weight prediction", "hypernetwork residual generation", "anchor clustering", "greedy anchor search", "global average pooling", "ReLU"],
+    "metrics": ["mmAP", "AP50", "AP75", "mAP@0.5", "IoU"],
+    "equations": [
+      { "name": "Anchor function generator", "expr": "F_bi = G(bi; w)", "location": "Eq 2" },
+      { "name": "Residual weight prediction", "expr": "theta_bi = theta* + R(bi; w), R(bi, w) = W2 * sigma(W1 * bi)", "location": "Eq 4-5" },
+      { "name": "Anchor size encoding", "expr": "bi = (log(ahi/AH), log(awi/AW))", "location": "Eq 7" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "face and pedestrian detection", "detail": "The paper singles out anchor-based face and pedestrian detection as tasks where anchor design is especially critical, motivating customizable priors.", "quote": "which is especially critical on specific detection tasks such as anchor-based face [39, 44, 27, 35, 42] and pedestrian [40, 3, 43, 25] detections.", "location": "Sec 2" }
+    ],
+    "deploymentClaims": [
+      "Anchor priors can be customized to a target dataset (e.g. via grid search) without retraining the whole detector.",
+      "The inference anchor configuration can be obtained by greedy search without retraining."
+    ],
+    "evidence": [
+      { "quote": "anchors could be flexibly customized to adapt the target dataset (for example, via grid search) without retraining the whole detector.", "location": "Introduction" },
+      { "quote": "we argue that for MetaAnchor the configuration for inference could be easily obtained by greedy search introduced in 4.1.2 without retraining.", "location": "Sec 4.2" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1807.00980",
+    "arxivUrl": "https://arxiv.org/abs/1807.00980",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/1807.00980"
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "id": "OD111",
+  "arxiv": "2411.14347",
+  "title": "DINO-X: A Unified Vision Model for Open-World Object Detection and Understanding",
+  "year": 2024,
+  "venue": null,
+  "problem": {
+    "summary": "Text-prompt-only open-set detectors cannot cover long-tailed detection scenarios because sufficiently diverse training data is hard to collect, and text-only encoders limit multimodal alignment needed for open-world detection.",
+    "statements": [
+      "Traditional text-prompt-only open-set detectors fail to cover a sufficient range of long-tailed detection scenarios due to the difficulty of collecting sufficiently diverse training data.",
+      "A text-only encoder such as BERT is trained solely on text data, which limits effectiveness for perception tasks requiring multimodal alignment like open-world detection.",
+      "Users often cannot describe target objects with text alone, leaving detection scenarios uncovered when only text prompts are supported."
+    ],
+    "problemTags": ["open-vocabulary", "long-tail", "annotation-cost"],
+    "evidence": [
+      {
+        "quote": "Traditional text prompt-only models [33, 47, 29], while having made great progress, still struggle to cover a sufficient range of long-tailed detection scenarios due to the difficulty of collecting sufficiently diverse training data to cover various applications.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "the BERT model is trained solely on text data, which limits its effectiveness for perception tasks requiring multimodal alignment, such as open-world detection.",
+        "location": "Sec 2.1"
+      }
+    ]
+  },
+  "background": {
+    "summary": "DINO-X builds directly on Grounding DINO 1.5/1.6's Transformer encoder-decoder open-set detector, T-Rex2's visual prompting, and Mask DINO/Mask2Former mask decoding, claiming to unify them into one object-centric model with stronger long-tail grounding.",
+    "relatedWork": [
+      {
+        "name": "Grounding DINO 1.5",
+        "relation": "direct architectural base and main prior system",
+        "quote": "DINO-X employs the same Transformer-based encoder-decoder architecture as Grounding DINO 1.5 [47] to pursue an object-level representation for open-world object understanding.",
+        "location": "Abstract"
+      },
+      {
+        "name": "T-Rex2",
+        "relation": "source of the visual prompt encoder and visual-prompt training data",
+        "quote": "DINO-X also supports visual prompts as in T-Rex2 [18], further covering detection scenarios that cannot be well described by text alone.",
+        "location": "Introduction"
+      },
+      {
+        "name": "Mask DINO",
+        "relation": "design basis for the segmentation mask head",
+        "quote": "Following the core design of Mask2Former [4] and Mask DINO [28], we construct the pixel embedding map by fusing the 1/4 resolution backbone feature and the upsampled 1/8 resolution feature from the Transformer encoder.",
+        "location": "Sec 2.1"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Building upon Grounding DINO 1.5 [47], DINO-X employs the same Transformer encoder-decoder architecture and adopts open-set detection as its core training task.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "DINO-X is a unified object-centric Transformer detector pre-trained on a new 100M-image grounding dataset (Grounding-100M) that accepts text, visual, and customized prompts and attaches multiple perception heads for boxes, masks, keypoints, and language outputs, with a distilled Edge variant for deployment.",
+    "approach": "Pre-train a Grounding-DINO-style encoder-decoder on Grounding-100M with three prompt types (text, visual, customized including a universal prompt-free object prompt), then add task heads on the shared object-level representation.",
+    "components": [
+      "CLIP text prompt encoder",
+      "visual prompt encoder (box/point prompts, from T-Rex2)",
+      "customized prompts via prompt-tuning, incl. a universal object prompt for prompt-free detection",
+      "language-guided query selection box head with L1 + G-IoU and contrastive losses",
+      "mask head (1/4 + 1/8 resolution features, sampled-point mask loss)",
+      "keypoint heads for person and hand",
+      "lightweight language head (RoIAlign object tokens + autoregressive decoder)",
+      "Grounding-100M large-scale grounding pre-training dataset",
+      "Edge variant with EfficientViT backbone, Pro-to-Edge knowledge distillation, FP16 quantization"
+    ],
+    "solutionTags": ["transformer-query", "open-vocabulary-clip", "distillation", "feature-fusion"],
+    "evidence": [
+      {
+        "quote": "we develop a universal object prompt to support prompt-free open-world object detection, making it possible to detect any objects in a given image without requiring users to provide any prompt.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "To achieve a strong grounding performance, we collected and curated over 100 million high-quality grounding samples from diverse sources, termed as Grounding-100M.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "DINO-X performs deep feature fusion between the prompt and the visual features extracted from the input image and then apply different heads for different perception tasks.",
+        "location": "Sec 2.1"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "The paper evaluates zero-shot detection/segmentation on COCO and LVIS, visual-prompt counting on FSC147/FSCD-LVIS, pose on COCO/CrowdPose/Human-Art/HInt, and region understanding on LVIS/PACO/Visual Genome, plus speed for the Edge model on A100 and Orin NX.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "box AP", "value": "56.0", "split": "val zero-shot", "location": "Table 1" },
+      { "dataset": "LVIS-minival", "metric": "box AP", "value": "59.8", "split": "minival zero-shot", "location": "Table 1" },
+      { "dataset": "LVIS-val", "metric": "box AP", "value": "52.4", "split": "val zero-shot", "location": "Table 1" },
+      { "dataset": "LVIS-minival", "metric": "APr (rare)", "value": "63.3", "split": "minival zero-shot", "location": "Table 1" },
+      { "dataset": "LVIS-val", "metric": "APr (rare)", "value": "56.5", "split": "val zero-shot", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "mask AP", "value": "37.9", "split": "val zero-shot instance seg", "location": "Sec 4.1.1" },
+      { "dataset": "FSC147", "metric": "MAE", "value": "5.6", "split": "test", "location": "Table 2" },
+      { "dataset": "LVIS-minival", "metric": "box AP (Edge, 640x640)", "value": "48.3", "split": "minival zero-shot", "location": "Sec 4.2" },
+      { "dataset": "LVIS-val", "metric": "box AP (Edge, 640x640)", "value": "42.0", "split": "val zero-shot", "location": "Sec 4.2" },
+      { "dataset": "COCO", "metric": "keypoint OKS AP", "value": "74.4", "split": "val", "location": "Table 3" }
+    ],
+    "baselines": ["Grounding DINO 1.5 Pro", "Grounding DINO 1.6 Pro", "Grounded SAM", "T-Rex2", "YOLO-Worldv2", "OmDet-Turbo", "Osprey", "ED-Pose", "HaMeR"],
+    "evidence": [
+      {
+        "quote": "the DINO-X Pro model achieves 56.0 AP, 59.8 AP, and 52.4 AP on the COCO, LVIS-minival, and LVIS-val zero-shot object detection benchmarks, respectively.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "DINO-X Edge also achieves 48.3 AP and 42.0 AP on LVIS-minival and LVIS-val, respectively, demonstrating excellent zero-shot detection capability in long-tailed detection scenarios.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "an inference speed of 20.1 FPS, marking a 33% improvement compared to Grounding DINO 1.6 Edge (increasing from 15.1 FPS to 20.1 FPS).",
+        "location": "Sec 4.2"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The unified model still trails a detection-plus-SAM pipeline on instance segmentation, its pose head underperforms ED-Pose due to few trainable parameters, and it lags Osprey on part-level recognition; the dense region caption feature is unfinished.",
+    "items": [
+      "Instance segmentation quality remains behind the Grounded SAM assembly, reflecting the difficulty of training one model for multiple tasks.",
+      "Pose head reaches 1.6 AP below ED-Pose, attributed to the limited number of trainable parameters.",
+      "Object recognition on PACO is inferior to Osprey, possibly due to training-data discrepancy.",
+      "Dense region caption / region-based QA is still in development and not yet released."
+    ],
+    "evidence": [
+      {
+        "quote": "Compared to Grounded SAM, there is still a notable performance gap for DINO-X to catch up, which shows the challenge of training a unified model for multiple tasks.",
+        "location": "Sec 4.1.1"
+      },
+      {
+        "quote": "While our model achieves an AP that is 1.6 lower than ED-Pose (primarily due to the limited number of trainable parameters in the pose head), it outperforms existing models on CrowdPose and Human-Art",
+        "location": "Sec 4.1.2"
+      },
+      {
+        "quote": "On the PACO dataset, our model is inferior to Osprey.",
+        "location": "Sec 4.1.3"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Further optimize the mask head to close the instance-segmentation gap.",
+      "quote": "We will further optimize the performance of the mask head in our future work.",
+      "location": "Sec 4.1.1"
+    },
+    {
+      "direction": "Ship the dense region caption / region-based QA capability in the next model version.",
+      "quote": "Currently, this feature is still in the development stage and will be released in our next version.",
+      "location": "Sec 5.5"
+    }
+  ],
+  "technical": {
+    "datasets": ["Grounding-100M", "COCO", "LVIS", "V3Det", "FSC147", "FSCD-LVIS", "CrowdPose", "Human-Art", "HInt", "OneHand10K", "Visual Genome", "RefCOCOg", "PACO", "SA-1B"],
+    "backbones": ["ViT", "EfficientViT"],
+    "models": ["DINO-X Pro", "DINO-X Edge", "Grounding DINO 1.5", "Grounding DINO 1.6", "T-Rex2", "Mask DINO", "Mask2Former", "SAM"],
+    "algorithms": ["prompt-tuning", "knowledge distillation (feature- and response-based)", "RoIAlign", "G-IoU loss", "contrastive alignment loss", "language-guided query selection", "multi-scale deformable cross-attention", "FP16 quantization"],
+    "metrics": ["box AP", "mask AP", "APr", "MAE", "RMSE", "OKS AP", "PCK@0.05", "FPS", "CIDEr", "METEOR", "Semantic Similarity", "S-IoU"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "robotics",
+        "detail": "Open-set detection is claimed to enhance robot adaptability in dynamic environments.",
+        "quote": "enhancing the adaptability of robots in dynamic environments",
+        "location": "Introduction"
+      },
+      {
+        "domain": "autonomous driving",
+        "detail": "Open-set detection is claimed to help autonomous vehicles locate and react to new objects quickly.",
+        "quote": "assisting autonomous vehicles in rapidly locating and reacting to new objects",
+        "location": "Introduction"
+      },
+      {
+        "domain": "GUI/screen parsing",
+        "detail": "Prompt-free detection is suggested to expand applications such as screen parsing.",
+        "quote": "thereby expanding its potential applications in areas such as screen parsing [35], etc.",
+        "location": "Sec 2.1"
+      }
+    ],
+    "deploymentClaims": [
+      "DINO-X Edge is optimized for faster inference and better suited for deployment on edge devices.",
+      "20.1 FPS at 640x640 input, a 33% speedup over Grounding DINO 1.6 Edge (15.1 FPS), with FP16 quantization that does not sacrifice performance.",
+      "FP16 quantization raises Edge speed from 10.7 FPS to 20.1 FPS versus Grounding DINO 1.5 Edge.",
+      "A public demo and API are released at https://github.com/IDEA-Research/DINO-X-API."
+    ],
+    "evidence": [
+      {
+        "quote": "which is optimized for faster inference speed and better suited for deployment on edge devices.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Leveraging the normalization technique in floating-point multiplication, we can quantize the model to FP16 without sacrificing the performance.",
+        "location": "Sec 4.2"
+      }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2411.14347",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2411.14347"
+  }
+}

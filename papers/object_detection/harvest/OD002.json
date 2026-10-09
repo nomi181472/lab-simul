@@ -1,0 +1,145 @@
+{
+  "id": "OD002",
+  "arxiv": "1506.02640",
+  "title": "You Only Look Once: Unified, Real-Time Object Detection",
+  "year": 2015,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+  "problem": {
+    "summary": "Detection systems repurpose classifiers and run multi-stage pipelines (proposals, feature extraction, classification, post-processing) whose components are trained separately, making them slow, hard to optimize, and short of real-time performance.",
+    "statements": [
+      "Multi-stage detection pipelines are slow and hard to optimize because each component must be trained separately.",
+      "Region-proposal detectors such as Fast/Faster R-CNN fall short of real-time performance even after speed-ups.",
+      "Classifier-based pipelines cannot be optimized end-to-end for the final detection metric."
+    ],
+    "problemTags": ["speed-latency", "one-stage-accuracy", "real-time-edge"],
+    "evidence": [
+      { "quote": "These complex pipelines are slow and hard to optimize because each individual component must be trained separately.", "location": "Introduction" },
+      { "quote": "Each stage of this complex pipeline must be precisely tuned independently and the resulting system is very slow, taking more than 40 seconds per image at test time [14].", "location": "Sec 3" },
+      { "quote": "While they offer speed and accuracy improvements over R-CNN, both still fall short of real-time performance.", "location": "Sec 3" }
+    ]
+  },
+  "background": {
+    "summary": "The paper compares against DPM sliding-window detection, the R-CNN/Fast R-CNN/Faster R-CNN proposal-based lineage, Deep MultiBox, OverFeat and MultiGrasp, arguing that all of them keep detection as a disjoint pipeline rather than a single jointly trained network.",
+    "relatedWork": [
+      { "name": "R-CNN", "relation": "prior proposal-based pipeline; slow, stages tuned independently", "quote": "Selective Search [35] generates potential bounding boxes, a convolutional network extracts features, an SVM scores the boxes, a linear model adjusts the bounding boxes, and non-max suppression eliminates duplicate detections.", "location": "Sec 3" },
+      { "name": "Fast R-CNN", "relation": "top-performing detector used for error analysis and model combination", "quote": "Fast R-CNN, a top detection method [14], mistakes background patches in an image for objects because it can’t see the larger context.", "location": "Introduction" },
+      { "name": "Faster R-CNN", "relation": "neural proposal competitor; more accurate but slower variants", "quote": "The VGG-16 version of Faster R-CNN is 10 mAP higher but is also 6 times slower than YOLO.", "location": "Sec 4.1" },
+      { "name": "DPM", "relation": "sliding-window baseline; disjoint pipeline of static features and classifiers", "quote": "Our system replaces all of these disparate parts with a single convolutional neural network.", "location": "Sec 3" },
+      { "name": "OverFeat", "relation": "prior localizer adapted to detection; disjoint and context-free", "quote": "OverFeat cannot reason about global context and thus requires significant post-processing to produce coherent detections.", "location": "Sec 3" }
+    ],
+    "evidence": [
+      { "quote": "Current detection systems repurpose classifiers to perform detection.", "location": "Introduction" },
+      { "quote": "After classification, post-processing is used to refine the bounding boxes, eliminate duplicate detections, and rescore the boxes based on other objects in the scene [13].", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "YOLO casts detection as a single regression problem from image pixels to bounding box coordinates and class probabilities: one convolutional network predicts all boxes and classes for an S x S grid in one evaluation, trained end-to-end on detection loss.",
+    "approach": "The image is split into an S x S grid whose cells predict B boxes with confidences and C conditional class probabilities, decoded at test time into class-specific scores and filtered with non-max suppression.",
+    "components": [
+      "S x S grid with per-cell bounding box and class probability predictions (7 x 7 x 30 output for PASCAL VOC)",
+      "GoogLeNet-inspired network with 24 convolutional and 2 fully connected layers",
+      "Fast YOLO variant with 9 convolutional layers",
+      "multi-part sum-squared error loss with lambda_coord = 5 and lambda_noobj = 0.5",
+      "single responsible predictor per object chosen by highest current IOU",
+      "non-max suppression at inference",
+      "ImageNet pretraining at 224 x 224 then fine-tuning at 448 x 448"
+    ],
+    "solutionTags": ["one-stage", "dense-prediction", "post-processing-nms"],
+    "evidence": [
+      { "quote": "We reframe object detection as a single regression problem, straight from image pixels to bounding box coordinates and class probabilities.", "location": "Introduction" },
+      { "quote": "Our system divides the input image into an S × S grid.", "location": "Sec 2" },
+      { "quote": "A single convolutional network simultaneously predicts multiple bounding boxes and class probabilities for those boxes.", "location": "Introduction" },
+      { "quote": "Our network has 24 convolutional layers followed by 2 fully connected layers.", "location": "Sec 2.1" },
+      { "quote": "Since the whole detection pipeline is a single network, it can be optimized end-to-end directly on detection performance.", "location": "Abstract" }
+    ]
+  },
+  "experiments": {
+    "summary": "YOLO is compared with real-time and non-real-time detectors on PASCAL VOC 2007 and 2012, its errors are broken down against Fast R-CNN (including rescoring Fast R-CNN with YOLO), and generalization is tested on the Picasso and People-Art artwork datasets.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "63.4", "split": "test 2007, train 2007+2012", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "52.7", "split": "test 2007, Fast YOLO", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2007", "metric": "FPS", "value": "45", "split": "YOLO on Titan X", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2007", "metric": "FPS", "value": "155", "split": "Fast YOLO", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2012", "metric": "mAP", "value": "57.9", "split": "test 2012", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "75.0", "split": "Fast R-CNN (CaffeNet) + YOLO combination", "location": "Table 2" },
+      { "dataset": "Picasso Dataset", "metric": "AP", "value": "53.3", "split": "person detection on artwork", "location": "Figure 5" }
+    ],
+    "baselines": ["Fast R-CNN", "Faster R-CNN", "R-CNN", "DPM (30Hz/100Hz)", "Fastest DPM", "R-CNN Minus R"],
+    "evidence": [
+      { "quote": "Fast YOLO is the fastest object detection method on PASCAL; as far as we know, it is the fastest extant object detector.", "location": "Sec 4.1" },
+      { "quote": "With 52.7% mAP, it is more than twice as accurate as prior work on real-time detection.", "location": "Sec 4.1" },
+      { "quote": "On the VOC 2012 test set, YOLO scores 57.9% mAP.", "location": "Sec 4.4" }
+    ]
+  },
+  "limitations": {
+    "summary": "YOLO trades accuracy for speed: localization is its dominant error source, the grid imposes strong spatial limits that hurt dense/small objects, coarse features limit box precision, and VOC 2012 mAP trails the proposal-based state of the art.",
+    "items": [
+      "Strong spatial constraints (two boxes, one class per grid cell) limit the number of nearby objects the model can detect.",
+      "Small objects appearing in groups (e.g. flocks of birds) are handled poorly.",
+      "Learned box shapes generalize poorly to new or unusual aspect ratios and configurations.",
+      "Multiple downsampling layers leave relatively coarse features for box prediction.",
+      "The sum-squared loss weights errors in small and large boxes equally, though small-box errors hurt IOU more.",
+      "Localization errors dominate: incorrect localizations are the main source of error.",
+      "VOC 2012 mAP (57.9%) is below the proposal-based state of the art."
+    ],
+    "evidence": [
+      { "quote": "YOLO imposes strong spatial constraints on bounding box predictions since each grid cell only predicts two boxes and can only have one class.", "location": "Sec 2.4" },
+      { "quote": "Our model struggles with small objects that appear in groups, such as flocks of birds.", "location": "Sec 2.4" },
+      { "quote": "Our main source of error is incorrect localizations.", "location": "Sec 2.4" },
+      { "quote": "Our system struggles with small objects compared to its closest competitors.", "location": "Sec 4.4" }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["PASCAL VOC 2007", "PASCAL VOC 2012", "ImageNet", "Picasso Dataset", "People-Art Dataset"],
+    "backbones": ["GoogLeNet-inspired CNN (24 conv layers)", "VGG-16"],
+    "models": ["YOLO", "Fast YOLO", "YOLO VGG-16"],
+    "algorithms": ["non-maximal suppression", "sum-squared error loss", "dropout", "data augmentation (scaling, translation, HSV jitter)"],
+    "metrics": ["mAP", "FPS", "AP", "best F1"],
+    "equations": [
+      { "name": "confidence definition", "expr": "conf = Pr(Object) * IOU_pred_truth", "location": "Sec 2" },
+      { "name": "class-specific confidence at test time", "expr": "Pr(Classi|Object) * Pr(Object) * IOU_pred_truth = Pr(Classi) * IOU_pred_truth", "location": "Eq. (1), Sec 2" },
+      { "name": "leaky ReLU activation", "expr": "phi(x) = x if x > 0 else 0.1x", "location": "Eq. (2), Sec 2.2" },
+      { "name": "multi-part detection loss", "expr": "sum of lambda_coord box-coordinate terms + confidence terms (lambda_noobj for no-object cells) + class probability terms", "location": "Eq. (3), Sec 2.2" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving",
+        "detail": "The introduction motivates fast accurate detection as a way to let computers drive cars without specialized sensors.",
+        "quote": "Fast, accurate algorithms for object detection would allow computers to drive cars without specialized sensors, enable assistive devices to convey real-time scene information to human users, and unlock the potential for general purpose, responsive robotic systems.",
+        "location": "Introduction"
+      },
+      {
+        "domain": "assistive devices and robotics",
+        "detail": "Real-time scene information for human users and responsive robotic systems are named as target applications.",
+        "quote": "enable assistive devices to convey real-time scene information to human users",
+        "location": "Introduction"
+      },
+      {
+        "domain": "real-time webcam video perception",
+        "detail": "A webcam-connected demo sustained real-time detection including image fetch and display time, functioning like a tracking system.",
+        "quote": "YOLO is a fast, accurate object detector, making it ideal for computer vision applications.",
+        "location": "Sec 5"
+      }
+    ],
+    "deploymentClaims": [
+      "Base YOLO runs at 45 FPS with no batch processing on a Titan X GPU.",
+      "Fast YOLO runs at more than 150 FPS (155 FPS reported in Table 1).",
+      "Streaming video can be processed in real time with less than 25 ms of latency.",
+      "Pretrained models and training/testing code are open source."
+    ],
+    "evidence": [
+      { "quote": "Our base network runs at 45 frames per second with no batch processing on a Titan X GPU and a fast version runs at more than 150 fps.", "location": "Introduction" },
+      { "quote": "This means we can process streaming video in real-time with less than 25 milliseconds of latency.", "location": "Introduction" },
+      { "quote": "All of our training and testing code is open source.", "location": "Introduction" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2016.91",
+    "arxivUrl": "https://arxiv.org/abs/1506.02640",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+    "pdfUrl": "https://arxiv.org/pdf/1506.02640"
+  }
+}

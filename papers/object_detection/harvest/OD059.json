@@ -1,0 +1,125 @@
+{
+  "id": "OD059",
+  "arxiv": "2007.08103",
+  "title": "Probabilistic Anchor Assignment with IoU Prediction for Object Detection",
+  "year": 2020,
+  "venue": "Lecture notes in computer science",
+  "problem": {
+    "summary": "IoU-threshold hard anchor assignment judges anchors only by overlap, ignoring the content of the intersecting region and requiring a hand-tuned threshold, while fixed-count schemes ignore the model's learning status. Separately, detectors rank boxes at test time by classification score alone even though training minimizes both classification and localization losses, and true box IoU is unavailable at test time.",
+    "statements": [
+      "IoU-threshold anchor assignment ignores the actual content of the intersecting region (noisy background, nearby objects, or few meaningful object parts).",
+      "Prior assignment methods either need extra layers, force a fixed number of positives, or use IoUs of pre-defined anchors while ignoring region content and the model's learning status.",
+      "NMS ranks boxes by classification score only, while training optimizes both classification and localization, leaving a train/test objective discrepancy.",
+      "Ground-truth IoU of a detected box cannot be computed at test time, so NMS cannot use true localization quality directly."
+    ],
+    "problemTags": ["label-assignment", "anchor-design", "nms", "localization"],
+    "evidence": [
+      { "quote": "it has a clear limitation in that it ignores the actual content of the intersecting region, which may contain noisy background, nearby objects or few meaningful parts of the target object to be detected.", "location": "Introduction" },
+      { "quote": "there is inconsistency between the testing scheme (selecting boxes according to the classification score only during NMS) and the training scheme (minimizing both classification and localization losses).", "location": "Introduction" },
+      { "quote": "they either require additional layers and complicated structures [34, 37], or force only one anchor to have a full classification score which is not desirable in cases where multiple anchors are of high quality and competitive [42]", "location": "Related Work" },
+      { "quote": "GT information is only available during training, and so IoU between a detected box and its corresponding GT box cannot be computed at test time.", "location": "Sec 3.2" }
+    ]
+  },
+  "background": {
+    "summary": "Related work covers IoU-threshold and adaptive (ATSS, GuidedAnchoring) anchor assignment, likelihood- or score-based selection (FreeAnchor, MAL, NoisyAnchor), and prior localization-quality prediction (YOLO objectness, IoU-Net IoU-guided NMS, variance heads), none of which unify assignment, optimization and NMS scoring.",
+    "relatedWork": [
+      { "name": "ATSS", "relation": "adaptive IoU-statistics assignment that still relies on anchor/GT IoUs only", "quote": "ATSS [40] suggests an adaptive anchor assignment that calculates the mean and standard deviation of IoU values from a set of close anchors for each GT.", "location": "Related Work" },
+      { "name": "FreeAnchor", "relation": "detection-customized likelihood deciding positive anchors by recall/precision likelihood", "quote": "FreeAnchor [42] proposes a detection-customized likelihood that considers both the recall and precision of samples into account and determines positive anchors based on the estimated likelihood.", "location": "Related Work" },
+      { "name": "MAL / NoisyAnchor", "relation": "closest prior work: anchor scores from classification and localization losses, but fixed/linear positive counts instead of likelihood-based separation", "quote": "Similar to our work, MultipleAnchorLearning (MAL) [16] and NoisyAnchor [20] define anchor score functions based on classification and localization", "location": "Related Work" },
+      { "name": "IoU-Net", "relation": "predicts IoU and uses it for NMS ranking, but does not correlate IoU with classification as a unified score nor relate NMS to anchor assignment", "quote": "Although this approach can be effective, they do not correlate the classification score with the IoU as a unified score, nor do they relate the NMS procedure and the anchor assignment process.", "location": "Related Work" }
+    ],
+    "evidence": [
+      { "quote": "Predicting IoUs as a localization quality of detected bounding boxes is not new.", "location": "Related Work" },
+      { "quote": "It has been found in [40] that anchor-based and anchor-free models show similar performance when they use the same anchor assignment strategy.", "location": "Related Work" }
+    ]
+  },
+  "solution": {
+    "summary": "PAA scores each anchor by the negative log of its classification and IoU losses, fits a two-component Gaussian Mixture Model to those scores with EM, and assigns positives/negatives by posterior probability with no IoU threshold or fixed count; a one-conv IoU-prediction head supplies a unified classification x IoU score for NMS ranking, plus a score-voting post-processing step.",
+    "approach": "Treat anchor assignment as maximum likelihood estimation of a two-mode score distribution conditioned on the model, and align NMS ranking with training by predicting IoU.",
+    "components": [
+      "anchor score S = Scls * Sloc^lambda with Sloc the predicted box IoU, i.e. negative log equals classification loss plus lambda times IoU loss",
+      "two-component Gaussian Mixture Model fit to anchor scores via EM; positive/negative split by posterior probabilities",
+      "top-K candidate anchors per pyramid level to keep EM efficient; non-top-K anchors become negatives",
+      "single-convolution IoU-prediction head with sigmoid output trained with BCE against true IoU",
+      "unified classification x IoU score as the NMS ranking metric",
+      "score voting: post-NMS boxes re-weighted by IoU-proximity weights multiplied by the unified score"
+    ],
+    "solutionTags": ["anchors", "dynamic-assignment", "iou-loss", "one-stage", "post-processing-nms"],
+    "evidence": [
+      { "quote": "we first define a score of a detected bounding box that reflects both the classification and localization qualities.", "location": "Sec 3.1" },
+      { "quote": "Here we choose Gaussian Mixture Model (GMM) of two modalities to model the anchor score distribution.", "location": "Sec 3.1" },
+      { "quote": "we propose to predict the IoU of a detected box as a localization quality, and multiply the classification score by the IoU score as a metric to rank detected boxes.", "location": "Introduction" },
+      { "quote": "The proposed score voting method works on each box b of remaining boxes after NMS procedure", "location": "Sec 3.3" }
+    ]
+  },
+  "experiments": {
+    "summary": "Experiments are on MS COCO with trainval35k training, minival for ablations and test-dev for comparisons; ablations use ResNet-50 with 135k iterations and final models run 180k iterations across five backbones, comparing against RetinaNet, ATSS, MAL, FreeAnchor and NoisyAnchor.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "41.1", "split": "minival, ResNet-50, PAA + IoU prediction + score voting", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.4", "split": "minival, ResNet-50, ATSS baseline", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "44.8", "split": "test-dev, ResNet-101", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "46.6", "split": "test-dev, ResNeXt-64x4d-101, single-scale", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "49.0", "split": "test-dev, ResNeXt-64x4d-101-DCN, single-scale", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "53.5", "split": "test-dev, ResNeXt-32x8d-152-DCN, multi-scale", "location": "Table 3" }
+    ],
+    "baselines": ["RetinaNet", "ATSS", "MAL", "FreeAnchor", "NoisyAnchor", "FCOS", "RepPoints"],
+    "evidence": [
+      { "quote": "Changing anchor assignment from the IoU-based hard assignment to the proposed PAA shows improvements of 5.3% in AP score.", "location": "Sec 4.2" },
+      { "quote": "All backbones show less than 0.1 errors, showing that IoU prediction is plausible with an additional convolutional head.", "location": "Sec 4.2" },
+      { "quote": "Finally, with the deformable ResNext152 backbone, our models set new records for both the single scale testing (50.8%) and the multi-scale testing (53.5%).", "location": "Sec 4.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "No limitations section; the method still depends on NMS plus a new voting stage with tuned hyper-parameters, its EM-based GMM fitting is a training-time heuristic with manual initialization, and all validation is on COCO.",
+    "items": [
+      "Post-processing remains NMS-based, now with an extra score-voting stage whose weight temperature must be tuned.",
+      "GMM/EM fitting relies on heuristic initialization and hand-set hyper-parameters (K, lambda1, lambda2, sigma_t).",
+      "Anchor assignment adds per-iteration EM computation during training, even though testing cost is unchanged.",
+      "All experiments use MS COCO with RetinaNet-style single-stage detectors; other datasets and detector families are untested."
+    ],
+    "evidence": [
+      { "quote": "For GMM optimization, we set the minimum and maximum score of the candidate anchors as the mean of two Gaussians and set the precision values to one as an initialization of EM.", "location": "Sec 4.1" },
+      { "quote": "σt is set to 0.025 if the score voting is used.", "location": "Sec 4.1" },
+      { "quote": "We follow the common practice of using ‘trainval35k’ as training data (about 118k images) for all experiments.", "location": "Sec 4" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Extend score voting as a generic post-processing improvement for other dense detectors.",
+      "quote": "we also provided the score voting method which is a simple yet effective post-processing scheme that is applicable to most dense object detectors.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["COCO trainval35k", "COCO minival", "COCO test-dev"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt101", "ResNeXt-64x4d-101-DCN", "ResNeXt-32x8d-152-DCN", "FPN"],
+    "models": ["PAA (RetinaNet/FCOS/ATSS-style)", "RetinaNet", "ATSS", "FCOS", "MAL", "FreeAnchor", "NoisyAnchor", "RepPoints"],
+    "algorithms": ["Probabilistic Anchor Assignment", "Gaussian Mixture Model + EM", "IoU prediction head", "score voting", "Focal Loss", "GIoU loss", "NMS", "GroupNorm", "multi-scale training"],
+    "metrics": ["AP", "AP50", "AP75", "APs/APm/APl", "IoU prediction error"],
+    "equations": [
+      { "name": "anchor score", "expr": "S(f(a,x), g) = Scls(f(a,x), g) * Sloc(f(a,x), g)^lambda", "location": "Eqn. (1), Sec 3.1" },
+      { "name": "negative log score", "expr": "-log S = Lcls + lambda * LIoU", "location": "Eqn. (3), Sec 3.1" },
+      { "name": "score distribution", "expr": "P(a|x, g, theta) = w1 * N1(a; m1, p1) + w2 * N2(a; m2, p2)", "location": "Eqn. (4), Sec 3.1" },
+      { "name": "detection loss with IoU prediction", "expr": "L = Lcls + lambda1 * LIoU + lambda2 * LIoUP", "location": "Eqn. (8), Sec 3.2" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "Only a single convolutional layer is added to the RetinaNet baseline and no multi-anchor enumeration is needed (Abstract).",
+      "Single anchor per spatial location gives fewer parameters and FLOPs than nine-anchor RetinaNet models.",
+      "Anchor assignment parallelizes on GPUs and adds no testing-time computation."
+    ],
+    "evidence": [
+      { "quote": "The proposed methods only add a single convolutional layer to RetinaNet baseline and does not require multiple anchors per location, so are efficient.", "location": "Abstract" },
+      { "quote": "The proposed anchor assignment can be parallelized using GPUs and does not require extra computes in testing time.", "location": "Introduction" },
+      { "quote": "this structure uses only a single anchor per spatial location and so has a smaller number of parameters and FLOPs compared to RetinaNet-based models using nine anchors.", "location": "Sec 3.2" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1007/978-3-030-58595-2_22",
+    "arxivUrl": "https://arxiv.org/abs/2007.08103",
+    "venue": "Lecture notes in computer science",
+    "pdfUrl": "https://arxiv.org/pdf/2007.08103"
+  }
+}

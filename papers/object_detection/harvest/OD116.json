@@ -1,0 +1,318 @@
+{
+  "id": "OD116",
+  "arxiv": "2510.09653",
+  "title": "Ultralytics YOLO Evolution: An Overview of YOLO27, YOLO26, YOLO11, YOLOv8, and YOLOv5 Object Detectors for Computer Vision and Pattern Recognition",
+  "year": 2025,
+  "venue": null,
+  "problem": {
+    "summary": "The review argues the Ultralytics YOLO lineage has spread across many releases without a consolidated account, and that real-time detectors still struggle with dense/occluded scenes, domain shift, closed-vocabulary recognition, and unverified YOLO27 results.",
+    "statements": [
+      "Non-maximum suppression can delete valid detections when instances overlap heavily in dense scenes",
+      "Detectors trained on curated datasets degrade under unseen illumination, weather, background, geographic, sensor, or appearance conditions",
+      "YOLO systems remain predominantly closed-vocabulary and cannot recognize categories absent from their annotated training sets"
+    ],
+    "problemTags": [
+      "crowded-scenes",
+      "domain-shift",
+      "open-vocabulary",
+      "nms",
+      "small-objects"
+    ],
+    "evidence": [
+      {
+        "quote": "Dense environments remain challenging for real-time object detectors because multiple instances may overlap spatially, share similar visual characteristics, or occupy only a small number of pixels.",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "Conventional Non-Maximum Suppression (NMS) can incorrectly eliminate valid detections when objects exhibit substantial overlap, producing missed detections or false positives",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "Models trained on curated datasets can experience substantial performance degradation when deployed under unseen illumination, weather, background, geographic, sensor, or object-appearance conditions",
+        "location": "Sec 5.1"
+      }
+    ]
+  },
+  "background": {
+    "summary": "Builds on the original single-stage YOLO formulation of Redmon et al. and its generational successors, contrasted against two-stage R-CNN/Faster R-CNN and DETR-style query detectors; the claimed gap is the absence of a consolidated view of the Ultralytics lineage through YOLO27.",
+    "relatedWork": [
+      {
+        "name": "Faster R-CNN",
+        "relation": "prior two-stage baseline that YOLO's single forward-pass formulation departed from",
+        "quote": "where region proposal generation and subsequent object classification are treated as distinct stages",
+        "location": "Introduction"
+      },
+      {
+        "name": "YOLOv1 (Redmon et al.)",
+        "relation": "origin of the unified regression paradigm the review traces",
+        "quote": "which reframed object detection as a unified regression problem that directly predicts bounding boxes and class probabilities from an input image",
+        "location": "Introduction"
+      },
+      {
+        "name": "DETR",
+        "relation": "query-based set-prediction precedent for the query-based YOLO27m/l decoders",
+        "quote": "Detection Transformers (DETR) demonstrated the potential of query-based set prediction, although early implementations suffered from slow optimization and substantial computational requirements.",
+        "location": "Sec 5.2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "The objective of this paper is to provide a consolidated perspective on how Ultralytics YOLO has progressed from modular CNN-based dense detection toward anchor-free prediction, end-to-end inference, and ultimately scale-adaptive CNN–query architectures.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Subsequent generations progressively addressed limitations in localization accuracy, small-object detection, scale variation, feature representation, and computational efficiency.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "A structured overview of the Ultralytics YOLO family from YOLOv5 through YOLO27: chronological architecture tables, comparative MS COCO benchmarking, an export/quantization and application survey, and a challenges-and-roadmap discussion.",
+    "approach": "Combines year-by-year architectural tables, MS COCO accuracy/latency benchmarking, and deployment/application analysis with a post-YOLO27 research roadmap.",
+    "components": [
+      "architectural evolution tables for Ultralytics and community YOLO releases",
+      "scale-adaptive dual-architecture analysis of YOLO27 (CNN n/s vs query-based m/l)",
+      "MS COCO comparative benchmarking of accuracy, latency, parameters and FLOPs",
+      "export format, quantization and edge-inference analysis",
+      "application survey across robotics, agriculture, surveillance and manufacturing",
+      "challenges and future-directions roadmap (Sec 5)"
+    ],
+    "solutionTags": [
+      "one-stage",
+      "nms-free",
+      "transformer-query",
+      "anchor-free"
+    ],
+    "evidence": [
+      {
+        "quote": "This paper presents a comprehensive overview of the Ultralytics YOLO family, emphasizing architectural evolution, benchmarking, deployment, and emerging directions from YOLOv5 through YOLO27.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Comparative benchmarking examines accuracy, precision, recall, F1-score, mAP, latency, and computational complexity alongside representative contemporary detectors.",
+        "location": "Abstract"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Compiles reported MS COCO numbers for YOLOv5/YOLOv8/YOLO11/YOLO26 plus preliminary YOLO27 figures, and cross-compares them with YOLOv12, YOLOv13, RT-DETR variants and the DEIM framework in terms of mAP, latency, parameters and FLOPs.",
+    "benchmarks": [
+      {
+        "dataset": "MS COCO",
+        "metric": "mAP50-95",
+        "value": "34.3",
+        "split": "val 640px, YOLOv5u-n",
+        "location": "Table 3"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "mAP50-95",
+        "value": "37.3",
+        "split": "val 640px, YOLOv8n",
+        "location": "Table 3"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "mAP50-95",
+        "value": "39.5",
+        "split": "val 640px, YOLO11n",
+        "location": "Table 3"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "mAP50-95",
+        "value": "39.8 (40.3 e2e)",
+        "split": "val 640px, YOLO26n",
+        "location": "Table 3"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "mAP50-95",
+        "value": "53.0-53.4",
+        "split": "val 640px, YOLO26l",
+        "location": "Table 3"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "mAP50-95",
+        "value": "60.4",
+        "split": "640px, YOLO27l (preliminary)",
+        "location": "Sec 2.1"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "mAP50-95",
+        "value": "61.2",
+        "split": "800px, YOLO27l (preliminary)",
+        "location": "Sec 2.1"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "~51",
+        "split": "RT-DETR base on T4",
+        "location": "Table 4"
+      }
+    ],
+    "baselines": [
+      "YOLOv5",
+      "YOLOv8",
+      "YOLO11",
+      "YOLOv12",
+      "YOLOv13",
+      "RT-DETR",
+      "DEIM + D-FINE"
+    ],
+    "evidence": [
+      {
+        "quote": "Preliminary COCO results span 42.3-60.4 mAP at 640pixel resolution and 0.62-2.32 ms TensorRT 11 FP16 latency, with YOLO27l reaching 61.2 mAP at 800 pixels.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "These results underscore a deployment-centric design: by eliminating NMS and DFL, CPU inference improves markedly while preserving accuracy across scales.",
+        "location": "Sec 3.1"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "YOLO27 measurements are preliminary pending final weights and independent evaluation, and dense-scene occlusion, domain shift, closed-vocabulary perception and uncalibrated confidence remain unresolved.",
+    "items": [
+      "YOLO27 accuracy/latency values are preliminary until final weights, configurations and independent benchmarking exist",
+      "NMS-free prediction alone does not resolve severe occlusion or ambiguity under crowded conditions",
+      "Catastrophic forgetting, unstable pseudo-labels and a lack of standardized cross-domain benchmarks still limit domain generalization",
+      "Current YOLO systems cannot recognize semantic concepts absent from their annotated training sets"
+    ],
+    "evidence": [
+      {
+        "quote": "Nevertheless, such results should be interpreted as preliminary until final model weights, configurations, benchmarking protocols, and independent evaluations are available.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "However, NMS-free prediction does not itself resolve severe occlusion or ambiguity.",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "Nevertheless, catastrophic forgetting, unstable pseudo-labels, and insufficient standardized cross-domain benchmarks remain unresolved.",
+        "location": "Sec 5.1"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Dynamic architecture routing that selects CNN, attention or query pathways according to scene complexity rather than fixed model scaling",
+      "quote": "future detectors could select computational pathways according to scene complexity",
+      "location": "Sec 5.2"
+    },
+    {
+      "direction": "A multimodal YOLO that augments the fixed classification vocabulary with a text encoder for natural-language prompted detection",
+      "quote": "A multimodal YOLO could replace or augment the fixed classification vocabulary with a text encoder, allowing users to specify target concepts using natural-language prompts.",
+      "location": "Sec 5.3"
+    },
+    {
+      "direction": "Explicit temporal memory across frames to move from frame-level detection to stateful video perception",
+      "quote": "Future YOLO systems could therefore incorporate explicit temporal memory.",
+      "location": "Sec 5.4"
+    },
+    {
+      "direction": "Uncertainty estimation, out-of-distribution detection and selective prediction for failure-aware inference",
+      "quote": "Future YOLO architectures could therefore integrate uncertainty estimation, out-of-distribution detection, and selective prediction.",
+      "location": "Sec 5.5"
+    }
+  ],
+  "technical": {
+    "datasets": [
+      "MS COCO"
+    ],
+    "backbones": [
+      "Darknet-53",
+      "CSPDarknet-53",
+      "C2f",
+      "C3k2",
+      "C2PSA",
+      "UltraViT",
+      "GELAN"
+    ],
+    "models": [
+      "YOLOv5",
+      "YOLOv8",
+      "YOLO11",
+      "YOLO26",
+      "YOLO27",
+      "YOLOv12",
+      "YOLOv13",
+      "RT-DETR"
+    ],
+    "algorithms": [
+      "NMS",
+      "Distribution Focal Loss",
+      "ProgLoss",
+      "STAL",
+      "MuSGD",
+      "mosaic augmentation",
+      "CIoU loss"
+    ],
+    "metrics": [
+      "mAP50-95",
+      "AP50",
+      "precision",
+      "recall",
+      "F1",
+      "latency (ms)",
+      "FPS",
+      "FLOPs",
+      "parameters"
+    ],
+    "equations": []
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "robotics",
+        "quote": "Real-time object detection is fundamental for autonomous navigation, manipulation, and human–robot interaction",
+        "location": "Sec 4.3",
+        "detail": "Real-time detection as a core capability for robot navigation, manipulation and human–robot interaction."
+      },
+      {
+        "domain": "agriculture",
+        "quote": "In precision agriculture, UAVs and ground robots monitor crop health, detect weeds, and estimate yield.",
+        "location": "Sec 4.3",
+        "detail": "UAV/ground-robot monitoring of crop health, weed detection and yield estimation."
+      },
+      {
+        "domain": "video surveillance",
+        "quote": "Video surveillance systems require robust detection under varied lighting and crowded scenes",
+        "location": "Sec 4.3",
+        "detail": "Detection under varied lighting and crowded scenes for monitoring systems."
+      },
+      {
+        "domain": "manufacturing",
+        "quote": "Automated inspection and assembly lines demand fast and accurate detection of defects and components",
+        "location": "Sec 4.3",
+        "detail": "Automated inspection and assembly lines needing fast, accurate defect/component detection."
+      }
+    ],
+    "deploymentClaims": [
+      "Export to ONNX or OpenVINO typically yields up to three-fold acceleration on CPUs, while conversion to TensorRT can deliver five-fold GPU speedups.",
+      "INT8 exports of YOLO26 retain nearly the same mAP as FP32 versions, enabling smooth deployment on resource-constrained hardware such as the NVIDIA Jetson Orin and Xavier series, Qualcomm Snapdragon AI accelerators, and ARM CPUs.",
+      "YOLOv8s and YOLO26s can process 30 frames per second on modern smartphones, offering a compelling solution for on-device vision.",
+      "a quantized YOLO26n can perform multi-task perception (detection, segmentation, keypoints) within a 10–20 ms budget, permitting closed-loop control at 50–100 Hz.",
+      "TensorRT 11 FP16 GPU inference latency ranging from approximately 0.62 ms to 2.32 ms on an NVIDIA RTX PRO 6000"
+    ],
+    "evidence": [
+      {
+        "quote": "The YOLO family is designed not only for research but also for practical deployment across a wide range of hardware platforms and industry applications.",
+        "location": "Sec 4"
+      },
+      {
+        "quote": "Export to ONNX or OpenVINO typically yields up to three-fold acceleration on CPUs, while conversion to TensorRT can deliver five-fold GPU speedups.",
+        "location": "Sec 4.1"
+      }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2510.09653",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2510.09653"
+  }
+}

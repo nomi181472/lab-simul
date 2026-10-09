@@ -1,0 +1,201 @@
+{
+  "id": "OD024",
+  "arxiv": "1711.07752",
+  "title": "Repulsion Loss: Detecting Pedestrians in a Crowd",
+  "year": 2017,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition",
+  "problem": {
+    "summary": "Intra-class (crowd) occlusion dominates pedestrian detection errors: overlapping pedestrians look alike, so predicted boxes shift onto neighbors, and those shifted boxes are then wrongly merged by NMS or produce high-confidence false positives. Standard box-regression losses only pull a proposal toward its own target and ignore surrounding objects, so nothing penalizes a box that drifts onto a neighbor.",
+    "statements": [
+"Crowd occlusion significantly increases the difficulty of localizing each individual person in crowd scenes.",
+"Boxes that shift from the target pedestrian onto a neighbor become localization errors and may be suppressed by NMS, turning into missed detections.",
+"Crowd occlusion makes detectors sensitive to the NMS threshold: high thresholds add false positives, low thresholds add missed detections.",
+"Existing regression losses only require the proposal to approach its designated target, without considering surrounding objects."
+    ],
+    "problemTags": ["occlusion", "crowded-scenes", "nms", "localization"],
+    "evidence": [
+{
+        "quote": "Detecting individual pedestrians in a crowd remains a challenging problem since the pedestrians often gather together and occlude each other in real-world scenarios.",
+        "location": "Abstract"
+      },
+{ "quote": "The main impact of crowd occlusion is that it significantly increases the difficulty in pedestrian localization.", "location": "Introduction" },
+{ "quote": "crowd occlusion makes the detector sensitive to the threshold of NMS", "location": "Introduction" },
+{
+        "quote": "Nevertheless, existing methods only require the proposal to get close to its designated target, without taking the surrounding objects into consideration.",
+        "location": "Introduction"
+      },
+{ "quote": "among which 48.8% of them overlap with another annotated pedestrian whose Intersection over Union (IoU) is above 0.1", "location": "Abstract" }
+    ]
+  },
+  "background": {
+    "summary": "Localization is treated as regression over box coordinates: R-CNN used Euclidean distance, Fast R-CNN switched to SmoothL1, RPN regresses anchors twice, DenseBox is anchor-free, and IoU Loss maximizes overlap; on the pedestrian side most work improves filters, features, or NMS, while few prior works study crowd occlusion itself.",
+    "relatedWork": [
+{
+        "name": "R-CNN",
+        "relation": "linear regression on Euclidean coordinate distance to the target",
+        "quote": "In R-CNN [10], a linear regression model is trained with respect to the Euclidean distance of coordinates of a proposal and its target.",
+        "location": "Related Work"
+      },
+{
+        "name": "Fast R-CNN",
+        "relation": "replaced Euclidean distance with SmoothL1 loss for bounding box regression",
+        "quote": "In [9], the SmoothL1 Loss is proposed to replace the Euclidean distance used in R-CNN for bounding box regression.",
+        "location": "Related Work"
+      },
+{
+        "name": "IoU Loss (UnitBox)",
+        "relation": "maximizes IoU between predicted and ground-truth box, inspiring the RepGT term",
+        "quote": "IoU Loss is proposed in [29] to maximize the IoU between a ground-truth box and a predicted box.",
+        "location": "Related Work"
+      },
+{
+        "name": "Learning NMS (Hosang et al.)",
+        "relation": "improves NMS robustness but needs an extra post-processing network",
+        "quote": "[13] works on improving the robustness of NMS, but it ends up relying on an additional network for post-processing.",
+        "location": "Related Work"
+      },
+{
+        "name": "CityPersons / Zhang et al.",
+        "relation": "baseline dataset and stronger baseline the paper builds its detector on",
+        "quote": "In pedestrian detection [31, 14, 6, 5, 7, 21], crowd occlusion constitutes the majority of occlusion cases.",
+        "location": "Introduction"
+      }
+    ],
+    "evidence": [
+{ "quote": "In general, occlusion can be divided into two groups: inter-class occlusion and intra-class occlusion.", "location": "Introduction" },
+{ "quote": "In fact, few of previous works focus on studying and overcoming the impact of crowd occlusion.", "location": "Related Work" }
+    ]
+  },
+  "solution": {
+    "summary": "Repulsion loss augments the usual attraction-to-target term with two repulsion terms: RepGT penalizes overlap (IoG) with the nearest non-target ground-truth pedestrian, and RepBox penalizes IoU between predicted boxes whose designated targets differ, so boxes are pushed away from neighbors and are less likely to be merged by NMS; all three are balanced as L = LAttr + alpha*LRepGT + beta*LRepBox.",
+    "approach": "Add differentiable penalties that repel each proposal from surrounding non-target ground-truth boxes and from other proposals with different targets, on top of the standard attraction loss.",
+    "components": [
+"attraction term LAttr using SmoothL1 distance to the designated (max-IoU) target",
+"RepGT Loss penalizing IoG overlap with the most overlapping non-target ground-truth object (Smoothln, sigma)",
+"RepBox Loss penalizing IoU between boxes sampled from different target subsets, reducing NMS sensitivity",
+"smooth parameter sigma controlling sensitivity to outliers; weights alpha and beta balancing terms",
+"baseline detector: Faster R-CNN with ResNet-50 and dilated convolution (1/8-resolution final feature map)",
+"OHEM training with SGD, no multi-scale training/testing for fair comparison"
+    ],
+    "solutionTags": ["localization", "crowded-scenes", "nms", "post-processing-nms"],
+    "evidence": [
+{ "quote": "we propose a novel bounding box regression loss specifically designed for crowd scenes, termed repulsion loss.", "location": "Abstract" },
+{ "quote": "This loss is driven by two motivations: the attraction by target, and the repulsion by other surrounding objects.", "location": "Abstract" },
+{
+        "quote": "the bounding box regressor with RepLoss is driven by two motivations: attraction by the target and repulsion by other surrounding objects and proposals.",
+        "location": "Introduction"
+      },
+{ "quote": "The RepGT Loss is designed to repel a proposal from its neighboring ground-truth objects which are not its target.", "location": "Sec 4" },
+{ "quote": "we further propose the RepBox Loss whose objective is to repel each proposal from others with different designated targets.", "location": "Sec 4" }
+    ]
+  },
+  "experiments": {
+    "summary": "A CityPersons baseline analysis (failure-case counts of missed detections and false positives) is followed by ablations of sigma and of alpha/beta, then side-by-side comparisons on CityPersons and the re-annotated Caltech-USA with MR-2, plus a PASCAL VOC 2007 extension measuring mAP overall and on a crowd subset.",
+    "benchmarks": [
+{ "dataset": "CityPersons", "metric": "MR-2", "value": "14.6", "split": "reasonable, Faster R-CNN + ResNet-50 baseline", "location": "Table 3" },
+{ "dataset": "CityPersons", "metric": "MR-2", "value": "13.2", "split": "reasonable, RepLoss (RepGT + RepBox) at x1 scale", "location": "Table 3" },
+{ "dataset": "CityPersons", "metric": "MR-2", "value": "10.9", "split": "reasonable, best row (+Segmentation, x1.5 scale)", "location": "Table 3" },
+{ "dataset": "Caltech-USA", "metric": "MR-2", "value": "5.0", "split": "test reasonable, IoU=0.5, RepGT + RepBox", "location": "Table 4" },
+{ "dataset": "Caltech-USA", "metric": "MR-2", "value": "4.0", "split": "test reasonable, IoU=0.5, RepGT+RepBox with CityPersons pretraining", "location": "Table 4" },
+{ "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "79.8", "split": "test, re-implemented Faster R-CNN + RepGT", "location": "Table 5" },
+{
+        "dataset": "PASCAL VOC 2007",
+        "metric": "mAP on Crowd",
+        "value": "40.8",
+        "split": "test, crowd subset (intra-class IoU > 0.1), +2.1 over baseline",
+        "location": "Table 5"
+      }
+    ],
+    "baselines": ["Faster R-CNN + ResNet-50 (re-implemented)", "Zhang et al. CityPersons baseline", "Mao et al.", "Faster R-CNN (re-implemented) on VOC"],
+    "evidence": [
+{
+        "quote": "The ResNet-based detector achieves 14.6 MR−2 on the validation set, which is sightly better than the reported result (15.4 MR−2 ) in [33].",
+        "location": "Sec 3.1"
+      },
+{ "quote": "adding RepGT Loss yields the best performance of 13.7 MR−2 in terms of reasonable evaluation setup.", "location": "Sec 5.2" },
+{ "quote": "Combined together, our proposed repulsion loss achieves 13.2 MR−2 , which is an absolute 1.4-point improvement over our baseline.", "location": "Sec 5.3" },
+{ "quote": "On a strong reference, RepLoss achieves MR−2 of 5.0 at .5 IoU matching threshold and 26.3 at .75 IoU matching threshold.", "location": "Sec 5.3" },
+{ "quote": "when evaluated on the crowd subset (objects have intra-class IoU greater than 0.1), RepLoss outperforms the baseline by 2.1 mAP.", "location": "Sec 6" }
+    ]
+  },
+  "limitations": {
+    "summary": "Gains on PASCAL VOC over the whole dataset are small (crowded subsets carry the improvement), barely-there gains appear on the Bare subset where occlusion is absent, the derivation is restricted to a two-class setting, and the sigma/alpha/beta hyper-parameters are chosen empirically.",
+    "items": [
+"On PASCAL VOC the gain over the entire dataset is not significant; the +2.1 mAP gain comes only from the crowd subset.",
+"The Bare subset (occlusion <= 10%) shows non-obvious improvement, consistent with the loss targeting occlusion only.",
+"The formulation considers only two-class detection, assuming all ground-truth objects share one category.",
+"Loss balance and smoothing are tuned empirically (alpha = beta = 0.5 best; sigma differs between RepGT and RepBox)."
+    ],
+    "evidence": [
+{ "quote": "The gain over the entire dataset is not significant.", "location": "Sec 6" },
+{ "quote": "while causing non-obvious improvement on the Bare subset.", "location": "Sec 5.3" },
+{ "quote": "For simplicity we consider only two-class detection in the following, assuming all ground-truth objects are from the same category.", "location": "Sec 4" },
+{ "quote": "Empirically, α = 0.5 and β = 0.5 yields the best performance.", "location": "Sec 5.2" }
+    ]
+  },
+  "futureDirections": [
+{
+      "direction": "Apply the repulsion loss to other object detection tasks beyond pedestrian detection.",
+      "quote": "We expect wide application of the proposed loss in many other object detection tasks.",
+      "location": "Conclusion"
+    },
+{
+      "direction": "The VOC extension already points to using RepLoss in general (non-pedestrian) crowd-scene detection.",
+      "quote": "These results demonstrate that our method is generic and can be extended to general object detection.",
+      "location": "Sec 6"
+    }
+  ],
+  "technical": {
+    "datasets": ["CityPersons", "CityScapes", "Caltech-USA", "PASCAL VOC 2007/2012", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101"],
+    "models": ["Faster R-CNN", "RepLoss (RepGT + RepBox)", "Baseline ResNet-50 pedestrian detector"],
+    "algorithms": [
+"bounding box regression",
+"non-maximum suppression (NMS)",
+"SmoothL1 loss",
+"IoG (Intersection over Ground-truth)",
+"IoU Loss",
+"Online Hard Example Mining (OHEM)",
+"dilated convolution",
+"SGD with momentum"
+    ],
+    "metrics": ["MR-2 (log miss rate over FPPI 1e-2..1)", "mAP", "FPPI"],
+    "equations": [
+{ "name": "repulsion loss", "expr": "L = LAttr + alpha * LRepGT + beta * LRepBox", "location": "Eq. (1), Sec 4" },
+{ "name": "IoG", "expr": "IoG(B, G) = area(B intersect G) / area(G)", "location": "Sec 4" },
+{ "name": "RepGT loss", "expr": "LRepGT = (1/|P+|) sum_P Smoothln(IoG(B^P, G^P_Rep))", "location": "Eq. (4), Sec 4" }
+    ]
+  },
+  "industry": {
+    "applications": [
+{
+        "domain": "video surveillance and autonomous driving",
+        "detail": "Pedestrian detection is framed as a first step for real-world applications such as video surveillance and autonomous driving, where people gather and occlude each other.",
+        "quote": "in application scenarios of pedestrian detection, e.g., video surveillance and autonomous driving, pedestrians often gather together and occlude each other.",
+        "location": "Introduction"
+      },
+{
+        "domain": "general object detection in crowds",
+        "detail": "The loss is shown to transfer beyond pedestrians to PASCAL VOC, with the largest gains on the crowd subset.",
+        "quote": "Our RepLoss is a generic loss function for object detection in crowd scenes",
+        "location": "Sec 6"
+      }
+    ],
+    "deploymentClaims": [
+"13.2 MR-2 on CityPersons reasonable (1.4 points better than the 14.6 baseline; 10.9 with larger scale and segmentation).",
+"4.0 MR-2 on re-annotated Caltech-USA test at IoU 0.5, improving the state of the art.",
+"40.8 mAP on the VOC crowd subset (+2.1 over the re-implemented baseline).",
+"Less NMS-threshold sensitivity: a 3.5-point advantage over baseline at NMS threshold 0.35."
+    ],
+    "evidence": [
+{ "quote": "Our detector trained by repulsion loss outperforms the state-ofthe-art methods with a significant improvement in occlusion cases.", "location": "Abstract" },
+{ "quote": "Pedestrian detection is the first and an critical step for many real-world applications.", "location": "Related Work" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2018.00811",
+    "arxivUrl": "https://arxiv.org/abs/1711.07752",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition",
+    "pdfUrl": "https://arxiv.org/pdf/1711.07752"
+  }
+}

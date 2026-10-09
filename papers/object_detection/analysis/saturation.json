@@ -1,0 +1,1175 @@
+[
+  {
+    "problemId": "speed-latency",
+    "firstYear": 2015,
+    "paperCount": 52,
+    "attemptCount": 51,
+    "intensity": 4.73,
+    "status": "persistent",
+    "saturation": "saturated",
+    "remainingGap": "Moving the accuracy-latency Pareto frontier on real hardware is the residue: OD113 still reports the CNN-versus-attention speed gap and OD117 says lightweight designs degrade the representation they need.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD002"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "These complex pipelines are slow and hard to optimize because each individual component must be trained separately."
+      },
+      {
+        "paperIds": [
+          "OD113",
+          "OD115"
+        ],
+        "kind": "crossPaper",
+        "confidence": "HIGH",
+        "quote": "This is because attention-based models cannot match the speed of CNN-based models."
+      }
+    ]
+  },
+  {
+    "problemId": "deployability",
+    "firstYear": 2015,
+    "paperCount": 36,
+    "attemptCount": 36,
+    "intensity": 3.0,
+    "status": "persistent",
+    "saturation": "saturated",
+    "remainingGap": "A new paper would have to hold accuracy inside a real edge budget: OD103 still finds open-set detectors cost far more than edge devices allow and OD115 lacks a lightweight recipe that keeps performance.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD103"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, there is a large gap between the computational cost required by an open-set detection model and the limited resources available on edge devices."
+      },
+      {
+        "paperIds": [
+          "OD115",
+          "OD117"
+        ],
+        "kind": "crossPaper",
+        "confidence": "HIGH",
+        "quote": "Achieving a good balance between detection performance and computational efficiency remains a key challenge, especially for lightweight models suitable for edge and mobile devices"
+      }
+    ]
+  },
+  {
+    "problemId": "localization",
+    "firstYear": 2015,
+    "paperCount": 33,
+    "attemptCount": 30,
+    "intensity": 3.0,
+    "status": "reduced",
+    "saturation": "active",
+    "remainingGap": "What remains is high-IoU precision and ambiguous ground-truth boxes: a new paper must improve box ranking at strict IoU thresholds without reopening the classification-score versus localization-quality mismatch.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD007"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, existing deep CNN methods assume the object bounds to be four independent variables, which could be regressed by the `2 loss separately."
+      },
+      {
+        "paperIds": [
+          "OD037"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "we observe that the ground-truth bounding boxes are inherently ambiguous in some cases. The ambiguities makes it hard to label and hard to learn the bounding box regression function."
+      },
+      {
+        "paperIds": [
+          "OD109"
+        ],
+        "kind": "paperSays",
+        "confidence": "MEDIUM",
+        "quote": "Most detectors predict bounding boxes by regressing fixed coordinates, treating edges as precise values modeled by Dirac delta distributions"
+      }
+    ]
+  },
+  {
+    "problemId": "small-objects",
+    "firstYear": 2015,
+    "paperCount": 25,
+    "attemptCount": 25,
+    "intensity": 2.5,
+    "status": "persistent",
+    "saturation": "active",
+    "remainingGap": "Sub-1-percent-area instances still need better than a few pixels of evidence: a new paper must raise small-object recall in dense high-resolution scenes without slicing-time blowups or losing latency.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD083"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Detection of small objects and objects far away in the scene is a major challenge in surveillance applications."
+      },
+      {
+        "paperIds": [
+          "OD018",
+          "OD077"
+        ],
+        "kind": "crossPaper",
+        "confidence": "HIGH",
+        "quote": "However, the feature maps in the lower layers close to the input which are responsible for detecting small objects in a single stage detector have a problem of insufficient representation power because they are too shallow."
+      },
+      {
+        "paperIds": [
+          "OD116"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Dense environments remain challenging for real-time object detectors because multiple instances may overlap spatially, share similar visual characteristics, or occupy only a small number of pixels."
+      }
+    ]
+  },
+  {
+    "problemId": "real-time-edge",
+    "firstYear": 2015,
+    "paperCount": 24,
+    "attemptCount": 24,
+    "intensity": 2.0,
+    "status": "persistent",
+    "saturation": "saturated",
+    "remainingGap": "A new paper would need one design that keeps accuracy on-device while closing OD113's attention-versus-CNN speed gap and OD117's lightweight degradation at the same time.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD053"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "The large model sizes and expensive computation costs deter their deployment in many real-world applications such as robotics and self-driving cars where model size and latency are highly constrained."
+      },
+      {
+        "paperIds": [
+          "OD115",
+          "OD117"
+        ],
+        "kind": "crossPaper",
+        "confidence": "HIGH",
+        "quote": "Achieving a good balance between detection performance and computational efficiency remains a key challenge, especially for lightweight models suitable for edge and mobile devices"
+      }
+    ]
+  },
+  {
+    "problemId": "scale-variance",
+    "firstYear": 2015,
+    "paperCount": 23,
+    "attemptCount": 23,
+    "intensity": 2.09,
+    "status": "reduced",
+    "saturation": "active",
+    "remainingGap": "Lossless cheap cross-scale fusion is the residue: OD099 still reports information loss across pyramid levels while OD098 treats scale variation as fundamental for real-time detectors.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD026"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "we show that CNNs are not robust to changes in scale."
+      },
+      {
+        "paperIds": [
+          "OD098"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "recognizing objects at different scales remains a fundamental challenge for real-time object detectors."
+      },
+      {
+        "paperIds": [
+          "OD099"
+        ],
+        "kind": "paperSays",
+        "confidence": "MEDIUM",
+        "quote": "we find previous models still suffer from information fusion problem, although Feature Pyramid Network (FPN) and Path Aggregation Network (PANet) have alleviated this."
+      }
+    ]
+  },
+  {
+    "problemId": "one-stage-accuracy",
+    "firstYear": 2015,
+    "paperCount": 22,
+    "attemptCount": 22,
+    "intensity": 3.14,
+    "status": "reduced",
+    "saturation": "active",
+    "remainingGap": "The residue is training quality for Hungarian-matched heads: OD108 still reports sparse supervision compared with dense YOLO heads, so a new paper must close that without giving up end-to-end inference.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD020"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "In contrast, one-stage detectors that are applied over a regular, dense sampling of possible object locations have the potential to be faster and simpler, but have trailed the accuracy of two-stage detectors thus far."
+      },
+      {
+        "paperIds": [
+          "OD052"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, the one-stage detectors are generally less accurate than the two-stage ones. The main reason would be the extreme foreground-background class imbalance of the dense anchor boxes [18]."
+      },
+      {
+        "paperIds": [
+          "OD108"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, compared to dense supervision detectors like the YOLO series, the Hungarian matching provides much sparser supervision, leading to insufficient model training and difficult to achieve optimal results."
+      }
+    ]
+  },
+  {
+    "problemId": "label-assignment",
+    "firstYear": 2017,
+    "paperCount": 21,
+    "attemptCount": 21,
+    "intensity": 2.62,
+    "status": "persistent",
+    "saturation": "active",
+    "remainingGap": "A single assignment rule that serves dense one-stage heads, cascades and one-to-one DETR matching without per-dataset or per-branch tuning remains open; OD100 and OD112 show the 2024 generation still restating it.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD029"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "An object detector, trained with low IoU threshold, e.g. 0.5, usually produces noisy detections. However, detection performance tends to degrade with increasing the IoU thresholds."
+      },
+      {
+        "paperIds": [
+          "OD069"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Recent advances in label assignment in object detection mainly seek to independently define positive/negative training samples for each ground-truth (gt) object."
+      },
+      {
+        "paperIds": [
+          "OD100"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "The traditional training procedure using one-to-one supervision in the original DETR lacks direct supervision for the object detection candidates."
+      }
+    ]
+  },
+  {
+    "problemId": "convergence",
+    "firstYear": 2017,
+    "paperCount": 20,
+    "attemptCount": 20,
+    "intensity": 3.33,
+    "status": "persistent",
+    "saturation": "active",
+    "remainingGap": "Bringing transformer detectors close to one-stage training schedules on comparable data is the residue: OD112 still asks in 2024 why slow convergence persists after denoising and matching fixes.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD063"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, it suffers from slow convergence and limited feature spatial resolution, due to the limitation of Transformer attention modules in processing image feature maps."
+      },
+      {
+        "paperIds": [
+          "OD084"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "We show that the slow convergence results from the instability of bipartite graph matching which causes inconsistent optimization goals in early training stages."
+      },
+      {
+        "paperIds": [
+          "OD112"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, slow convergence remains one of the primary limitations of DETRs, and we hypothesize that the reasons are two-fold."
+      }
+    ]
+  },
+  {
+    "problemId": "anchor-design",
+    "firstYear": 2018,
+    "paperCount": 17,
+    "attemptCount": 17,
+    "intensity": 2.83,
+    "status": "transformed",
+    "saturation": "active",
+    "remainingGap": "Anchors survive only as learnable query boxes (OD082) and rotated aerial priors (OD042), so a new paper must show those learned priors transfer across datasets without the hand tuning that OD044 and OD087 complained about.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD044"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "A neat set of anchors of fixed aspect ratios has to be predefined for different problems. A wrong design may hamper the speed and accuracy of the detector."
+      },
+      {
+        "paperIds": [
+          "OD046"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "detection performance is sensitive to the sizes, aspect ratios and number of anchor boxes."
+      },
+      {
+        "paperIds": [
+          "OD087"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "anchor mechanism introduces a number of hyperparameters and depends on hand-crafted design which may not generalize well on other datasets."
+      }
+    ]
+  },
+  {
+    "problemId": "nms",
+    "firstYear": 2017,
+    "paperCount": 13,
+    "attemptCount": 13,
+    "intensity": 1.86,
+    "status": "reduced",
+    "saturation": "active",
+    "remainingGap": "NMS-free pipelines exist but crowded scenes still break one-to-one prediction: the residue is suppressing duplicates under heavy overlap without a hard threshold, which OD116 still lists as open.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD015"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "As per the design of the algorithm, if an object lies within the predefined overlap threshold, it leads to a miss."
+      },
+      {
+        "paperIds": [
+          "OD057"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Modern detectors address this set prediction task in an indirect way, by defining surrogate regression and classification problems on a large set of proposals [37,5], anchors [23], or window centers [53,46]."
+      },
+      {
+        "paperIds": [
+          "OD104",
+          "OD096"
+        ],
+        "kind": "crossPaper",
+        "confidence": "HIGH",
+        "quote": "the reliance on the non-maximum suppression (NMS) for post-processing hampers the end-to-end deployment of YOLOs and adversely impacts the inference latency."
+      }
+    ]
+  },
+  {
+    "problemId": "training-instability",
+    "firstYear": 2017,
+    "paperCount": 12,
+    "attemptCount": 12,
+    "intensity": 2.4,
+    "status": "reduced",
+    "saturation": "active",
+    "remainingGap": "Stability now shows up as layer-wise information loss rather than batch-norm mismatch: a new paper must stabilize deep multi-branch training without the auxiliary-supervision overhead OD102 relies on.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD022"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, mini-batch size, a key factor for the training of deep neural networks, has not been well studied for object detection."
+      },
+      {
+        "paperIds": [
+          "OD084"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "We show that the slow convergence results from the instability of bipartite graph matching which causes inconsistent optimization goals in early training stages."
+      },
+      {
+        "paperIds": [
+          "OD102"
+        ],
+        "kind": "paperSays",
+        "confidence": "MEDIUM",
+        "quote": "Existing methods ignore a fact that when input data undergoes layer-by-layer feature extraction and spatial transformation, large amount of information will be lost."
+      }
+    ]
+  },
+  {
+    "problemId": "open-vocabulary",
+    "firstYear": 2016,
+    "paperCount": 10,
+    "attemptCount": 10,
+    "intensity": 1.67,
+    "status": "persistent",
+    "saturation": "emerging",
+    "remainingGap": "Long-tail coverage without large aligned text-image training data and within an edge compute budget is the open residue, since OD111 still reports coverage limits and OD103 reports cost limits.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD081"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Visual recognition models are typically trained to predict a fixed set of pre-determined object categories, which limits their usability in real-world applications since additional labeled data are needed to generalize to new visual concepts and domains."
+      },
+      {
+        "paperIds": [
+          "OD111"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Traditional text prompt-only models [33, 47, 29], while having made great progress, still struggle to cover a sufficient range of long-tailed detection scenarios due to the difficulty of collecting sufficiently diverse training data to cover various applications."
+      },
+      {
+        "paperIds": [
+          "OD103"
+        ],
+        "kind": "paperSays",
+        "confidence": "MEDIUM",
+        "quote": "However, there is a large gap between the computational cost required by an open-set detection model and the limited resources available on edge devices."
+      }
+    ]
+  },
+  {
+    "problemId": "background-false-positives",
+    "firstYear": 2017,
+    "paperCount": 9,
+    "attemptCount": 9,
+    "intensity": 2.25,
+    "status": "reduced",
+    "saturation": "dormant",
+    "remainingGap": "What remains is the tail: IoU-threshold false positives in dense scenes and score-versus-IoU calibration, so a new paper would target dense-overlap false positives rather than easy background negatives.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD020"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "In contrast, one-stage detectors that are applied over a regular, dense sampling of possible object locations have the potential to be faster and simpler, but have trailed the accuracy of two-stage detectors thus far."
+      },
+      {
+        "paperIds": [
+          "OD015"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "As per the design of the algorithm, if an object lies within the predefined overlap threshold, it leads to a miss."
+      },
+      {
+        "paperIds": [
+          "OD058"
+        ],
+        "kind": "paperSays",
+        "confidence": "MEDIUM",
+        "quote": "Inconsistent usage of localization quality estimation and classification score between training and inference"
+      }
+    ]
+  },
+  {
+    "problemId": "crowded-scenes",
+    "firstYear": 2017,
+    "paperCount": 9,
+    "attemptCount": 9,
+    "intensity": 1.5,
+    "status": "persistent",
+    "saturation": "active",
+    "remainingGap": "Detecting each instance under heavy overlap without NMS-driven misses is the residue, which OD116 still describes as challenging for real-time detectors a full decade after Repulsion Loss.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD024"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Detecting individual pedestrians in a crowd remains a challenging problem since the pedestrians often gather together and occlude each other in real-world scenarios."
+      },
+      {
+        "paperIds": [
+          "OD027"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "The traditional bounding box is a rotation variant data structure, which becomes a shortcoming when the detector has to deal with orientation variations of target objects."
+      },
+      {
+        "paperIds": [
+          "OD116"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Dense environments remain challenging for real-time object detectors because multiple instances may overlap spatially, share similar visual characteristics, or occupy only a small number of pixels."
+      }
+    ]
+  },
+  {
+    "problemId": "class-imbalance",
+    "firstYear": 2017,
+    "paperCount": 7,
+    "attemptCount": 7,
+    "intensity": 1.75,
+    "status": "resolved",
+    "saturation": "dormant",
+    "remainingGap": "Resolved for the corpus's purposes by focal loss and anchor-free sampling; what remains is extreme tail imbalance inside crowded and rare categories rather than the 1:1000 background problem.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD020"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "In contrast, one-stage detectors that are applied over a regular, dense sampling of possible object locations have the potential to be faster and simpler, but have trailed the accuracy of two-stage detectors thus far."
+      },
+      {
+        "paperIds": [
+          "OD021"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, its detection accuracy is usually behind that of the two-stage approach, one of the main reasons being due to the class imbalance problem [28]."
+      },
+      {
+        "paperIds": [
+          "OD052"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, the one-stage detectors are generally less accurate than the two-stage ones. The main reason would be the extreme foreground-background class imbalance of the dense anchor boxes [18]."
+      }
+    ]
+  },
+  {
+    "problemId": "occlusion",
+    "firstYear": 2015,
+    "paperCount": 6,
+    "attemptCount": 6,
+    "intensity": 1.2,
+    "status": "persistent",
+    "saturation": "active",
+    "remainingGap": "No corpus paper handles full and long-term occlusion jointly with detection: a new paper must recover boxes or identities after complete occlusion, the case OD120 still reports as failing in 2026.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD024"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Detecting individual pedestrians in a crowd remains a challenging problem since the pedestrians often gather together and occlude each other in real-world scenarios."
+      },
+      {
+        "paperIds": [
+          "OD037"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "we observe that the ground-truth bounding boxes are inherently ambiguous in some cases. The ambiguities makes it hard to label and hard to learn the bounding box regression function."
+      },
+      {
+        "paperIds": [
+          "OD120"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Classical trackers terminate trajectories prematurely because they have no appearance memory, and deep hybrid trackers, although more resilient, still struggle to preserve identity continuity across full and long-term occlusion events."
+      }
+    ]
+  },
+  {
+    "problemId": "annotation-cost",
+    "firstYear": 2016,
+    "paperCount": 6,
+    "attemptCount": 6,
+    "intensity": 1.2,
+    "status": "reduced",
+    "saturation": "active",
+    "remainingGap": "Annotation remains the scaling wall for 3D and rare categories: a new paper would need label-efficient training that reaches human-annotated box quality, which OD121 still treats as the dominant regime.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD074"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, obtaining labels can be a bottleneck, due to the time-consuming and expensive annotation process."
+      },
+      {
+        "paperIds": [
+          "OD081"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Visual recognition models are typically trained to predict a fixed set of pre-determined object categories, which limits their usability in real-world applications since additional labeled data are needed to generalize to new visual concepts and domains."
+      },
+      {
+        "paperIds": [
+          "OD121"
+        ],
+        "kind": "paperSays",
+        "confidence": "MEDIUM",
+        "quote": "tonomous driving is dominated by detectors trained\non large corpora of human-annotated 3D boxes."
+      }
+    ]
+  },
+  {
+    "problemId": "weak-supervision",
+    "firstYear": 2016,
+    "paperCount": 4,
+    "attemptCount": 4,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "The corpus cannot name a residue: it shows labeling is a bottleneck (OD074) and pretext pre-training failing (OD097) but never evaluates a weak-supervision detection pipeline end to end.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD074"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, obtaining labels can be a bottleneck, due to the time-consuming and expensive annotation process."
+      },
+      {
+        "paperIds": [
+          "OD097"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Regrettably, DETReg proves inadequate in enhancing the performance of robust DETR-based models under full data conditions."
+      }
+    ]
+  },
+  {
+    "problemId": "class-confusion",
+    "firstYear": 2017,
+    "paperCount": 4,
+    "attemptCount": 4,
+    "intensity": 1.0,
+    "status": "reduced",
+    "saturation": "dormant",
+    "remainingGap": "The residue is score-versus-IoU calibration across decoupled heads: a new paper would have to show that coupling-aware ranking still helps now that separate classification and regression heads are standard.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD048"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "there is a lack of understanding of how does these two head structures work for these two tasks."
+      },
+      {
+        "paperIds": [
+          "OD085"
+        ],
+        "kind": "paperSays",
+        "confidence": "MEDIUM",
+        "quote": "Despite its promising performance, the training convergence of DETR is slow and the meaning of queries is unclear."
+      }
+    ]
+  },
+  {
+    "problemId": "domain-shift",
+    "firstYear": 2017,
+    "paperCount": 4,
+    "attemptCount": 4,
+    "intensity": 1.33,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "The corpus cannot localize the gap: robustness to illumination, weather, sensor and geography is asserted but never measured, so a new paper would need an actual cross-domain evaluation of a trained detector.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD026"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "we show that CNNs are not robust to changes in scale."
+      }
+    ]
+  },
+  {
+    "problemId": "benchmark-inconsistency",
+    "firstYear": 2016,
+    "paperCount": 3,
+    "attemptCount": 3,
+    "intensity": 1.5,
+    "status": "transformed",
+    "saturation": "dormant",
+    "remainingGap": "The residue is hardware-honest latency reporting: OD091 shows timings still compared on high-cost machines, so a new paper would standardize end-to-end measurement on deployment hardware.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD009"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "comparisons are difficult due to different base feature extractors (e.g., VGG, Residual Networks), different default image resolutions, as well as different hardware and software platforms."
+      },
+      {
+        "paperIds": [
+          "OD040"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "As modern object detectors [9, 15, 8, 36, 35, 28, 26, 13] evolved under the pre-training paradigm, the belief that training from scratch is non-trivial became conventional wisdom."
+      },
+      {
+        "paperIds": [
+          "OD034"
+        ],
+        "kind": "paperSays",
+        "confidence": "MEDIUM",
+        "quote": "However, performance drops significantly as the IOU threshold increases indicating YOLOv3 struggles to get the boxes perfectly aligned with the object."
+      }
+    ]
+  },
+  {
+    "problemId": "long-tail",
+    "firstYear": 2021,
+    "paperCount": 3,
+    "attemptCount": 3,
+    "intensity": 1.0,
+    "status": "persistent",
+    "saturation": "active",
+    "remainingGap": "Rare classes stay uncovered without diverse training data: a new paper must lift rare-category AP using only text and vision pre-training, which OD111 still reports as insufficient.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD111"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Traditional text prompt-only models [33, 47, 29], while having made great progress, still struggle to cover a sufficient range of long-tailed detection scenarios due to the difficulty of collecting sufficiently diverse training data to cover various applications."
+      },
+      {
+        "paperIds": [
+          "OD095"
+        ],
+        "kind": "paperSays",
+        "confidence": "MEDIUM",
+        "quote": "The key solution of open-set object detection is introducing language to a closed-set detector for open-set concept generalization."
+      }
+    ]
+  },
+  {
+    "problemId": "two-stage-speed",
+    "firstYear": 2016,
+    "paperCount": 2,
+    "attemptCount": 2,
+    "intensity": 1.0,
+    "status": "resolved",
+    "saturation": "dormant",
+    "remainingGap": "Resolved in the sense that near-single-stage two-stage speed arrived (OD023) and the field moved on; what remains is only the open question of whether a two-stage head can compete at equal latency with one-stage and transformer detectors.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD023"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "We find that Faster RCNN [28] and R-FCN [17] perform an intensive computation after or before RoI warping."
+      },
+      {
+        "paperIds": [
+          "OD006"
+        ],
+        "kind": "paperSays",
+        "confidence": "MEDIUM",
+        "quote": "However, as empirically investigated in this work, this na\u00efve solution turns out to have considerably inferior detection accuracy that does not match the network\u2019s superior classification accuracy."
+      }
+    ]
+  },
+  {
+    "problemId": "tiny-objects",
+    "firstYear": 2017,
+    "paperCount": 2,
+    "attemptCount": 2,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "Whether inference-time tiling (OD083) generalizes to sub-pixel objects is untested: a new paper must show recall gains on tiny-object criteria without full retraining or segmentation labels.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD026"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "we show that CNNs are not robust to changes in scale."
+      },
+      {
+        "paperIds": [
+          "OD083"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Detection of small objects and objects far away in the scene is a major challenge in surveillance applications."
+      }
+    ]
+  },
+  {
+    "problemId": "pretraining-dependence",
+    "firstYear": 2018,
+    "paperCount": 2,
+    "attemptCount": 2,
+    "intensity": 2.0,
+    "status": "transformed",
+    "saturation": "dormant",
+    "remainingGap": "Pre-training dependence now lives in data scale and schedule length rather than ImageNet weights: a new paper must train a modern detector from scratch at competitive cost and data budget.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD038"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "The classification and detection have different degrees of sensitivity to translation, resulting in the learning objective bias"
+      },
+      {
+        "paperIds": [
+          "OD040"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "As modern object detectors [9, 15, 8, 36, 35, 28, 26, 13] evolved under the pre-training paradigm, the belief that training from scratch is non-trivial became conventional wisdom."
+      }
+    ]
+  },
+  {
+    "problemId": "backbone-mismatch",
+    "firstYear": 2018,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "transformed",
+    "saturation": "dormant",
+    "remainingGap": "Plain backbones still lack a cheap multi-scale mechanism for detection: a new paper must reconcile upstream pre-training with high-resolution detection without redesigning a hierarchy, the tension OD088 leaves open.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD039"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Scale variation across object instances is one of the major challenges for the object detection task"
+      }
+    ]
+  },
+  {
+    "problemId": "regression-limits",
+    "firstYear": 2018,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "reduced",
+    "saturation": "dormant",
+    "remainingGap": "Residual: distributional heads still treat edges as fixed coordinates rather than structured geometry, so a new paper would model box shape explicitly and show gains at strict IoU thresholds.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD041"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Typical bounding box localization module is a regression branch, which is designed as several fully connected layers and takes in high-level feature maps to predict the offset of the candidate box (proposal or predefined anchor)."
+      }
+    ]
+  },
+  {
+    "problemId": "attention-memory",
+    "firstYear": 2021,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "reduced",
+    "saturation": "dormant",
+    "remainingGap": "Query interpretability stopped being raised once anchors became queries; what remains untested is whether explicit anchor queries also improve diagnosis of failure cases in crowded scenes.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD078"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "each learned embedding does not have an explicit physical meaning and we cannot explain where it will focus on."
+      }
+    ]
+  },
+  {
+    "problemId": "detector-specialization",
+    "firstYear": 2021,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "No residue can be named from one paper: a new study would have to test OD079's claim that detectors are hard to compose into a larger perceptual system.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD079"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "most existing methods, such as (Girshick, 2015; Ren et al., 2015; He et al., 2017; Lin et al., 2017b; Carion et al., 2020), are carefully designed and highly customized, with a significant amount of prior knowledge in the choice of architecture and loss function."
+      }
+    ]
+  },
+  {
+    "problemId": "multi-task-interference",
+    "firstYear": 2021,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "Unverifiable from a single paper: a new study would need controlled single- versus multi-task detector training to confirm that kernel-space misalignment actually costs detection accuracy.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD073"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, a trained convolutional neural network (CNN) model can usually only fulfill a single objective."
+      }
+    ]
+  },
+  {
+    "problemId": "pseudo-label-quality",
+    "firstYear": 2021,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "Whether score-filtered pseudo boxes corrupt box regression is asserted once and never re-tested: a new paper would need a threshold-free evaluation of pseudo-box quality on detection benchmarks.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD074"
+        ],
+        "kind": "paperSays",
+        "confidence": "MEDIUM",
+        "quote": "However, obtaining labels can be a bottleneck, due to the time-consuming and expensive annotation process."
+      }
+    ]
+  },
+  {
+    "problemId": "query-interpretability",
+    "firstYear": 2021,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "reduced",
+    "saturation": "dormant",
+    "remainingGap": "The residue is empirical: explicit anchor queries were adopted but their failure modes were never measured, so a new paper would provide a diagnostic study of query-to-region assignment.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD078"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "each learned embedding does not have an explicit physical meaning and we cannot explain where it will focus on."
+      }
+    ]
+  },
+  {
+    "problemId": "receptive-field",
+    "firstYear": 2021,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "This is a single-paper SSD finding: a new paper would need to show that receptive-field and context limits still bind in modern FPN, PAN and attention necks rather than SSD prediction layers.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD077"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "the features from shallow layer (mainly Conv4_3) of SSD lack semantic information, resulting in poor performance in small objects."
+      }
+    ]
+  },
+  {
+    "problemId": "semantic-gap",
+    "firstYear": 2021,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "Untested outside OD077's SSD variant: a new paper would quantify shallow-feature semantic gaps across feature-pyramid detectors instead of asserting them for one architecture.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD077"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "the features from shallow layer (mainly Conv4_3) of SSD lack semantic information, resulting in poor performance in small objects."
+      }
+    ]
+  },
+  {
+    "problemId": "single-task-models",
+    "firstYear": 2021,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "No follow-up evidence exists: a new paper would need multi-task detection benchmarks to determine whether shared representations still interfere when training detection, segmentation and depth jointly.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD073"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "However, a trained convolutional neural network (CNN) model can usually only fulfill a single objective."
+      }
+    ]
+  },
+  {
+    "problemId": "thermal-imaging",
+    "firstYear": 2021,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "Only one thermal paper appears in the corpus: a new paper must benchmark RGB-pretrained detectors on thermal imagery to establish whether the resolution and information limit persists.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD077"
+        ],
+        "kind": "paperSays",
+        "confidence": "MEDIUM",
+        "quote": "the features from shallow layer (mainly Conv4_3) of SSD lack semantic information, resulting in poor performance in small objects."
+      }
+    ]
+  },
+  {
+    "problemId": "backbone-design",
+    "firstYear": 2022,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "One paper, no follow-up: a new study must show whether plain ViT backbones can match hierarchical ones on high-resolution detection at acceptable latency.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD088"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "For a long while, these backbones have been multi-scale, hierarchical architectures due to the de facto design of convolutional networks (ConvNet) [32], which has heavily influenced the neck/head design for detecting objects at multiple scales (e.g., FPN)."
+      }
+    ]
+  },
+  {
+    "problemId": "model-scaling",
+    "firstYear": 2022,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "A single YOLOv7 claim about jointly scaling concatenated branches: a new paper would need a detection scaling law validated across architectures rather than one model family.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD089"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "That is: \u201cHow to assign dynamic targets for the outputs of different branches?\u201d"
+      }
+    ]
+  },
+  {
+    "problemId": "sparse-supervision",
+    "firstYear": 2022,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "reduced",
+    "saturation": "dormant",
+    "remainingGap": "Hybrid one-to-many supervision mitigates it, but MS-DETR and RT-DETRv3 still report sparse encoder signal in 2024: a new paper must add dense supervision without reintroducing NMS.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD093"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "too few queries assigned as positive samples in DETR with oneto-one set matching leads to sparse supervision on the encoder's output which considerably hurt the discriminative feature learning of the encoder"
+      }
+    ]
+  },
+  {
+    "problemId": "information-fusion-loss",
+    "firstYear": 2023,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "dormant",
+    "remainingGap": "One diagnosis with no independent confirmation: a new paper would need to measure cross-level information loss directly in FPN and PAN style necks and show aggregated fusion actually removes it.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD099"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "we find previous models still suffer from information fusion problem, although Feature Pyramid Network (FPN) and Path Aggregation Network (PANet) have alleviated this."
+      }
+    ]
+  },
+  {
+    "problemId": "nas",
+    "firstYear": 2025,
+    "paperCount": 1,
+    "attemptCount": 1,
+    "intensity": 1.0,
+    "status": "uncertain",
+    "saturation": "emerging",
+    "remainingGap": "A single 2025 paper: a new paper would have to extend weight-sharing architecture search for DETRs across datasets and show that the accuracy-latency Pareto gains transfer to other tasks.",
+    "evidence": [
+      {
+        "paperIds": [
+          "OD118"
+        ],
+        "kind": "paperSays",
+        "confidence": "HIGH",
+        "quote": "Rather than simply fine-tuning a heavyweight vision-language model (VLM) for new domains, we introduce RF-DETR,\na light-weight specialist detection transformer that discovers accuracy-latency\nPareto curves for any target dataset with weight-sharing neural architecture search\n(NAS)."
+      }
+    ]
+  }
+]

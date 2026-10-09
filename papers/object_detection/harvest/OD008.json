@@ -1,0 +1,117 @@
+{
+  "id": "OD008",
+  "arxiv": "1611.08588",
+  "title": "PVANet: Lightweight Deep Neural Networks for Real-time Object Detection",
+  "year": 2016,
+  "venue": "EMDNN 2016",
+  "problem": {
+    "summary": "Even the best modern object detectors remain too computationally expensive for practical real-time use, and the paper argues existing network architectures are highly redundant, so redundancy should be removed at the design stage rather than only via post-hoc compression.",
+    "statements": [
+      "Detection speed is limited by heavy computational cost even when accuracy is already acceptable for commercial use.",
+      "Modern CNN architectures contain large amounts of redundancy that inflate compute requirements.",
+      "Compression and quantization help but do not remove redundancy introduced by the network architecture itself."
+    ],
+    "problemTags": ["speed-latency", "deployability", "real-time-edge"],
+    "evidence": [
+      { "quote": "However, in terms of detection speed, even the best algorithms are still suffering from heavy computational cost.", "location": "Introduction" },
+      { "quote": "The successes in network compression [1] and decomposition of convolution kernels [2, 3] imply that present network architectures are highly redundant.", "location": "Introduction" },
+      { "quote": "it is still important to reduce the computational cost in the network design stage.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "PVANet keeps the Faster R-CNN detection framework and reuses recent efficiency-building blocks (C.ReLU, Inception, batch normalization, residual connections), claiming that no prior work combined them into a thin-but-deep detector.",
+    "relatedWork": [
+      { "name": "Faster R-CNN", "relation": "detection framework that PVANet follows with modifications", "quote": "We basically follow the method of Faster R-CNN[11], but we introduce some modifications specialized for object detection.", "location": "Sec 2.2" },
+      { "name": "C.ReLU", "relation": "adopted in early layers and modified with a separated bias layer", "quote": "C.ReLU can double the number of output channels by simply concatenating negated outputs before applying ReLU.", "location": "Sec 2.1" },
+      { "name": "Inception", "relation": "adopted in later layers as a cost-effective multi-scale block", "quote": "We have found that Inception can be one of the most cost-effective building blocks for capturing both small and large objects in an input image.", "location": "Sec 2.1" },
+      { "name": "ResNet / batch normalization", "relation": "training techniques used to make the deep thin network trainable", "quote": "adopting residual structures with pre-activation [10] and batch normalization [7]", "location": "Sec 2.1" }
+    ],
+    "evidence": [
+      { "quote": "Therefore, reducing these redundancies is a straightforward approach in reducing the computational cost.", "location": "Introduction" },
+      { "quote": "Although recent reports on network compression and quantization shows promising results, it is still important to reduce the computational cost in the network design stage.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "PVANet is a lightweight feature extractor following the principle of more layers with fewer channels, using modified C.ReLU in early stages and Inception blocks later, with multi-scale hyper-feature concatenation feeding a Faster R-CNN detection head.",
+    "approach": "Design a thin-but-deep VGG-style backbone (mCReLU + Inception + residuals) and concatenate multi-scale features into a lightweight RPN/classifier pipeline.",
+    "components": [
+      "Modified C.ReLU (mCReLU) with a separated bias layer",
+      "Inception blocks where a 5x5 convolution is replaced by two 3x3 convolutions",
+      "Hyper-feature concatenation of 1/4, 1/16 and 1/32 scale layers fused by a 1x1x512 convolution",
+      "RPN fed only the first 128 channels of convf to save 1.4 GMAC",
+      "RPN with 42 anchors across 6 scales and 7 aspect ratios",
+      "Plateau-detection learning rate scheduling with batch normalization and residual connections"
+    ],
+    "solutionTags": ["two-stage", "feature-fusion", "multi-scale", "real-time-backbone", "anchors"],
+    "evidence": [
+      { "quote": "Based on the basic principle of “smaller number of output channels with more layers”, we adopt C.ReLU[4] in the initial layers and Inception structure[5] in the latter part of the network.", "location": "Introduction" },
+      { "quote": "Combining fine-grained details with highly abstracted information in the feature extraction layer helps the following region proposal network and classification network detect objects of different scales.", "location": "Sec 2.2" },
+      { "quote": "our RPN uses 42 anchors of 6 scales (32, 48, 80, 144, 256, 512) and 7 aspect ratios (0.333, 0.5, 0.667, 1.0, 1.5, 2.0, 3.0).", "location": "Sec 2.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "PVANet is pre-trained on ImageNet 2012 and evaluated on the PASCAL VOC2007/VOC2012 detection tasks against Faster R-CNN, R-FCN and SSD variants, reporting mAP, recall, runtime and compute cost (GMAC).",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "84.4", "split": "test", "location": "Table 4" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "84.9", "split": "test (PVANet+, box voting)", "location": "Table 4" },
+      { "dataset": "PASCAL VOC 2012", "metric": "mAP", "value": "84.2", "split": "test", "location": "Table 5" },
+      { "dataset": "PASCAL VOC 2012", "metric": "runtime", "value": "46 ms (21.7 FPS)", "split": "test", "location": "Table 4" },
+      { "dataset": "ImageNet 2012", "metric": "top-5 error", "value": "8.84", "split": "validation", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2007", "metric": "proposal recall (200 proposals)", "value": "98.8", "split": "test", "location": "Table 4" }
+    ],
+    "baselines": ["Faster R-CNN + ResNet-101", "Faster R-CNN + VGG-16", "R-FCN + ResNet-101", "SSD512 (VGG16)", "GoogLeNet", "ResNet-152"],
+    "evidence": [
+      { "quote": "84.9% and 84.2%mAP on VOC2007 and VOC2012 while the required compute is less than 10% of the recent ResNet-101.", "location": "Abstract" },
+      { "quote": "The overall detection accuracy of plain PVAN ET in VOC2007 reaches 84.4% mean AP.", "location": "Sec 3.2" },
+      { "quote": "Our PVAN ET + has achieved the 4th place on the leaderboard as of the time of submission, and the network shows 84.2% mAP", "location": "Sec 3.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "Evaluation covers only ImageNet classification and PASCAL VOC detection (no COCO), the fastest configuration trades a small accuracy drop for speed, and headline speed numbers depend on a single high-end GPU setup.",
+    "items": [
+      "No results on the COCO detection benchmark are reported; experiments are limited to ImageNet 2012, VOC2007 and VOC2012.",
+      "Compressing the fully-connected layers for speed costs 0.5% mAP.",
+      "Runtime comparisons against competitors are estimated/projected rather than measured under one identical setup."
+    ],
+    "evidence": [
+      { "quote": "we present experimental results on ImageNet 2012 classification, VOC-2007 and VOC-2012 benchmarks with detailed training and testing methodologies (Section 3).", "location": "Introduction" },
+      { "quote": "the compressed network can run in 31.3 FPS with only 0.5% accuracy drop.", "location": "Sec 3.2" },
+      { "quote": "while we projected the original values with an assumption that NVIDIA Titan X is 1.5x faster than NVIDIA K40.", "location": "Table 5 caption" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Apply the thin-but-deep design principle to other vision tasks such as face recognition and semantic analysis.", "quote": "we believe that our design principle is widely applicable to other tasks such as face recognition and semantic analysis.", "location": "Conclusion" },
+    { "direction": "Combine the architecture with network compression and quantization techniques for further real-world speedups.", "quote": "All kinds of recent compression and quantization techniques are applicable to our network as well to further increase the actual performance in real applications.", "location": "Conclusion" },
+    { "direction": "Integrate complementary efficient detection structures (R-FCN, SSD) with PVANet.", "quote": "their methodologies can be easily integrated with PVAN ET and further reduce its computational cost.", "location": "Sec 3.3" }
+  ],
+  "technical": {
+    "datasets": ["ImageNet 2012", "PASCAL VOC 2007", "PASCAL VOC 2012", "MS COCO", "CIFAR-10"],
+    "backbones": ["PVANet", "VGG-16", "ResNet-101", "GoogLeNet"],
+    "models": ["PVANet", "PVANet+", "PVANet+ compressed", "Faster R-CNN", "R-FCN", "SSD512"],
+    "algorithms": ["C.ReLU", "Inception", "batch normalization", "residual connections", "ROI pooling", "non-maximum suppression", "bounding-box voting", "truncated SVD", "plateau-detection learning rate schedule"],
+    "metrics": ["mAP", "top-1 error", "top-5 error", "recall", "FPS", "GMAC"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [
+      { "domain": "automotive and surveillance", "detail": "The introduction positions the work as enabling commercialization of detection in automotive and surveillance markets.", "quote": "accuracies acceptable for commercialization in a broad range of markets like automotive and surveillance.", "location": "Introduction" },
+      { "domain": "real-time embedded detection", "detail": "The compressed variant reaches 31.3 FPS, targeting real-time operation on desktop-class hardware.", "quote": "the compressed network can run in 31.3 FPS with only 0.5% accuracy drop.", "location": "Sec 3.2" }
+    ],
+    "deploymentClaims": [
+      "Less than 10% of the compute required by ResNet-101 while reaching 84.9% and 84.2% mAP on VOC2007/VOC2012.",
+      "PVANet+ runs in 46 ms (21.7 FPS) on an NVIDIA Titan X; the compressed model runs at 31.3 FPS.",
+      "Among networks over 80% mAP on the VOC2012 leaderboard, PVANet+ is the only one running in <= 50 ms.",
+      "Code and trained models are released publicly at github.com/sanghoon/pva-faster-rcnn."
+    ],
+    "evidence": [
+      { "quote": "Among the networks performing over 80% mAP, PVAN ET + is the only network running in ≤ 50ms.", "location": "Sec 3.3" },
+      { "quote": "All evaluations were done on Intel i7-6700K CPU with a single core and NVIDIA Titan X GPU.", "location": "Sec 3.2" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1611.08588",
+    "arxivUrl": "https://arxiv.org/abs/1611.08588",
+    "venue": "EMDNN 2016",
+    "pdfUrl": "https://arxiv.org/pdf/1611.08588"
+  }
+}

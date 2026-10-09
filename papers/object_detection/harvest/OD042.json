@@ -1,0 +1,128 @@
+{
+  "id": "OD042",
+  "arxiv": "1812.00155",
+  "title": "Learning RoI Transformer for Detecting Oriented Objects in Aerial Images",
+  "year": 2018,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "Aerial images are birdview, complex-background scenes where objects are arbitrarily oriented and densely packed, so horizontal RoIs often contain several instances and mismatch the objects, decoupling classification confidence from localization accuracy. The usual fix, rotated anchors, multiplies the anchor count and computational complexity, while conventional CNN operations generalize poorly to rotation and scale variations.",
+    "statements": [
+      "Horizontal RoIs in densely packed aerial scenes contain multiple instances, causing misalignment between region features and objects.",
+      "Rotated anchor designs multiply the number of anchors (e.g. 3 scales x 5 aspect ratios x 6 angles = 90 anchors per location), raising computation and degrading proposal-ground-truth matching.",
+      "Regular CNN detection operations have limited generalization to rotation and scale variations, so RoIs and features must be orientation- and scale-invariant."
+    ],
+    "problemTags": ["localization", "anchor-design", "crowded-scenes"],
+    "evidence": [
+      { "quote": "Especially when detecting densely packed objects in aerial images, methods relying on horizontal proposals for common object detection often introduce mismatches between the Region of Interests (RoIs) and objects.", "location": "Abstract" },
+      { "quote": "Although rotated anchors have been used to tackle this problem, the design of them always multiplies the number of anchors and dramatically increases the computational complexity.", "location": "Abstract" },
+      { "quote": "these horizontal RoIs (HROIs) typically lead to misalignments between the bounding boxes and objects.", "location": "Introduction" },
+      { "quote": "For example, 3×5×6 = 90 anchors at a location.", "location": "Sec 2.1" },
+      { "quote": "As the regular operations in conventional networks for object detection [14] have limited generalization to rotation and scale variations, it is required of some orientation and scale-invariant in the design of RoIs and corresponding extracted features.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on the R-CNN two-stage lineage as used for aerial detection, on rotated-anchor and rotated-proposal methods (RRPN, R2CNN, R-DFPN, SRBBS), on deformable convolution/RoI pooling and Spatial Transformers for geometry modeling, and on Light-Head R-CNN with position-sensitive RoI pooling for efficiency. The claimed gap: deformable modules are unsupervised geometric deformations not using oriented box annotation, and rotated anchors cost too many anchors.",
+    "relatedWork": [
+      { "name": "R-CNN frameworks", "relation": "family of aerial detectors built on region-based pipelines", "quote": "Many of recent progresses on object detection in aerial images have benefited a lot from the RCNN frameworks [2, 4, 7, 13–18].", "location": "Introduction" },
+      { "name": "Light-head R-CNN", "relation": "baseline architecture supplying the light-head efficiency design", "quote": "The Light-head R-CNN [34] is proposed to address this problem by using a larger separable convolution to get a thin feature.", "location": "Sec 2.3" },
+      { "name": "Deformable RoI pooling", "relation": "prior geometry-modeling module that RoI Transformer is compared against and replaces", "quote": "For region feature extraction, the deformable RoI pooling [23] is proposed, which is achieved by offset learning for sampling grid of RoI pooling.", "location": "Sec 2.2" },
+      { "name": "Rotated anchor RPN methods", "relation": "alternative that multiplies anchors by scales, aspect ratios and angles", "quote": "However, the design is still time-consuming due to the dramatic increase in the number of anchors (num scales × num aspect ratios × num angles).", "location": "Sec 2.1" }
+    ],
+    "evidence": [
+      { "quote": "However, different from deformable RoI pooling, our RoI Transformer learns the offset with the supervision of ground truth.", "location": "Sec 2.2" },
+      { "quote": "they are mainly designed for the general geometric deformation without using the oriented bounding box annotation.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "The RoI Transformer is a light, end-to-end differentiable two-part module inserted after a standard horizontal-anchor RPN: an RRoI Learner regresses five offsets (dx, dy, dw, dh, d-theta) from each HRoI feature map to decode a Rotated RoI, and a Rotated Position Sensitive RoI Align warps the feature map under that rotation to extract rotation-invariant features for classification and rotated-box regression. Regression targets are expressed in the RRoI coordinate system, matching and NMS use IoU between oriented boxes, and a modest contextual enlargement of the RRoI is applied.",
+    "approach": "Transform each horizontal RoI into a rotated RoI with a small fully connected regressor, then extract position-sensitive features by rotating the sampling grid accordingly.",
+    "components": [
+      "RRoI Learner: fully connected layer with output dimension 5 predicting relative offsets, Smooth L1 loss",
+      "Box decoder mapping HRoI plus offsets to the decoded RRoI",
+      "Rotated Position Sensitive RoI Align: K x K bins sampled with rotation transform T-theta via bilinear interpolation",
+      "relative (RRoI-bound) regression targets that are rotation-invariant",
+      "IoU between oriented bounding boxes for RRoI-RGT matching (threshold 0.5) and NMS",
+      "contextual RRoI enlargement (long side x1.2, short side x1.4)",
+      "light-head large separable convolutions (k = 15)"
+    ],
+    "solutionTags": ["two-stage", "rotated-bboxes"],
+    "evidence": [
+      { "quote": "we first designed a Rotated RoI (RRoI) learner to transform a Horizontal Region of Interest (HRoI) into a Rotated Region of Interest (RRoI).", "location": "Abstract" },
+      { "quote": "Based on the RRoIs, we then proposed a Rotated Position Sensitive RoI Align (RPS-RoI-Align) module to extract rotation-invariant features from them for boosting subsequent classification and regression.", "location": "Abstract" },
+      { "quote": "The first is the RRoI Learner, which learns the transformation from HRoIs to RRoIs.", "location": "Introduction" },
+      { "quote": "Both of these two layers are differentiable for the end-to-end training.", "location": "Sec 3" },
+      { "quote": "In this work, we still use the horizontal anchors. The difference is that when the HRoIs are generated, we transform them into RRoIs by a light fully connected layer.", "location": "Sec 2.1" }
+    ]
+  },
+  "experiments": {
+    "summary": "Ablations on DOTA with a Light-Head R-CNN OBB baseline study adding the RoI Transformer, a lighter RRoI learner, contextual enlargement and NMS on RRoIs; the module is compared against deformable PS RoI pooling for accuracy, speed and memory, and evaluated against state-of-the-art oriented detectors on DOTA and HRSC2016, with and without FPN.",
+    "benchmarks": [
+      { "dataset": "DOTA", "metric": "mAP", "value": "67.74", "split": "test, RoI Transformer (Light-Head R-CNN OBB, no FPN)", "location": "Table 3" },
+      { "dataset": "DOTA", "metric": "mAP", "value": "69.56", "split": "test, RoI Transformer with FPN (baseline 66.95)", "location": "Table 3" },
+      { "dataset": "DOTA", "metric": "mAP", "value": "58.3", "split": "test, Light-Head R-CNN OBB baseline", "location": "Table 1" },
+      { "dataset": "DOTA", "metric": "mAP", "value": "63.89", "split": "test, deformable PS RoI pooling", "location": "Table 4" },
+      { "dataset": "DOTA", "metric": "mAP (ship)", "value": "83.59", "split": "test, RoI Transformer with FPN (previous best 57.25 by R2CNN)", "location": "Table 3" },
+      { "dataset": "HRSC2016", "metric": "mAP", "value": "86.2", "split": "test, RoI Transformer (RRD 84.3)", "location": "Table 2" }
+    ],
+    "baselines": ["Light-Head R-CNN OBB", "deformable PS RoI pooling", "Faster R-CNN OBB", "RRPN", "R2CNN", "R-DFPN", "RRD"],
+    "evidence": [
+      { "quote": "our RoI Transformer achieved the mAP of 67.74 for DOTA , it outperforms the previous the state-of-the-art without FPN (61.01) by 6.71 points.", "location": "Sec 4.5" },
+      { "quote": "When RoI Transformer is added on Light-Head OBB FPN Baseline, it gets improvement by 2.6 points in mAP reaching the peak at 69.56.", "location": "Sec 4.5" },
+      { "quote": "the mAP can reach 86.16, 1.86 higher than that of RRD [37].", "location": "Sec 4.5" },
+      { "quote": "our RoI Transformer model uses less memory (273MB compared to 273.2MB) and runs faster at the inference phase (0.17s compared to 0.206s per image).", "location": "Sec 4.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "The module trains slightly slower than deformable PS RoI pooling because of an extra RRoI-RGT matching stage, rotated-box NMS remains fragile for long thin objects under angle jitter, a wider RRoI learner actually hurts mAP slightly, and the FPN Light-Head baseline is the authors' own re-implementation. Some category confusions (truck to small vehicle) persist.",
+    "items": [
+      "Training is slower than deformable PS RoI pooling (0.475 s vs 0.445 s) due to the extra matching process between RRoIs and RGTs.",
+      "For long thin boxes a small angle jitter yields very low IoU, making NMS fail to suppress duplicates.",
+      "Adding a 2048-dimensional fully connected layer to the RRoI learner drops mAP by 0.22 point.",
+      "No public Light-Head R-CNN FPN source existed, so the FPN implementation details may differ from the original.",
+      "Trucks are still misclassified as small vehicles by all three compared methods."
+    ],
+    "evidence": [
+      { "quote": "RoI Transformer runs slower than deformable PS RoI pooling on training time (0.475s compared to 0.445s) since there is an extra matching process between the RRoIs and RGTs in training.", "location": "Sec 4.3" },
+      { "quote": "a slight jitter in the angle may cause the IoU of the two predicted OBBs to be very low, which would make the NMS difficult as can be seen in Fig. 5(b).", "location": "Sec 3.3" },
+      { "quote": "We find there is little drop (0.22 point) on mAP when we add on more fully connected layer with output dimension of 2048 for the RRoI leaner.", "location": "Sec 4.4" },
+      { "quote": "Since no source code was publicly available for Light-Head R-CNN based on FPN, our implementation details could be different.", "location": "Sec 4.2" },
+      { "quote": "It is worth noting that the head of truck is misclassified to be small vehicle (the blue bounding box) for the three methods as shown in Fig. 7 and Fig. 8.", "location": "Sec 4.3" }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["DOTA", "HRSC2016"],
+    "backbones": ["ResNet-101", "FPN"],
+    "models": ["RoI Transformer", "Light-Head R-CNN OBB", "deformable PS RoI pooling", "Faster R-CNN OBB", "RRPN", "R2CNN", "R-DFPN", "RRD", "SSD"],
+    "algorithms": ["RPN", "NMS", "Smooth L1 loss", "Rotated PS RoI Align", "oriented-box IoU matching", "bilinear interpolation sampling", "rotation augmentation", "contextual RoI enlargement"],
+    "metrics": ["mAP"],
+    "equations": [
+      { "name": "RRoI regression targets", "expr": "tx* = ((x*-xr)cos th + (y*-yr)sin th)/wr; ty* = ((y*-yr)cos th - (x*-xr)sin th)/hr; tw* = log w*/wr; th* = log h*/hr; tt* = ((th*-thr) mod 2pi)/(2pi)", "location": "Sec 3.1, Eq 1" },
+      { "name": "RRoI Learner output", "expr": "t = G(F; Theta)", "location": "Sec 3.1, Eq 2" },
+      { "name": "RPS RoI Align bin response", "expr": "Yc(i,j) = sum_{(x,y) in bin(i,j)} Di,j,c(T_th(x,y)) / n_ij", "location": "Sec 3.2, Eq 3" },
+      { "name": "Sampling grid rotation", "expr": "T_th: (x,y) -> R(th) * (x - wr/2, y - hr/2)^T + (xr, yr)^T", "location": "Sec 3.2, Eq 4" },
+      { "name": "IoU between oriented boxes", "expr": "IoU = area(B1 cap B2) / area(B1 cup B2)", "location": "Sec 3.3, Eq 5" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "aerial and remote sensing object detection", "detail": "Locating oriented objects such as vehicles and airplanes in birdview aerial imagery; evaluated on DOTA and HRSC2016 aerial benchmarks.", "quote": "Object detection in aerial images aims at locating objects of interest (e.g., vehicles, airplanes) on the ground and identifying their categories.", "location": "Introduction" },
+      { "domain": "ship detection", "detail": "Evaluated on HRSC2016 ship detection in aerial imagery collected from Google Earth.", "quote": "The HRSC2016 [19] is a challenging dataset for ship detection in aerial images.", "location": "Sec 4.1" }
+    ],
+    "deploymentClaims": [
+      "Inference at 0.17 s per 1024x1024 image on a single TITAN X (Pascal), faster than deformable PS RoI pooling (0.206 s), with 273 MB memory",
+      "Only 5 parameters are learned by the light localisation network, lighter than the 7x7x2 offsets of deformable PS RoI pooling",
+      "State-of-the-art results with a negligible reduction to detection speed"
+    ],
+    "evidence": [
+      { "quote": "A simple implementation of the RoI Transformer has achieved state-of-the-art performances on two common and challenging aerial datasets, i.e., DOTA and HRSC2016, with a neglectable reduction to detection speed.", "location": "Abstract" },
+      { "quote": "All the speed are tested on images with size of 1024 × 1024 on a single TITAN X (Pascal).", "location": "Table 4" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1812.00155",
+    "arxivUrl": "https://arxiv.org/abs/1812.00155",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/1812.00155"
+  }
+}

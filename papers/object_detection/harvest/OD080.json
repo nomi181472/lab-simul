@@ -1,0 +1,222 @@
+{
+  "id": "OD080",
+  "arxiv": "2111.14330",
+  "title": "Sparse DETR: Efficient End-to-End Object Detection with Learnable Sparsity",
+  "year": 2021,
+  "venue": "ICLR 2022",
+  "problem": {
+    "summary": "DETR-family detectors spend most of their computation on dense encoder self-attention over high-resolution (multi-scale) feature maps, where many tokens correspond to background and are never referenced by the decoder, making encoder attention the bottleneck and inference slower than vanilla DETR.",
+    "statements": [
+      "DETR cannot use multi-scale feature pyramids because of memory/computation, so its small-object detection is weak.",
+      "Deformable DETR enables multi-scale features but multiplies encoder token count by about 20x, leaving encoder attention as the bottleneck.",
+      "Many encoder tokens encode background redundancy that the decoder never references, so updating all of them wastes computation.",
+      "Extending layer-wise auxiliary Hungarian losses to a dense multi-scale encoder would be too expensive because of the huge token count."
+    ],
+    "problemTags": ["speed-latency", "small-objects", "real-time-edge"],
+    "evidence": [
+      {
+        "quote": "however, the number of encoder tokens increases by 20× compared to DETR, and the computation cost of the encoder attention remains a bottleneck",
+        "location": "Abstract"
+      },
+      {
+        "quote": "However, DETR is unable to use multi-scale features such as feature pyramid networks (Lin et al., 2017), which are commonly used in object detection to improve the detection of small objects.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "In general, natural images often contain large background regions irrelevant to the objects of interest, and accordingly, in end-to-end detectors, the tokens corresponding to the background also occupy a significant portion.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on DETR (end-to-end set prediction without NMS) and Deformable DETR (sparse key sampling with multi-scale features), and on token-sparsification work in vision transformers (DynamicViT, IA-RED2, PnP-DETR), claiming the gap is that none of these sparsify the encoder query set of a DETR-style detector with an explicit selection objective.",
+    "relatedWork": [
+      {
+        "name": "DETR",
+        "relation": "end-to-end baseline that removes NMS via a set-based Hungarian objective",
+        "quote": "Recently, Carion et al. (2020) has introduced a fully end-to-end detector DETR by eliminating the need for NMS post-processing through a set-based objective.",
+        "location": "Introduction"
+      },
+      {
+        "name": "Deformable DETR",
+        "relation": "closest baseline; sparsifies keys with deformable attention but keeps dense queries",
+        "quote": "It can be viewed as a key sparsification method but with dense queries, while our approach further reduces the query set pursuing even more sparsity.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "PnP-DETR",
+        "relation": "prior token-length reduction for transformers, but its sparsification breaks the 2d structure deformable attention needs",
+        "quote": "However, their method cannot naively be integrated with Deformable DETR, since their sparsification breaks the 2d spatial structure of the token set assumed in the deformable attention.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "DynamicViT",
+        "relation": "learned token selectors for backbone classification, not for end-to-end detection encoders",
+        "quote": "Those approaches mainly focus on sparsifying a backbone network evaluated on the classification tasks, while our interest lies in a sparse encoder of the end-to-end object detectors.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "Auxiliary losses",
+        "relation": "prior layer-wise auxiliary supervision, extended here to the sparsified encoder",
+        "quote": "Auxiliary loss (Lee et al., 2015; Szegedy et al., 2015) is widely adopted to deliver gradients to the early layers of deep networks.",
+        "location": "Sec 2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "the existing algorithms that perform positive matching with the ground truth as a heuristic way require non-maximum suppression (NMS) post-processing of near-duplicate predictions.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Most of those works shed light on the complexity that resides only in a single-scale attention module, which hinders direct extension to the multi-scale features generally required in object detection.",
+        "location": "Sec 2"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "Sparse DETR learns a scoring network that predicts which encoder tokens the decoder will reference (supervised by a binarized Decoder cross-Attention Map), updates only the top-rho% salient tokens through the encoder while passing the rest through unchanged, and adds an auxiliary Hungarian detection loss on the selected tokens plus top-k decoder query selection.",
+    "approach": "A learned saliency scorer (trained to predict the binarized decoder cross-attention map) selects the top-rho% encoder tokens to be refined by deformable self-attention, with auxiliary detection heads on those selected tokens only.",
+    "components": [
+      "scoring network (4-layer MLP) predicting per-token saliency",
+      "Decoder cross-Attention Map (DAM) pseudo-labels binarized at top-rho%",
+      "Objectness Score (OS) selection criterion as an alternative",
+      "partial encoder update: selected tokens refined, others passed through",
+      "encoder auxiliary Hungarian loss on selected tokens",
+      "top-k decoder query selection from encoder output"
+    ],
+    "solutionTags": ["token-sparsification", "deformable-attention", "sparse-attention", "two-stage"],
+    "evidence": [
+      {
+        "quote": "we propose Sparse DETR that selectively updates only the tokens expected to be referenced by the decoder, thus help the model effectively detect objects.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Inspired by this observation, we propose a learnable decoder cross-attention map predictor to sparsify encoder tokens.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "For features that are not updated in this process, the values of xfeat are passed through the encoder layers without being changed.",
+        "location": "Sec 3.2"
+      },
+      {
+        "quote": "We empirically observe that applying an auxiliary detection head along with Hungarian loss on the selected tokens stabilizes the convergence of deeper encoders by alleviating the vanishing gradient issue and even improves the detection performance.",
+        "location": "Sec 3.4"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluated on COCO 2017 val against Faster R-CNN-FPN, DETR, Deformable DETR and PnP-DETR with ResNet-50 and Swin-T/B backbones, varying the encoder keeping ratio (10%-50%), plus ablations on selection criteria (random vs OS vs DAM), encoder auxiliary loss, and dynamic inference-time sparsity.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "AP", "value": "48.2", "split": "val2017, Swin-T, keeping ratio 10%", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "AP", "value": "49.3", "split": "val2017, Swin-T, keeping ratio 50%", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "AP", "value": "46.3", "split": "val2017, ResNet-50, keeping ratio 50%", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "AP", "value": "45.3", "split": "val2017, ResNet-50, keeping ratio 10%", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "AP", "value": "48.0", "split": "val2017, Deformable-DETR+ Swin-T baseline", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "FLOPs", "value": "113G", "split": "val2017, Swin-T, keeping ratio 10%", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "FPS", "value": "21.2", "split": "val2017, Swin-T, keeping ratio 10%", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "AP", "value": "53.3", "split": "appendix, Swin-B, keeping ratio 40% with aux. loss", "location": "Table 6" }
+    ],
+    "baselines": ["Faster R-CNN with FPN", "DETR", "DETR-DC5", "Deformable DETR", "Deformable DETR+", "PnP-DETR"],
+    "evidence": [
+      {
+        "quote": "We validate that Sparse DETR achieves better performance than Deformable DETR even with only 10% encoder tokens on the COCO dataset.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Sparse DETR using Swin-T (Liu et al., 2021) backbone achieves 48.2 AP with 38% reduction of the entire computational cost compared to the 48.0 AP baseline and 49.2 AP with 23% reduction.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Even with the keeping ratio reduced down to 10%, Sparse DETR still performs better than most baselines except for Deformable DETR+.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "the DAM-based model outperforms the OS-based model at every ratio and almost catches up with the non-sparse baseline when using 50% of encoder tokens.",
+        "location": "Sec 4.2"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "No dedicated limitations section; the authors scope out backbone efficiency (leaving backbone-sparsification integration to future work) and note that dynamic inference-time sparsity is slightly degraded at very small keeping ratios.",
+    "items": [
+      "Backbone (patch/token) efficiency is explicitly out of scope; integration with backbone sparsification methods is left open.",
+      "With dynamic sparsification, performance drops slightly when the inference keeping ratio is much smaller than the training ratio.",
+      "Reported gains are COCO-only; no other datasets or detection domains are evaluated."
+    ],
+    "evidence": [
+      {
+        "quote": "Note that the efficiency of a backbone network is behind the scope of this paper.",
+        "location": "Appendix A.8"
+      },
+      {
+        "quote": "When the inference keeping ratio is small, the performance of dynamic sparsification is slightly degraded, but the overall performance is satisfactory at various keeping ratios given that only a single model is used.",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "However, we observe that the training without its assistance utterly fails when using 12 encoder layers.",
+        "location": "Sec 4.3"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Combine encoder token sparsification with transformer-backbone token sparsification methods such as DynamicViT.",
+      "quote": "Our work is orthogonal to the backbone sparsification approaches, e.g. DynamicViT (Rao et al., 2021), and we leave the integration with those works as future work.",
+      "location": "Appendix A.8"
+    },
+    {
+      "direction": "Add dynamic-ratio training to make the single model more robust across inference sparsity levels.",
+      "quote": "Note that any technique such as dynamic ratio training is orthogonal to our method and introducing it may bring even more robustness.",
+      "location": "Sec 4.4"
+    },
+    {
+      "direction": "Further research on effective object detection inside transformer architectures.",
+      "quote": "We hope that our proposed method will provide insights to effectively detect objects in the transformer structure in the future.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["COCO 2017"],
+    "backbones": ["ResNet-50", "Swin-T", "Swin-B"],
+    "models": ["Sparse DETR", "DETR", "DETR-DC5", "Deformable DETR", "PnP-DETR", "Efficient DETR", "Faster R-CNN with FPN"],
+    "algorithms": ["Hungarian matching", "deformable attention", "top-rho% token sparsification", "binary cross entropy scoring loss", "top-k decoder query selection", "layer normalization", "Pre-LN/Post-LN"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "FLOPs", "FPS"],
+    "equations": [
+      { "name": "Partial encoder update", "expr": "x_i^j = x_{i-1}^j for j not in Omega_s; else LN(FFN(z_i)+z_i) with z_i = LN(DefAttn(x_{i-1})+x_{i-1})", "location": "Sec 3.2 (Eq 1)" },
+      { "name": "DAM scoring loss", "expr": "L_dam = -(1/N) * sum_i BCE(g(x_feat)_i, DAM_bin_i)", "location": "Sec 3.3 (Eq 2)" },
+      { "name": "Attention complexity", "expr": "dense O(N^2), deformable O(N*K), sparse O(S*K) with S << N", "location": "Sec 3.2" },
+      { "name": "Decoder-overlap correlation", "expr": "Corr = sum_{x in Omega_D cap Omega_s} DAM_x / sum_{x in Omega_D} DAM_x", "location": "Sec 4.2" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "edge and heterogeneous hardware deployment",
+        "detail": "Motivates dynamic sparsity so one trained model can be deployed under different performance-computation trade-offs on varying hardware without retraining.",
+        "quote": "To deploy the models in various hardware conditions of real-world applications, one often should retrain them at different scales according to the performance-computation trade-off required.",
+        "location": "Sec 4.4"
+      }
+    ],
+    "deploymentClaims": [
+      "Total computation cost decreases by 38% and FPS increases by 42% compared to Deformable DETR (abstract).",
+      "Computational cost of the transformer encoder block is reduced by approximately 82% when using only 10% of encoder tokens.",
+      "A model trained at one keeping ratio can be varied at inference time to trade accuracy for speed on different hardware."
+    ],
+    "evidence": [
+      {
+        "quote": "Albeit only the encoder tokens are sparsified, the total computation cost decreases by 38% and the frames per second (FPS) increases by 42% compared to Deformable DETR.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "In the case of the experiment that achieves 48.2 AP using only 10% of encoder tokens, the computational cost of the transformer encoder block is reduced by approximately 82%.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2111.14330",
+    "arxivUrl": "https://arxiv.org/abs/2111.14330",
+    "venue": "ICLR 2022",
+    "pdfUrl": "https://arxiv.org/pdf/2111.14330"
+  }
+}

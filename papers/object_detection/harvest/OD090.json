@@ -1,0 +1,113 @@
+{
+  "id": "OD090",
+  "arxiv": "2207.13085",
+  "title": "Group DETR: Fast DETR Training with Group-Wise One-to-Many Assignment",
+  "year": 2022,
+  "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+  "problem": {
+    "summary": "DETR's one-to-one assignment promotes only a single prediction per ground-truth object, which makes training slow to converge, while naively applying the one-to-many assignment used by Faster R-CNN/FCOS breaks DETR's duplicate-scoring mechanism; injecting one-to-many supervision into DETR training without losing NMS-free end-to-end inference remains unsolved.",
+    "statements": [
+      "DETR supervises only the one prediction assigned to each ground-truth object and must actively demote all duplicates, so supervision per object is sparse.",
+      "Naive one-to-many assignment fails for DETR training because duplicate predictions have no scoring mechanism to demote them.",
+      "Slow DETR convergence motivates schemes that add supervision or stabilize the assignment."
+    ],
+    "problemTags": ["convergence", "label-assignment", "training-instability"],
+    "evidence": [
+      { "quote": "Detection transformer (DETR) relies on one-to-one assignment, assigning one ground-truth object to one prediction, for end-to-end detection without NMS post-processing.", "location": "Abstract" },
+      { "quote": "While the naive one-to-many assignment does not work for DETR, and it remains challenging to apply one-to-many assignment for DETR training.", "location": "Abstract" },
+      { "quote": "Unfortunately, naive one-to-many assignment does not work for DETR training.", "location": "Introduction" },
+      { "quote": "It remains a challenge to apply one-to-many assignment to DETR training.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on DETR's bipartite set prediction and organizes prior acceleration work into two complementary lines: modifying cross-attention to sample informative regions (deformable attention, Conditional DETR, SMCA) and stabilizing one-to-one assignment (DN-DETR, DINO). One-to-many assignment so far only exists in non-end-to-end detectors that rely on NMS post-processing.",
+    "relatedWork": [
+      { "name": "DETR", "relation": "base end-to-end detector relying on bipartite one-to-one matching", "quote": "DETR [4] relies on one-to-one assignment, where each ground-truth object is assigned to a single prediction through building a bipartite matching between the predictions and the ground-truth objects.", "location": "Sec 5. Related Works" },
+      { "name": "DN-DETR", "relation": "prior work that stabilizes one-to-one assignment with noisy queries", "quote": "DN-DETR [29] finds the assignment process is unstable and attributes the slow convergence issue to the instabilities.", "location": "Sec 5. Related Works" },
+      { "name": "Deformable DETR", "relation": "cross-attention modification line that samples informative positions", "quote": "Deformable attention [70] selects the highly informative positions dynamically according to the previous decoder embedding.", "location": "Sec 5. Related Works" },
+      { "name": "Faster R-CNN and FCOS", "relation": "non-end-to-end detectors where one-to-many assignment succeeds", "quote": "One ground-truth object is assigned to multiple anchors or multiple pixels.", "location": "Sec 2. Background" }
+    ],
+    "evidence": [
+      { "quote": "There are two main lines for accelerating DETR training: modify cross-attention and stabilize one-to-one assignment.", "location": "Sec 5. Related Works" },
+      { "quote": "During inference, a post-processing NMS is conducted for duplicate detection removal.", "location": "Sec 2. Background" }
+    ]
+  },
+  "solution": {
+    "summary": "Group DETR splits the object queries into K groups, performs one-to-one matching independently inside each group and computes decoder self-attention separately per group, so each ground-truth object receives multiple positives across groups; architecturally this equals parallel decoders sharing parameters, and inference uses a single group, keeping the model NMS-free with no architecture change.",
+    "approach": "Replicate object queries into K groups with one-to-one assignment inside each group and isolated self-attention, turning group-wise one-to-many supervision into extra training signal without changing inference.",
+    "components": [
+      "K groups of object queries (K = 11 by default)",
+      "one-to-one bipartite matching conducted independently within each group",
+      "separate decoder self-attention per group to keep competition inside each group",
+      "parallel-decoder implementation with shared encoder/decoder/predictor parameters",
+      "single group of queries at inference, identical to normally trained DETR"
+    ],
+    "solutionTags": ["transformer-query", "set-prediction", "group-wise-one-to-many", "nms-free"],
+    "evidence": [
+      { "quote": "This approach involves using multiple groups of object queries, conducting one-to-one assignment within each group, and performing decoder self-attention separately.", "location": "Abstract" },
+      { "quote": "Our approach adopts K groups of object queries, and introduces group-wise one-to-many assignment.", "location": "Sec 3.1" },
+      { "quote": "The inference process is the same as DETR trained normally and only needs one group of queries without any architecture modification.", "location": "Abstract" },
+      { "quote": "Regarding inference, it is the same as DETR trained normally, and only needs a single group of object queries.", "location": "Introduction" }
+    ]
+  },
+  "experiments": {
+    "summary": "Group DETR is layered on Conditional DETR, DAB-DETR, DN-DETR, DAB-Deformable-DETR and DINO with ResNet-50 on COCO train2017/val2017 under 12, 36 and 50-epoch schedules, plus nuScenes multi-view 3D detection, instance segmentation and a ViT-Huge COCO test-dev system; ablations isolate group-wise assignment, separate self-attention, group count and training-cost overhead.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "37.6", "split": "val2017, Conditional DETR + Group DETR, 12 epochs, ResNet-50", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.1", "split": "val2017, DAB-DETR + Group DETR, 12 epochs, ResNet-50", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "58.4", "split": "val2017, Swin-Large backbone", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "64.5", "split": "test-dev, ViT-Huge foundation model with TTA", "location": "Table 8" }
+    ],
+    "baselines": ["Conditional DETR", "DAB-DETR", "DN-DETR", "DAB-Deformable-DETR", "DINO", "DETR"],
+    "evidence": [
+      { "quote": "It boosts Conditional DETR (-DC5) [41] by 5.0 (4.8) mAP, improves DAB-DETR (-DC5) [36] by 3.9 (4.4) mAP, and brings a 2.0 (2.6) mAP gain to DN-DETR (-DC5) [29].", "location": "Sec 4.1" },
+      { "quote": "When applying to DINO [65, 29, 70], Group DETR also exceeds it by 0.7 mAP.", "location": "Sec 4.1" },
+      { "quote": "Our model is the first to achieve 64.5 mAP on COCO test-dev.", "location": "Appendix B" }
+    ]
+  },
+  "limitations": {
+    "summary": "The extra groups add training-time computation and memory (about 1.2-1.7 GB more GPU memory and roughly 5 extra minutes per epoch), detection accuracy saturates once the group count reaches 11, and the large-model test-dev result still trails systems built with more pre-training data and larger backbones.",
+    "items": [
+      "Group DETR raises training FLOPs and GPU memory relative to the baseline detector.",
+      "Detection performance stops improving once the number of groups reaches 11.",
+      "The 64.5 AP test-dev model is outperformed by EVA and InterImage-H, which use larger foundation models and more pre-training data."
+    ],
+    "evidence": [
+      { "quote": "Group DETR will bring additional training computation costs (FLOPs) as well as training memory costs.", "location": "Sec 3.2" },
+      { "quote": "For example, with Conditional DETR [41] and DAB-DETR [36], the memory increases are just 1.2 G and 1.7 G (Figure 7).", "location": "Sec 3.2" },
+      { "quote": "Models such as EVA [15] and InterImage-H [56], with larger foundation models (ViT-giant [62] or InterImage-H [56]) and more data [13, 5, 47, 68, 51, 45], give higher results (64.7 mAP and 65.4 mAP) than our model.", "location": "Appendix B" },
+      { "quote": "The detection performance improves when increasing the number of groups, and becomes stable when the group number reaches 11.", "location": "Sec 4.3" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Push the 64.5 AP test-dev result further by scaling up pre-training data and model size.", "quote": "We expect that our results will be further improved with more pre-training data and larger models.", "location": "Appendix B" }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "nuScenes", "Objects365", "ImageNet-1K"],
+    "backbones": ["ResNet-50", "ResNet-50-DC5", "Swin-Large", "ViT-Huge"],
+    "models": ["Group DETR", "DETR", "Conditional DETR", "DAB-DETR", "DN-DETR", "Deformable DETR", "DINO"],
+    "algorithms": ["bipartite matching", "one-to-one assignment", "FlashAttention", "query denoising", "test time augmentation", "exponential moving average"],
+    "metrics": ["mAP", "AP50", "AP75", "APs", "APm", "APl", "NDS", "mask mAP"],
+    "equations": [
+      { "name": "DETR set-prediction loss", "expr": "L = sum_n ell(y_{sigma(n)}, ybar_n)", "location": "Sec 2, Eq. 4" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "Inference uses a single group of queries with no architecture modification, so test-time cost equals normally trained DETR",
+      "Extra training memory of only 1.2-1.7 GB with a memory-efficient attention implementation",
+      "Code released at github.com/Atten4Vis/GroupDETR"
+    ],
+    "evidence": [
+      { "quote": "The inference process is the same as DETR trained normally and only needs one group of queries without any architecture modification.", "location": "Abstract" },
+      { "quote": "Code will be available at https://github.com/Atten4Vis/ GroupDETR.", "location": "Abstract" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/iccv51070.2023.00610",
+    "arxivUrl": "https://arxiv.org/abs/2207.13085",
+    "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+    "pdfUrl": "https://arxiv.org/pdf/2207.13085"
+  }
+}

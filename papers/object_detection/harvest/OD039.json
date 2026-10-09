@@ -1,0 +1,123 @@
+{
+  "id": "OD039",
+  "arxiv": "1811.04533",
+  "title": "M2Det: A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network",
+  "year": 2018,
+  "venue": "Proceedings of the AAAI Conference on Artificial Intelligence",
+  "problem": {
+    "summary": "Scale variation is a major detection challenge, and while feature pyramids help, existing detectors (SSD, FPN, STDN) build them by simply reusing the backbone layers designed for classification. As a result each pyramid level is not sufficiently representative for detection, and every feature map carries mostly single-level information rather than a mix of shallow localization cues and deep semantics.",
+    "statements": [
+      "Scale variation across object instances is one of the major challenges for the object detection task.",
+      "Detecting over an image pyramid greatly increases memory and computational complexity, dropping efficiency dramatically.",
+      "Feature maps taken from classification-oriented backbone layers are not representative enough for the object detection task.",
+      "Each pyramid level is built mainly from single-level backbone features, although high-level features favor classification while low-level features favor localization and simple appearances."
+    ],
+    "problemTags": ["scale-variance", "backbone-mismatch"],
+    "evidence": [
+      { "quote": "Scale variation across object instances is one of the major challenges for the object detection task", "location": "Introduction" },
+      { "quote": "this solution will greatly increase memory and computational complexity, thus the efficiency of such object detectors drop dramatically.", "location": "Introduction" },
+      { "quote": "they simply construct the feature pyramid according to the inherent multi-scale, pyramidal architecture of the backbones which are actually designed for object classification task.", "location": "Introduction" },
+      { "quote": "each feature map in the pyramid (used for detecting objects in a specific range of size) is mainly or even solely constructed from single-level layers of the backbone, that is, it mainly or only contains single-level information.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper situates itself between the two standard responses to scale variation: featurized image pyramids (accurate but costly, e.g. SNIP) and feature pyramids built from network layers (SSD, MS-CNN, FPN, DSSD, YOLOv3, RetinaNet, RefineDet). It also builds on squeeze-and-excitation channel attention for the aggregation stage.",
+    "relatedWork": [
+      { "name": "SSD", "relation": "base detector whose pyramid style M2Det replaces and whose architecture it adopts", "quote": "SSD (Liu et al. 2016) directly and independently uses two layers of the backbone (i.e. VGG16) and four extra layers obtained by stride 2 convolution to construct the feature pyramid", "location": "Introduction" },
+      { "name": "FPN", "relation": "prior top-down feature pyramid construction", "quote": "FPN (Lin et al. 2017a) constructs the feature pyramid by fusing the deep and shallow layers in a top-down manner.", "location": "Introduction" },
+      { "name": "STDN", "relation": "prior pyramid built from a DenseNet dense block", "quote": "STDN (Zhou et al. 2018) only uses the last dense block of DenseNet (Huang et al. 2017) to construct feature pyramid by pooling and scale-transfer operations", "location": "Introduction" },
+      { "name": "SNIP", "relation": "image-pyramid strategy that is accurate but too costly for real time", "quote": "Despite the performance gain, such a strategy could be costly time-wise and memory-wise, which forbid its application in real-time tasks.", "location": "Related Work" },
+      { "name": "RefineDet", "relation": "prior one-stage detector compared against", "quote": "RefineDet (Zhang et al. 2018) adopted two-step cascade regression, which achieves a remarkable progress on accuracy while keeping the efficiency of SSD.", "location": "Related Work" },
+      { "name": "Squeeze-and-Excitation networks", "relation": "source of the channel attention used in SFAM", "quote": "Following SE block (Hu, Shen, and Sun 2017), we use global average pooling to generate channel-wise statistics", "location": "Proposed Method" }
+    ],
+    "evidence": [
+      { "quote": "The second one is detecting objects in the feature pyramid extracted from inherent layers within the network while merely taking a single-scale image.", "location": "Related Work" },
+      { "quote": "In general, high-level features in the deeper layers are more discriminative for classification subtask while low-level features in the shallower layers can be helpful for object location regression sub-task.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "MLFPN constructs the pyramid from decoder features of stacked Thinned U-shape Modules instead of raw backbone layers: FFMv1 fuses shallow and deep backbone features into a base feature, alternating TUMs and FFMv2s extract multi-level multi-scale features, and SFAM concatenates same-scale features across levels and reweights them with squeeze-and-excitation channel attention. Integrating MLFPN into SSD yields the one-stage detector M2Det.",
+    "approach": "Fuse multi-level backbone features into a base feature, refine them through alternating thinned U-shape and feature-fusion modules, then aggregate same-scale outputs across levels with channel attention to form the detection pyramid.",
+    "components": [
+      "Feature Fusion Module v1 (FFMv1) producing the base feature from conv4_3 and conv5_3",
+      "Thinned U-shape Modules (TUM) with strided 3x3 encoder and upsample+sum decoder",
+      "Feature Fusion Module v2 (FFMv2) feeding base feature into each subsequent TUM",
+      "Scale-wise Feature Aggregation Module (SFAM): channel-wise concatenation plus SE attention",
+      "8 TUMs with 6 output scales and 256 channels per scale by default",
+      "SSD-style dense prediction heads with two conv layers per pyramid level",
+      "soft-NMS with linear kernel for post-processing"
+    ],
+    "solutionTags": ["feature-pyramid", "feature-fusion", "attention", "one-stage"],
+    "evidence": [
+      { "quote": "we present Multi-Level Feature Pyramid Network (MLFPN) to construct more effective feature pyramids for detecting objects of different scales.", "location": "Abstract" },
+      { "quote": "First, we fuse multi-level features (i.e. multiple layers) extracted by backbone as the base feature.", "location": "Abstract" },
+      { "quote": "we gather up the decoder layers with equivalent scales (sizes) to construct a feature pyramid for object detection, in which every feature map consists of the layers (features) from multiple levels.", "location": "Abstract" },
+      { "quote": "SFAM aggregates the features into the multi-level feature pyramid through a scale-wise feature concatenation operation and an adaptive attention mechanism.", "location": "Proposed Method" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation is on MS-COCO (trainval35k for training, test-dev for the main comparison, minival for ablations): an ablation adds TUMs, base feature and SFAM step by step over an SSD baseline, a variant study sweeps TUM count and channel width, and a speed-accuracy comparison covers one- and two-stage detectors at 320/512/800 inputs with single- and multi-scale inference.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "41.0", "split": "test-dev, M2Det-800 VGG-16, single-scale", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "44.2", "split": "test-dev, M2Det-800 VGG-16, multi-scale", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "38.9", "split": "test-dev, M2Det-320 VGG-16, single-scale", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "37.6", "split": "test-dev, M2Det-512 VGG-16, single-scale", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "38.8", "split": "test-dev, M2Det-512 ResNet-101, single-scale", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "34.1", "split": "minival, full M2Det with SFAM, VGG-16 320x320", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "25.8", "split": "minival, original SSD baseline, VGG-16 320x320", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "FPS", "value": "11.8", "split": "test-dev, M2Det single-scale inference on Titan X", "location": "Table 1" }
+    ],
+    "baselines": ["SSD", "DSSD", "RetinaNet", "RefineDet", "YOLOv3", "CornerNet", "Faster R-CNN", "Mask R-CNN", "Cascade R-CNN", "SNIP", "R-FCN"],
+    "evidence": [
+      { "quote": "M2Det achieves AP of 41.0 at speed of 11.8 FPS with single-scale inference strategy and AP of 44.2 with multi-scale inference strategy", "location": "Abstract" },
+      { "quote": "M2Det-320 with VGG backbone achieves AP of 38.9, which has surpassed most object detectors with more powerful backbones and larger input size", "location": "Comparison with State-of-the-art" },
+      { "quote": "draws a significantly better speed-accuracy curve compared with other methods.", "location": "Speed" }
+    ]
+  },
+  "limitations": {
+    "summary": "Training is very expensive (up to 14 days for the best model), the headline 41.0/44.2 numbers rely on 800x800 inputs and multi-scale testing, batch size is memory-constrained on 12GB GPUs, and the ImageNet-pretrained backbones plus soft-NMS post-processing keep it in the standard slow pipeline.",
+    "items": [
+      "Training cost is high: 3 and 6 days for the VGG-16 320/512 models on 4 Titan X devices, 11 days for ResNet-101 512 on 2 V100s, and 14 days for the best 800x800 model.",
+      "The headline 41.0 AP single-scale result requires the 800x800 input variant; smaller 320 input reaches only 38.9 AP.",
+      "Memory limits batch size (only 4 available for ResNet-101 512), which also slows training.",
+      "Backbones must be pre-trained on ImageNet before M2Det training."
+    ],
+    "evidence": [
+      { "quote": "The most accurate model is M2Det with the VGG backbone and 800×800 input size, it costs 14 days.", "location": "Implementation details" },
+      { "quote": "M2Det with the input size of 512 is not only limited in the batch size (only 4 is available), but also takes a long time to train", "location": "Implementation details" },
+      { "quote": "the backbones need to be pre-trained on the ImageNet 2012 dataset", "location": "Network Configurations" }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["MS COCO", "ImageNet"],
+    "backbones": ["VGG-16", "ResNet-101"],
+    "models": ["M2Det-320", "M2Det-512", "M2Det-800", "SSD", "RefineDet", "RetinaNet", "DSSD", "YOLOv3", "CornerNet", "Faster R-CNN", "Mask R-CNN", "Cascade R-CNN", "SNIP"],
+    "algorithms": ["MLFPN", "Thinned U-shape Module", "Feature Fusion Module", "Scale-wise Feature Aggregation", "squeeze-and-excitation channel attention", "soft-NMS", "default-box (anchor) detection", "NMS"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "FPS", "inference time (ms)"],
+    "equations": [
+      { "name": "Multi-level multi-scale features", "expr": "x_i^l = T_l(X_base) for l=1; x_i^l = T_l(F(X_base, x_i^{l-1})) for l=2..L", "location": "Proposed Method, Eq 1" },
+      { "name": "SE excitation", "expr": "s = F_ex(z, W) = sigma(W2 * delta(W1 * z))", "location": "Proposed Method, Eq 2" },
+      { "name": "SE scaling", "expr": "X_tilde_c^i = F_scale(X_c^i, s_c) = s_c * X_c^i", "location": "Proposed Method, Eq 3" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "11.8 FPS single-scale inference with 41.0 AP on MS COCO test-dev, measured with batch size 1 on a single NVIDIA Titan X PASCAL",
+      "ResNet-101 variant runs at 15.8 FPS with 38.8 AP based on PyTorch optimizations",
+      "PyTorch implementation; code released at github.com/qijiezhao/M2Det"
+    ],
+    "evidence": [
+      { "quote": "which are produced by testing it on MS-COCO test-dev split, with a single NVIDIA Titan X PASCAL and the batch size 1.", "location": "Comparison with State-of-the-art" },
+      { "quote": "Based on the optimization of PyTorch, it can run at 15.8 FPS.", "location": "Comparison with State-of-the-art" },
+      { "quote": "M2Det is developed with PyTorch v0.4.0", "location": "Implementation details" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1609/aaai.v33i01.33019259",
+    "arxivUrl": "https://arxiv.org/abs/1811.04533",
+    "venue": "Proceedings of the AAAI Conference on Artificial Intelligence",
+    "pdfUrl": "https://arxiv.org/pdf/1811.04533"
+  }
+}

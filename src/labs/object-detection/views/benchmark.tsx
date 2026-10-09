@@ -1,173 +1,431 @@
 "use client";
 
-import { useMemo } from "react";
-import type { Paper } from "@/labs/object-detection/data/types";
-import { PAPERS } from "@/labs/object-detection/data/papers";
-import { Card, SectionTitle, PaperLink, Badge } from "@/labs/object-detection/ui";
+import { useMemo, useState } from "react";
+import { BENCHMARKS, BENCHMARK_BEST, BENCHMARK_DATASETS } from "@/labs/object-detection/data/benchmarks";
+import { PAPER_BY_ID } from "@/labs/object-detection/data/papers";
+import type { BenchmarkObservation } from "@/labs/object-detection/data/types";
+import {
+  Card,
+  SectionTitle,
+  Badge,
+  PaperLink,
+  InsufficientEvidence,
+} from "@/labs/object-detection/ui";
 
-/* Built from the corpus's own research summaries and tags. No AP/latency numbers
- * are invented: numeric claims are withheld unless the corpus states a figure.
- * Each paper is positioned by its design point (tags) × release year (data). */
+const PAGE_SIZE = 15;
+const CAP = 40;
+const DATASET_VISIBLE = 12;
+const METRIC_VISIBLE = 14;
 
-type Family = "two-stage" | "one-stage" | "transformer" | "other";
+const W = 900;
+const H = 300;
+const L = 48;
+const R = 12;
+const T = 18;
+const B = 38;
+const PLOT_W = W - L - R;
+const PLOT_H = H - T - B;
 
-const FAMILY_ORDER: Family[] = ["two-stage", "one-stage", "transformer", "other"];
-const FAMILY_COLOR: Record<Family, string> = {
-  "two-stage": "#a78bfa",
-  "one-stage": "#34d399",
-  transformer: "#60a5fa",
-  other: "#52525b",
-};
-
-function familyOf(p: Paper): Family {
-  const t = p.tags.map((x) => x.toLowerCase()).join(" ");
-  if (/(transformer|detr|vit|attention)/.test(t)) return "transformer";
-  if (t.includes("two-stage")) return "two-stage";
-  if (t.includes("one-stage")) return "one-stage";
-  return "other";
+function chip(active: boolean) {
+  return `rounded-md border px-2 py-1 font-mono text-[10px] transition-colors ${
+    active
+      ? "border-emerald-600 bg-emerald-600/20 text-emerald-200"
+      : "border-zinc-800 text-zinc-500 hover:text-zinc-300"
+  }`;
 }
 
-const YEAR_MIN = 2015;
-const YEAR_MAX = 2026;
+function countBy(rows: BenchmarkObservation[], key: (o: BenchmarkObservation) => string) {
+  const m = new Map<string, number>();
+  for (const o of rows) m.set(key(o), (m.get(key(o)) ?? 0) + 1);
+  return m;
+}
+
+function topMetricFor(dataset: string): string {
+  const m = countBy(
+    BENCHMARKS.filter((o) => o.dataset === dataset),
+    (o) => o.metric,
+  );
+  let best = "";
+  let bestN = -1;
+  for (const [k, n] of m) {
+    if (n > bestN || (n === bestN && k < best)) {
+      best = k;
+      bestN = n;
+    }
+  }
+  return best;
+}
+
+function ChipRow({
+  label,
+  items,
+  active,
+  onPick,
+  visible,
+}: {
+  label: string;
+  items: { id: string; count: number }[];
+  active: string;
+  onPick: (id: string) => void;
+  visible: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const shown = open ? items : items.slice(0, visible);
+  const rest = items.length - shown.length;
+  return (
+    <div>
+      <div className="flex items-center gap-2">
+        <span className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">
+          {label}
+        </span>
+        <span className="font-mono text-[10px] text-zinc-600">{items.length}</span>
+        {rest > 0 && (
+          <button
+            onClick={() => setOpen(true)}
+            className="rounded-md border border-zinc-800 px-1.5 py-0.5 font-mono text-[10px] text-zinc-500 hover:text-zinc-300"
+          >
+            +{rest} more
+          </button>
+        )}
+        {open && items.length > visible && (
+          <button
+            onClick={() => setOpen(false)}
+            className="rounded-md border border-zinc-800 px-1.5 py-0.5 font-mono text-[10px] text-zinc-500 hover:text-zinc-300"
+          >
+            collapse
+          </button>
+        )}
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {shown.map((it) => (
+          <button
+            key={it.id}
+            onClick={() => onPick(it.id)}
+            className={`${chip(active === it.id)} max-w-56 truncate`}
+            title={it.id}
+          >
+            {it.id} · {it.count}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Plot({ rows, capped }: { rows: BenchmarkObservation[]; capped: boolean }) {
+  const years = Array.from(new Set(rows.map((r) => r.year))).sort((a, b) => a - b);
+  const maxV = Math.max(...rows.map((r) => r.value), 0.001);
+  const yMax = maxV * 1.05;
+  const colW = PLOT_W / Math.max(years.length, 1);
+  const yOf = (v: number) => T + PLOT_H - (v / yMax) * PLOT_H;
+  const ticks = [0, 1, 2, 3, 4].map((i) => (yMax * i) / 4);
+
+  return (
+    <div className="overflow-x-auto">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full min-w-[640px] rounded-lg border border-zinc-800 bg-black/30"
+      >
+        {ticks.map((v, i) => (
+          <g key={i}>
+            <line
+              x1={L}
+              x2={L + PLOT_W}
+              y1={yOf(v)}
+              y2={yOf(v)}
+              stroke="#3f3f46"
+              strokeWidth={i === 0 ? 1 : 0.5}
+            />
+            <text
+              x={L - 6}
+              y={yOf(v) + 3}
+              fontSize={9}
+              fill="#71717a"
+              textAnchor="end"
+              fontFamily="monospace"
+            >
+              {v >= 10 ? v.toFixed(0) : v.toFixed(1)}
+            </text>
+          </g>
+        ))}
+
+        {years.map((y, xi) => {
+          const group = rows.filter((r) => r.year === y);
+          const bw = Math.min(30, (colW * 0.72) / Math.max(group.length, 1));
+          const total = bw * group.length;
+          const x0 = L + (xi + 0.5) * colW - total / 2;
+          return (
+            <g key={y}>
+              <text
+                x={L + (xi + 0.5) * colW}
+                y={H - 14}
+                fontSize={9}
+                fill="#71717a"
+                textAnchor="middle"
+                fontFamily="monospace"
+              >
+                {y}
+              </text>
+              {group.map((o, i) => {
+                const bwFull = bw * 0.86;
+                const bx = x0 + i * bw + bw * 0.07;
+                const by = yOf(o.value);
+                const bh = T + PLOT_H - by;
+                const paper = PAPER_BY_ID[o.paperId];
+                return (
+                  <g key={`${o.paperId}-${i}`}>
+                    <rect
+                      x={bx}
+                      y={by}
+                      width={bwFull}
+                      height={Math.max(bh, 1)}
+                      rx={1.5}
+                      fill={capped ? "#34d399" : "#10b981"}
+                      fillOpacity={0.8}
+                    >
+                      <title>
+                        {o.paperId}
+                        {paper ? ` · ${paper.shortTitle}` : ""} · {o.raw} · {o.year}
+                        {o.split ? ` · ${o.split}` : ""}
+                      </title>
+                    </rect>
+                    {bwFull >= 15 && (
+                      <text
+                        x={bx + bwFull / 2}
+                        y={by - 3}
+                        fontSize={8}
+                        fill="#a1a1aa"
+                        textAnchor="middle"
+                        fontFamily="monospace"
+                      >
+                        {o.raw}
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
 
 export function BenchmarkView() {
-  const { points, byFamily } = useMemo(() => {
-    const points = PAPERS.map((p, i) => ({
-      p,
-      f: familyOf(p),
-      x: FAMILY_ORDER.indexOf(familyOf(p)) + 0.12 * ((i * 37) % 10) + 0.2,
-      y: p.year,
-    }));
-    const byFamily: Record<Family, number> = { "two-stage": 0, "one-stage": 0, transformer: 0, other: 0 };
-    for (const pt of points) byFamily[pt.f]++;
-    return { points, byFamily };
-  }, []);
+  const [dataset, setDataset] = useState("COCO");
+  const [metric, setMetric] = useState(() => topMetricFor("COCO"));
+  const [page, setPage] = useState(0);
 
-  const realtimeClaims = useMemo(
+  const datasetCounts = useMemo(() => countBy(BENCHMARKS, (o) => o.dataset), []);
+  const datasets = useMemo(
     () =>
-      PAPERS.filter((p) =>
-        p.tags.some((t) => /real-time|speed/.test(t.toLowerCase())),
-      ).sort((a, b) => b.year - a.year),
-    [],
+      [...BENCHMARK_DATASETS]
+        .filter((d) => datasetCounts.has(d))
+        .sort((a, b) => (datasetCounts.get(b) ?? 0) - (datasetCounts.get(a) ?? 0) || a.localeCompare(b)),
+    [datasetCounts],
   );
 
-  const xMax = FAMILY_ORDER.length;
-  const yRange = YEAR_MAX - YEAR_MIN;
+  const metrics = useMemo(() => {
+    const m = countBy(
+      BENCHMARKS.filter((o) => o.dataset === dataset),
+      (o) => o.metric,
+    );
+    return [...m.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([k, n]) => ({ id: k, count: n }));
+  }, [dataset]);
+
+  const rows = useMemo(
+    () =>
+      BENCHMARKS.filter((o) => o.dataset === dataset && o.metric === metric).sort(
+        (a, b) => a.year - b.year || b.value - a.value,
+      ),
+    [dataset, metric],
+  );
+
+  const capped = rows.length > CAP;
+  const plotRows = useMemo(() => {
+    if (!capped) return rows;
+    const byYear = new Map<number, BenchmarkObservation>();
+    for (const o of rows) {
+      const cur = byYear.get(o.year);
+      if (!cur || o.value > cur.value) byYear.set(o.year, o);
+    }
+    return [...byYear.values()].sort((a, b) => a.year - b.year);
+  }, [rows, capped]);
+
+  const best = useMemo(
+    () => BENCHMARK_BEST.find((b) => b.dataset === dataset && b.metric === metric),
+    [dataset, metric],
+  );
+
+  const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const cur = Math.min(page, pageCount - 1);
+  const slice = rows.slice(cur * PAGE_SIZE, cur * PAGE_SIZE + PAGE_SIZE);
+  const valid = metric !== "" && rows.length > 0;
+
+  const pickDataset = (d: string) => {
+    setDataset(d);
+    setMetric(topMetricFor(d));
+    setPage(0);
+  };
+  const pickMetric = (m: string) => {
+    setMetric(m);
+    setPage(0);
+  };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">Benchmark map</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
+          Benchmark maps — dataset × metric × year
+        </h1>
         <p className="mt-1 max-w-3xl text-sm leading-6 text-zinc-400">
-          Where the 48 papers landed: design point on the x-axis, release year on the
-          y-axis. Positions come from the papers’ own tags; figures (mAP, ms, FPS) are
-          only shown when the corpus states them. Otherwise numbers are withheld.
+          {BENCHMARKS.length} reported observations from the corpus. Pick a dataset and a
+          metric to see every figure the papers state, with the source table location.
+        </p>
+        <p className="mt-2 max-w-3xl font-mono text-[10px] leading-4 text-zinc-500">
+          UNITS: values are raw as reported by papers — no normalisation across papers or
+          evaluation protocols.
         </p>
       </div>
 
+      {/* controls */}
       <Card>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <SectionTitle>Design space, 2015–{YEAR_MAX}</SectionTitle>
-          <div className="flex flex-wrap gap-2">
-            {FAMILY_ORDER.map((f) => (
-              <span key={f} className="inline-flex items-center gap-1 font-mono text-[10px] text-zinc-400">
-                <span className="h-2 w-2 rounded-full" style={{ background: FAMILY_COLOR[f] }} />
-                {f} · {byFamily[f]}
-              </span>
-            ))}
-          </div>
+        <div className="space-y-4">
+          <ChipRow
+            label="dataset"
+            items={datasets.map((d) => ({ id: d, count: datasetCounts.get(d) ?? 0 }))}
+            active={dataset}
+            onPick={pickDataset}
+            visible={DATASET_VISIBLE}
+          />
+          <ChipRow
+            label="metric"
+            items={metrics}
+            active={metric}
+            onPick={pickMetric}
+            visible={METRIC_VISIBLE}
+          />
         </div>
-
-        <div className="mt-4 overflow-x-auto">
-          <svg
-            viewBox={`0 0 900 320`}
-            className="w-full min-w-[560px] rounded-lg border border-zinc-800 bg-black/30"
-          >
-            {/* y gridlines (years) */}
-            {Array.from({ length: yRange + 1 }, (_, i) => YEAR_MIN + i).map((y) => (
-              <g key={y}>
-                <line
-                  x1={40}
-                  x2={870}
-                  y1={300 - ((y - YEAR_MIN) / yRange) * 260 - 10}
-                  y2={300 - ((y - YEAR_MIN) / yRange) * 260 - 10}
-                  stroke="#3f3f46"
-                  strokeWidth={0.5}
-                />
-                <text
-                  x={34}
-                  y={300 - ((y - YEAR_MIN) / yRange) * 260 - 5}
-                  fontSize={10}
-                  fill="#71717a"
-                  textAnchor="end"
-                  fontFamily="monospace"
-                >
-                  {y}
-                </text>
-              </g>
-            ))}
-            {FAMILY_ORDER.map((f, xi) => (
-              <text
-                key={f}
-                x={40 + ((xi + 0.5) / xMax) * 830}
-                y={316}
-                fontSize={12}
-                fill={FAMILY_COLOR[f]}
-                textAnchor="middle"
-                fontFamily="monospace"
-              >
-                {f}
-              </text>
-            ))}
-            {points.map((pt) => (
-              <g key={pt.p.id}>
-                <circle
-                  cx={40 + (pt.x / xMax) * 830}
-                  cy={300 - ((pt.y - YEAR_MIN) / yRange) * 260 - 10}
-                  r={7}
-                  fill={FAMILY_COLOR[pt.f]}
-                  fillOpacity={0.75}
-                  stroke="#18181b"
-                  strokeWidth={1}
-                >
-                  <title>
-                    {pt.p.id} · {pt.p.shortTitle} ({pt.p.year}) · {pt.p.authors[0]} et al.
-                  </title>
-                </circle>
-              </g>
-            ))}
-          </svg>
-        </div>
-        <p className="mt-3 text-[11px] leading-5 text-zinc-500">
-          The transformer column (2019→) contains the corpus’s DETR-family papers; the
-          one-stage column spans YOLO-style and anchor-free real-time detectors. Hover a
-          dot for the paper identity. “Other” = papers whose tags name neither family.
-        </p>
       </Card>
 
-      <Card>
-        <SectionTitle>Speed / latency claims the corpus actually states</SectionTitle>
-        <p className="mt-1 text-[12px] leading-5 text-zinc-500">
-          Direct quotes or paraphrases from paper summaries — the closest our evidence
-          policy allows to a benchmark table.
-        </p>
-        <div className="mt-3 grid gap-2 md:grid-cols-2">
-          {realtimeClaims.map((p) => (
-            <div key={p.id} className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <PaperLink id={p.id} />
-                <span className="font-mono text-[10px] text-zinc-500">{p.year}</span>
-                <span className="ml-auto flex gap-1">
-                  {p.tags.slice(0, 3).map((t) => (
-                    <Badge key={t} tone="zinc">{t}</Badge>
-                  ))}
+      {!valid ? (
+        <InsufficientEvidence
+          what={
+            metric === ""
+              ? `any reported ${dataset} metric`
+              : `observations for ${dataset} × ${metric}`
+          }
+        />
+      ) : (
+        <>
+          {/* chart */}
+          <Card>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <SectionTitle>
+                {dataset} · {metric}
+              </SectionTitle>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Badge tone="zinc">{rows.length} observations</Badge>
+                <Badge tone="zinc">{plotRows.length} plotted</Badge>
+                {capped && <Badge tone="amber">year-max cap ({CAP})</Badge>}
+              </div>
+            </div>
+            <p className="mt-1 text-[11px] leading-4 text-zinc-500">
+              x = year (categorical), y = value as reported. Hover a bar for the paper and
+              split. Units note: values are raw as reported by papers.
+            </p>
+            <div className="mt-3">
+              <Plot rows={plotRows} capped={capped} />
+            </div>
+          </Card>
+
+          {/* best callout */}
+          {best && (
+            <Card tone="accent">
+              <div className="flex flex-wrap items-center gap-3">
+                <Badge tone="emerald">best reported</Badge>
+                <span className="font-mono text-xl text-emerald-300">{best.value}</span>
+                <span className="font-mono text-[11px] text-zinc-400">
+                  {best.metric} · {best.dataset} · {best.year}
+                </span>
+                <PaperLink id={best.paperId} />
+                <span className="ml-auto font-mono text-[10px] text-zinc-500">
+                  from BENCHMARK_BEST
                 </span>
               </div>
-              <p className="mt-2 text-[12px] leading-5 text-zinc-400">{p.summary}</p>
+            </Card>
+          )}
+
+          {/* table */}
+          <Card>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <SectionTitle>All observations</SectionTitle>
+              <span className="font-mono text-[10px] text-zinc-500">
+                {rows.length} rows · raw value as printed
+              </span>
             </div>
-          ))}
-        </div>
-      </Card>
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full border-collapse text-[11px]">
+                <thead>
+                  <tr className="border-b border-zinc-800">
+                    {["year", "paper", "value", "location", "split"].map((h) => (
+                      <th
+                        key={h}
+                        className="p-1.5 text-left font-mono text-[10px] uppercase text-zinc-500"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {slice.map((o, i) => {
+                    const p = PAPER_BY_ID[o.paperId];
+                    return (
+                      <tr key={`${o.paperId}-${i}`} className="border-b border-zinc-900">
+                        <td className="p-1.5 font-mono text-zinc-400">{o.year}</td>
+                        <td className="p-1.5">
+                          <PaperLink id={o.paperId} />
+                          {p && <span className="ml-1.5 text-zinc-500">{p.shortTitle}</span>}
+                        </td>
+                        <td className="p-1.5 font-mono text-emerald-300">{o.raw}</td>
+                        <td className="p-1.5 font-mono text-[10px] text-zinc-500">
+                          {o.location ?? "—"}
+                        </td>
+                        <td className="p-1.5 text-[10px] text-zinc-500">{o.split ?? "—"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {pageCount > 1 && (
+              <div className="mt-3 flex items-center justify-center gap-3">
+                <button
+                  onClick={() => setPage(cur - 1)}
+                  disabled={cur === 0}
+                  className="rounded-md border border-zinc-800 px-3 py-1 font-mono text-[10px] text-zinc-400 hover:text-zinc-200 disabled:opacity-40"
+                >
+                  ← prev
+                </button>
+                <span className="font-mono text-[10px] text-zinc-500">
+                  page {cur + 1} / {pageCount}
+                </span>
+                <button
+                  onClick={() => setPage(cur + 1)}
+                  disabled={cur >= pageCount - 1}
+                  className="rounded-md border border-zinc-800 px-3 py-1 font-mono text-[10px] text-zinc-400 hover:text-zinc-200 disabled:opacity-40"
+                >
+                  next →
+                </button>
+              </div>
+            )}
+          </Card>
+        </>
+      )}
     </div>
   );
 }

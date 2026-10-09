@@ -1,0 +1,231 @@
+{
+  "id": "OD071",
+  "arxiv": "2104.10419",
+  "title": "PP-YOLOv2: A Practical Object Detector",
+  "year": 2021,
+  "venue": null,
+  "problem": {
+    "summary": "For practical deployment, YOLOv3-style one-stage detectors must keep inference speed while closing the accuracy gap with two-stage detectors, yet individually promising refinements often fail to combine, so how to reliably improve YOLOv3 without losing speed is unsolved.",
+    "statements": [
+      "Practical applications are constrained by computation resources and insufficient software support, so accuracy-boosting methods that slow the detector are unusable.",
+      "Two-stage detectors such as Faster R-CNN and Cascade RCNN can be excruciatingly slow without proper technique support, while YOLOv3 still lags them in accuracy.",
+      "Although many approaches claim independent accuracy gains, some methods are not effective when combined.",
+      "Improving YOLOv3's effectiveness while maintaining inference speed is an essential problem for practical use."
+    ],
+    "problemTags": ["speed-latency", "deployability", "one-stage-accuracy"],
+    "evidence": [
+      {
+        "quote": "Being effective and efficient is essential to an object detector for practical use.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Therefore, how to improve the effectiveness of YOLOv3 while maintaining the inference speed is an essential problem for practical use.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Without necessary technique support, two stage object detector(e.g. Faster RCNN [21], Cascade RCNN [2]) may excruciatingly slow. Meanwhile, a significant gap exists between the accuracy of YOLOv3 and two stage object detectors.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "although a huge number of approaches claim to improve object detector's accuracy independently, in practice, some methods are not effective when combined.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The work starts from PP-YOLO (an enhanced YOLOv3 with a ResNet50-vd backbone and ten efficiency-preserving tricks), keeps YOLOv3 as the industry-standard deployment target, and adopts the PAN neck and Mish activation previously proven in YOLOv4/YOLOv5.",
+    "relatedWork": [
+      {
+        "name": "PP-YOLO",
+        "relation": "the baseline this paper incrementally refines",
+        "quote": "Our baseline model is PP-YOLO which is an enhanced version of YOLOv3. Specifically, it first replaces the backbone to ResNet50-vd[9].",
+        "location": "Sec 2"
+      },
+      {
+        "name": "YOLOv3",
+        "relation": "still the most widely used detector in industry under resource constraints",
+        "quote": "YOLOv3 [20] is still one of the most widely used detector in industry. Because, in various practical applications, not only the computation resources are limited, but also the software support is insufficient.",
+        "location": "Introduction"
+      },
+      {
+        "name": "Faster R-CNN / Cascade RCNN",
+        "relation": "more accurate two-stage alternatives that are too slow for practical use",
+        "quote": "Without necessary technique support, two stage object detector(e.g. Faster RCNN [21], Cascade RCNN [2]) may excruciatingly slow. Meanwhile, a significant gap exists between the accuracy of YOLOv3 and two stage object detectors.",
+        "location": "Introduction"
+      },
+      {
+        "name": "PAN",
+        "relation": "the neck design chosen over other FPN variants to aggregate top-down information",
+        "quote": "eral FPN variants have been proposed to enhance the ability of pyramid representation. For example, BiFPN [24], PAN [14], RFP [19] and so on. We follow the design of PAN to aggregate the top-down information. The detailed structure of PAN is shown in Fig. 2.",
+        "location": "Sec 3"
+      },
+      {
+        "name": "Mish",
+        "relation": "activation function already proven effective in YOLOv4 and YOLOv5",
+        "quote": "Mish activation function [18] has been proved effective in many practical detectors, such as YOLOv4 and YOLOv5.",
+        "location": "Sec 3"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "After that a total of 10 tricks which can improve the performance of YOLOv3 almost without losing efficiency are added to YOLOv3 such as Deformable Conv [5], SSLD [4], CoordConv [12], DropBlock [6], SPP [7] and so on.",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "In fact, this paper is more like a TECH REPORT, which tells you how to build PP-YOLOv2 step by step. Theoretical justification of the failure cases is also involved.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "PP-YOLOv2 stacks empirically verified refinements on PP-YOLO: a PAN neck with skip connections and Mish applied in the neck (backbone untouched), input size raised to 640 for training and evaluation (up to 768, batch reduced to 12 images per GPU), and a soft-label IoU-aware branch, each added incrementally so mAP rises while inference time stays almost unchanged.",
+    "approach": "Combine refinements that measurably help in incremental ablations (PAN + Mish in the neck, larger input size, soft-label IoU-aware loss) on top of PP-YOLO, rejecting tricks that do not transfer to full COCO training.",
+    "components": [
+      "PAN detection neck with added skip connections, Mish applied in the detection neck instead of the backbone",
+      "Larger input size: batch reduced from 24 to 12 images per GPU, largest input expanded from 608 to 768, sampled evenly from [320 ... 768]",
+      "IoU-aware branch with a soft-label loss format instead of the previous soft-weight format",
+      "PP-YOLO baseline with ResNet50-vd backbone and its existing tricks (Deformable Conv, SSLD, CoordConv, DropBlock, SPP)"
+    ],
+    "solutionTags": ["one-stage", "feature-fusion", "anchors", "post-processing-nms"],
+    "evidence": [
+      {
+        "quote": "The first refinement with a positive effect on PPYOLO that we found was PAN. To stable the training process, we add several skip connections to our PAN module.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "When we perform it with Mish, it boosts the performance from 45.1% mAP to 47.1% mAP.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "To keep the backbone unchanged, we apply the mish activation function in the detection neck instead of the backbone.",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "To apply this trick, we need to decrease batch size. To be more specific, we reduce the batch size from 24 images per GPU to 12 images per GPU and expand the largest input size from 608 to 768.",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "In PP-YOLO, IoU aware loss is calculated in a soft weight format which is inconsistent with the original intention. Therefore, we apply a soft label format. Here is the IoU aware loss:",
+        "location": "Sec 3"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Refinements are evaluated incrementally in an ablation on COCO minival (Table 1, 45.1 to 49.1 mAP) and the final models are compared on COCO test-dev 2017 against YOLOv4/YOLOv5/EfficientDet variants (Table 2), with a separate section documenting tricks that helped minitrain but hurt full COCO training; reported FPS exclude result decoding and NMS.",
+    "benchmarks": [
+      { "dataset": "MS COCO test-dev 2017", "metric": "mAP", "value": "49.5", "split": "PP-YOLOv2, ResNet50-vd, 640x640", "location": "Table 2" },
+      { "dataset": "MS COCO test-dev 2017", "metric": "mAP", "value": "50.3", "split": "PP-YOLOv2, ResNet101-vd", "location": "Table 2" },
+      { "dataset": "MS COCO test-dev 2017", "metric": "FPS", "value": "68.9", "split": "640x640 input, FP32, batch size 1, V100", "location": "Abstract" },
+      { "dataset": "MS COCO test-dev 2017", "metric": "FPS", "value": "106.5", "split": "Paddle inference engine, TensorRT, FP16, batch size 1", "location": "Abstract" },
+      { "dataset": "MS COCO minival", "metric": "mAP", "value": "45.1", "split": "PP-YOLO baseline (model A)", "location": "Table 1" },
+      { "dataset": "MS COCO minival", "metric": "mAP", "value": "49.1", "split": "model E: + PAN + Mish + input 640 + larger input + IoU Aware Branch", "location": "Table 1" }
+    ],
+    "baselines": ["PP-YOLO", "YOLOv4", "YOLOv4-CSP", "YOLOv5s", "YOLOv5m", "YOLOv5l", "YOLOv5x", "YOLOv3 + ASFF", "EfficientDet-D0", "EfficientDet-D1", "EfficientDet-D2"],
+    "evidence": [
+      {
+        "quote": "By combining multiple effective refinements, we boost PP-YOLO's performance from 45.9% mAP to 49.5% mAP on COCO2017 test-dev.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "terms of speed, PP-YOLOv2 runs in 68.9FPS at 640x640 input size. Paddle inference engine with TensorRT, FP16precision and batch size = 1 further improves PP-YOLOv2's infer speed, which achieves 106.5 FPS.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "We compare our method with YOLOv4CSP and YOLOv5l because they have roughly the same amount of parameters as our model. It clearly shows that PP-YOLOv2 outperforms these two methods. With a similar FPS, PP-YOLOv2 outperforms YOLOv4-CSP by 2% mAP and surpasses YOLOv5l by 1.3% mAP.",
+        "location": "Sec 4.3"
+      },
+      {
+        "quote": "Besides, PP-YOLOv2 with ResNet101 achieves 50.3% mAP on COCO2017 test-dev.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "After using this strategy, the mAP of model E increases to 49.1% without any loss of efficiency.",
+        "location": "Sec 4.2"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "Reported speed excludes post-processing (decode and NMS), several candidate refinements failed to transfer from COCO minitrain to full COCO training, and the authors openly state they do not know why some tricks regress.",
+    "items": [
+      "Infer time and FPS only consider the FP32 model and exclude result decoding and NMS.",
+      "Cosine learning rate decay is hyper-parameter sensitive and showed no positive effect on COCO train2017.",
+      "Backbone parameter freezing gains 1 mAP on COCO minitrain but decreases mAP by 0.8% on COCO train2017.",
+      "Replacing Mish with SiLU drops 0.5% mAP on COCO train2017, and the reason is unknown to the authors.",
+      "Some tricks behave inconsistently between COCO minitrain and COCO train2017, raising doubts about minitrain-based conclusions."
+    ],
+    "evidence": [
+      {
+        "quote": "of the model in FP32-precision which does not include result decoder and NMS following YOLOv4[1].",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "Although cosine learning rate decay achieves better performance on COCO minitrain, it is sensitive to hyper-parameters such as initial learning rate, the number of warm up steps, and the ending learning rate.",
+        "location": "Sec 5"
+      },
+      {
+        "quote": "However, we didn't observe a positive effect on COCO train2017 eventually.",
+        "location": "Sec 5"
+      },
+      {
+        "quote": "On COCO minitrain, parameter freezing brings 1mAP gain, however, on COCO train2017 it decreases mAP by 0.8% .",
+        "location": "Sec 5"
+      },
+      {
+        "quote": "We tried using SiLU [25] instead of Mish in detection neck. This increases 0.3% mAP on COCO minitrain but drops 0.5% mAP on COCO train2017. We are not sure about the reason.",
+        "location": "Sec 5"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Help developers and researchers obtain better detector performance in practical scenes.",
+      "quote": "We hope this paper can help developers and researchers get better performance in practical scenes.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "COCO minitrain", "ImageNet"],
+    "backbones": ["ResNet50-vd", "ResNet101-vd"],
+    "models": ["PP-YOLO", "PP-YOLOv2", "YOLOv3", "YOLOv4", "YOLOv4-CSP", "YOLOv5", "EfficientDet", "Faster R-CNN", "Cascade RCNN", "PAN", "FPN"],
+    "algorithms": ["PAN", "Mish activation", "Mixup training", "IoU-aware loss", "deformable convolution", "SPP", "CoordConv", "DropBlock", "SSLD", "NMS", "SGD", "TensorRT", "FP16 inference"],
+    "metrics": ["mAP", "AP50", "AP75", "APS", "APM", "APL", "FPS", "GFLOPs", "parameters", "infer time"],
+    "equations": [
+      { "name": "IoU aware loss", "expr": "loss = −t ∗ log(σ(p)) − (1 − t) ∗ log(1 − σ(p))", "location": "Sec 3 (IoU Aware Branch)" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving, face recognition, person re-identification",
+        "detail": "Positioned as a practical detector for real-world applications where computation resources and software support are limited, building on YOLOv3, the detector most widely used in industry.",
+        "quote": "Object detection is a critical component of various realworld applications such as self-driving cars, face recognition, and person re-identification.",
+        "location": "Introduction"
+      }
+    ],
+    "deploymentClaims": [
+      "68.9 FPS at 640x640 input size; the Paddle inference engine with TensorRT, FP16 precision and batch size = 1 raises this to 106.5 FPS.",
+      "Speed-up ratios for PP-YOLOv2(R50) and PP-YOLOv2(R101) are 54.6% and 73% with TensorRT FP16 inference.",
+      "PaddlePaddle's official support makes adapting TensorRT for PP-YOLOv2 much easier than for other detectors, narrowing the gap between model development and production deployment."
+    ],
+    "evidence": [
+      {
+        "quote": "terms of speed, PP-YOLOv2 runs in 68.9FPS at 640x640 input size. Paddle inference engine with TensorRT, FP16precision and batch size = 1 further improves PP-YOLOv2's infer speed, which achieves 106.5 FPS.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "detectors. Specifically, the Paddle inference engine with TensorRT, FP16-precision, and batch size = 1 further improves PP-YOLOv2's infer speed. The speed-up ratios for PP-YOLOv2(R50) and PP-YOLOv2(R101) are 54.6% and 73%, respectively.",
+        "location": "Sec 4.3"
+      },
+      {
+        "quote": "YOLOv3 [20] is still one of the most widely used detector in industry. Because, in various practical applications, not only the computation resources are limited, but also the software support is insufficient.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2104.10419",
+    "arxivUrl": "https://arxiv.org/abs/2104.10419",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2104.10419"
+  }
+}

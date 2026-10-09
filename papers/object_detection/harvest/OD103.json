@@ -1,0 +1,231 @@
+{
+  "id": "OD103",
+  "arxiv": "2405.10300",
+  "title": "Grounding DINO 1.5: Advance the \"Edge\" of Open-Set Object Detection",
+  "year": 2024,
+  "venue": null,
+  "problem": {
+    "summary": "Open-set detectors built on Grounding DINO still fall short on generalization across diverse categories, and their multi-scale features plus heavy feature enhancer make them impractical for real-time/edge deployment where compute resources are limited; early-fusion designs also trade higher recall for object hallucinations.",
+    "statements": [
+      "There is a large gap between the computational cost required by an open-set detection model and the limited resources available on edge devices.",
+      "Grounding DINO's multi-scale image features and heavy feature enhancer are impractical for real-time scenarios in real-world applications.",
+      "Early-fusion training yields higher recall and box precision but can increase model hallucinations such as predicting objects not present in the input images.",
+      "Open-set detectors need stronger generalization across long-tailed and in-the-wild categories (COCO, LVIS, ODinW)."
+    ],
+    "problemTags": ["open-vocabulary", "real-time-edge", "deployability", "background-false-positives"],
+    "evidence": [
+      {
+        "quote": "However, there is a large gap between the computational cost required by an open-set detection model and the limited resources available on edge devices.",
+        "location": "Sec 2.1.2"
+      },
+      {
+        "quote": "Grounding DINO uses multi-scale image features and a heavy computational feature enhancer for faster training and better performance, which is impractical for real-time scenarios in real-world applications.",
+        "location": "Sec 2.1.2"
+      },
+      {
+        "quote": "However, this approach can also lead to increased model hallucinations, such as predicting objects not present in the input images.",
+        "location": "Sec 2.1.1"
+      }
+    ]
+  },
+  "background": {
+    "summary": "Extends Grounding DINO (itself built on DINO and GLIP's phrase-grounding formulation with large-scale detection+grounding pre-training and self-training on pseudo-labeled image-text pairs) and cites Lite-DETR for the observation that low-level features are costly and semantically weak; the gap claimed is a lack of both a stronger-scaling model and a genuinely efficient edge variant.",
+    "relatedWork": [
+      {
+        "name": "Grounding DINO",
+        "relation": "direct predecessor whose architecture is scaled and extended",
+        "quote": "Grounding DINO [18] represents a significant advancement in this area.",
+        "location": "Introduction"
+      },
+      {
+        "name": "GLIP",
+        "relation": "phrase-grounding pre-training formulation followed by Grounding DINO",
+        "quote": "Following GLIP [16], Grounding DINO redefines object detection as",
+        "location": "Introduction"
+      },
+      {
+        "name": "Lite-DETR",
+        "relation": "evidence that low-level image features lack semantics and add compute",
+        "quote": "Recognizing that lower-level image features lack semantic information and introduce excessive computational costs, as demonstrated in Lite-DETR [15], we limit cross-modality fusion to high-level image features (P5 level) only.",
+        "location": "Sec 2.1.2"
+      },
+      {
+        "name": "DINO",
+        "relation": "Transformer-based detection architecture underlying Grounding DINO",
+        "quote": "Building on the Transformerbased DINO [33] architecture, it incorporates linguistic information to enable open-set object detection in various scenarios.",
+        "location": "Introduction"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "This approach, coupled with self-training on pseudo-labeled grounding data derived from an almost unlimited pool of image-text pairs, enhances the model’s applicability to open-world settings due to its robust architecture and semantic-rich dataset.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "A key strategy for improving model generalization across diverse object categories is the integration of language modality, which has received increasingly more attention and has undergone extensive development in recent research.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "Grounding DINO 1.5 is a two-model suite: Pro scales the Grounding DINO architecture with a ViT-L backbone and early fusion trained on Grounding-20M (over 20M grounding-annotated images), while Edge replaces the feature enhancer with an efficient one that fuses only P5 features (vanilla self-attention plus cross-scale fusion of P3/P4) on an EfficientViT-L1 backbone, both trained on the same data.",
+    "approach": "Scale up an early-fusion dual-encoder/single-decoder grounding detector with a 20M-image grounding dataset, and cut edge cost by restricting cross-modality fusion to high-level features with an efficient feature enhancer.",
+    "components": [
+      "pre-trained ViT-L vision backbone (Pro)",
+      "deep early fusion (cross-attention between language and image features before decoding)",
+      "enhanced training sampling that increases the proportion of negative samples",
+      "Grounding-20M dataset with annotation pipelines and post-processing rules",
+      "efficient feature enhancer operating on P5 features only (Edge)",
+      "vanilla self-attention replacing deformable self-attention",
+      "cross-scale feature fusion module integrating P3/P4 features",
+      "EfficientViT-L1 image backbone (Edge)"
+    ],
+    "solutionTags": ["transformer-query", "feature-fusion", "real-time-backbone", "multi-scale", "attention"],
+    "evidence": [
+      {
+        "quote": "we have upscaled the model by incorporating the pre-trained ViT-L [6] architecture and developed a data engine capable of producing over 20 million images with grounding annotations from diverse sources",
+        "location": "Introduction"
+      },
+      {
+        "quote": "we replace deformable self-attention with vanilla self-attention, and introduce a cross-scale feature fusion module [37] to integrate low-level image features (from P3 and P4 levels).",
+        "location": "Sec 2.1.2"
+      },
+      {
+        "quote": "Grounding DINO 1.5 is pre-trained on over 20M grounding images, termed Grounding-20M",
+        "location": "Sec 2.2"
+      },
+      {
+        "quote": "we have retained the early fusion design while introducing a more comprehensive training sampling strategy, which increases the proportion of negative samples during training.",
+        "location": "Sec 2.1.1"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluates Pro zero-shot on COCO, LVIS (val/minival, fixed AP) and ODinW13/35, fine-tunes Pro on LVIS and ODinW, and evaluates Edge zero-shot on COCO/LVIS with PyTorch/TensorRT FPS on A100 plus FPS on NVIDIA Orin NX, comparing against grounding and open-vocabulary detectors.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "AP (zero-shot)", "value": "54.3", "split": "test, Grounding DINO 1.5 Pro", "location": "Table 1" },
+      { "dataset": "LVIS", "metric": "Fixed AP (zero-shot)", "value": "55.7", "split": "minival, Grounding DINO 1.5 Pro", "location": "Table 1" },
+      { "dataset": "LVIS", "metric": "Fixed AP (zero-shot)", "value": "47.6", "split": "val, Grounding DINO 1.5 Pro", "location": "Table 1" },
+      { "dataset": "ODinW13", "metric": "APavg (zero-shot)", "value": "58.7", "split": "13 datasets, Grounding DINO 1.5 Pro", "location": "Table 2" },
+      { "dataset": "ODinW35", "metric": "APavg (zero-shot)", "value": "30.2", "split": "35 datasets, Grounding DINO 1.5 Pro", "location": "Table 1" },
+      { "dataset": "LVIS", "metric": "Fixed AP (fine-tuned)", "value": "68.1", "split": "minival, Grounding DINO 1.5 Pro", "location": "Table 3" },
+      { "dataset": "ODinW35", "metric": "APavg (fine-tuned)", "value": "70.6", "split": "35 datasets, Grounding DINO 1.5 Pro", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "AP (zero-shot)", "value": "45.0", "split": "test, Grounding DINO 1.5 Edge at 800x1333", "location": "Table 5" },
+      { "dataset": "LVIS", "metric": "Fixed AP (zero-shot)", "value": "36.2", "split": "minival, Grounding DINO 1.5 Edge", "location": "Table 5" }
+    ],
+    "baselines": ["Grounding DINO (Swin-L/Swin-T)", "GLIP", "GLIPv2", "DetCLIP", "DetCLIPv2", "DetCLIPv3", "GLEE-Pro", "APE", "OWL-ViT", "OWL-ST", "MDETR", "OpenSeeD", "UniDetector", "OmDet-Turbo", "YOLO-Worldv2", "DINOv", "T-Rex2", "MQ-GLIP"],
+    "evidence": [
+      {
+        "quote": "the Grounding DINO 1.5 Pro model attaining a 54.3 AP on the COCO detection benchmark and a 55.7 AP on the LVIS-minival zero-shot transfer benchmark, setting new records for open-set object detection.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "transfer benchmarks, Grounding DINO 1.5 Pro achieves a 55.7 AP and a 47.6 AP, outperforming the previous best model, DetCLIPv3, by 6.9 AP and 6.2 AP, respectively.",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "the fine-tuned Grounding DINO 1.5 Pro model achieves a 68.1 AP and a 63.5 AP on the LVIS-minival and LVIS-val splits, respectively, which represent an enhancement of 12.4 AP and 15.9 AP over the Grounding DINO 1.5 Pro zero-shot setting.",
+        "location": "Sec 3.2"
+      },
+      {
+        "quote": "Grounding DINO 1.5 Edge achieves a zero-shot AP of 45.0 on COCO.",
+        "location": "Sec 3.3"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "No explicit limitations section; evident ones are the early-fusion hallucination trade-off, dependence on prompt engineering to repair poor category names in some ODinW test sets, modest Edge speed on the actual edge device at large input sizes, and offline-only video processing.",
+    "items": [
+      "Early fusion increases object hallucinations; the paper only mitigates this with more negative samples.",
+      "ODinW evaluation involved prompt engineering on category names for datasets where performance was poor.",
+      "Some ODinW datasets have significant quality issues in annotated category names.",
+      "Edge model exceeds 10 FPS on NVIDIA Orin NX only at 640x640 input (about 5.5 FPS at 800x1333).",
+      "Video object detection demos are processed offline."
+    ],
+    "evidence": [
+      {
+        "quote": "However, this approach can also lead to increased model hallucinations, such as predicting objects not present in the input images.",
+        "location": "Sec 2.1.1"
+      },
+      {
+        "quote": "We observe that within the ODinW benchmark, several datasets exhibit significant quality issues in terms of the annotated category names.",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "during testing, we performed prompt engineering to refine category names on datasets where their performance was particularly poor to better align their category names with actual testing scenarios.",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "The videos are processed offline.",
+        "location": "Sec 4.6"
+      }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["COCO", "LVIS", "ODinW13", "ODinW35", "Grounding-20M", "CC3M", "SA-1B", "V3Det", "OpenImages"],
+    "backbones": ["ViT-L", "EfficientViT-L1", "Swin-L (baselines)", "Swin-T (baselines)"],
+    "models": ["Grounding DINO 1.5 Pro", "Grounding DINO 1.5 Edge", "Grounding DINO", "GLIP", "GLIPv2", "DetCLIPv3", "GLEE-Pro", "OmDet-Turbo", "YOLO-Worldv2"],
+    "algorithms": [
+      "early fusion cross-attention",
+      "language-guided query selection",
+      "contrastive region-text loss",
+      "efficient feature enhancer (P5-only fusion)",
+      "cross-scale feature fusion",
+      "vanilla self-attention",
+      "TensorRT optimization"
+    ],
+    "metrics": ["AP", "APall", "APr", "APc", "APf", "APavg", "FPS"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving",
+        "detail": "Named as a target application for edge deployment of Grounding DINO; qualitative analysis also discusses detection in autonomous driving scenes.",
+        "quote": "Deploying Grounding DINO on edge devices is highly desired by many applications, including autonomous driving, medical image processing, computational photography, etc.",
+        "location": "Sec 2.1.2"
+      },
+      {
+        "domain": "medical image processing",
+        "detail": "Named alongside autonomous driving and computational photography as a motivating application for edge-side open-set detection.",
+        "quote": "Deploying Grounding DINO on edge devices is highly desired by many applications, including autonomous driving, medical image processing, computational photography, etc.",
+        "location": "Sec 2.1.2"
+      },
+      {
+        "domain": "computational photography",
+        "detail": "Named as a motivating edge application for the efficient model.",
+        "quote": "Deploying Grounding DINO on edge devices is highly desired by many applications, including autonomous driving, medical image processing, computational photography, etc.",
+        "location": "Sec 2.1.2"
+      },
+      {
+        "domain": "robotics",
+        "detail": "Edge model demonstrations in office environments are presented as useful for robotics research.",
+        "quote": "The model’s adept performance in office environments is particularly highlighted, offering significant utility for the field of robotics research.",
+        "location": "Sec 4.8"
+      }
+    ],
+    "deploymentClaims": [
+      "75.2 FPS on an NVIDIA A100 with TensorRT optimization while reaching 36.2 zero-shot AP on LVIS-minival.",
+      "Over 10 FPS on NVIDIA Orin NX at 640x640 input size with TensorRT-optimized Edge model.",
+      "Edge model designed specifically for faster speed demanded by applications requiring edge deployment.",
+      "API and demos released for practical use."
+    ],
+    "evidence": [
+      {
+        "quote": "the Grounding DINO 1.5 Edge model, when optimized with TensorRT, achieves a speed of 75.2 FPS while attaining a zero-shot performance of 36.2 AP on the LVIS-minival benchmark, making it more suitable for edge computing scenarios.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "We deploy the model on the NVIDIA Orin NX platform, achieving an inference speed of over 10 FPS at an input size of 640 × 640.",
+        "location": "Sec 2.1.2"
+      }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2405.10300",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2405.10300"
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "id": "OD052",
+  "arxiv": "1909.12456",
+  "title": "ASSD: Attentive Single Shot Multibox Detector",
+  "year": 2019,
+  "venue": null,
+  "problem": {
+    "summary": "One-stage detectors are fast but less accurate than two-stage detectors, largely because of foreground/background imbalance among dense anchors, while existing fixes such as RetinaNet's focal loss are parameter sensitive and heavier SSD refinements (DSSD/FSSD) cost computation.",
+    "statements": [
+      "One-stage detectors are generally less accurate than two-stage detectors, mainly due to extreme foreground-background class imbalance of dense anchor boxes.",
+      "RetinaNet's focal loss is parameter sensitive and needs exhaustive experiments to tune.",
+      "SSD's shallow feature layers lack semantic information and are insufficient for detecting small objects."
+    ],
+    "problemTags": ["class-imbalance", "one-stage-accuracy", "small-objects", "speed-latency"],
+    "evidence": [
+      {
+        "quote": "However, the one-stage detectors are generally less accurate than the two-stage ones. The main reason would be the extreme foreground-background class imbalance of the dense anchor boxes [18].",
+        "location": "Introduction"
+      },
+      {
+        "quote": "However, the focal loss is parameter sensitive, and it would require exhaustive experiments to obtain the optimal parameters.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "However, the shallow layer lacks semantic information and is therefore insufficient for detecting small objects.",
+        "location": "Sec 3"
+      }
+    ]
+  },
+  "background": {
+    "summary": "ASSD builds on SSD as the base one-stage detector, contrasts with DSSD's complex feature pyramid and FSSD's fusion modules, and adapts Transformer-style self-attention plus prior contextual-attention work (AC-CNN, LPA, RelationNet) to pixel-level feature relations.",
+    "relatedWork": [
+      {
+        "name": "SSD",
+        "relation": "base detector chosen for its speed/accuracy/simplicity trade-off",
+        "quote": "We choose the SSD as our base one-stage detector, which provides the optimal trade-off among simplicity, speed and accuracy.",
+        "location": "Introduction"
+      },
+      {
+        "name": "DSSD",
+        "relation": "prior SSD refinement using a complex feature pyramid at higher computational cost",
+        "quote": "DSSD [5] relies on a complex feature pyramid to encourage the information flow among different layers.",
+        "location": "Introduction"
+      },
+      {
+        "name": "FSSD",
+        "relation": "prior fusion-module refinement with only marginal gains over SSD",
+        "quote": "Another recent approach, FSSD [16], builds additional fusion modules for multi-scale feature aggregation, but only achieves marginal improvements upon SSD.",
+        "location": "Introduction"
+      },
+      {
+        "name": "Transformer",
+        "relation": "source of the self-attention mechanism adapted to feature maps",
+        "quote": "Transformer [29] draws global dependencies between input and output based solely on attention mechanisms.",
+        "location": "Sec 2.3"
+      },
+      {
+        "name": "RelationNet",
+        "relation": "proposal-level attention prior work limited to two-stage detectors",
+        "quote": "RelationNet correlates the geometry features and appearance information between proposals to generate and forward the attentive features, and it is designed specifically for the two-stage object detectors.",
+        "location": "Sec 2.2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Two-stage object detectors are quite effective at object feature learning. However, they are generally inefficient in computation.",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "Compared to methods that only build relations among proposals [11, 31], our method considers the global feature correlations at pixel level and conforms to the visual mechanism of humans.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "ASSD embeds a small fully differentiable attention unit between SSD's feature maps and prediction heads: it projects features to queries/keys/values, builds an NxN softmax attention map of pixel-level relations, and adds the reweighted features back residually, optionally after fusing semantics from deeper layers into conv3.",
+    "approach": "Use a Transformer-style self-attention unit on each SSD feature map to highlight useful regions and suppress irrelevant ones before box regression and classification, keeping SSD's overall structure.",
+    "components": [
+      "attention unit with query/key/value projections (C' = C/8) and softmax attention map",
+      "residual feature update x_s = x_s + (a_s v(x_s)^T)^T",
+      "semantic fusion of conv4 and conv5 into conv3 with bilinear upsampling and 1x1 conv",
+      "ResNet101 backbone with SSD-style extra blocks conv6-9",
+      "multi-scale predictions from conv3-9",
+      "hard negative mining and SSD anchor/loss settings unchanged"
+    ],
+    "solutionTags": ["attention", "self-attention", "feature-fusion", "one-stage", "dense-prediction"],
+    "evidence": [
+      {
+        "quote": "The proposed network, termed ASSD, builds feature relations in the spatial space of the feature map.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "This design generates the attention maps which highlight the useful regions and suppress the irrelevant information.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "we construct a small network, namely attention unit, and embed it into SSD to improve the detection accuracy.",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "It highlights the relevant parts of the feature map and guides the detection with refined information.",
+        "location": "Sec 3.1"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "ASSD is evaluated on PASCAL VOC 2007/2012 test and COCO 2017 test-dev against SSD, DSSD, FSSD, RetinaNet, RefineDet and two-stage detectors, with an ablation separating the attention unit from semantic fusion and a visualization of the learned attention maps.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "83.0", "split": "test, ASSD513 (07+12)", "location": "Table 2" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "81.6", "split": "test, ASSD512 (07+12)", "location": "Table 2" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "80.0", "split": "test, ASSD300 (07+12)", "location": "Table 2" },
+      { "dataset": "PASCAL VOC 2012", "metric": "mAP", "value": "81.3", "split": "test, ASSD513 (07++12)", "location": "Table 4" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "34.5", "split": "test-dev, ASSD513", "location": "Table 5" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "29.2", "split": "test-dev, ASSD321", "location": "Table 5" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "82.95", "split": "test, SSD513+fusion+att ablation", "location": "Table 3" }
+    ],
+    "baselines": ["SSD", "DSSD", "FSSD", "RetinaNet", "RefineDet", "Faster R-CNN", "R-FCN", "YOLOv2"],
+    "evidence": [
+      {
+        "quote": "Experimental results show that ASSD competes favorably with the state-of-the-arts, including SSD, DSSD, FSSD and RetinaNet.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "As shown in Table 2, with a comparable fast speed, ASSD achieves a large improvement in accuracy compared to SSD, DSSD, and FSSD.",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "when the intersection over union (IoU) is higher than 0.5, ASSD513 has a 2.4% improvement compared to RetinaNet500.",
+        "location": "Sec 5.4"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The gains come with extra compute, the fusion component alone does not help, and ASSD keeps SSD's dense anchors and hard negative mining rather than redesigning label assignment.",
+    "items": [
+      "Semantic fusion alone does not notably improve accuracy and adds computational overhead.",
+      "The full attention+fusion model runs slower than plain SSD513 (0.1648s vs 0.1417s per image on a K40).",
+      "ASSD retains SSD's anchor boxes and hard negative mining, so the dense-anchor design and its imbalance issue are mitigated rather than removed."
+    ],
+    "evidence": [
+      {
+        "quote": "we find the fusion operation alone does not notably improve the detection accuracy (see Table 3).",
+        "location": "Sec 3.2"
+      },
+      {
+        "quote": "Instead, it even decreases the accuracy a bit with more computational cost.",
+        "location": "Sec 3.2"
+      },
+      {
+        "quote": "We use hard negative mining to solve the positive-negative box class imbalance problem as in the original SSD [21].",
+        "location": "Sec 4"
+      }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["PASCAL VOC 2007", "PASCAL VOC 2012", "COCO 2017"],
+    "backbones": ["ResNet101", "VGG16"],
+    "models": ["ASSD300", "ASSD321", "ASSD512", "ASSD513", "SSD"],
+    "algorithms": ["self-attention", "hard negative mining", "semantic fusion", "bilinear interpolation upsampling"],
+    "metrics": ["mAP", "AP", "AP50", "FPS"],
+    "equations": [
+      { "name": "attention scores", "expr": "a_s = q(x_s) k(x_s)^T", "location": "Eq 1, Sec 3.1" },
+      { "name": "softmax attention", "expr": "a_bar_s,ij = exp(a_s,ij) / sum_j exp(a_s,ij)", "location": "Eq 2, Sec 3.1" },
+      { "name": "feature update", "expr": "x_s = x_s + (a_bar_s v(x_s)^T)^T", "location": "Sec 3.1" },
+      { "name": "semantic fusion", "expr": "x_3 = W_3 Concat{x_3, x_4, x_5} + b_3", "location": "Eq 3, Sec 3.2" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "real-time applications",
+        "detail": "the one-stage design is motivated by the need for detectors usable in real-time settings where two-stage pipelines are too slow",
+        "quote": "However, these two-stage object detectors are inefficient for real-time applications due to the decoupled multi-stage processing.",
+        "location": "Introduction"
+      }
+    ],
+    "deploymentClaims": [
+      "ASSD513 reaches 34.5 AP on COCO test-dev at 16.0 FPS (Titan X) or 6.1 FPS (K40)",
+      "ASSD300 runs at 11.8 FPS on a K40 with 80.0 mAP on VOC2007 test",
+      "Inference time measured on a single NVIDIA K40 GPU",
+      "Implemented in PyTorch, trained on 8 NVIDIA Tesla K80 GPUs",
+      "Code released at https://github.com/yijingru/ASSD-Pytorch"
+    ],
+    "evidence": [
+      {
+        "quote": "ASSD513 (6.1FPS K40) still achieves comparable speed as RetinaNet500 (6.8FPS K40).",
+        "location": "Sec 5.4"
+      },
+      {
+        "quote": "Time is evaluated on a single NVIDIA K40 GPU.",
+        "location": "Table 3"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1016/j.cviu.2019.102827",
+    "arxivUrl": "https://arxiv.org/abs/1909.12456",
+    "venue": "Computer Vision and Image Understanding",
+    "pdfUrl": "https://arxiv.org/pdf/1909.12456"
+  }
+}

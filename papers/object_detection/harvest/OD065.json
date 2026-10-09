@@ -1,0 +1,120 @@
+{
+  "id": "OD065",
+  "arxiv": "2011.09094",
+  "title": "UP-DETR: Unsupervised Pre-training for Object Detection with Transformers",
+  "year": 2020,
+  "venue": "TPAMI 2022",
+  "problem": {
+    "summary": "DETR trains its transformer encoder-decoder from scratch, needing large-scale data and extremely long schedules even on COCO, and performing poorly when data is scarce (e.g. PASCAL VOC); existing unsupervised pretext tasks target CNN backbones and cannot pre-train DETR's transformer.",
+    "statements": [
+      "Trained with scratch transformers, DETR needs large-scale training data and an extreme long training schedule even on COCO.",
+      "DETR performs poorly on PASCAL VOC, which has insufficient training data and fewer instances than COCO.",
+      "Existing contrastive pretext tasks focus on feature discrimination rather than the spatial localization the DETR transformer performs.",
+      "Popular unsupervised methods pre-train the backbone, but DETR's transformer (about 18.0M parameters) has never been pre-trained."
+    ],
+    "problemTags": ["convergence", "weak-supervision", "annotation-cost"],
+    "evidence": [
+      { "quote": "However, trained with scratch transformers, DETR needs large-scale training data and an extreme long training schedule even on COCO dataset.", "location": "Abstract" },
+      { "quote": "Besides, it is found that DETR performs poorly in PASCAL VOC dataset [6] which has insufficient training data and fewer instances than COCO.", "location": "Introduction" },
+      { "quote": "existing pretext tasks can not directly apply to pre-train the transformer in DETR.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on DETR (set prediction with a Transformer encoder-decoder and Hungarian matching), self-supervised/unsupervised pre-training (MoCo, SwAV, SimCLR, BERT-style language model pre-training), and vision transformers. The gap claimed is that no existing pretext task trains the spatial-localization behaviour of DETR's transformer.",
+    "relatedWork": [
+      { "name": "DETR", "relation": "base architecture whose transformer is pre-trained", "quote": "DETR [1] is a recent object detection framework that is conceptually simpler without hand-crafted process by direct set prediction [25], which assigns the positive and negative samples automatically.", "location": "Sec 2.1" },
+      { "name": "Masked language model (BERT)", "relation": "prior transformer pre-training paradigm from NLP", "quote": "For natural language processing, utilizing time sequence relationship between discrete tokens, masked language model [9], permutation language model [29] and auto regressive model [7], [8] are proposed to pre-train transformers [2] for language representation.", "location": "Sec 2.2" },
+      { "name": "MoCo / SwAV", "relation": "prior unsupervised visual representation learning used for the frozen CNN", "quote": "For computer vision, unsupervised pre-training models also achieve remarkable progress recently for visual representation learning, outperforming the supervised learning counterpart in downstream tasks.", "location": "Sec 2.2" },
+      { "name": "Vision Transformer (ViT)", "relation": "contemporaneous transformer backbone design contrasted with DETR", "quote": "The pioneering work is Vision Transformer (ViT) [33], which applies a transformer on non-overlapping image patches for image classification.", "location": "Sec 2.3" }
+    ],
+    "evidence": [
+      { "quote": "we need to construct a spatial localization related task to pre-train the transformer in DETR.", "location": "Introduction" },
+      { "quote": "Therefore, existing pre-training tasks of backbones [10], [11], [37] can not be simply applied to DETR.", "location": "Sec 2.3" }
+    ]
+  },
+  "solution": {
+    "summary": "UP-DETR pre-trains the DETR transformer with a random query patch detection pretext task: patches are randomly cropped from an unlabeled image, added to object queries, and the decoder must localize them; a frozen SwAV CNN backbone, patch feature reconstruction loss, multi-query patch assignment and an attention mask handle the multi-task and multi-query issues, after which the model is fine-tuned for object or one-shot detection.",
+    "approach": "Turn pre-training into an unsupervised set-prediction problem in which randomly cropped query patches are found in the image by the transformer decoder without any human annotations.",
+    "components": [
+      "random query patch detection pretext task on ImageNet without labels",
+      "frozen SwAV-pre-trained CNN backbone during transformer pre-training",
+      "patch feature reconstruction loss Lrec (MSE between l2-normalized features)",
+      "multi-query patch detection: N=100 object queries split into M=10 patch groups",
+      "attention mask matrix added to decoder self-attention softmax",
+      "Hungarian matching with class-balance weight lambda (M/N for negatives)",
+      "fine-tuning with unchanged DETR architecture for object detection or one-shot detection"
+    ],
+    "solutionTags": ["transformer-query", "set-prediction", "attention", "self-supervised-pretraining"],
+    "evidence": [
+      { "quote": "we propose a novel pretext task named random query patch detection in Unsupervised Pre-training DETR (UP-DETR).", "location": "Abstract" },
+      { "quote": "we randomly crop multiple query patches from the given image, and pre-train the transformer for object detection to predict the bounding boxes of these query patches in the given image.", "location": "Introduction" },
+      { "quote": "We argue that the frozen pre-training backbone is the most essential step to the success of UP-DETR.", "location": "Sec 3.1.1" },
+      { "quote": "we utilize an attention mask matrix to control the interactions between different object queries.", "location": "Sec 3.1.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "The transformer is pre-trained on the unlabeled 1.28M ImageNet training set (60 epochs, eight V100 GPUs) and fine-tuned on PASCAL VOC and COCO, comparing against DETR and Faster R-CNN under matched settings; transfer is also evaluated on one-shot detection and panoptic segmentation, with ablations on query-patch count, frozen CNN, feature reconstruction and the attention mask.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC", "metric": "AP", "value": "56.1", "split": "test2007, UP-DETR 150 epochs", "location": "Table 1" },
+      { "dataset": "PASCAL VOC", "metric": "AP", "value": "57.2", "split": "test2007, UP-DETR 300 epochs", "location": "Table 1" },
+      { "dataset": "PASCAL VOC", "metric": "AP", "value": "49.9", "split": "test2007, DETR 150 epochs baseline", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "43.1", "split": "val2017, UP-DETR 300 epochs", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "42.1", "split": "val2017, UP-DETR 150 epochs", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "PQ", "value": "44.7", "split": "val2017, panoptic segmentation", "location": "Table 4" },
+      { "dataset": "PASCAL VOC", "metric": "AP50", "value": "73.1", "split": "2007test, one-shot detection, seen classes", "location": "Table 3" }
+    ],
+    "baselines": ["DETR", "Faster R-CNN", "Mask R-CNN", "Grid R-CNN", "RetinaNet", "FCOS", "Double-head R-CNN"],
+    "evidence": [
+      { "quote": "In our experiments, UP-DETR significantly boosts the performance of DETR with faster convergence and higher average precision on object detection, one-shot detection and panoptic segmentation.", "location": "Abstract" },
+      { "quote": "UP-DETR obtains 43.1 AP on COCO, which is 1.0 AP better than DETR (SwAV CNN) and 1.1 AP better than Faster R-CNN (R50-FPN) (9× schedule).", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "UP-DETR still trails Faster R-CNN on small objects because it lacks an FPN-like neck, it depends on an already pre-trained SwAV CNN, a gap between patch-level ImageNet pre-training and multi-object detection fine-tuning remains, and the attention mask gives no noticeable downstream gain.",
+    "items": [
+      "Small-object AP lags Faster R-CNN because of the lacking of FPN-like architecture.",
+      "The method heavily relies on an externally pre-trained CNN (SwAV) since the CNN is frozen during transformer pre-training.",
+      "The gap between patch-level pre-training on ImageNet and labeled fine-tuning on COCO/VOC cannot be eliminated.",
+      "After downstream fine-tuning there is no noticeable difference between models pre-trained with and without the attention mask."
+    ],
+    "evidence": [
+      { "quote": "Regrettably, UP-DETR is still slightly lagging behind Faster R-CNN in APS , because of the lacking of FPN-like architecture [43].", "location": "Sec 4.2" },
+      { "quote": "It is worth noting that UP-DETR with frozen CNN and feature reconstruction heavily relies on a pre-trained CNN model, e.g. SwAV CNN.", "location": "Sec 4.5.2" },
+      { "quote": "However, the gap between pre-training and fine-tuning always exists.", "location": "Sec 4" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Combine random query patch detection with contrastive learning to pre-train the whole DETR model from scratch.", "quote": "Therefore, we believe that it is a promising direction to further investigate UP-DETR with random query patch detection and contrastive learning together to pre-train the whole DETR model from scratch.", "location": "Sec 4.5.2" },
+    { "direction": "Integrate CNN and transformer pre-training into one end-to-end framework and extend UP-DETR to few-shot detection and object tracking.", "quote": "We hope an advanced method can integrate the CNN and transformer pretraining into a unified end-to-end framework and apply UP-DETR to more downstream tasks (e.g. few-shot object detection and object tracking).", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["ImageNet", "PASCAL VOC", "COCO"],
+    "backbones": ["ResNet-50", "ResNet-101", "SwAV CNN"],
+    "models": ["UP-DETR", "DETR", "Faster R-CNN", "Mask R-CNN", "RetinaNet", "FCOS", "Vision Transformer"],
+    "algorithms": ["Hungarian bipartite matching", "random query patch detection", "attention mask", "AdamW", "SwAV", "SimCLR-style augmentation"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "PQ", "PQth"],
+    "equations": [
+      { "name": "Pre-training Hungarian loss", "expr": "L(y, y_hat) = sum_i [ lambda_{c_i} L_cls(c_i, c_hat_{sigma(i)}) + 1{c_i=1} L_box(b_i, b_hat) + 1{c_i=1} L_rec(p_i, p_hat) ]", "location": "Sec 3.1, Eq. 1" },
+      { "name": "Patch feature reconstruction", "expr": "L_rec(p_i, p_hat) = || p_i/||p_i||_2 - p_hat/||p_hat||_2 ||_2^2", "location": "Sec 3.1.2, Eq. 2" },
+      { "name": "Attention mask", "expr": "X_{i,j} = 0 if i,j in the same group, -inf otherwise", "location": "Sec 3.1.2, Eq. 3" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "UP-DETR has exactly the same FLOPs, parameters and running FPS as the authors' DETR re-implementation",
+      "Pre-training runs 60 epochs with batch size 256 on eight Nvidia V100 GPUs",
+      "Code and pre-training models released at github.com/dddzg/up-detr"
+    ],
+    "evidence": [
+      { "quote": "So, they have exactly the same FLOPs, parameters and running FPS.", "location": "Sec 4" },
+      { "quote": "UP-DETR converges much faster with a higher AP than DETR.", "location": "Introduction" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/TPAMI.2022.3216514",
+    "arxivUrl": "https://arxiv.org/abs/2011.09094",
+    "venue": "TPAMI 2022",
+    "pdfUrl": "https://arxiv.org/pdf/2011.09094"
+  }
+}

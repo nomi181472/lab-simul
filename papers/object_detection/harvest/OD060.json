@@ -1,0 +1,133 @@
+{
+  "id": "OD060",
+  "arxiv": "2007.11056",
+  "title": "BorderDet: Border Feature for Dense Object Detection",
+  "year": 2020,
+  "venue": "Lecture notes in computer science",
+  "problem": {
+    "summary": "Sliding-window dense detectors (SSD, RetinaNet, FCOS) localize from a single grid-point feature that has a limited receptive field and lacks explicit object-boundary information, while existing whole-box extractors (RoIAlign, deformable/adaptive convolution) sample densely inside the box, adding redundant computation, background contamination, and only implicit border features.",
+    "statements": [
+      "Single point features may lack the explicit border information and receptive-field coverage needed for precise box regression.",
+      "Whole-box feature extraction involves unnecessary computation and is easily affected by the background.",
+      "Prior methods extract border features implicitly and indirectly, with no specific extraction on the borders.",
+      "Dense border-localization pipelines such as LocNet/SABL rely on high-resolution RoI feature maps and are restricted when moved into dense detectors."
+    ],
+    "problemTags": ["localization", "one-stage-accuracy"],
+    "evidence": [
+      { "quote": "The point feature is convenient to use but may lack the explicit border information for accurate localization.", "location": "Abstract" },
+      { "quote": "the point feature may contain insufficient information for representing the full instance with its limited receptive field. Meanwhile, it may also lack the information of the object boundary to precisely regress the bounding box.", "location": "Introduction" },
+      { "quote": "The feature extracted within the whole boxes may involve unnecessary computation and easily be affected by the background.", "location": "Introduction" },
+      { "quote": "These methods extract the border features implicitly and indirectly.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "Related work spans the sliding-window paradigm (DenseBox, YOLO, SSD, RetinaNet, FCOS), feature-representation improvements via deformable/adaptive convolution (Guided Anchor, Cascade-RPN, RepPoints) that sample the whole box, RoI-based pooling, and row/column border-localization stages (LocNet, SABL).",
+    "relatedWork": [
+      { "name": "Guided Anchor", "relation": "enhances the single-point feature with deformable convolution but extracts from the whole object", "quote": "Guided Anchor [24] is proposed to enhance the single point feature representation by utilizing the deformable convolution.", "location": "Related Works" },
+      { "name": "Cascade-RPN", "relation": "adaptive convolution aligning feature maps to predicted boxes, whole-box extraction", "quote": "Cascade-RPN [23] presents adaptive convolution to align the features maps to their corresponding object bounding box predictions.", "location": "Related Works" },
+      { "name": "RepPoints", "relation": "represents boxes as point sets with deformable-convolution point features", "quote": "Reppoints [26] formulate the object bounding box as a set of representative points and extract the representative point feature by deformable convolution.", "location": "Related Works" },
+      { "name": "LocNet / SABL", "relation": "explicit border localization via axis-wise aggregation, but dependent on high-resolution RoI features", "quote": "LocNet [6] and SABL [25] adopt an additional object localization stage which aggregates the RoI feature maps along with X-axis and Y-axis to locate the object borders", "location": "Related Works" }
+    ],
+    "evidence": [
+      { "quote": "However, the feature maps proposed in these methods are extracted from the whole object, thus the feature extraction is redundant and easily affected by the background feature maps.", "location": "Related Works" },
+      { "quote": "Typical sliding-window object detectors adopt a point-based feature representation.", "location": "Related Works" }
+    ]
+  },
+  "solution": {
+    "summary": "BorderDet adds a BorderAlign operator that channel-wise max-pools border-sensitive feature maps (4+1)C over N sample points per border to capture extreme-point features, then uses Border Alignment Modules in a coarse-to-border two-stage head: coarse FCOS predictions supply box locations, border branches predict category-aware border scores and offsets, and final scores multiply coarse by border scores.",
+    "approach": "Explicitly pool representative border features (extreme points) from border-sensitive channels and fuse them with the single-point feature to refine classification and regression.",
+    "components": [
+      "border-sensitive feature maps with (4+1)C channels: 4C for left/top/right/bottom borders plus C for the single point",
+      "BorderAlign: each border subdivided into N=10 points, channel-wise max-pooling, bilinear interpolation to avoid quantization error",
+      "Border Alignment Module (BAM): 1x1 convolution with instance normalization producing border-sensitive maps, then BorderAlign, then 1x1 convolution back to C channels",
+      "two-stage coarse-then-border prediction; final classification score = coarse score multiplied by border score",
+      "category-aware border classification score to avoid ambiguity when category boundaries overlap",
+      "BorderRPN variant: dilated 3x3 convolution plus BAM to boost two-stage proposal generation"
+    ],
+    "solutionTags": ["dense-prediction", "edge-detection-based", "feature-fusion", "one-stage"],
+    "evidence": [
+      { "quote": "propose a novel feature extractor, called BorderAlign to effectively exploit the border feature.", "location": "Sec 3.2" },
+      { "quote": "our BorderAlign take the border-sensitive feature maps I with (4 + 1)C channels as the input.", "location": "Sec 3.2" },
+      { "quote": "The proposed BorderAlign could adaptively exploit the representative border features from the extreme points of the borders.", "location": "Sec 3.2" },
+      { "quote": "the final classification score is obtained by multiplying the coarse score and border score.", "location": "Sec 3.4" }
+    ]
+  },
+  "experiments": {
+    "summary": "Ablations train on COCO trainval35k and evaluate on minival with a ResNet-50+FPN FCOS baseline (90k iterations, 8 GPUs, flipping-only augmentation), isolating BAM placement, pooling size, border-sensitive maps and aggregation strategy; comparisons with other extractors, RetinaNet/FPN integration, and SOTA numbers run on test-dev under standard and advanced settings.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "41.4", "split": "minival, ResNet-50 FCOS baseline + BAM on both branches (vs 38.6)", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "43.2", "split": "test-dev, ResNet-101-FPN, 90k iterations, standard setting", "location": "Table 8" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "45.4", "split": "test-dev, ResNet-101-FPN, 180k iterations, multi-scale training", "location": "Table 8" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "48.0", "split": "test-dev, ResNeXt-64x4d-101-DCN, multi-scale training", "location": "Table 8" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "50.3", "split": "test-dev, ResNeXt-64x4d-101-DCN, multi-scale testing", "location": "Table 8" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "38.4", "split": "minival, RetinaNet + border module (vs 36.1 baseline)", "location": "Table 7" },
+      { "dataset": "MS COCO", "metric": "FPS", "value": "16.7", "split": "minival timing at pooling size 10 (ResNet-50)", "location": "Table 3" }
+    ],
+    "baselines": ["FCOS", "RetinaNet", "FPN", "Faster R-CNN", "Cascade R-CNN", "Mask R-CNN", "CornerNet", "CenterNet", "FSAF", "RefineDet"],
+    "evidence": [
+      { "quote": "the implementation of the BAM on both branches can further improve the performance from 38.6 to 41.4.", "location": "Sec 4.2" },
+      { "quote": "Table. 6 reveals that the BorderAlign outperforms other feature extraction operators by 1.0 AP at least.", "location": "Sec 4.3" },
+      { "quote": "The number of valid prediction boxes (IoU greater than 0.5) increased by about 30%.", "location": "Sec 4.4" },
+      { "quote": "By adopting advanced settings, BorderDet reaches 50.3 AP, the state of the art among existing one-stage methods and two-stage methods.", "location": "Sec 4.6" }
+    ]
+  },
+  "limitations": {
+    "summary": "No limitations section; BorderDet still depends on a two-stage coarse-to-border pipeline with IoU-threshold assignment and NMS at inference, introduces a pooling-size hyper-parameter that is unstable when small, and is validated only on COCO.",
+    "items": [
+      "Inference still ends in NMS with a fixed threshold of 0.6 over merged pyramid-level predictions.",
+      "The second stage assigns coarse boxes to ground truth with an IoU threshold of 0.6, adding another tuned threshold.",
+      "BorderAlign introduces a pooling-size hyper-parameter; small values give unstable results.",
+      "All experiments use COCO with FCOS/RetinaNet/FPN-style detectors; other datasets are not evaluated."
+    ],
+    "evidence": [
+      { "quote": "Finally, the predictions from all levels are merged and non-maximum suppression(NMS) with a threshold of 0.6.", "location": "Sec 3.4" },
+      { "quote": "by using an intersection-over-union (IoU) threshold of 0.6.", "location": "Sec 3.4" },
+      { "quote": "small pooling size leads to unstable results, the pooling size is set to 10 as our default setting.", "location": "Sec 4.3" },
+      { "quote": "Following the common practice, our ablation experiments are trained on COCO trainval35k set (115K images) and evaluated on COCO minival set (5K images).", "location": "Sec 4.1" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Deploy the border module as a plug-and-play add-on inside other dense detectors.",
+      "quote": "the proposed method can be integrated into other object detectors in a plug-and-play manner, including RetinaNet [16], FCOS [21] and so forth.",
+      "location": "Sec 3.3"
+    },
+    {
+      "direction": "Use border alignment to improve proposal generation for two-stage detectors.",
+      "quote": "Our method can also be served as a better proposal generator for the typical two-stage detectors.",
+      "location": "Sec 3.3"
+    }
+  ],
+  "technical": {
+    "datasets": ["COCO trainval35k", "COCO minival", "COCO test-dev", "ImageNet pretraining"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt-64x4d-101", "ResNeXt-64x4d-101-DCN", "FPN"],
+    "models": ["BorderDet (on FCOS)", "BorderRPN", "FCOS", "RetinaNet", "FPN / Faster R-CNN", "Cascade R-CNN", "Mask R-CNN", "CornerNet", "CenterNet", "FSAF", "RefineDet"],
+    "algorithms": ["BorderAlign", "channel-wise max-pooling", "bilinear interpolation", "instance normalization", "dilated convolution", "focal loss", "IoU loss", "NMS", "multi-scale training"],
+    "metrics": ["AP", "AP50", "AP60", "AP70", "AP80", "AP90", "AP75", "APs/APm/APl", "FPS"],
+    "equations": [
+      { "name": "BorderAlign pooling", "expr": "F_c(i,j) = max over 0<=k<N of border sample I_c at k/N offset, selected by channel group (point, left, top, right, bottom)", "location": "Eqn. (1), Sec 3.2" },
+      { "name": "border regression targets", "expr": "delta_x0 = (x0_t - x0)/(w*sigma), delta_y0 = (y0_t - y0)/(h*sigma), similarly delta_x1, delta_y1", "location": "Eqn. (2), Sec 3.4" },
+      { "name": "multi-task loss", "expr": "L = L_cls^C + L_reg^C + (1/Npos) * sum_{x,y} 1{C*>0} * (L_cls^B + L_reg^B)", "location": "Eqn. (3), Sec 3.4" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "41.4 AP at 16.7 fps with ResNet-50 at pooling size 10 (Table 3).",
+      "Extra cost from the two additional predictions is negligible thanks to layer sharing.",
+      "Plug-and-play integration into existing dense detectors without changing their settings."
+    ],
+    "evidence": [
+      { "quote": "the additional computation is negligible due to the effective structure and layer sharing.", "location": "Sec 3.3" },
+      { "quote": "All the fps of the extraction strategies are tested on a single NVIDIA 2080Ti GPU", "location": "Table 6" },
+      { "quote": "Considering the speed/accuracy trade-off, pooling size equals to 10 in all our experiments", "location": "Table 3" },
+      { "quote": "can be integrated into other object detectors in a plug-and-play manner", "location": "Sec 3.3" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1007/978-3-030-58452-8_32",
+    "arxivUrl": "https://arxiv.org/abs/2007.11056",
+    "venue": "Lecture notes in computer science",
+    "pdfUrl": "https://arxiv.org/pdf/2007.11056"
+  }
+}

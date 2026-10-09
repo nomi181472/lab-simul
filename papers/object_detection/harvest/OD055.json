@@ -1,0 +1,122 @@
+{
+  "id": "OD055",
+  "arxiv": "2003.09119",
+  "title": "CentripetalNet: Pursuing High-quality Keypoint Pairs for Object Detection",
+  "year": 2020,
+  "venue": "CVPR 2020",
+  "problem": {
+    "summary": "In corner/keypoint-based detectors the hard step is pairing the two keypoints of the same object: associative-embedding matching is trained with push/pull losses that become unstable with multiple similar objects, and it uses only appearance so similar-looking objects far apart get confused. Anchor-based detectors meanwhile require hand-designed anchors and suffer positive/negative imbalance.",
+    "statements": [
+      "Corner-based detectors still produce incorrect keypoint pairs, which directly degrades detection performance.",
+      "Associative embedding matching is highly sensitive to outliers and training becomes much harder when several similar objects appear in one image.",
+      "Embedding prediction ignores position information, so two similar-appearance objects far apart receive similar embeddings.",
+      "Anchor-based detectors make anchors hard to hand-design and suffer an imbalance between negative and positive anchor boxes."
+    ],
+    "problemTags": ["localization", "crowded-scenes", "anchor-design"],
+    "evidence": [
+      { "quote": "However, incorrect keypoint matching is still widespread and greatly affects the performance of the detector.", "location": "Abstract" },
+      { "quote": "it is difficult to manually design a set of suitable anchors", "location": "Introduction" },
+      { "quote": "It is highly sensitive to outliers and the training difficulty will increase dramatically when there are multiple similar objects in one training sample.", "location": "Introduction" },
+      { "quote": "the embedding prediction is based on the appearance feature without using position information", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on the corner-based line started by CornerNet (boxes as keypoint pairs grouped by associative embedding) and CenterNet (adds a center heatmap as validation), plus the anchor-free alternatives FCOS/ExtremeNet/RepPoints and the anchor-based two-stage and one-stage baselines. The claimed gap is the grouping/matching step, not corner prediction.",
+    "relatedWork": [
+      { "name": "CornerNet", "relation": "prior method that represents a box as a top-left/bottom-right corner pair grouped by associative embedding; the framework the paper extends", "quote": "the CornerNet [17] proposes a novel method to represent a bounding box as a pair of corners, i.e, top-left corner and bottom-right corner.", "location": "Introduction" },
+      { "name": "CenterNet", "relation": "adds a center detection branch to CornerNet and validates corners by center prediction, but cannot handle dense cases", "quote": "CenterNet [7] adds a center detection branch into CornerNet and largely improves the performance by center point validation.", "location": "Related Work" },
+      { "name": "FCOS", "relation": "anchor-free center/point-based baseline treating all points inside a box as positives", "quote": "FCOS [31] treats all the points inside the bounding box of the object as positive samples.", "location": "Related Work" },
+      { "name": "RetinaNet", "relation": "anchor-based baseline that addresses classification imbalance with focal loss", "quote": "RetinaNet [20] uses focal loss to mitigate classification imbalance problem.", "location": "Related Work" },
+      { "name": "Mask R-CNN", "relation": "two-stage instance segmentation prior; its RoIAlign layer is reused in the proposed mask head", "quote": "Mask R-CNN [11] replaces the RoIPool layer with the RoIAlign layer using bilinear interpolation.", "location": "Related Work" }
+    ],
+    "evidence": [
+      { "quote": "The corner-based detection framework can be divided into two steps including corner points prediction and corner matching.", "location": "Introduction" },
+      { "quote": "These methods usually achieve high recall with quite many false detections.", "location": "Related Work" }
+    ]
+  },
+  "solution": {
+    "summary": "CentripetalNet pairs corners by predicting for each corner a centripetal shift (a log-scaled 2-D offset to the box center) and matching corners whose decoded centers coincide inside a central region, re-scoring pairs by center proximity. A cross-star deformable convolution, guided by the corner-to-center shift, adapts corner-pooling features, and a RoIAlign mask head adds instance segmentation.",
+    "approach": "Match top-left and bottom-right corners by requiring their predicted centripetal shifts to decode to the same box center, and adapt corner features with a cross-star deformable convolution whose offset field encodes the guiding shift.",
+    "components": [
+      "centripetal shift module predicting log-scaled corner-to-center offsets and a central-region matching rule with score re-weighting",
+      "cross-star deformable convolution whose offset field is supervised by the guiding shift (corner to center)",
+      "corner prediction inherited from the CornerNet pipeline (corner heatmaps + local offsets, Hourglass backbone)",
+      "instance mask head using RoIAlign on predicted boxes, four 3x3 conv layers and a transposed conv to a 28 x 28 mask",
+      "multi-task training loss combining detection, offset, guiding shift, centripetal shift and mask terms",
+      "soft-NMS at test time to select final boxes"
+    ],
+    "solutionTags": ["keypoint-based", "anchor-free", "gaussian-heatmap", "post-processing-nms"],
+    "evidence": [
+      { "quote": "we propose CentripetalNet which uses centripetal shift to pair corner keypoints from the same instance", "location": "Abstract" },
+      { "quote": "we design a cross-star deformable convolution network to conduct feature adaption", "location": "Abstract" },
+      { "quote": "CentripetalNet consists of four modules, namely corner prediction module, centripetal shift module, cross-star deformable convolution, and instance mask head.", "location": "Sec 3" },
+      { "quote": "if the positions of the shifted corners are close enough, they form a bounding box with a high score.", "location": "Figure 2" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation is on MS-COCO 2017 (train2017, val2017, test-dev2017) against two-stage, anchor-based one-stage and anchor-free detectors for both detection and instance segmentation, plus ablations isolating centripetal shift, feature adaption variants and the mask branch (Hourglass-52 ablations, Hourglass-104 headline model).",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "48.0", "split": "test-dev2017, Hourglass-104, multi-scale", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "46.1", "split": "test-dev2017, Hourglass-104, single-scale", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "MaskAP", "value": "40.2", "split": "test-dev2017, Hourglass-104, multi-scale", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "MaskAP", "value": "38.8", "split": "test-dev2017, single-scale", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AR100", "value": "68.7", "split": "test-dev2017, multi-scale", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "40.7", "split": "ablation, Hourglass-52, centripetal shift vs 37.3 for associative embedding", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "41.5", "split": "ablation, Hourglass-52, cross-star deformable conv vs 40.7 with no adaption", "location": "Table 5" }
+    ],
+    "baselines": ["CornerNet", "CenterNet", "ExtremeNet", "FCOS", "RPDet (RepPoints)", "TridentNet", "Mask R-CNN", "HTC", "PANet"],
+    "evidence": [
+      { "quote": "CentripetalNet with Hourglass-104 as the backbone network achieves an AP of 46.1% at single-scale and 48.0% at multi-scale on MSCOCO test-dev 2017, which are the best performance in all anchor-free detectors.", "location": "Sec 4.2" },
+      { "quote": "our best model achieves 38.8% AP in single-scale test, while Mask R-CNN with ResNeXt-101FPN achieves 37.5% AP.", "location": "Sec 4.2" },
+      { "quote": "our model achieves comparable performance with a MaskAP of 40.2%.", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper has no dedicated limitations section, but it reports that the log transform of the centripetal shift can fail under heatmap rounding, that the guiding-shift loss weight is sensitive, and the headline numbers depend on flip and multi-scale testing; no inference speed is reported.",
+    "items": [
+      "The logarithm in the centripetal shift cannot always be applied because rounded heatmap offsets can be negative during training.",
+      "Performance degrades if the guiding-shift loss weight alpha is set too large.",
+      "Reported AP relies on flip augmentation and single-scale vs multi-scale test protocols; no FPS/runtime figure is given for the detector.",
+      "Evaluation is restricted to MS-COCO with Hourglass backbones, and the mask branch only uses features from the last backbone layer."
+    ],
+    "evidence": [
+      { "quote": "during implementation, it is sometimes impossible to apply the logarithm to the offset between the ground truth corners on heatmap and precise center locations", "location": "Sec 4.3" },
+      { "quote": "We set α to 0.05, as we find that large α degrades the performance of the network.", "location": "Sec 4.1" },
+      { "quote": "We use flip augmentation by default, and report both of single-scale and multi-scale test results on MS-COCO test-dev2017.", "location": "Sec 4.1" }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["MS COCO 2017 (train2017, val2017, test-dev2017)"],
+    "backbones": ["Hourglass-52", "Hourglass-104", "ResNet-101", "ResNeXt-101"],
+    "models": ["CentripetalNet", "CornerNet", "CenterNet", "ExtremeNet", "FCOS", "RPDet", "Mask R-CNN", "HTC", "TridentNet"],
+    "algorithms": ["centripetal shift corner matching", "cross-star deformable convolution", "corner pooling", "RoIAlign", "soft-NMS", "associative embedding", "smooth L1 loss"],
+    "metrics": ["AP", "AP50", "AP75", "APs/APm/APl", "AR", "MaskAP"],
+    "equations": [
+      { "name": "centripetal shift", "expr": "cs_tl = (log((ctx - tlx)/s), log((cty - tly)/s)); cs_br = (log((brx - ctx)/s), log((bry - cty)/s))", "location": "Eqn. (1), Sec 3.1" },
+      { "name": "central region", "expr": "Rcentral = {(x, y) | x in [ctlx, cbrx], y in [ctly, cbry]}", "location": "Eqn. (3), Sec 3.1" },
+      { "name": "pair score weight", "expr": "wj = exp(-|brctx - tlctx| * |brcty - tlcty| / ((cbrx - ctlx) * (cbry - ctly)))", "location": "Eqn. (5), Sec 3.1" },
+      { "name": "multi-task objective", "expr": "L = Ldet + Loff + alpha * Ldelta + Lcs + Lmask", "location": "Eqn. (9), Sec 4.1" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving, mobile entertainment, video surveillance",
+        "detail": "The introduction positions general object detection as a foundation technology for automatic driving, mobile entertainment and video surveillance applications.",
+        "quote": "Object detection is a fundamental topic in various applications of computer vision, such as automatic driving, mobile entertainment, and video surveillance.",
+        "location": "Introduction"
+      }
+    ],
+    "deploymentClaims": [],
+    "evidence": [
+      { "quote": "Object detection is a fundamental topic in various applications of computer vision, such as automatic driving, mobile entertainment, and video surveillance.", "location": "Introduction" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr42600.2020.01053",
+    "arxivUrl": "https://arxiv.org/abs/2003.09119",
+    "venue": "CVPR 2020",
+    "pdfUrl": "https://arxiv.org/pdf/2003.09119"
+  }
+}

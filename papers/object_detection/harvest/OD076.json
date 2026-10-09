@@ -1,0 +1,131 @@
+{
+  "id": "OD076",
+  "arxiv": "2108.06152",
+  "title": "Conditional DETR for Fast Training Convergence",
+  "year": 2021,
+  "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+  "problem": {
+    "summary": "DETR needs 500 training epochs because its decoder cross-attention relies heavily on content embeddings to localize the four box extremities: the spatial (positional) part of the attention contributes little, so short training leaves content queries too weak to match spatial keys and localization fails.",
+    "statements": [
+      "DETR suffers from slow training convergence and needs 500 training epochs to reach good performance.",
+      "Cross-attention in DETR relies highly on content embeddings for localizing the four extremities and predicting the box, raising the need for high-quality content embeddings and thus the training difficulty.",
+      "Object queries only give a general attention weight map without exploiting the specific image information of the image.",
+      "Due to short training the content queries are not strong enough to match the spatial keys well, since they are also used to match the content keys.",
+      "Global encoder self-attention also causes high computation complexity in DETR."
+    ],
+    "problemTags": ["convergence", "localization"],
+    "evidence": [
+      { "quote": "The DETR approach suffers from slow convergence on training, and needs 500 training epochs to get good performance.", "location": "Introduction" },
+      { "quote": "the cross-attention in DETR relies highly on the content embeddings for localizing the four extremities and predicting the box, which increases the need for high-quality content embeddings and thus the training difficulty.", "location": "Abstract" },
+      { "quote": "the spatial queries, i.e., object queries, only give the general attention weight map without exploiting the specific image information", "location": "Introduction" },
+      { "quote": "This increases the dependence on high-quality content embeddings, thus increasing the training difficulty.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on DETR (end-to-end set prediction without NMS/anchors), on work addressing DETR's weaknesses such as deformable DETR, TSP and the concurrent SMCA, and on conditional/dynamic convolution ideas; the gap claimed is that prior fixes either change the attention structure or use human-crafted Gaussian attenuation, while none separates content and spatial queries to shrink the localization range.",
+    "relatedWork": [
+      { "name": "DETR", "relation": "base architecture being accelerated", "quote": "It effectively eliminates the need for many hand-crafted components, including non-maximum suppression and anchor generation.", "location": "Introduction" },
+      { "name": "Deformable DETR", "relation": "addresses DETR with sparse deformable attention and a high-resolution encoder instead of a new cross-attention", "quote": "handles this issue by replacing the global dense attention (self-attention and cross-attention) with deformable attention that attends to a small set of key sampling points", "location": "Introduction" },
+      { "name": "TSP", "relation": "alternative fast-convergence route that removes cross-attention and uses FCOS/R-CNN heads", "quote": "The TSP (transformer-based set prediction) approach [37] eliminates the cross-attention modules and combines the FCOS and R-CNN-like detection heads.", "location": "Related Work" },
+      { "name": "SMCA", "relation": "concurrent work modulating cross-attention with hand-crafted Gaussian maps", "quote": "It modulates the DETR multi-head global cross-attentions with Gaussian maps around a few (shifted) centers that are learned from the decoder embeddings, to focus more on a few regions inside the estimated box.", "location": "Related Work" },
+      { "name": "Anchor-based and anchor-free detectors", "relation": "mainstream alternatives that rely on initial guesses (anchors or object centers)", "quote": "Most existing object detection approaches make predictions from initial guesses that are carefully designed.", "location": "Related Work" }
+    ],
+    "evidence": [
+      { "quote": "DETR and its variants. DETR successfully applies transformers to object detection, effectively removing the need for many hand-designed components like non-maximum suppression or initial guess generation.", "location": "Related Work" },
+      { "quote": "The other critical issue, slow training convergence, has been attracting a lot of recent research attention.", "location": "Related Work" }
+    ]
+  },
+  "solution": {
+    "summary": "Conditional DETR replaces DETR's added query/key formation with concatenation of content and spatial parts and predicts a conditional spatial query from the previous decoder embedding and a learnable or predicted reference point, so each cross-attention head focuses on a band covering one extremity or an interior region and training converges much faster.",
+    "approach": "Predict a conditional spatial query from the decoder embedding and reference point, and form cross-attention from concatenated content and spatial queries/keys so localization range is narrowed per head.",
+    "components": [
+      "conditional spatial query predicted from decoder embedding f and reference point s via an FFN and diagonal projection applied to the sinusoidal embedding of s",
+      "query/key formed by concatenating content and spatial parts instead of adding them, giving attention weight c_q^T c_k + p_q^T p_k",
+      "reference point either learned per prediction or predicted from the object query by an FFN",
+      "standard 8-head cross-attention with spatial and content parts projected separately per head",
+      "same DETR architecture otherwise: CNN backbone, transformer encoder, 6 decoder layers, shared prediction FFNs, 300 object queries",
+      "focal loss classification and L1+GIoU box regression following deformable DETR, with Hungarian bipartite matching"
+    ],
+    "solutionTags": ["transformer-query", "cross-attention", "set-prediction"],
+    "evidence": [
+      { "quote": "Our approach, named conditional DETR, learns a conditional spatial query from the decoder embedding for decoder multi-head cross-attention.", "location": "Abstract" },
+      { "quote": "each cross-attention head is able to attend to a band containing a distinct region, e.g., one object extremity or a region inside the object box.", "location": "Abstract" },
+      { "quote": "our mechanism separates the roles of content and spatial queries so that spatial and content queries focus on the spatial and content attention weights, respectively.", "location": "Sec 3.3" },
+      { "quote": "The conditional spatial query is computed by transforming the reference point in the embedding space", "location": "Sec 3.3" },
+      { "quote": "We choose the simple and computationally-efficient projection matrix, a diagonal matrix.", "location": "Sec 3.3" },
+      { "quote": "The multi-head mechanism is beneficial to disentangle the localization tasks.", "location": "Sec 3.3" }
+    ]
+  },
+  "experiments": {
+    "summary": "Experiments use COCO 2017 with the DETR training protocol across four backbones (R50, R101 and their DC5 variants), comparing DETR and conditional DETR at 50/75/108 epochs against DETR at 500 epochs and against deformable DETR, UP-DETR, TSP and Faster R-CNN-FPN, plus ablations of reference points, conditional spatial query variants and projection forms.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "40.9", "split": "val 2017, Conditional DETR-R50, 50 epochs", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "43.0", "split": "val 2017, Conditional DETR-R50, 108 epochs", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "43.8", "split": "val 2017, Conditional DETR-DC5-R50, 50 epochs", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "45.1", "split": "val 2017, Conditional DETR-DC5-R50, 108 epochs", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "44.5", "split": "val 2017, Conditional DETR-R101, 108 epochs", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "45.9", "split": "val 2017, Conditional DETR-DC5-R101, 108 epochs", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "42.0", "split": "val 2017, DETR-R50 baseline, 500 epochs", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "43.3", "split": "val 2017, DETR-DC5-R50 baseline, 500 epochs", "location": "Table 1" }
+    ],
+    "baselines": ["DETR", "Deformable DETR", "UP-DETR", "TSP-FCOS", "TSP-RCNN", "Faster R-CNN-FPN"],
+    "evidence": [
+      { "quote": "conditional DETR converges 6.7× faster for the backbones R50 and R101 and 10× faster for stronger backbones DC5-R50 and DC5-R101.", "location": "Abstract" },
+      { "quote": "conditional DETR for high-resolution backbones DC5-R50 and DC5-R101 is 10× faster than the original DETR, and for low-resolution backbones R50 and R101 6.67× faster.", "location": "Sec 4.2" },
+      { "quote": "Our results over R50 and DC5-R50 are better than deformable DETR-SS: 40.9 vs. 39.4 and 43.8 vs. 41.5.", "location": "Sec 4.2" },
+      { "quote": "The comparisons in Table 2 surprisingly show that our approach on DC5-R50 (16×) performs same as deformable DETR-R50 (multi-scale, 8×).", "location": "Sec 4.2" },
+      { "quote": "Conditional crossattention in our approach built on the basis of focal loss and offset regression brings a major gain 4.0.", "location": "Sec 4.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper has no limitations section; stated constraints are that it targets training convergence only and leaves the encoder's high computation complexity unaddressed, it is not expected to match multi-scale or higher-resolution DETR variants, and at 50 epochs on R50/R101 it is still slightly below DETR trained for 500 epochs.",
+    "items": [
+      "Global encoder self-attention complexity is not addressed; the method keeps the original DETR encoder.",
+      "Performance does not reach multi-scale or 8x-resolution DETR variants such as TSP-FCOS, TSP-RCNN and deformable DETR.",
+      "With only 50 epochs on low-resolution backbones R50/R101, accuracy is still slightly worse than DETR at 500 epochs.",
+      "Conditional DETR adds parameters and FLOPs over DETR (44M/90 GFLOPs vs 41M/86 GFLOPs for R50)."
+    ],
+    "evidence": [
+      { "quote": "We focus on accelerating the DETR training, without addressing the issue of high computational complexity in the encoder.", "location": "Sec 4.2" },
+      { "quote": "We do not expect that our approach achieves on par with DETR variants w/ multi-scale attention and 8×-resolution encoders", "location": "Sec 4.2" },
+      { "quote": "Conditional DETR with 50 training epochs for R50 and R101 as the backbones performs slightly worse than DETR with 500 training epochs.", "location": "Sec 4.2" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Apply the conditional cross-attention mechanism to human pose estimation and line segment detection.",
+      "quote": "In the future, we will study the proposed conditional cross-attention mechanism for human pose estimation [8, 41, 36] and line segment detection [43].",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Combine the approach with multi-scale and higher-resolution encoders to reduce encoder computation and raise performance.",
+      "quote": "which is currently not our focus and left as our future work.",
+      "location": "Sec 4.2"
+    }
+  ],
+  "technical": {
+    "datasets": ["COCO 2017", "ImageNet (backbone pre-training)"],
+    "backbones": ["ResNet-50", "ResNet-101", "DC5-ResNet-50", "DC5-ResNet-101"],
+    "models": ["Conditional DETR", "DETR", "Deformable DETR", "UP-DETR", "TSP-FCOS", "TSP-RCNN", "Faster R-CNN-FPN"],
+    "algorithms": ["conditional cross-attention", "multi-head attention", "Hungarian bipartite matching", "focal loss", "GIoU loss", "L1 loss", "sinusoidal positional embedding", "AdamW"],
+    "metrics": ["AP", "AP50", "AP75", "AP_S", "AP_M", "AP_L", "GFLOPs", "training epochs"],
+    "equations": [
+      { "name": "box regression", "expr": "b = sigmoid(FFN(f) + [s^T 0 0]^T)", "location": "Eqn (1), Sec 3.1" },
+      { "name": "conditional cross-attention weight", "expr": "c_q^T c_k + p_q^T p_k", "location": "Eqn (3), Sec 3.3" },
+      { "name": "conditional spatial query prediction", "expr": "(s, f) -> p_q", "location": "Eqn (4), Sec 3.3" },
+      { "name": "reference point positional embedding", "expr": "p_s = sinusoidal(sigmoid(s))", "location": "Eqn (5), Sec 3.3" },
+      { "name": "diagonal projection of spatial query", "expr": "p_q = T p_s = lambda_q (element-wise) p_s", "location": "Eqn (6), Sec 3.3" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [],
+    "evidence": []
+  },
+  "citations": {
+    "doi": "10.1109/iccv48922.2021.00363",
+    "arxivUrl": "https://arxiv.org/abs/2108.06152",
+    "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+    "pdfUrl": "https://arxiv.org/pdf/2108.06152"
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "id": "OD106",
+  "arxiv": "2407.10655",
+  "title": "OVLW-DETR: Open-Vocabulary Light-Weighted Detection Transformer",
+  "year": 2024,
+  "venue": null,
+  "problem": {
+    "summary": "Detectors trained on fixed predefined category sets cannot handle open-vocabulary real-world scenes, while existing open-vocabulary detectors rely on heavy vision-language fusion or distillation that inflates inference latency and hinders deployment.",
+    "statements": [
+      "Detectors trained on predefined categories are limited in real-world scenarios with an open vocabulary.",
+      "Prior open-vocabulary methods distill VLM predictions or add deep image-language fusion modules, which suffer from high inference latency.",
+      "Even the first real-time open-vocabulary detector loses speed because of its text-image fusion module."
+    ],
+    "problemTags": ["open-vocabulary", "speed-latency", "deployability"],
+    "evidence": [
+      { "quote": "Traditional object detection methods are typically trained on a set of predefined categories, which limits the application in real-world scenarios with open vocabulary.", "location": "Introduction" },
+      { "quote": "However, these methods suffers from high inference lantency.", "location": "Introduction" },
+      { "quote": "the text-image fusion module still results in a reduction of the inference speed.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The report builds directly on the authors' LW-DETR real-time DETR baseline and on CLIP-style vision-language pretraining, positioning prior open-vocabulary detectors (distillation-based, deep-fusion, and YOLO-World) as accurate but slow or fusion-dependent.",
+    "relatedWork": [
+      { "name": "LW-DETR", "relation": "detector the work is built upon", "quote": "This work is built upon the recent LW-DETRChen et al. [2024], a light-weight real-time DETR baseline.", "location": "Introduction" },
+      { "name": "Gu et al. 2021 (vision-language distillation)", "relation": "prior open-vocabulary approach that distills VLM predictions on image regions", "quote": "Gu et al. [2021] distills the VLM-predictions on image regions", "location": "Introduction" },
+      { "name": "Grounding DINO / GLIPv2-style deep fusion", "relation": "prior approaches adding deep fusion modules between image and language encoders", "quote": "introduce deep fusion module between the image and language encoders.", "location": "Introduction" },
+      { "name": "YOLO-World", "relation": "state-of-the-art real-time open-vocabulary baseline used for comparison", "quote": "the recent state-of-the art real-time open-vocabulary method.", "location": "Sec 3.3" }
+    ],
+    "evidence": [
+      { "quote": "However, the computation deployment consumption continue to pose challenges for the practical application of ov-detector in real-world scenarios.", "location": "Introduction" },
+      { "quote": "The key of open-vocabulary detection is on transferring the language knowledge in VLM to object detector.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "OVLW-DETR transfers vision-language knowledge into the LW-DETR detector by swapping the detector's fixed classification weights (and the fixed weights of the mixed-query top-K spatial selection) for class-name embeddings produced by a frozen CLIP text encoder, keeping the architecture unchanged and free of fusion modules.",
+    "approach": "Replace fixed classification-layer and query-selection weights in a light-weight DETR with class-name text embeddings from a frozen VLM text encoder, enabling open-vocabulary classification by simple alignment.",
+    "components": [
+      "LW-DETR detector (ViT encoder, projector, DETR decoder)",
+      "frozen text encoder taken from a pretrained VLM (CLIP ConvNeXt-Large)",
+      "class-name text embeddings replacing the fixed classification layer weights",
+      "text embeddings also replacing fixed weights in top-K spatial query selection",
+      "IA-BCE loss and Group DETR parallel weight-sharing decoders retained for training",
+      "detector fine-tuned for 12 epochs while the text encoder stays frozen"
+    ],
+    "solutionTags": ["open-vocabulary-clip", "transformer-query", "nms-free"],
+    "evidence": [
+      { "quote": "We align detector with the text encoder from VLM by replacing the fixed classification layer weights in detector with the classname embeddings extracted from the text encoder.", "location": "Abstract" },
+      { "quote": "Open-vocabulary classification is enabled by simple alignment between detector and VLM text encoder, modifying the the mixed-query selection scheme and classification layer.", "location": "Sec 2.1" },
+      { "quote": "The fixed layer weights in both selecting top-K spatial queries scheme and query classification layers are replaced with the text embedding extracted by the text encoder.", "location": "Sec 2.1" },
+      { "quote": "Without additional fusion module, the model retains its inherent architecture, thereby enhancing its flexibility and facilitating a more efficient deployment.", "location": "Introduction" }
+    ]
+  },
+  "experiments": {
+    "summary": "The S/M/L variants initialized from LW-DETR are fine-tuned on GoldG and Objects365 with a frozen CLIP text encoder and evaluated zero-shot on LVIS v1.0 minival (1203 categories), reporting AP, rare/common/frequent AP, parameter count and T4 latency against GLIPv2 and YOLO-World/YOLO-Worldv2.",
+    "benchmarks": [
+      { "dataset": "LVIS v1.0 minival", "metric": "AP (zero-shot)", "value": "27.3", "split": "OVLW-DETR-S", "location": "Table 1" },
+      { "dataset": "LVIS v1.0 minival", "metric": "AP (zero-shot)", "value": "30.2", "split": "OVLW-DETR-M", "location": "Table 1" },
+      { "dataset": "LVIS v1.0 minival", "metric": "AP (zero-shot)", "value": "33.5", "split": "OVLW-DETR-L", "location": "Table 1" },
+      { "dataset": "LVIS v1.0 minival", "metric": "APr (zero-shot)", "value": "26.5", "split": "OVLW-DETR-L, rare categories", "location": "Table 1" },
+      { "dataset": "LVIS v1.0 minival", "metric": "latency (ms)", "value": "3.23", "split": "OVLW-DETR-S, T4 GPU, FP16", "location": "Table 1" }
+    ],
+    "baselines": ["GLIPv2", "YOLO-World", "YOLO-Worldv2"],
+    "evidence": [
+      { "quote": "OVLW-DETR achieves or outperforms on zero-shot LVIS minival benchmark on different scales.", "location": "Sec 3.3" },
+      { "quote": "Without multi-modal fusion module, OVLW-DETR maintains the low latency in inference while also demonstrating impressive performance.", "location": "Sec 3.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "The report states no limitations explicitly; evident constraints are that evaluation is confined to a single zero-shot benchmark and the text encoder is frozen throughout training so it cannot adapt to detection data.",
+    "items": [
+      "No dedicated limitations section in the report.",
+      "Evaluation is reported only on LVIS v1.0 minival, one zero-shot benchmark.",
+      "The text encoder is frozen during training, so language features are never fine-tuned on detection data.",
+      "Only S/M/L variants inherited from LW-DETR are considered."
+    ],
+    "evidence": [
+      { "quote": "We use LVIS v1.0 minivalKamath et al. [2021] as benchmark since this dataset contains 1203 categories, with a long tail of rare categories.", "location": "Sec 3.2" },
+      { "quote": "We fine-tune the pre-trained detector on standard LW-DETR training receipt, while the text encoder is frozen during training process to retain the generalization ability.", "location": "Sec 2.2" }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["LVIS", "Objects365", "GoldG", "Visual Genome", "Flickr30K", "GQA"],
+    "backbones": ["ViT encoder of LW-DETR", "CLIP ConvNeXt-Large text encoder"],
+    "models": ["OVLW-DETR-S", "OVLW-DETR-M", "OVLW-DETR-L", "LW-DETR", "YOLO-Worldv2", "GLIPv2"],
+    "algorithms": ["Group DETR", "IA-BCE loss", "CLIP text embedding alignment", "mixed-query selection"],
+    "metrics": ["AP", "APr", "APc", "APf", "latency (ms)", "params (M)"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [
+      { "domain": "open-vocabulary real-world detection", "detail": "The report frames open vocabulary as required because detectors restricted to predefined categories cannot serve real-world deployments.", "quote": "which limits the application in real-world scenarios with open vocabulary", "location": "Introduction" },
+      { "domain": "practical deployment of OV detectors", "detail": "Computation and deployment cost of open-vocabulary detectors is identified as a barrier to practical application.", "quote": "However, the computation deployment consumption continue to pose challenges for the practical application of ov-detector in real-world scenarios.", "location": "Introduction" }
+    ],
+    "deploymentClaims": [
+      "Described as a deployment-friendly open-vocabulary detector with strong performance and low latency.",
+      "No additional fusion module keeps the model easier to implement and modulate for deployment.",
+      "OVLW-DETR-S measures 3.23 ms latency versus 5.58 ms for YOLO-Worldv2-S on a T4 GPU with FP16."
+    ],
+    "evidence": [
+      { "quote": "Without additional fusing module, OVLW-DETR is flexible and deployment friendly, making it easier to implement and modulate.", "location": "Abstract" },
+      { "quote": "We measure the averaged inference latency in an end-to-end manner with fp16 precision and a batch size of 1 on LVIS v1 minival on one T4 GPU, with 1203 categories.", "location": "Sec 3.2" }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2407.10655",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2407.10655"
+  }
+}

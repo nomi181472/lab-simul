@@ -1,0 +1,127 @@
+{
+  "id": "OD027",
+  "arxiv": "1711.09405",
+  "title": "Learning a Rotation Invariant Detector with Rotatable Bounding Box",
+  "year": 2017,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "Traditional axis-aligned bounding boxes are rotation-variant, so detectors fail on arbitrarily oriented objects such as ships, vehicles and airplanes in aerial/satellite images, mixing background into the box and failing to separate dense nearby targets.",
+    "statements": [
+      "The traditional bounding box is rotation variant and poorly suits objects whose orientation varies.",
+      "Box width/height do not reflect the physical size of rotated targets, so customized prior boxes are meaningless.",
+      "Around 60% of a ship's axis-aligned box can be background pixels when the ship is near 45 degrees.",
+      "Dense objects are hard to separate with axis-aligned boxes, and existing detectors lack rotation invariance."
+    ],
+    "problemTags": ["localization", "background-false-positives", "crowded-scenes"],
+    "evidence": [
+      { "quote": "The traditional bounding box is a rotation variant data structure, which becomes a shortcoming when the detector has to deal with orientation variations of target objects.", "location": "Introduction" },
+      { "quote": "BBox meets difficulties locating objects with different orientation angles.", "location": "Sec 2" },
+      { "quote": "about 60% region inside the BBox belongs to background pixels when the orientation angle of the ship is near 45 degrees", "location": "Sec 2" },
+      { "quote": "the existing detection methods suffer from the lack of rotation invariant property", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on the R-CNN/Fast/Faster R-CNN lineage and on box-based one-stage detectors SSD and YOLO, plus prior attempts at rotation invariance (rotation-invariant regularization, Oriented Response Networks), claiming those either eliminate rotation at feature level or cannot be used directly as detectors.",
+    "relatedWork": [
+      { "name": "Faster R-CNN", "relation": "two-stage baseline benchmarked against DRBox", "quote": "Instead of using SS to generate region proposals, Faster R-CNN applies region proposal networks (RPNs) to generate the proposals [19]", "location": "Introduction" },
+      { "name": "SSD", "relation": "box-based one-stage baseline benchmarked against DRBox", "quote": "We refer to YOLO and SSD as box-based methods since they generate several boxes for detecting objects in the image according to certain rules.", "location": "Introduction" },
+      { "name": "ORN (Oriented Response Networks)", "relation": "prior orientation-extracting network, but image classification rather than detection", "quote": "Zhou et al. proposed a network named ORN [27] which shows similar character with our method.", "location": "Introduction" },
+      { "name": "FPN", "relation": "prior work that reuses the pyramidal feature hierarchy via lateral connections", "quote": "The feature pyramid network (FPN) [15] better utilizes the pyramidal feature hierarchy", "location": "Introduction" }
+    ],
+    "evidence": [
+      { "quote": "Most existing detection methods use bounding box to locate objects in images.", "location": "Introduction" },
+      { "quote": "Unlike these methods which try to eliminate the effect of rotation on the feature level, we prefer to make the rotation information useful for feature extraction", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "The paper defines a rotatable bounding box (RBox) with an angle parameter and builds DRBox, a SSD-style detector whose multi-angle prior RBoxes, ArIoU-based sample assignment and tangent angle regression make the network predict orientation while remaining rotation invariant.",
+    "approach": "Replace axis-aligned BBoxes with 5-parameter RBoxes, slide and rotate prior RBoxes over the image, train with angle-related IoU (ArIoU) plus a tangent angle regression term, and infer with standard IoU NMS.",
+    "components": [
+      "rotatable bounding box (RBox) with center, width, height and angle",
+      "multi-angle prior RBoxes at each location (e.g. 0:30:330 degrees)",
+      "ArIoU for positive sample assignment and training",
+      "tangent-based angle regression term in the loss",
+      "pyramid input: rescale image and split into overlapped 300x300 sub-images",
+      "truncated VGG backbone ending at conv4_3",
+      "hard negative mining and NMS"
+    ],
+    "solutionTags": ["anchors", "iou-loss", "multi-scale", "post-processing-nms"],
+    "evidence": [
+      { "quote": "a new detection method is proposed which applies the newly defined rotatable bounding box (RBox).", "location": "Abstract" },
+      { "quote": "The training of DRBox forces the detection networks to learn the correct orientation angle of the objects, so that the rotation invariant property can be achieved.", "location": "Abstract" },
+      { "quote": "Each sub-task focuses on one narrow angle range, therefore decreases the difficulty caused by rotation of objects.", "location": "Sec 3.1" },
+      { "quote": "A prior RBox P is assigned to a ground truth RBox G when ArIoU(P, G) > 0.5.", "location": "Sec 3.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "Since no open satellite detection dataset existed, the authors built a GoogleEarth dataset of vehicles, ships and airplanes, then compared DRBox with Faster R-CNN and SSD using precision-recall curves, BEP/AP/mAP, and rotation-robustness metrics (STD AP, STD AS).",
+    "benchmarks": [
+      { "dataset": "GoogleEarth satellite images", "metric": "mAP", "value": "94.13", "split": "ship+vehicle+airplane, DRBox", "location": "Table 2" },
+      { "dataset": "GoogleEarth satellite images", "metric": "mAP", "value": "89.68", "split": "ship+vehicle+airplane, SSD", "location": "Table 2" },
+      { "dataset": "GoogleEarth satellite images", "metric": "mAP", "value": "85.63", "split": "ship+vehicle+airplane, Faster R-CNN", "location": "Table 2" },
+      { "dataset": "ship detection", "metric": "AP", "value": "94.06", "split": "DRBox", "location": "Table 2" },
+      { "dataset": "vehicle detection", "metric": "AP", "value": "89.07", "split": "DRBox", "location": "Table 2" },
+      { "dataset": "airplane detection", "metric": "AP", "value": "99.28", "split": "DRBox", "location": "Table 2" },
+      { "dataset": "ship detection", "metric": "STD AP", "value": "0.88", "split": "rotation robustness, DRBox (SSD: 5.97)", "location": "Table 3" }
+    ],
+    "baselines": ["Faster R-CNN", "SSD"],
+    "evidence": [
+      { "quote": "The results shows that DRBox performs much better than traditional bounding box based methods do on the given tasks", "location": "Abstract" },
+      { "quote": "DRBox is always the best on all the indexes compared with SSD and Faster R-CNN.", "location": "Sec 4.3" },
+      { "quote": "The P-R curve of SSD and Faster R-CNN are always below the P-R curve of DRBox.", "location": "Sec 4.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "The evaluation relies on a self-built, non-public dataset with separate per-category models, and the fixed receptive field and feature map resolution bound the sizes of detectable objects.",
+    "items": [
+      "No open-source satellite detection dataset was available, so the evaluation uses a self-built GoogleEarth dataset.",
+      "Three separate DRBox networks are trained, one per object category (vehicle, ship, airplane).",
+      "Receptive field of 108x108 pixels means larger targets cannot be detected.",
+      "conv4_3 feature map is 38x38, so targets closer than 8 pixels may be missed.",
+      "Faster R-CNN is slightly more robust to rotation on airplane targets."
+    ],
+    "evidence": [
+      { "quote": "The receptive field of DRBox is 108 pixels 108 pixels, so any targets larger than this scope cannot be detected.", "location": "Sec 3.3" },
+      { "quote": "the feature map of layer conv4 3 is 38 × 38, so the targets closer than 8 pixels may be missed.", "location": "Sec 3.3" },
+      { "quote": "We have not found any open source dataset on this problem, so we build one using the GoogleEarth images.", "location": "Sec 4.1" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Integrate RBox into proposal-based detectors such as R-FCN or Faster R-CNN.", "quote": "DRBox is designed as a box-based method, whereas it is also possible to apply RBox into proposal based detection frameworks, e.g. R-FCN or Faster R-CNN.", "location": "Conclusion" },
+    { "direction": "Reuse the multi-scale local orientation information learned with RBox for other orientation-sensitive tasks.", "quote": "We are looking forward of this interesting property to be used in other orientation sensitive tasks.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["GoogleEarth satellite images (self-built: ~12000 vehicles, 3000 ships, 2000 airplanes)"],
+    "backbones": ["truncated VGG-16 (conv4_3)"],
+    "models": ["DRBox", "SSD", "Faster R-CNN", "R-FCN", "YOLO", "ORN"],
+    "algorithms": ["ArIoU matching", "NMS", "hard negative mining", "pyramid input / overlapping sub-images", "smooth L1 loss"],
+    "metrics": ["mAP", "AP", "BEP", "STD AP", "STD AS", "fps"],
+    "equations": [
+      { "name": "ArIoU", "expr": "ArIoU(A,B) = (area(A_hat ∩ B) / area(A_hat ∪ B)) * cos(θA − θB)", "location": "Sec 2" },
+      { "name": "ArIoU180", "expr": "ArIoU180(A,B) = (area(A_hat ∩ B) / area(A_hat ∪ B)) * |cos(θA − θB)|", "location": "Sec 2" },
+      { "name": "DRBox objective loss", "expr": "L = (1/N) * (L_conf(c) + L_rbox(x, l, g))", "location": "Sec 3.1" },
+      { "name": "angle offset", "expr": "t_a_hat = tan(t_a − p_a)", "location": "Sec 3.1" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "satellite / aerial remote sensing", "detail": "DRBox detects vehicles, ships and airplanes in satellite imagery; hundreds of remote sensing satellites generate huge image volumes yearly.", "quote": "A typical application is the object detection task in aerial and satellite images.", "location": "Introduction" },
+      { "domain": "traffic analysis", "detail": "Predicted car head directions on roads match the prior knowledge that traffic keeps to the right, showing orientation output is usable downstream.", "quote": "The estimated direction of cars on road matches the prior knowledge that traffic always keeps to the right of the road.", "location": "Sec 4.3" }
+    ],
+    "deploymentClaims": [
+      "DRBox reaches 70-80 fps on NVIDIA GTX 1080Ti and Intel Core i7.",
+      "Pyramid input costs no more than 4/3 times extra time; effective throughput is 1600x1600 pixels^2 per second.",
+      "SSD and Faster R-CNN run at 70 fps and 20 fps respectively on the same dataset and architecture."
+    ],
+    "evidence": [
+      { "quote": "DRBox reaches 70-80 fps on NVIDIA GTX 1080Ti and Intel Core i7.", "location": "Sec 3.3" },
+      { "quote": "The speed of SSD and Faster R-CNN are 70 fps and 20 fps on our dataset using the same convolution network architecture.", "location": "Sec 3.3" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1711.09405",
+    "arxivUrl": "https://arxiv.org/abs/1711.09405",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/1711.09405"
+  }
+}

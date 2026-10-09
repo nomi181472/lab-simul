@@ -1,0 +1,310 @@
+{
+  "id": "OD072",
+  "arxiv": "2105.01928",
+  "title": "Instances as Queries",
+  "year": 2021,
+  "venue": null,
+  "problem": {
+    "summary": "Query-based detectors match detection SOTA, but instance segmentation in query frameworks is unsolved: grafting Cascade Mask R-CNN/HTC multi-stage mask practices onto query detectors is inefficient and underperforms, because few queries limit training samples and explicit mask-head connections slow training and inference.",
+    "statements": [
+      "How to fully leverage query based frameworks to perform instance segmentation remains an open problem.",
+      "An instance segmentation method tailored for the query based end-to-end framework is urgently needed; integrating Cascade Mask R-CNN and HTC practices directly into query detectors is inefficient.",
+      "Vanilla mask heads and explicit HTC-style mask flow in a query framework bring only moderate gains at a large cost in training and inference speed.",
+      "Across stages there is no explicit correspondence for each individual proposal, and training and inference sample distributions mismatch."
+    ],
+    "problemTags": [
+      "speed-latency",
+      "deployability"
+    ],
+    "evidence": [
+      {
+        "quote": "Recently, query based object detection frameworks achieve comparable performance with previous state-ofthe-art object detectors. However, how to fully leverage such frameworks to perform instance segmentation remains an open problem.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "directly into query based detectors for instance mask generation. Therefore, an instance segmentation method tailored for the query based end-to-end framework is urgently needed.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "However, we find that this design is not as effective as the original Cascade Mask R-CNN. Moreover, establishing explicit mask flow following HTC [9] on top of this design (Fig. 2 (b)) can only bring moderate improvements at a cost of large drops in both training and inference speed.",
+        "location": "Sec 3.2.1"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on query-based set prediction (DETR, Sparse R-CNN) for detection and on the multi-stage Mask R-CNN family (Cascade Mask R-CNN, HTC) for masks; it claims few have built a successful query-based instance segmentation framework, and that non-query multi-stage methods rely on statistically refined proposals without per-instance correspondence.",
+    "relatedWork": [
+      {
+        "name": "DETR",
+        "relation": "introduced query based direct set prediction for object detection",
+        "quote": "Recently, DETR [7] is proposed to reformulate object detection as a query based direct set prediction problem, whose input is mere 100 learned object queries.",
+        "location": "Introduction"
+      },
+      {
+        "name": "Sparse R-CNN",
+        "relation": "the query based detector chosen as QueryInst's default six-stage instantiation",
+        "quote": "QueryInst can be built on any multi-stage query based object detector [7, 62, 42]. We choose Sparse R-CNN [42] as our default instantiation, which has six query stages.",
+        "location": "Sec 3.1"
+      },
+      {
+        "name": "Mask R-CNN family",
+        "relation": "the most successful multi-stage instance segmentation paradigm this work departs from",
+        "quote": "mentation methods are based on high performing object detectors and follow a multi-stage paradigm. Among which, the Mask R-CNN family [21, 24, 30, 5, 9, 42] is the most",
+        "location": "Introduction"
+      },
+      {
+        "name": "HTC",
+        "relation": "prior work adding explicit mask feature flow across stages, which this work makes redundant",
+        "quote": "To mitigate the aforementioned drawback of Cascade Mask R-CNN, HTC [9] improves Cascade Mask R-CNN by introducing direct and explicit connections across the mask heads at different stages. The current stage mask features are combined with the accumulated mask features from all previous stages.",
+        "location": "Sec 3.5"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Despite query based setprediction method is being widely used to many computer vision tasks, few efforts are conducted to build a successful query based instance segmentation framework. We aim to achieve this goal in this paper.",
+        "location": "Sec 2"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "QueryInst attaches six dynamic mask heads (dynamic mask convolution plus a vanilla mask head) in parallel to a Sparse R-CNN query detector and trains them simultaneously, so mask gradients are written into object queries that are in one-to-one correspondence across stages; only the final stage is kept at inference.",
+    "approach": "Exploit the intrinsic one-to-one correspondence of object queries to carry per-mask information across stages via parallel-supervised dynamic mask heads instead of explicit multi-stage mask connections.",
+    "components": [
+      "Sparse R-CNN as the multi-stage query based object detector with six query stages",
+      "Dynamic mask head at each stage: dynamic mask convolution DynConvmask_t followed by a vanilla mask head M_t",
+      "Parallel supervision on all mask heads so mask gradients also update the object queries",
+      "Shared query and multi-head self-attention between the detection and instance segmentation sub-networks",
+      "Inference keeps only final-stage predictions, discarding intermediate dynamic mask heads"
+    ],
+    "solutionTags": [
+      "transformer-query",
+      "nms-free",
+      "attention",
+      "sparse-sampling"
+    ],
+    "evidence": [
+      {
+        "quote": "The key insight of QueryInst is to leverage the intrinsic one-to-one correspondence in object queries across different stages, and one-to-one correspondence between mask RoI features and object queries in the same stage.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Specifically, we set up dynamic mask heads in parallel with each other, which transform each mask RoI feature adaptively according to the corresponding query, and are simultaneously trained in all stages.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "When the training is completed, we throw away all the dynamic mask heads in the intermediate stages and only use the final stage predictions for inference.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Therefore the per-mask information flow is naturally established by leveraging the inherent properties of query based frameworks, with no additional connection needed. After the training is completed, the information for mask prediction is stored in queries.",
+        "location": "Sec 3.3"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "QueryInst is evaluated on COCO, Cityscapes and YouTube-VIS, with controlled comparisons against Cascade Mask R-CNN and HTC under matched 3x schedules and augmentations, plus ablations over parallel supervision, dynamic mask convolution, shared query/MSA and mask head designs.",
+    "benchmarks": [
+      {
+        "dataset": "MS COCO test-dev",
+        "metric": "box AP",
+        "value": "48.1",
+        "split": "ResNet-101-FPN",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "MS COCO test-dev",
+        "metric": "mask AP",
+        "value": "42.8",
+        "split": "ResNet-101-FPN",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "MS COCO test-dev",
+        "metric": "box AP",
+        "value": "50.4",
+        "split": "best model, without bells and whistles",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "MS COCO test-dev",
+        "metric": "mask AP",
+        "value": "46.6",
+        "split": "best model, without bells and whistles",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "Cityscapes val",
+        "metric": "AP",
+        "value": "39.4",
+        "split": "ResNet-50",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "Cityscapes test",
+        "metric": "AP",
+        "value": "34.4",
+        "split": "ResNet-50",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "YouTube-VIS val",
+        "metric": "AP",
+        "value": "34.6",
+        "split": "QueryInst-VIS, ResNet-50",
+        "location": "Table 3"
+      }
+    ],
+    "baselines": [
+      "HTC",
+      "Cascade Mask R-CNN",
+      "Mask R-CNN",
+      "CondInst",
+      "SOLOv2",
+      "Sparse R-CNN",
+      "MaskTrack R-CNN",
+      "SipMask-VIS",
+      "VisTR"
+    ],
+    "evidence": [
+      {
+        "quote": "using ResNet-101FPN backbone, QueryInst obtains 48.1 box AP and 42.8 mask AP on COCO test-dev, which is 2 points higher than HTC in terms of both box AP and mask AP, while runs 2.4 times faster.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Without bells and whistles, our best model achieves 50.4 APbox and 46.6 APmask on COCO test-dev.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "As mentioned in Sec. 3.6, QueryInst-VIS adopts the vanilla track method of MaskTrack R-CNN [57] and SipMask-VIS [6], while it obtains 4.3 AP improvement compared to MaskTrack R-CNN and 2.1 AP improvement compared to SipMask-VIS.",
+        "location": "Sec 4.3"
+      },
+      {
+        "quote": "Specifically, using ResNet-101-FPN [27] backbone and stronger multi-scale data argumentation with random crop, QueryInst surpasses HTC by 2.0 mask AP and 1.8 box AP while runs 2.4× faster.",
+        "location": "Sec 4.3"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "QueryInst's gains depend on its parallel dynamic mask heads: with few queries training samples are scarce, removing dynamic mask convolution collapses the method back to Cascade Mask R-CNN, longer training schedules can degrade performance, and the video extension relies on a vanilla tracker.",
+    "items": [
+      "The number of queries in the framework is much smaller than the number of proposals in Cascade Mask R-CNN and HTC, limiting training samples.",
+      "Without dynamic mask convolution the mask heads in different stages are isolated and QueryInst degenerates to Cascade Mask R-CNN with a fixed number of proposals.",
+      "With modest data augmentation the 3x schedule is already near optimum, and performance begins to degenerate under longer training schedules.",
+      "Explicit mask feature flow as in HTC is redundant and harmful for model efficiency, so that route to accuracy is closed off."
+    ],
+    "evidence": [
+      {
+        "quote": "Part of the reasons may be the number of queries in our framework is much smaller than the number of proposals in Cascade Mask RCNN and HTC, resulting in limited availability of training samples.",
+        "location": "Sec 3.2.1"
+      },
+      {
+        "quote": "In this condition, QueryInst degenerates to Cascade Mask R-CNN with a fixed number (i.e., N ) of proposals across all stages.",
+        "location": "Sec 3.3"
+      },
+      {
+        "quote": "Using modest data augmentation (640 ∼ 800), the 3× schedule works well for the model to converge to near optimum, the performance begins to degenerate under longer training schedules. These findings are consistent with [20].",
+        "location": "Appendix"
+      },
+      {
+        "quote": "Therefore establishing explicit mask feature flow as HTC is redundant and is harmful for model efficiency.",
+        "location": "Sec 4.4"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Further study why QueryInst benefits from stronger data augmentation even under the 3x schedule, unlike the Mask R-CNN family.",
+      "quote": "We will conduct further study of these properties in the future.",
+      "location": "Appendix"
+    }
+  ],
+  "technical": {
+    "datasets": [
+      "MS COCO",
+      "Cityscapes",
+      "YouTube-VIS"
+    ],
+    "backbones": [
+      "ResNet-50-FPN",
+      "ResNet-101-FPN",
+      "ResNeXt-101-FPN",
+      "Swin-L"
+    ],
+    "models": [
+      "QueryInst",
+      "QueryInst-VIS",
+      "Sparse R-CNN",
+      "Mask R-CNN",
+      "Cascade Mask R-CNN",
+      "HTC",
+      "CondInst",
+      "MaskTrack R-CNN",
+      "Swin Transformer"
+    ],
+    "algorithms": [
+      "dynamic mask convolution",
+      "parallel supervision",
+      "multi-head self-attention",
+      "mask RoI feature extraction",
+      "dice loss",
+      "AdamW",
+      "deformable convolution",
+      "one-to-one query correspondence"
+    ],
+    "metrics": [
+      "box AP",
+      "mask AP",
+      "AP50",
+      "AP75",
+      "APS",
+      "APM",
+      "APL",
+      "FPS",
+      "training time"
+    ],
+    "equations": [
+      {
+        "name": "dynamic mask feature enhancement (Eq. 3)",
+        "expr": "x*_mask_t = DynConv_mask_t(x_mask_t, q*_{t-1})",
+        "location": "Sec 3.2.2"
+      }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "street-scene perception (ego-centric / autonomous driving)",
+        "detail": "Instance segmentation evaluated on Cityscapes, an ego-centric street-scene benchmark with 8 categories and pixel-accurate ground truth.",
+        "quote": "Cityscapes [12] is an ego-centric street-scene dataset with 8 categories, 2975 train images, and 500 validation images for instance segmentation.",
+        "location": "Sec 4.1"
+      },
+      {
+        "domain": "video instance segmentation",
+        "detail": "QueryInst-VIS detects, classifies, segments and tracks instances over video frames in an online, real-time manner, evaluated on YouTube-VIS.",
+        "quote": "Video instance segmentation (VIS) [57] is a highly relevant task to still-image instance segmentation that aims at detecting, classifying, segmenting and tracking visual instances over video frames.",
+        "location": "Sec 3.6"
+      }
+    ],
+    "deploymentClaims": [
+      "End-to-end inference without further postprocessing: directly outputs top 100 bounding boxes with scores and corresponding instance masks.",
+      "Runs 2.4x faster than HTC while gaining 2.0 mask AP and 1.8 box AP with a ResNet-101-FPN backbone.",
+      "QueryInst-VIS operates at real-time (> 30 FPS) with 10 queries on YouTube-VIS."
+    ],
+    "evidence": [
+      {
+        "quote": "Given an input image, QueryInst directly outputs top 100 bounding box predictions with their scores and corresponding instance masks without further postprocessing.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "The setting enables the model to operate at real-time (> 30 FPS).",
+        "location": "Sec 4.3"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/iccv48922.2021.00683",
+    "arxivUrl": "https://arxiv.org/abs/2105.01928",
+    "venue": "ICCV 2021",
+    "pdfUrl": "https://arxiv.org/pdf/2105.01928"
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "id": "OD033",
+  "arxiv": "1803.01534",
+  "title": "Path Aggregation Network for Instance Segmentation",
+  "year": 2018,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+  "problem": {
+    "summary": "In Mask R-CNN/FPN pipelines information propagation is suboptimal: low-level localization signals must travel a very long path to reach the topmost features, each proposal is heuristically locked to a single feature level, and mask prediction is made from a single view.",
+    "statements": [
+      "There is a long path from low-level structure to topmost features, making accurate localization hard to access.",
+      "Each proposal is pooled from one feature level assigned heuristically, discarding information in other levels.",
+      "Mask prediction is made on a single view, losing the chance to gather more diverse information.",
+      "Target datasets contain blur, heavy occlusion and extremely small instances."
+    ],
+    "problemTags": ["localization", "scale-variance", "small-objects"],
+    "evidence": [
+      { "quote": "But there is a long path from low-level structure to topmost features, increasing difficulty to access accurate localization information.", "location": "Abstract" },
+      { "quote": "Further, each proposal is predicted based on feature grids pooled from one feature level, which is assigned heuristically.", "location": "Abstract" },
+      { "quote": "Finally, mask prediction is made on a single view, losing the chance to gather more diverse information.", "location": "Abstract" },
+      { "quote": "For example, two proposals with 10-pixel difference can be assigned to different levels.", "location": "Sec 3.2" }
+    ]
+  },
+  "background": {
+    "summary": "PANet is built on Mask R-CNN with an FPN feature pyramid, drawing on network-design principles of short information paths (residual/dense connections) and parallel paths, and it notes that prior multi-level fusion methods (ION, Hypernet, Hypercolumn) require complicated normalization-concatenation-reduction sequences.",
+    "relatedWork": [
+      { "name": "Mask R-CNN", "relation": "framework that PANet is built on and improves", "quote": "Mask R-CNN [21] is an effective framework falling in this stream. Our work is built on Mask R-CNN and improves it from different aspects.", "location": "Sec 2" },
+      { "name": "FPN", "relation": "baseline feature pyramid whose top-down path PANet augments bottom-up", "quote": "Both TDM [56] and FPN [35] augmented a top-down path with lateral connections for object detection.", "location": "Sec 2" },
+      { "name": "ION / Hypernet / Hypercolumn", "relation": "prior feature-grid concatenation methods that need extra normalization and dimension reduction", "quote": "ION [4], Zagoruyko et al. [62], Hypernet [31] and Hypercolumn [19] concatenated feature grids from different layers for better prediction.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "The way that information propagates in neural networks is of great importance.", "location": "Abstract" },
+      { "quote": "There have been several principles proposed for designing networks in image classification that are also effective for object recognition.", "location": "Introduction" },
+      { "quote": "We take FPN as a baseline and much enhance it.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "PANet boosts information flow in proposal-based instance segmentation with three components: bottom-up path augmentation that carries low-level localization signals up the pyramid, adaptive feature pooling where every proposal pools from all feature levels and fuses them, and a fully-connected branch fused with the FCN mask prediction.",
+    "approach": "Augment FPN with a bottom-up path of lateral connections from P2 to P5, let each proposal pool and max-fuse features from every level, and combine FCN mask predictions with a complementary fc-branch prediction.",
+    "components": [
+      "bottom-up path augmentation producing feature maps N2-N5",
+      "adaptive feature pooling with ROIAlign and element-wise max/sum fusion",
+      "fully-connected fusion branch added to the mask prediction path",
+      "heavier head with 4 shared 3x3 convolutions for box prediction",
+      "multi-GPU synchronized batch normalization",
+      "multi-scale training"
+    ],
+    "solutionTags": ["feature-pyramid", "feature-fusion", "multi-scale"],
+    "evidence": [
+      { "quote": "we propose Path Aggregation Network (PANet) aiming at boosting information flow in proposal-based instance segmentation framework.", "location": "Abstract" },
+      { "quote": "we enhance the entire feature hierarchy with accurate localization signals in lower layers by bottom-up path augmentation, which shortens the information path between lower layers and topmost feature.", "location": "Abstract" },
+      { "quote": "We present adaptive feature pooling, which links feature grid and all feature levels to make useful information in each feature level propagate directly to following proposal subnetworks.", "location": "Abstract" },
+      { "quote": "A complementary branch capturing different views for each proposal is created to further improve mask prediction.", "location": "Abstract" },
+      { "quote": "we build a path with clean lateral connections from the low level to top ones.", "location": "Sec 3.1" }
+    ]
+  },
+  "experiments": {
+    "summary": "PANet is evaluated on COCO (mask and box AP), Cityscapes and MVD against Mask R-CNN+FPN, the COCO 2016 champions, RetinaNet and others, with a component-by-component ablation on val-2017; it entered and won the COCO 2017 instance segmentation challenge.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "mask AP", "value": "42.0", "split": "test-dev, PANet multi-scale train, ResNeXt-101", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "mask AP", "value": "38.2", "split": "test-dev, PANet multi-scale train, ResNet-50", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "box AP", "value": "47.4", "split": "test-dev, PANet multi-scale train, ResNeXt-101", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "box AP", "value": "42.5", "split": "test-dev, PANet multi-scale train, ResNet-50", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "mask AP", "value": "46.7", "split": "test-dev, COCO 2017 challenge entry", "location": "Table 6" },
+      { "dataset": "Cityscapes", "metric": "AP", "value": "36.4", "split": "test, PANet with COCO pre-training", "location": "Table 8" },
+      { "dataset": "MVD", "metric": "AP", "value": "26.3", "split": "test, PANet with testing tricks", "location": "Table 10" }
+    ],
+    "baselines": ["Mask R-CNN + FPN", "COCO 2016 champion", "RetinaNet", "SGN", "UCenter", "R-FCN"],
+    "evidence": [
+      { "quote": "Our PANet reaches the 1st place in the COCO 2017 Challenge Instance Segmentation task and the 2nd place in Object Detection task without large-batch training.", "location": "Abstract" },
+      { "quote": "With all these components in PANet, improvement on mask AP is 4.4 over baselines.", "location": "Sec 4.2" },
+      { "quote": "we achieve 9.1% absolute and 24% relative improvement on instance segmentation", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper states no limitations section; however roughly half of its COCO gain comes from multi-scale training and synchronized batch normalization rather than the proposed architecture, the top challenge numbers rely on ensembles, DCN and testing tricks, and proposals come from a separately trained RPN.",
+    "items": [
+      "About half of the total improvement comes from multi-scale training and multi-GPU synchronized batch normalization, not from the PANet components.",
+      "The 46.7 AP challenge result requires deformable convolutions, testing tricks, larger models and an ensemble.",
+      "Proposals are produced by an independently trained RPN, so the backbone is not shared with the detection/segmentation network.",
+      "Fully-connected fusion adds only 0.7 mask AP, and the heavier head helps mainly the multi-task box branch."
+    ],
+    "evidence": [
+      { "quote": "Half improvement is from multi-scale training and multiGPU sync. BN, which are effective strategies to help train better models.", "location": "Sec 4.2" },
+      { "quote": "such as multi-scale testing, horizontal flip testing, mask voting and box voting, are adopted.", "location": "Sec 4.2" },
+      { "quote": "proposals are from an independently trained RPN [35, 51] for convenient ablation and fair comparison, i.e., the backbone is not shared with object detection/instance segmentation.", "location": "Sec 4.1" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Extend PANet from images to video and RGBD data.", "quote": "Our future work will be to extend our method to video and RGBD data.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "Cityscapes", "MVD"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt-101", "SENet", "ResNet-269"],
+    "models": ["PANet", "Mask R-CNN", "FPN", "RetinaNet", "RPN", "SGN"],
+    "algorithms": ["ROIAlign", "RPN", "multi-GPU synchronized batch normalization", "deformable convolution", "multi-scale training", "box and mask voting"],
+    "metrics": ["mask AP", "box AP", "AP50", "AP75", "APS", "APM", "APL"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [
+      { "domain": "autonomous vehicles, robotics and video surveillance", "detail": "The authors motivate instance segmentation as a task that widely benefits autonomous vehicles, robotics and video surveillance, and evaluate on street-scene datasets (Cityscapes, MVD) captured by car-mounted cameras.", "quote": "This task widely benefits autonomous vehicles, robotics, video surveillance, to name a few.", "location": "Introduction" }
+    ],
+    "deploymentClaims": [
+      "The proposed components are simple to implement and add only subtle extra computational overhead.",
+      "The framework reached 1st place in COCO 2017 instance segmentation and 2nd place in object detection without large-batch training."
+    ],
+    "evidence": [
+      { "quote": "These improvements are simple to implement, with subtle extra computational overhead.", "location": "Abstract" },
+      { "quote": "Our framework reaches the 1st place in Instance Segmentation task and the 2nd place in Object Detection task without large-batch training.", "location": "Sec 4.2" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2018.00913",
+    "arxivUrl": "https://arxiv.org/abs/1803.01534",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+    "pdfUrl": "https://arxiv.org/pdf/1803.01534"
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "id": "OD061",
+  "arxiv": "2007.12099",
+  "title": "PP-YOLO: An Effective and Efficient Implementation of Object Detector",
+  "year": 2020,
+  "venue": null,
+  "problem": {
+    "summary": "Hardware limits force practitioners to trade detection accuracy for inference speed, so practical detectors need a better balance between effectiveness and efficiency. The paper targets a directly deployable YOLOv3-based detector rather than a novel architecture.",
+    "statements": [
+      "In practice, limited hardware often requires sacrificing accuracy to keep detector inference speed high.",
+      "The balance between effectiveness and efficiency of an object detector must be considered for actual application scenarios.",
+      "YOLOv3-based detectors can gain accuracy from tricks that add almost no parameters or FLOPs, but these tricks are not trivially applicable to YOLOv3's structure."
+    ],
+    "problemTags": ["speed-latency", "deployability", "one-stage-accuracy"],
+    "evidence": [
+      { "quote": "Due to limitation of hardware, it is often necessary to sacrifice accuracy to ensure the infer speed of the detector in practice.", "location": "Abstract" },
+      { "quote": "Therefore, the balance between effectiveness and efficiency of object detector must be considered.", "location": "Abstract" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on the YOLO one-stage anchor-based lineage (YOLOv1-v4), FPN, ResNet, and a collection of previously published tricks (DropBlock, IoU loss, IoU-aware scoring, Grid Sensitive, Matrix NMS, CoordConv, SPP, MixUp). The claimed gap is that these components have not been systematically combined on YOLOv3 without hurting speed.",
+    "relatedWork": [
+      { "name": "YOLOv3", "relation": "base detector that PP-YOLO extends", "quote": "Considering that YOLOv3 has been widely used in practice, we develop a new object detector based on YOLOv3.", "location": "Abstract" },
+      { "name": "YOLOv4", "relation": "contemporaneous competitor exploring bag of freebies/specials on YOLOv3", "quote": "YOLOv4 discusses a large number of tricks including many “bag of freebies” which not increase the infer time, and several “bag of specials” that increase the inference cost by a small amount but can significantly improve the accuracy of object detection.", "location": "Sec 2" },
+      { "name": "FPN", "relation": "detection neck used to build the feature pyramid", "quote": "Then the FPN [21] is used to build an feature pyramid with lateral connections between feature maps.", "location": "Sec 3.1" }
+    ],
+    "evidence": [
+      { "quote": "Anchor-based methods are still the mainstream of object detection [33, 21, 31, 32, 1, 22, 28, 9, 45, 2, 5, 37, 20, 4, 15], which evolved from early proposal based detectors, such as Fast R-CNN [11].", "location": "Sec 2" },
+      { "quote": "Many tricks we discussed in this paper are different from YOLOV4 and the detailed implementation of tricks is also different.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "PP-YOLO is an improved YOLOv3 built on PaddlePaddle: a ResNet50-vd-dcn backbone plus a set of low-cost tricks (larger batch size, EMA, DropBlock, IoU loss, IoU-aware confidence, Grid Sensitive, Matrix NMS, CoordConv, SPP, distilled pretrain) that raise COCO mAP while keeping speed roughly unchanged.",
+    "approach": "Stack existing training, loss, decoding and post-processing tricks on a YOLOv3 architecture so accuracy improves with almost no extra parameters or FLOPs.",
+    "components": [
+      "ResNet50-vd backbone with deformable convolutions in the last stage",
+      "FPN detection neck and YOLOv3-style detection head",
+      "larger batch size (192) and Exponential Moving Average of weights",
+      "DropBlock applied only to the FPN",
+      "extra IoU loss branch for bounding box regression",
+      "IoU-aware detection confidence multiplied into NMS input",
+      "Grid Sensitive coordinate decoding (alpha = 1.05)",
+      "Matrix NMS in place of greedy NMS",
+      "CoordConv in FPN 1x1 and first head convolution",
+      "Spatial Pyramid Pooling on the top feature map",
+      "distilled ResNet50-vd ImageNet pretrain and MixUp augmentation"
+    ],
+    "solutionTags": ["one-stage", "anchors", "feature-pyramid", "iou-loss", "post-processing-nms", "distillation"],
+    "evidence": [
+      { "quote": "We mainly try to combine various existing tricks that almost not increase the number of model parameters and FLOPs, to achieve the goal of improving the accuracy of detector as much as possible while ensuring that the speed is almost unchanged.", "location": "Abstract" },
+      { "quote": "This paper does not propose an novel detection method, but just focuses on combining the existing tricks to implement an effective and efficient detector.", "location": "Sec 3.2" },
+      { "quote": "we only replace 3 × 3 convolution layers in the last stage with DCNs", "location": "Sec 3.1" },
+      { "quote": "Therefore, the Matrix NMS is faster than traditional NMS, which will not bring any loss of efficiency.", "location": "Sec 3.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "The authors run an incremental ablation of each trick on the COCO minival split, then compare speed/accuracy on COCO test-dev 2017 against YOLOv4, EfficientDet, RetinaNet, RFBNet and YOLOv3+ASFF*, measuring FPS on a V100 with batch size 1, with and without TensorRT.",
+    "benchmarks": [
+      { "dataset": "MS-COCO", "metric": "mAP", "value": "45.2", "split": "test-dev 2017, input 608", "location": "Table 2" },
+      { "dataset": "MS-COCO", "metric": "AP50", "value": "65.2", "split": "test-dev 2017, input 608", "location": "Table 2" },
+      { "dataset": "MS-COCO", "metric": "FPS", "value": "72.9", "split": "test-dev 2017, V100, input 608, w/o TensorRT", "location": "Table 2" },
+      { "dataset": "MS-COCO", "metric": "FPS", "value": "155.6", "split": "test-dev 2017, V100, input 608, with TensorRT", "location": "Table 2" },
+      { "dataset": "MS-COCO", "metric": "mAP", "value": "44.6", "split": "minival, final ablation row", "location": "Table 1" },
+      { "dataset": "MS-COCO", "metric": "mAP", "value": "39.1", "split": "minival, ResNet50-vd-dcn YOLOv3 baseline", "location": "Table 1" }
+    ],
+    "baselines": ["YOLOv3", "YOLOv4", "EfficientDet", "RetinaNet", "RFBNet", "YOLOv3 + ASFF*"],
+    "evidence": [
+      { "quote": "The final PP-YOLO model improves the mAP on COCO from 43.5% to 45.2% at a speed faster than YOLOv4.", "location": "Introduction" },
+      { "quote": "compared with YOLOv4, our PPYOLO can increased the mAP on COCO from 43.5% to 45.2% with FPS improved from 62 to 72.9.", "location": "Sec 4.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper explicitly presents itself as a recipe rather than a novel detector, its incremental ablation cannot analyse all trick combinations, and some tricks still add post-processing latency.",
+    "items": [
+      "No novel detection architecture is proposed; contributions are the combination and placement of existing tricks.",
+      "Interactions among tricks are not comprehensively analysed because the combination space is too large.",
+      "IoU Aware and Grid Sensitive add 0.7ms and 0.1ms post-processing time due to an inefficient current implementation.",
+      "Backbone choice, data augmentation and NAS hyperparameter search are left largely unexplored."
+    ],
+    "evidence": [
+      { "quote": "This paper is not intended to introduce a novel object detecotor. It is more like a recipe, which tell you how to build a better detector step by step.", "location": "Introduction" },
+      { "quote": "Since there are too many combinations of various tricks, it is difficult to conduct a comprehensive analysis.", "location": "Sec 4.2" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Try better backbones, stronger data augmentation and NAS-based hyperparameter search to further improve PP-YOLO.", "quote": "We believe that using a better backbone network, using more effective data augmentation method and using NAS to search for hyperparameters can further improve the performance of PP-YOLO.", "location": "Introduction" },
+    { "direction": "Pre-train the model on other detection datasets.", "quote": "In fact, using other detection datasets for pre-training can greatly improve the performance of the model, but this is beyond the scope of this paper.", "location": "Sec 4.2" },
+    { "direction": "Merge the IoU Aware and Grid Sensitive operations into a single PaddlePaddle OP to remove their post-processing overhead.", "quote": "which can be greatly reduced by merging them as a single OP in PaddlePaddle in the future", "location": "Sec 4.2" }
+  ],
+  "technical": {
+    "datasets": ["MS-COCO"],
+    "backbones": ["ResNet50-vd-dcn", "ResNet50-vd", "DarkNet-53"],
+    "models": ["PP-YOLO", "YOLOv3", "YOLOv4", "EfficientDet", "RetinaNet"],
+    "algorithms": ["Matrix NMS", "DropBlock", "Exponential Moving Average", "Spatial Pyramid Pooling", "CoordConv", "Deformable Convolutional Networks", "MixUp", "IoU Loss"],
+    "metrics": ["mAP", "AP50", "AP75", "FPS", "GFLOPs"],
+    "equations": [
+      { "name": "EMA parameter update", "expr": "W_EMA = lambda * W_EMA + (1 - lambda) * W", "location": "Sec 3.2, Eq. 1" },
+      { "name": "Grid Sensitive x decode", "expr": "x = s * (gx + alpha * sigmoid(px) - (alpha - 1)/2)", "location": "Sec 3.2, Eq. 4" },
+      { "name": "IoU-aware detection confidence", "expr": "conf = score_cls * score_obj * score_iou", "location": "Sec 3.2" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "industrial detector deployment", "detail": "The detector is aimed at real application scenarios where hardware limits constrain speed, and the ResNet backbone is chosen because frameworks are well optimized for it, easing deployment.", "quote": "such that various deep learning frameworks have deeply optimized for ResNet series, which will be more convenient in actual deployment and will have better infer speed in practical.", "location": "Introduction" }
+    ],
+    "deploymentClaims": [
+      "72.9 FPS at input size 608 on a V100 (batch size 1, without TensorRT)",
+      "155.6 FPS at input size 608 on a V100 with TensorRT",
+      "Code and models released in the PaddleDetection code-base"
+    ],
+    "evidence": [
+      { "quote": "The FPS results of PP-YOLO and other methods are all tested on V100 with batch size = 1.", "location": "Sec 4.3" },
+      { "quote": "We considered two different test conditions, without tensorRT (w/o TRT) and with tensorRT (with TRT).", "location": "Sec 4.3" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2007.12099",
+    "arxivUrl": "https://arxiv.org/abs/2007.12099",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2007.12099"
+  }
+}

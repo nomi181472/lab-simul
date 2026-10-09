@@ -1,0 +1,130 @@
+{
+  "id": "OD011",
+  "arxiv": "1612.08242",
+  "title": "YOLO9000: Better, Faster, Stronger",
+  "year": 2016,
+  "venue": "CVPR 2017",
+  "problem": {
+    "summary": "Detection datasets are far smaller and more expensive to label than classification datasets, so detectors stay limited to a few hundred object categories; additionally the original YOLO suffers from localization errors and low recall relative to region-proposal methods.",
+    "statements": [
+      "Most detection methods are constrained to a small set of objects because detection datasets are limited compared to classification datasets.",
+      "Labeling images for detection is far more expensive than labeling for classification or tagging.",
+      "YOLO makes a significant number of localization errors and has relatively low recall compared to region proposal-based methods."
+    ],
+    "problemTags": ["annotation-cost", "localization", "open-vocabulary", "weak-supervision"],
+    "evidence": [
+      { "quote": "However, most detection methods are still constrained to a small set of objects.", "location": "Introduction" },
+      { "quote": "labelling images for detection is far more expensive than labelling for classification or tagging", "location": "Introduction" },
+      { "quote": "Error analysis of YOLO compared to Fast R-CNN shows that YOLO makes a significant number of localization errors.", "location": "Sec 2" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds directly on the original YOLO detector, on anchor-box designs from Faster R-CNN, on multi-resolution feature maps in Faster R-CNN/SSD, and on WordNet/WordTree hierarchies for label structure.",
+    "relatedWork": [
+      { "name": "YOLO", "relation": "the base detector that YOLOv2 improves", "quote": "YOLO suffers from a variety of shortcomings relative to state-of-the-art detection systems.", "location": "Sec 2" },
+      { "name": "Faster R-CNN", "relation": "source of the anchor-box prior design that YOLOv2 adopts", "quote": "Instead of predicting coordinates directly Faster R-CNN predicts bounding boxes using hand-picked priors [15].", "location": "Sec 2" },
+      { "name": "SSD", "relation": "prior multi-scale detector whose feature-map strategy informs the passthrough layer", "quote": "Faster R-CNN and SSD both run their proposal networks at various feature maps in the network to get a range of resolutions.", "location": "Sec 2" },
+      { "name": "WordNet", "relation": "lexical resource used to build the WordTree label hierarchy", "quote": "ImageNet labels are pulled from WordNet, a language database that structures concepts and how they relate [12].", "location": "Sec 4" }
+    ],
+    "evidence": [
+      { "quote": "The most common detection datasets contain thousands to hundreds of thousands of images with dozens to hundreds of tags [3] [10] [2].", "location": "Introduction" },
+      { "quote": "Classification datasets have millions of images with tens or hundreds of thousands of categories", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "YOLOv2 upgrades YOLO with batch normalization, a high-resolution classifier, convolutional anchor boxes with k-means-derived priors, direct location prediction, a passthrough layer, multi-scale training and a new Darknet-19 backbone; YOLO9000 then jointly trains detection and classification over a WordTree hierarchy of 9000+ classes.",
+    "approach": "Improve a single-stage detector with a set of design changes and then train it jointly on detection and classification data whose labels are merged through a hierarchical WordTree.",
+    "components": [
+      "Batch normalization on all convolutional layers",
+      "High-resolution classifier fine-tuned at 448x448",
+      "Fully convolutional YOLO with 5 anchor-box priors from k-means clustering",
+      "Direct location prediction with sigmoid-constrained grid-cell offsets",
+      "Passthrough layer concatenating 26x26 features into the 13x13 map",
+      "Multi-scale training over resolutions {320, 352, ..., 608}",
+      "Darknet-19 backbone (19 conv + 5 maxpool layers)",
+      "WordTree hierarchical label space and joint detection/classification loss"
+    ],
+    "solutionTags": ["one-stage", "anchors", "anchor-design", "multi-scale", "real-time-backbone"],
+    "evidence": [
+      { "quote": "Finally we propose a method to jointly train on object detection and classification.", "location": "Abstract" },
+      { "quote": "We choose k = 5 as a good tradeoff between model complexity and high recall.", "location": "Sec 2" },
+      { "quote": "The network predicts 5 bounding boxes at each cell in the output feature map.", "location": "Sec 2" },
+      { "quote": "Our method uses a hierarchical view of object classification that allows us to combine distinct datasets together.", "location": "Introduction" }
+    ]
+  },
+  "experiments": {
+    "summary": "YOLOv2 is evaluated on PASCAL VOC 2007/2012 and COCO with speed measured on a Titan X, while YOLO9000 is validated on the ImageNet detection task, where most test classes have only classification labels; ablations in Table 2 trace the gain from 63.4 to 78.6 VOC mAP.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "76.8", "split": "test, YOLOv2 416x416 at 67 FPS", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "78.6", "split": "test, YOLOv2 544x544 at 40 FPS", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2012", "metric": "mAP", "value": "73.4", "split": "test, YOLOv2 544", "location": "Table 4" },
+      { "dataset": "COCO", "metric": "mAP@[.5:.95]", "value": "21.6", "split": "test-dev2015, trainval35k", "location": "Table 5" },
+      { "dataset": "COCO", "metric": "mAP@.5", "value": "44.0", "split": "test-dev2015, trainval35k", "location": "Table 5" },
+      { "dataset": "ImageNet detection", "metric": "mAP", "value": "19.7", "split": "validation, YOLO9000", "location": "Sec 4" },
+      { "dataset": "ImageNet detection", "metric": "mAP (156 classes without detection labels)", "value": "16.0", "split": "validation, YOLO9000", "location": "Sec 4" },
+      { "dataset": "ImageNet classification", "metric": "top-5 accuracy", "value": "91.2", "split": "validation, Darknet-19", "location": "Table 6" }
+    ],
+    "baselines": ["Fast R-CNN", "Faster R-CNN (VGG-16)", "Faster R-CNN (ResNet)", "YOLO", "SSD300", "SSD512", "DPM"],
+    "evidence": [
+      { "quote": "At 67 FPS, YOLOv2 gets 76.8 mAP on VOC 2007.", "location": "Abstract" },
+      { "quote": "YOLOv2 achieves 73.4 mAP while running far faster than competing methods.", "location": "Sec 2" },
+      { "quote": "YOLO9000 gets 19.7 mAP overall with 16.0 mAP on the disjoint 156 object classes that it has never seen any labelled detection data for.", "location": "Sec 4" }
+    ]
+  },
+  "limitations": {
+    "summary": "Anchor boxes slightly reduced mAP despite higher recall, YOLO9000 has detection labels for only 44 of 200 ImageNet detection classes and struggles on clothing/equipment categories, and its comparison to prior detectors is confounded by different training data.",
+    "items": [
+      "Switching to anchor boxes lowered intermediate mAP from 69.5 to 69.2 even though recall rose from 81% to 88%.",
+      "YOLO9000 only has labelled detection data for 44 of the 200 ImageNet detection classes.",
+      "The model struggles to learn categories such as clothing and equipment where COCO supplies no bounding-box labels.",
+      "Comparison against DPM is qualified because YOLO9000 is trained on different datasets with only partial supervision."
+    ],
+    "evidence": [
+      { "quote": "Even though the mAP decreases, the increase in recall means that our model has more room to improve.", "location": "Sec 2" },
+      { "quote": "so YOLO9000 struggles to model categories like “sunglasses” or “swimming trunks”.", "location": "Sec 4" },
+      { "quote": "This mAP is higher than results achieved by DPM but YOLO9000 is trained on different datasets with only partial supervision [4].", "location": "Sec 4" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Apply the joint weakly-supervised technique to image segmentation.", "quote": "For future work we hope to use similar techniques for weakly supervised image segmentation.", "location": "Conclusion" },
+    { "direction": "Improve detection by using stronger strategies for assigning weak labels to classification images during training.", "quote": "We also plan to improve our detection results using more powerful matching strategies for assigning weak labels to classification data during training.", "location": "Conclusion" },
+    { "direction": "Use hierarchical classification for dataset combination in classification and segmentation.", "quote": "Dataset combination using hierarchical classification would be useful in the classification and segmentation domains.", "location": "Conclusion" },
+    { "direction": "Bring different sources and structures of data together to build stronger visual models.", "quote": "We will continue looking for ways to bring different sources and structures of data together to make stronger models of the visual world.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["PASCAL VOC 2007", "PASCAL VOC 2012", "COCO", "ImageNet", "WordNet"],
+    "backbones": ["Darknet-19", "GoogLeNet-inspired YOLO network", "VGG-16", "ResNet"],
+    "models": ["YOLOv2", "YOLO9000", "YOLO", "SSD300", "SSD512", "Faster R-CNN", "Fast R-CNN"],
+    "algorithms": ["k-means clustering", "batch normalization", "multi-scale training", "sigmoid-constrained location prediction", "passthrough layer", "WordTree hierarchical classification", "joint detection-classification training"],
+    "metrics": ["mAP", "FPS", "top-1 accuracy", "top-5 accuracy", "recall", "average IOU"],
+    "equations": [
+      { "name": "k-means clustering distance", "expr": "d(box, centroid) = 1 - IOU(box, centroid)", "location": "Sec 2, Dimension Clusters" },
+      { "name": "direct box center prediction", "expr": "bx = sigma(tx) + cx, by = sigma(ty) + cy", "location": "Sec 2, Direct location prediction" },
+      { "name": "box size prediction", "expr": "bw = pw * exp(tw), bh = ph * exp(th)", "location": "Sec 2, Direct location prediction" },
+      { "name": "WordTree absolute probability", "expr": "P(node) = product of conditional probabilities along the path to the root", "location": "Sec 4" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "robotics and autonomous driving", "detail": "Low-latency detection is required by robotics and self-driving applications.", "quote": "Most applications for detection, like robotics or selfdriving cars, rely on low latency predictions.", "location": "Sec 3" },
+      { "domain": "video surveillance and streaming", "detail": "At 288x288 the detector runs above 90 FPS, suitable for multiple video streams.", "quote": "This makes it ideal for smaller GPUs, high framerate video, or multiple video streams.", "location": "Sec 2" },
+      { "domain": "real-time general-purpose detection", "detail": "YOLO9000 detects over 9000 object categories in real time.", "quote": "YOLO9000 can detect a wide variety of object classes in real-time.", "location": "Figure 1" }
+    ],
+    "deploymentClaims": [
+      "67 FPS at 76.8 mAP and 40 FPS at 78.6 mAP on VOC 2007 (Geforce GTX Titan X).",
+      "At 288x288 input it runs at more than 90 FPS.",
+      "One trained model runs at multiple resolutions for a smooth speed/accuracy tradeoff.",
+      "Code and pre-trained models are released at pjreddie.com/yolo9000."
+    ],
+    "evidence": [
+      { "quote": "At 40 FPS, YOLOv2 gets 78.6 mAP, outperforming state-of-the-art methods like Faster RCNN with ResNet and SSD while still running significantly faster.", "location": "Abstract" },
+      { "quote": "All of our code and pre-trained models are available online at http://pjreddie.com/yolo9000/.", "location": "Introduction" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2017.690",
+    "arxivUrl": "https://arxiv.org/abs/1612.08242",
+    "venue": "CVPR 2017",
+    "pdfUrl": "https://arxiv.org/pdf/1612.08242"
+  }
+}

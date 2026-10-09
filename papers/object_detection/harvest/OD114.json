@@ -1,0 +1,321 @@
+{
+  "id": "OD114",
+  "arxiv": "2503.07465",
+  "title": "YOLOE: Real-Time Seeing Anything",
+  "year": 2025,
+  "venue": null,
+  "problem": {
+    "summary": "Closed-set detectors like YOLO are locked to predefined categories, while existing open-set methods either load heavy computation or deployment complexity; no single efficient model covers text, visual, and prompt-free prompts together.",
+    "statements": [
+      "Closed-set detectors such as the YOLO series depend on predefined object categories, which limits flexibility in practical open scenarios where arbitrary objects must be recognized.",
+      "Open-set methods using text, visual, or prompt-free cues often compromise between performance and efficiency because of high computational demands or deployment complexity.",
+      "No single efficient model supports diverse open prompts (text, visual, and prompt-free) for arbitrary objects with both high accuracy and real-time efficiency.",
+      "Prompt-free detectors depend on large language models to name found objects, introducing considerable memory and latency costs."
+    ],
+    "problemTags": [
+      "open-vocabulary",
+      "real-time-edge",
+      "deployability"
+    ],
+    "evidence": [
+      {
+        "quote": "yet conventional models like YOLO series, while efficient and accurate, are limited by predefined categories, hindering adaptability in open scenarios",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Recent open-set methods leverage text prompts, visual cues, or prompt-free paradigm to overcome this, but often compromise between performance and efficiency due to high computational demands or deployment complexity",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Prompt-free ways, meanwhile, depend on large language models, introducing considerable memory and latency costs [33, 49]",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Such scenarios increasingly demand models capable of detecting and segmenting arbitrary objects guided by diverse prompt mechanisms, such as texts, visual cues, or without prompt",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "Builds on the YOLO lineage for speed and on open-vocabulary text-prompted detection (GLIP, Grounding DINO, YOLO-World), visual prompting (T-Rex2), and prompt-free generation (GenerateU); the claimed gap is that DINO-X is the only prior unified architecture but it is too costly to train and run.",
+    "relatedWork": [
+      {
+        "name": "YOLO series",
+        "relation": "efficient closed-set real-time baseline YOLOE starts from",
+        "quote": "Traditional approaches like YOLO series [1, 3, 21, 47], have leveraged convolutional neural networks to achieve real-time remarkable performance",
+        "location": "Introduction"
+      },
+      {
+        "name": "YOLO-World",
+        "relation": "prior open-vocabulary YOLO and the direct comparison baseline",
+        "quote": "YOLO-World [5] further shows the potential of pretraining small detectors with open recognition capabilities based on the YOLO architecture",
+        "location": "Sec 2"
+      },
+      {
+        "name": "DINO-X",
+        "relation": "only prior unified multi-prompt architecture, but resource-intensive",
+        "quote": "DINOX [49] features a unified architecture, which, however, incurs resource-intensive training and inference overhead",
+        "location": "Introduction"
+      },
+      {
+        "name": "T-Rex2",
+        "relation": "visual-prompted detector YOLOE compares against",
+        "quote": "T-Rex2 [20] integrates visual and text prompts by region-level contrastive alignment",
+        "location": "Sec 2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "They target single prompt type, e.g., GLIP [32], or multiple prompt types in a unified way, e.g., DINO-X [49]",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "YOLOE extends YOLOv8/YOLO11 into one efficient detection-and-segmentation model that accepts text, visual, or no prompts: RepRTA refines cached CLIP text embeddings with a one-block auxiliary network that folds back into the classification head, SAVPE encodes visual cues with decoupled semantic and activation branches, and LRPC turns prompt-free recognition into vocabulary retrieval without a language model.",
+    "approach": "Add three lightweight prompt modules (RepRTA, SAVPE, LRPC) on a standard YOLO architecture, re-parameterizing the text alignment into the classification head so inference is architecturally identical to closed-set YOLO.",
+    "components": [
+      "Re-parameterizable Region-Text Alignment (RepRTA): one SwiGLU FFN auxiliary block refines cached CLIP text embeddings during training and is re-parameterized into the classification head for zero inference and transferring overhead",
+      "Semantic-Activated Visual Prompt Encoder (SAVPE): decoupled semantic and activation branches yielding low-dimension prompt-aware weights over multi-scale PAN features",
+      "Lazy Region-Prompt Contrast (LRPC): a specialized embedding filters anchor points by threshold, and only surviving points are matched against a built-in vocabulary instead of a language model",
+      "Object embedding head whose embeddings are contrasted with prompt embeddings to produce labels (Label = O . P^T)",
+      "Pre-cached MobileCLIP-B(LT) textual embeddings, allowing the text encoder to be dropped from training",
+      "Prototype-mask segmentation head trained jointly with detection in a single model",
+      "Staged training: 30 epochs for text prompts, 2 epochs for SAVPE with the rest frozen, 1 epoch for the prompt-free embedding"
+    ],
+    "solutionTags": [
+      "one-stage",
+      "open-vocabulary-clip",
+      "real-time-backbone",
+      "reparameterization"
+    ],
+    "evidence": [
+      {
+        "quote": "For text prompts, we propose Re-parameterizable Region-Text Alignment (RepRTA) strategy",
+        "location": "Abstract"
+      },
+      {
+        "quote": "For visual prompts, we present Semantic-Activated Visual Prompt Encoder (SAVPE)",
+        "location": "Abstract"
+      },
+      {
+        "quote": "For prompt-free scenario, we introduce Lazy Region-Prompt Contrast (LRPC) strategy",
+        "location": "Abstract"
+      },
+      {
+        "quote": "which is identical to the original YOLO architecture, leading to zero overhead for deployment and transferring to downstream closed-set tasks",
+        "location": "Sec 3.2"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Zero-shot evaluation on LVIS (Fixed AP on minival) for text, visual, and prompt-free prompts against YOLO-Worldv2, GLIP, Grounding DINO, T-Rex2 and GenerateU, plus LVIS segmentation APm, COCO transfer via linear probing and full tuning, FPS on T4 with TensorRT and iPhone 12 with CoreML, and ablations of RepRTA, SAVPE and LRPC.",
+    "benchmarks": [
+      {
+        "dataset": "LVIS minival",
+        "metric": "Fixed AP (zero-shot, text prompt)",
+        "value": "27.9",
+        "split": "YOLOE-v8-S",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "LVIS minival",
+        "metric": "Fixed AP (zero-shot, text prompt)",
+        "value": "32.6",
+        "split": "YOLOE-v8-M",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "LVIS minival",
+        "metric": "Fixed AP (zero-shot, text prompt)",
+        "value": "35.9",
+        "split": "YOLOE-v8-L",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "LVIS minival",
+        "metric": "Fixed AP (zero-shot, text prompt)",
+        "value": "35.2",
+        "split": "YOLOE-11-L",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "LVIS minival",
+        "metric": "FPS (TensorRT, T4)",
+        "value": "305.8",
+        "split": "YOLOE-v8-S (text prompt)",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "LVIS val",
+        "metric": "APm (zero-shot segmentation)",
+        "value": "23.5",
+        "split": "YOLOE-v8-L (text prompt)",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "LVIS minival",
+        "metric": "Fixed AP (prompt-free)",
+        "value": "27.2",
+        "split": "YOLOE-v8-L",
+        "location": "Table 3"
+      },
+      {
+        "dataset": "COCO val",
+        "metric": "AP (full tuning, 80 epochs)",
+        "value": "53.0",
+        "split": "YOLOE-v8-L detection",
+        "location": "Table 4"
+      },
+      {
+        "dataset": "COCO val",
+        "metric": "AP (full tuning, 80 epochs)",
+        "value": "52.6",
+        "split": "YOLOE-11-L detection",
+        "location": "Table 4"
+      }
+    ],
+    "baselines": [
+      "YOLO-Worldv2",
+      "YOLOv8",
+      "YOLO11",
+      "GLIP",
+      "Grounding DINO",
+      "T-Rex2",
+      "GenerateU",
+      "DINO-X"
+    ],
+    "evidence": [
+      {
+        "quote": "Notably, on LVIS, with 3× less training cost and 1.4× inference speedup, YOLOEv8-S surpasses YOLO-Worldv2-S by 3.5 AP",
+        "location": "Abstract"
+      },
+      {
+        "quote": "YOLOE-v8-M / L achieves 20.8 and 23.5 APm in the zero-shot manner",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "YOLOEv8-S / M / L outperforms YOLOv8-Worldv2-S / M / L by 3.5 / 0.2 / 0.4 AP",
+        "location": "Sec 4.2"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper has no limitations section, but it admits that jointly learning detection and segmentation costs some detection accuracy (especially frequent-category AP), and that text-prompt training was shortened because of limited compute.",
+    "items": [
+      "Joint detection and segmentation training in one model costs 0.2 AP and 0.9 APf in the ablation roadmap.",
+      "APf on LVIS for YOLOE-v8-M/L stays below YOLO-Worldv2, which the paper attributes to the multi-task trade-off of integrating detection and segmentation.",
+      "Text-prompt training was limited to 30 epochs (versus YOLO-World's 100 epochs) due to limited computational resources."
+    ],
+    "evidence": [
+      {
+        "quote": "Such multi-task learning introduces a trade-off that adversely impact detection performance on frequent categories, as shown in Tab. 5",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "Although this leads to 0.2% AP and 0.9 APf drop due to multi-task learning, YOLOE gains ability to segment arbitrary objects",
+        "location": "Sec 4.5"
+      },
+      {
+        "quote": "Due to limited computational resource, unlike YOLO-World’s training for 100 epochs, we first train YOLOE with text prompts for 30 epochs",
+        "location": "Sec 4.1"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Serve as a strong baseline that spurs further work on real-time, open prompt-driven vision tasks beyond detection.",
+      "quote": "We hope that YOLOE can establish a strong baseline and inspire further advancements in real-time open prompt-driven vision tasks",
+      "location": "Introduction"
+    }
+  ],
+  "technical": {
+    "datasets": [
+      "LVIS",
+      "COCO",
+      "Objects365",
+      "GoldG (GQA, Flickr30k)"
+    ],
+    "backbones": [
+      "YOLOv8",
+      "YOLO11"
+    ],
+    "models": [
+      "YOLOE-v8-S",
+      "YOLOE-v8-M",
+      "YOLOE-v8-L",
+      "YOLOE-11-S",
+      "YOLOE-11-M",
+      "YOLOE-11-L",
+      "YOLO-Worldv2",
+      "DINO-X",
+      "T-Rex2",
+      "GenerateU"
+    ],
+    "algorithms": [
+      "RepRTA",
+      "SAVPE",
+      "LRPC",
+      "re-parameterization",
+      "task-aligned label assignment",
+      "distribution focal loss",
+      "mosaic augmentation",
+      "MobileCLIP-B(LT)"
+    ],
+    "metrics": [
+      "AP",
+      "APr",
+      "APc",
+      "APf",
+      "APm",
+      "Fixed AP",
+      "FPS",
+      "training time"
+    ],
+    "equations": [
+      {
+        "name": "prompt-embedding label contrast",
+        "expr": "Label = O . P^T, with O in R^{N x D} and P in R^{D x C}",
+        "location": "Sec 3.1"
+      },
+      {
+        "name": "RepRTA re-parameterized kernel",
+        "expr": "K' = R_{C x D -> C x D x 1 x 1}(f_theta(P)) conv K^T",
+        "location": "Sec 3.2"
+      }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving, medical analysis, robotics",
+        "detail": "Listed as the application areas motivating detection and segmentation of arbitrary objects guided by open prompts.",
+        "quote": "spanning autonomous driving [2], medical analyses [55], and robotics [8], etc.",
+        "location": "Introduction"
+      },
+      {
+        "domain": "GPU and mobile edge deployment",
+        "detail": "Inference speed is measured both on a datacenter T4 GPU with TensorRT and on an iPhone 12 with CoreML, positioning the model for server and on-device use.",
+        "quote": "FPS w/ TensorRT and w/ CoreML is measured on T4 GPU and iPhone 12, respectively",
+        "location": "Figure 1"
+      }
+    ],
+    "deploymentClaims": [
+      "After re-parameterization the model is architecturally identical to closed-set YOLO with zero inference overhead.",
+      "YOLOE-v8-S / M / L train in 12.0 / 17.0 / 22.5 hours on 8 Nvidia RTX4090 GPUs, about 3x less cost than YOLO-World.",
+      "YOLOE-v8-S reaches 305.8 FPS on T4 with TensorRT and 64.3 FPS on iPhone 12 with CoreML; prompt-free mode needs no language model."
+    ],
+    "evidence": [
+      {
+        "quote": "The FPS is measured on Nvidia T4 GPU using TensorRT and on iPhone 12 using CoreML, respectively",
+        "location": "Table 1"
+      }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2503.07465",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2503.07465"
+  }
+}

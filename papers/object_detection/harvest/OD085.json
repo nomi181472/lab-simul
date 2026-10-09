@@ -1,0 +1,217 @@
+{
+  "id": "OD085",
+  "arxiv": "2203.03605",
+  "title": "DINO: DETR with Improved DeNoising Anchor Boxes for End-to-End Object Detection",
+  "year": 2022,
+  "venue": null,
+  "problem": {
+    "summary": "Even after DAB-DETR and DN-DETR, DETR-like detectors still trail the best improved classical detectors on COCO, train slowly with poorly understood queries, and had never been studied when scaled to large backbones and large-scale pre-training data.",
+    "statements": [
+      "DETR-like models lag behind highly optimized classical detectors such as HTC++ and DyHead; the best of them were still under 50 AP on COCO.",
+      "DETR training convergence is slow and the meaning of its queries is unclear.",
+      "Standard denoising cannot predict 'no object' for anchors that have no ground-truth box nearby, allowing duplicate predictions when several anchors are close to one object.",
+      "DETR-like models had no reported results when scaled to a large backbone and a large-scale data set."
+    ],
+    "problemTags": ["convergence", "training-instability", "class-confusion"],
+    "evidence": [
+      {
+        "quote": "Despite its promising performance, the training convergence of DETR is slow and the meaning of queries is unclear.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "For instance, the best performing DETR-like models nowadays are still under 50 AP on COCO.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "The scalability of DETR-like models has not been well studied.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "However, it lacks a capability of predicting \u201cno object\u201d for anchors with no object nearby. To address this issue, we propose a Contrastive DeNoising (CDN) approach to rejecting useless anchors.",
+        "location": "Sec 3.3"
+      }
+    ]
+  },
+  "background": {
+    "summary": "DINO builds on DAB-DETR (anchor-box queries), DN-DETR (denoising training) and Deformable DETR (deformable attention, query selection, look forward once), and compares against the large-scale pre-training line of classical detectors (HTC++, DyHead, SwinV2, Florence), claiming the gap is that DETR-like models were both less accurate and untested at scale.",
+    "relatedWork": [
+      {
+        "name": "DN-DETR",
+        "relation": "direct base: denoising training that stabilizes bipartite matching",
+        "quote": "DN-DETR [17] introduces a denoising training method to speed up DETR training. It feeds noise-added ground-truth labels and boxes into the decoder and trains the model to reconstruct the original ones.",
+        "location": "Sec 2.2"
+      },
+      {
+        "name": "DAB-DETR",
+        "relation": "base that formulates queries as dynamic 4D anchor boxes",
+        "quote": "DAB-DETR [21] further extends 2D anchor points to 4D anchor box coordinates to represent queries and dynamically update boxes in each decoder layer.",
+        "location": "Sec 2.2"
+      },
+      {
+        "name": "Deformable DETR",
+        "relation": "source of deformable attention, query selection and iterative box refinement",
+        "quote": "Deformable DETR [41] predicts 2D anchor points and designs a deformable attention module that only attends to certain sampling points around a reference point.",
+        "location": "Sec 2.2"
+      },
+      {
+        "name": "HTC++ and DyHead",
+        "relation": "best classical detectors that set the state of the art DINO aims to surpass",
+        "quote": "The best detection models nowadays are based on improved classical detectors like DyHead [8] and HTC [4].",
+        "location": "Introduction"
+      },
+      {
+        "name": "Classical detectors (Faster R-CNN line)",
+        "relation": "prior art that relies on hand-designed components and cannot be end-to-end optimized",
+        "quote": "Moreover, they need hand-designed components like NMS to remove duplicate boxes, and hence cannot perform end-to-end optimization.",
+        "location": "Sec 2.1"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Our work of DINO in this paper is based on DAB-DETR and DN-DETR, and also adopts deformable attention for its computational efficiency.",
+        "location": "Sec 2.2"
+      },
+      {
+        "quote": "Two main reasons contribute to the phenomenon: 1) Previous DETR-like models are inferior to the improved classical detectors.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "DINO is an end-to-end DETR-like detector that adds three mechanisms on top of DN-DETR/DAB-DETR/Deformable DETR: contrastive denoising (CDN) with positive and hard-negative queries, mixed query selection that initializes only positional queries from top-K encoder features, and a look forward twice scheme that propagates box-refinement gradients into earlier decoder layers.",
+    "approach": "Train dynamic anchor-box queries with contrastive denoising (positives must reconstruct their box, negatives must predict background), initialize positional queries from encoder top-K features while keeping content queries learnable, and update each layer's boxes with gradients from the next layer.",
+    "components": [
+      "Contrastive DeNoising (CDN) with inner-square positive and outer-ring negative noised queries",
+      "mixed query selection: top-K encoder features initialize positional queries only, content queries stay learnable",
+      "look forward twice box refinement (gradients from layer i+1 reach layer i)",
+      "deformable attention with multi-scale (4- and 5-scale) features",
+      "dynamic DN groups that fix the number of DN queries per image",
+      "shared prediction heads and 900 decoder queries"
+    ],
+    "solutionTags": ["transformer-query", "anchors", "set-prediction", "denoising-training", "contrastive-learning"],
+    "evidence": [
+      {
+        "quote": "we propose a contrastive denoising training by adding both positive and negative samples of the same ground truth at the same time.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "The contrastive denoising training helps the model to avoid duplicate outputs of the same target.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "we only initialize anchor boxes using the position information associated with the selected top-K features, but leave the content queries static as before.",
+        "location": "Sec 3.4"
+      },
+      {
+        "quote": "we propose another way called look forward twice to perform box update, where the parameters of layer-i are influenced by losses of both layer-i and layer-(i + 1), as shown in Fig. 6 (b).",
+        "location": "Sec 3.5"
+      },
+      {
+        "quote": "It helps the model to use better positional information to pool more comprehensive content features from the encoder.",
+        "location": "Sec 3.4"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "DINO is evaluated on COCO 2017 (val2017 and test-dev) with AP, in the 12/24/36-epoch settings with a ResNet-50 backbone and after Objects365 pre-training with SwinL, against convolutional and DETR-like baselines, plus ablations over query selection, CDN, look forward twice, layer counts and denoising-query counts.",
+    "benchmarks": [
+      { "dataset": "COCO 2017", "metric": "AP", "value": "49.4", "split": "val2017 (12 epochs, R50, 5-scale)", "location": "Table 1" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "49.0", "split": "val2017 (12 epochs, R50, 4-scale)", "location": "Table 1" },
+      { "dataset": "COCO 2017", "metric": "AP-small", "value": "32.3", "split": "val2017 (12 epochs, R50, 5-scale)", "location": "Table 1" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "51.3", "split": "val2017 (24 epochs, R50, 5-scale)", "location": "Table 2" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "51.2", "split": "val2017 (36 epochs, R50, 5-scale)", "location": "Table 2" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "63.2", "split": "val2017 (Objects365 pretrain, SwinL)", "location": "Table 3" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "63.3", "split": "test-dev (Objects365 pretrain, SwinL)", "location": "Table 3" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "47.9", "split": "val2017 (ablation: full DINO, 12 epochs)", "location": "Table 4" }
+    ],
+    "baselines": ["DN-Deformable-DETR", "DAB-DETR", "Deformable DETR", "Dynamic DETR", "Dynamic Head", "HTC", "Faster R-CNN", "DETR", "SwinV2-G", "Florence"],
+    "evidence": [
+      {
+        "quote": "DINO achieves 49.4AP in 12 epochs and 51.3AP in 24 epochs on COCO with a ResNet-50 backbone and multi-scale features, yielding a significant improvement of +6.0AP and +2.7AP, respectively, compared to DN-DETR, the previous best DETR-like model.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "after pre-training on the Objects365 dataset with a SwinL backbone, DINO obtains the best results on both COCO val2017 (63.2AP) and test-dev (63.3AP).",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Moreover, our method performs especially well for small objects, gaining +7.2 AP with 4 scales and +7.5 AP with 5 scales.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "It is the first time that an end-to-end Transformer detector is established as a SOTA model on the leaderboard [1].",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper has no dedicated limitations section; it does report that test-time augmentation brings no inspiring gain, that adding denoising queries beyond 100 gives little or negative returns, and that accuracy degrades sharply when decoder layers are removed.",
+    "items": [
+      "Test-time augmentation did not yield an inspiring gain over traditional detectors.",
+      "Increasing the number of denoising queries beyond 100 gives only a small or even worse improvement.",
+      "Accuracy is sensitive to decoder depth: removing decoder layers hurts performance more than removing encoder layers.",
+      "The headline 63.2/63.3 AP results rely on Objects365 pre-training and a SwinL backbone rather than COCO alone.",
+      "Conditional queries from DAB-DETR did not suit the model and were dropped."
+    ],
+    "evidence": [
+      {
+        "quote": "Our TTA does not obtain an inspiring gain compared with traditional detectors, but we hope our exploration may provide some insights for future studies.",
+        "location": "Appendix A"
+      },
+      {
+        "quote": "However, continuing to increase the DN number after 100 yields only a small additional or even worse performance improvement.",
+        "location": "Appendix C"
+      },
+      {
+        "quote": "decreasing the number of decoder layers hurts the performance more significantly",
+        "location": "Appendix C"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Further study of test-time augmentation for DETR-like models, where the authors' one-to-one ensembling exploration gave limited gains.",
+      "quote": "Our TTA does not obtain an inspiring gain compared with traditional detectors, but we hope our exploration may provide some insights for future studies.",
+      "location": "Appendix A"
+    }
+  ],
+  "technical": {
+    "datasets": ["COCO 2017", "Objects365", "ImageNet-1K", "ImageNet-22K"],
+    "backbones": ["ResNet-50", "SwinL"],
+    "models": ["DINO-4scale", "DINO-5scale", "DN-DETR", "DAB-DETR", "Deformable DETR", "Dynamic DETR", "Dynamic Head", "HTC", "Faster R-CNN", "DETR"],
+    "algorithms": ["contrastive denoising", "Hungarian matching", "mixed query selection", "look forward twice", "deformable attention", "focal loss", "GIoU loss", "test-time augmentation"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "GFLOPS", "FPS"],
+    "equations": [
+      { "name": "Average Top-K Distance", "expr": "ATD(k) = (1/k) * sum(topK({||b_i - a_i||_1}, k))", "location": "Eq. (1)" },
+      { "name": "Look forward twice box update", "expr": "b_i = Detach(b_i'), b_i^(pred) = Update(b_i-1', Delta b_i)", "location": "Eq. (2)" },
+      { "name": "TTA one-to-one ensembling", "expr": "b = (1 / sum I^i) * sum_i I^i w^i s^i_{idx(i)} b^i_{idx(i)}", "location": "Appendix A (Eq. 3)" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "DINO-4scale runs at 24 FPS with 47M parameters and 279 GFLOPS on an A100 GPU (Table 1), with all models benchmarked on the same GPU.",
+      "DINO cuts model size and pre-training data size relative to leaderboard competitors while improving accuracy (1/15 the parameters of SwinV2-G, 1/60 the backbone pre-training images of Florence)."
+    ],
+    "evidence": [
+      {
+        "quote": "For a fair comparison, we report both GFLOPS and FPS tested on the same A100 NVIDIA GPU for all the models listed in Table 1.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "Compared to other models on the leaderboard, DINO significantly reduces its model size and pre-training data size while achieving better results.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "We provide the GPU memory and training time for our base model in Table 5. All results are reported on 8 Nvidia A100 GPUs with ResNet-50 [14].",
+        "location": "Appendix B"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2203.03605",
+    "arxivUrl": "https://arxiv.org/abs/2203.03605",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2203.03605"
+  }
+}

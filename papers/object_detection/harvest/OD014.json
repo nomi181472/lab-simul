@@ -1,0 +1,124 @@
+{
+  "id": "OD014",
+  "arxiv": "1703.06870",
+  "title": "Mask R-CNN",
+  "year": 2017,
+  "venue": "IEEE International Conference on Computer Vision (ICCV)",
+  "problem": {
+    "summary": "Instance segmentation must detect every object and precisely segment each instance, but the prevailing Faster R-CNN pipeline was not designed for pixel-to-pixel alignment: RoIPool quantizes coordinates, causing misalignment that hurts pixel-accurate masks, while per-pixel multi-class softmax couples segmentation with classification.",
+    "statements": [
+      "Instance segmentation requires detecting all objects in an image while also precisely segmenting each instance.",
+      "Faster R-CNN was not designed for pixel-to-pixel alignment between network inputs and outputs, and RoIPool performs coarse spatial quantization.",
+      "Standard FCN per-pixel multi-class categorization couples segmentation and classification, which works poorly for instance segmentation.",
+      "Within-category overlapping instances are a core difficulty of instance segmentation."
+    ],
+    "problemTags": ["localization", "crowded-scenes", "class-confusion"],
+    "evidence": [
+      { "quote": "Instance segmentation is challenging because it requires the correct detection of all objects in an image while also precisely segmenting each instance.", "location": "Introduction" },
+      { "quote": "Most importantly, Faster RCNN was not designed for pixel-to-pixel alignment between network inputs and outputs.", "location": "Introduction" },
+      { "quote": "These quantizations introduce misalignments between the RoI and the extracted features.", "location": "Sec 3" },
+      { "quote": "FCNs usually perform per-pixel multi-class categorization, which couples segmentation and classification, and based on our experiments works poorly for instance segmentation.", "location": "Introduction" },
+      { "quote": "We argue that within-category overlap is a core difficulty of instance segmentation.", "location": "Appendix A" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on the Fast/Faster R-CNN detection framework, the FCN segmentation framework, FPN backbones, and prior instance-segmentation systems (DeepMask, MNC, FCIS). The claimed gap: no existing framework provides a simple, fast, enabling system for instance segmentation with proper pixel alignment.",
+    "relatedWork": [
+      { "name": "Faster R-CNN", "relation": "base detection framework extended with a parallel mask branch", "quote": "Faster R-CNN [36] advanced this stream by learning the attention mechanism with a Region Proposal Network (RPN).", "location": "Sec 2" },
+      { "name": "Feature Pyramid Network (FPN)", "relation": "backbone architecture adopted for feature extraction", "quote": "We also explore another more effective backbone recently proposed by Lin et al. [27], called a Feature Pyramid Network (FPN).", "location": "Sec 3" },
+      { "name": "FCIS", "relation": "prior state-of-the-art instance segmentation system with systematic errors on overlapping instances", "quote": "But FCIS exhibits systematic errors on overlapping instances and creates spurious edges", "location": "Sec 2" },
+      { "name": "RoIPool", "relation": "prior RoI feature extractor whose quantization the paper removes", "quote": "RoIPool [12] is a standard operation for extracting a small feature map (e.g., 7\u00d77) from each RoI.", "location": "Sec 3" }
+    ],
+    "evidence": [
+      { "quote": "Our goal in this work is to develop a comparably enabling framework for instance segmentation.", "location": "Introduction" },
+      { "quote": "these advances have been driven by powerful baseline systems, such as the Fast/Faster RCNN [12, 36] and Fully Convolutional Network (FCN) [30]", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "Mask R-CNN extends Faster R-CNN with a parallel fully convolutional branch that predicts a binary mask per class for each RoI, and replaces quantized RoIPool with a quantization-free RoIAlign layer so that features align pixel-to-pixel with the input.",
+    "approach": "Add an FCN mask branch and a RoIAlign layer to Faster R-CNN, training jointly with a multi-task loss L = Lcls + Lbox + Lmask where masks are predicted per class with a per-pixel sigmoid.",
+    "components": [
+      "parallel mask branch: FCN predicting an m x m binary mask per RoI for each class",
+      "RoIAlign: quantization-free RoI feature extraction using bilinear interpolation",
+      "per-class mask prediction with per-pixel sigmoid and binary cross-entropy (decoupled from classification)",
+      "multi-task loss L = Lcls + Lbox + Lmask",
+      "backbone choices: ResNet-C4 and ResNet-FPN (also ResNeXt)"
+    ],
+    "solutionTags": ["two-stage", "feature-pyramid", "dense-prediction"],
+    "evidence": [
+      { "quote": "The method, called Mask R-CNN, extends Faster R-CNN by adding a branch for predicting an object mask in parallel with the existing branch for bounding box recognition.", "location": "Abstract" },
+      { "quote": "To fix the misalignment, we propose a simple, quantization-free layer, called RoIAlign, that faithfully preserves exact spatial locations.", "location": "Introduction" },
+      { "quote": "we predict a binary mask for each class independently, without competition among classes, and rely on the network's RoI classification branch to predict the category.", "location": "Introduction" },
+      { "quote": "removes the harsh quantization of RoIPool, properly aligning the extracted features with the input.", "location": "Sec 3" }
+    ]
+  },
+  "experiments": {
+    "summary": "The paper evaluates instance segmentation, bounding-box detection and person keypoint detection on COCO (trainval35k/minival/test-dev) with extensive ablations, plus an appendix on Cityscapes; it compares against MNC, FCIS/FCIS+++, Faster R-CNN variants and the COCO 2016 challenge winners.",
+    "benchmarks": [
+      { "dataset": "COCO test-dev", "metric": "mask AP", "value": "37.1", "split": "test-dev", "location": "Table 1" },
+      { "dataset": "COCO test-dev", "metric": "mask AP", "value": "35.7", "split": "test-dev", "location": "Table 1" },
+      { "dataset": "COCO test-dev", "metric": "box AP", "value": "39.8", "split": "test-dev", "location": "Table 3" },
+      { "dataset": "COCO test-dev", "metric": "box AP", "value": "38.2", "split": "test-dev", "location": "Table 3" },
+      { "dataset": "COCO test-dev", "metric": "keypoint AP", "value": "63.1", "split": "test-dev", "location": "Table 4" },
+      { "dataset": "Cityscapes test", "metric": "AP", "value": "32.0", "split": "test (COCO pre-trained)", "location": "Table 7" },
+      { "dataset": "COCO minival", "metric": "mask AP", "value": "41.8", "split": "minival (with test-time augmentation)", "location": "Table 8" }
+    ],
+    "baselines": ["MNC", "FCIS", "FCIS+++", "Faster R-CNN w/ FPN", "G-RMI", "Faster R-CNN w/ TDM", "CMU-Pose+++"],
+    "evidence": [
+      { "quote": "Without bells and whistles, Mask R-CNN surpasses all previous state-of-the-art single-model results on the COCO instance segmentation task [28]", "location": "Introduction" },
+      { "quote": "RoIAlign improves AP by about 3 points over RoIPool, with much of the gain coming at high IoU", "location": "Sec 4.2" },
+      { "quote": "Mask R-CNN is simple to train and adds only a small overhead to Faster R-CNN, running at 5 fps.", "location": "Abstract" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors note the design is not optimized for speed, that the ResNet-101-C4 variant is slow and not recommended, that adding the keypoint branch slightly reduces box/mask AP, and that Cityscapes results suffer from a persistent val/test domain shift in low-data categories.",
+    "items": [
+      "Speed/accuracy trade-offs are not optimized (varying image sizes and proposal numbers is left beyond scope).",
+      "The ResNet-101-C4 variant takes about 400 ms per image and is not recommended in practice.",
+      "Joint keypoint training slightly reduces box/mask AP and does not help the other tasks.",
+      "Persistent domain shift between Cityscapes val and test for truck, bus and train categories despite COCO pre-training."
+    ],
+    "evidence": [
+      { "quote": "Although Mask R-CNN is fast, we note that our design is not optimized for speed, and better speed/accuracy tradeoffs could be achieved [21], e.g., by varying image sizes and proposal numbers, which is beyond the scope of this paper.", "location": "Sec 4.4" },
+      { "quote": "However, adding the keypoint branch reduces the box/mask AP slightly, suggesting that while keypoint detection benefits from multitask training, it does not in turn help the other tasks.", "location": "Sec 5" },
+      { "quote": "This suggests that there is a domain shift on these categories, which also have little training data.", "location": "Appendix A" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Combine the instance-first and segmentation-first strategies more deeply.", "quote": "We expect a deeper incorporation of both strategies will be studied in the future.", "location": "Sec 2" },
+    { "direction": "Explore more complex mask branch designs.", "quote": "More complex designs have the potential to improve performance but are not the focus of this work.", "location": "Sec 3" },
+    { "direction": "Pursue better speed/accuracy trade-offs by varying image sizes and proposal numbers.", "quote": "better speed/accuracy tradeoffs could be achieved [21], e.g., by varying image sizes and proposal numbers, which is beyond the scope of this paper.", "location": "Sec 4.4" },
+    { "direction": "Apply the framework to other instance-level recognition tasks.", "quote": "Given the effectiveness of Mask R-CNN for extracting object bounding boxes, masks, and keypoints, we expect it be an effective framework for other instance-level tasks.", "location": "Sec 5" }
+  ],
+  "technical": {
+    "datasets": ["COCO", "Cityscapes", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt-101", "FPN", "Inception-ResNet-v2"],
+    "models": ["Mask R-CNN", "Faster R-CNN", "RPN", "FCIS", "MNC", "Mask R-CNN keypoint model"],
+    "algorithms": ["RoIAlign", "RoIPool", "non-maximum suppression", "per-pixel sigmoid binary loss", "multi-task learning"],
+    "metrics": ["AP", "AP50", "AP75", "APs", "APm", "APl", "mask AP", "APkp", "FPS"],
+    "equations": [
+      { "name": "multi-task loss", "expr": "L = Lcls + Lbox + Lmask", "location": "Sec 3" },
+      { "name": "mask loss", "expr": "Lmask = average binary cross-entropy of a per-pixel sigmoid, defined only on the ground-truth class k", "location": "Sec 3" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "Runs at 5 fps (about 200 ms per frame) on a GPU.",
+      "The shared ResNet-101-FPN model runs at 195 ms per image on an Nvidia Tesla M40 GPU.",
+      "The ResNet-101-C4 variant takes about 400 ms per image and is not recommended in practice.",
+      "Training ResNet-50-FPN on COCO trainval35k takes 32 hours on a synchronized 8-GPU machine."
+    ],
+    "evidence": [
+      { "quote": "Our models can run at about 200ms per frame on a GPU, and training on COCO takes one to two days on a single 8-GPU machine.", "location": "Introduction" },
+      { "quote": "This model runs at 195ms per image on an Nvidia Tesla M40 GPU", "location": "Sec 4.4" },
+      { "quote": "so we do not recommend using the C4 variant in practice.", "location": "Sec 4.4" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/iccv.2017.322",
+    "arxivUrl": "https://arxiv.org/abs/1703.06870",
+    "venue": "IEEE International Conference on Computer Vision (ICCV)",
+    "pdfUrl": "https://arxiv.org/pdf/1703.06870"
+  }
+}

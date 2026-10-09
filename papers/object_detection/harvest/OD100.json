@@ -1,0 +1,277 @@
+{
+ "id": "OD100",
+ "arxiv": "2401.03989",
+ "title": "MS-DETR: Efficient DETR Training with Mixed Supervision",
+ "year": 2024,
+ "venue": null,
+ "problem": {
+  "summary": "DETR is trained with one-to-one supervision that promotes a single candidate per ground-truth object but gives no direct supervision to the candidate generation step, which slows training and yields lower-quality detection candidates than NMS-based detectors at the same budget.",
+  "statements": [
+   "DETR's one-to-one training objective provides no explicit supervision for generating multiple object detection candidates.",
+   "Candidate quality in DETR depends indirectly on decoder cross-attention, making training inefficient (many epochs needed to converge).",
+   "Existing ways of adding one-to-many supervision require extra parallel decoders or extra object queries, raising computation and memory cost."
+  ],
+  "problemTags": [
+   "convergence",
+   "label-assignment",
+   "speed-latency"
+  ],
+  "evidence": [
+   {
+    "quote": "The traditional training procedure using one-to-one supervision in the original DETR lacks direct supervision for the object detection candidates.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "the DETR training procedure lacks explicit supervision for generating multiple object detection candidates.",
+    "location": "Introduction"
+   },
+   {
+    "quote": "Existing methods depend on the additional parallel weight-sharing decoder.",
+    "location": "Sec 2"
+   }
+  ]
+ },
+ "background": {
+  "summary": "Builds on DETR and its training-efficient variants (Deformable DETR, Conditional DETR, DAB-DETR) and on DETR variants that add one-to-many supervision through extra decoders/queries (DN-DETR, Group DETR, Hybrid DETR, DINO); the claimed gap is that none of these modify the supervision of the primary decoder itself, while DETA removes one-to-one supervision and brings NMS back.",
+  "relatedWork": [
+   {
+    "name": "Deformable DETR",
+    "relation": "training-efficient baseline that replaces cross-attention with deformable attention",
+    "quote": "Deformable DETR [48] uses deformable attention, an extension of deformable convolution [7], that selects the highly informative regions, to replace the original crossattention architecture.",
+    "location": "Sec 2"
+   },
+   {
+    "name": "Group DETR / DN-DETR",
+    "relation": "one-to-many supervision variants that rely on additional parallel decoders",
+    "quote": "Group DETR [4, 5] instead learns the object queries of the additional decoders.",
+    "location": "Sec 2"
+   },
+   {
+    "name": "DETA",
+    "relation": "closest prior work doing one-to-many supervision on a single decoder, but drops one-to-one supervision and reintroduces NMS",
+    "quote": "The mixture of one-to-one and one-to-many supervisions on the single decoder without using NMS is underexplored.",
+    "location": "Sec 2"
+   }
+  ],
+  "evidence": [
+   {
+    "quote": "Oneto-many supervision assigns one ground-truth object to multiple object queries to speed up DETR training.",
+    "location": "Sec 2"
+   },
+   {
+    "quote": "The latter part is similar to NMS postprocessing, and the former part is like most detectors.",
+    "location": "Sec 2"
+   }
+  ]
+ },
+ "solution": {
+  "summary": "MS-DETR mixes one-to-one supervision with additional one-to-many supervision applied directly to the object queries of the primary (inference) decoder, using an extra box/class prediction head that is active only during training so inference is unchanged.",
+  "approach": "Add a one-to-many prediction head (box + class predictors) supervised with top-K matching on the primary decoder queries, optionally after reordering decoder layers to cross-attention then self-attention, with no extra decoders or queries.",
+  "components": [
+   "one-to-many box and class predictors on the primary decoder",
+   "matching score combining classification score and IoU with weight alpha and threshold tau",
+   "decoder layer order cross-attention -> self-attention -> FFN",
+   "one-to-many supervision placed on internal queries output from cross-attention",
+   "shared weights between one-to-one and one-to-many predictors"
+  ],
+  "solutionTags": [
+   "transformer-query",
+   "label-assignment-simota",
+   "set-prediction"
+  ],
+  "evidence": [
+   {
+    "quote": "We propose to supervise the queries of the primary decoder with the mixture of one-to-one supervision and additional one-to-many supervision to improve the training efficiency.",
+    "location": "Introduction"
+   },
+   {
+    "quote": "MS-DETR does not introduce additional decoders, additional queries, and performs one-to-many supervision merely on the original decoder.",
+    "location": "Sec 2"
+   },
+   {
+    "quote": "the additional modules only influence the training process and the inference process remains unchanged.",
+    "location": "Introduction"
+   }
+  ]
+ },
+ "experiments": {
+  "summary": "Evaluated on COCO train2017/val2017 with ResNet-50 backbones over 12- and 24-epoch schedules on several DETR baselines, comparing against and combining with one-to-many supervision variants, plus ablations of the matching hyperparameters, supervision placement, predictor weight sharing, and an instance-segmentation transfer test.",
+  "benchmarks": [
+   {
+    "dataset": "COCO",
+    "metric": "mAP",
+    "value": "47.9",
+    "split": "val2017, 12 epochs, DAB-Deformable-DETR + MS-DETR",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "mAP",
+    "value": "47.6",
+    "split": "val2017, 12 epochs, Deformable DETR + MS-DETR",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "mAP",
+    "value": "48.8",
+    "split": "val2017, 12 epochs, Deformable DETR++ + MS-DETR",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "mAP",
+    "value": "50.0",
+    "split": "val2017, 12 epochs, DINO + MS-DETR",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "mAP",
+    "value": "50.9",
+    "split": "val2017, 24 epochs, DINO + MS-DETR",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "mAP",
+    "value": "51.7",
+    "split": "val2017, 24 epochs, DINO + MS-DETR",
+    "location": "Table 2"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "Mask mAP",
+    "value": "31.5",
+    "split": "val2017, 12 epochs, instance segmentation",
+    "location": "Table 7"
+   }
+  ],
+  "baselines": [
+   "DAB-Deformable-DETR",
+   "Deformable DETR",
+   "Deformable DETR++",
+   "DN-DETR",
+   "Group-DETR",
+   "H-DETR (Hybrid DETR)",
+   "DINO",
+   "DAC-DETR",
+   "Align-DETR"
+  ],
+  "evidence": [
+   {
+    "quote": "the gains over DAB-Deformable-DETR, Deformable DETR, and Deformable DETR++ are 3.7, 3.7, and 1.8 in terms of mAP under 12 epochs.",
+    "location": "Sec 4.1"
+   },
+   {
+    "quote": "Table 7 shows that MS-DETR significantly improves the mask mAP of the baseline by 3.2 mAP under 12 epochs training schedule.",
+    "location": "Sec 4.3"
+   },
+   {
+    "quote": "the additional time from the one-to-many supervision is minor",
+    "location": "Sec 4.1"
+   }
+  ]
+ },
+ "limitations": {
+  "summary": "The authors state no explicit limitations; evident ones are that gains shrink as baselines/training get stronger (+1.1 mAP over DINO at 24 epochs), the method introduces matching hyperparameters (K, tau, alpha) that must be tuned, and all results use ResNet-50 backbones on COCO.",
+  "items": [
+   "Gains over the strongest baseline decrease with longer training schedules (+1.1 mAP at 24 epochs vs +2.4 at 12 epochs over DINO).",
+   "One-to-many matching depends on tuned hyperparameters K, threshold tau and score weight alpha.",
+   "Experiments are restricted to DETR-family detectors with ResNet-50 backbones on COCO.",
+   "Placing the one-to-many supervision on the wrong decoder signals (internal self-attention queries) degrades results."
+  ],
+  "evidence": [
+   {
+    "quote": "We empirically find that our approach achieves optimal performance when K = 6.",
+    "location": "Sec 4.2"
+   },
+   {
+    "quote": "A large value of K causes the object imbalance problem",
+    "location": "Sec 4.2"
+   },
+   {
+    "quote": "our improvement is also greater: +1.4 mAP vs +2.4 mAP and +0.8 mAP vs +1.1 mAP, for 12 epochs and 24 epochs, respectively.",
+    "location": "Sec 4.1"
+   }
+  ]
+ },
+ "futureDirections": [],
+ "technical": {
+  "datasets": [
+   "COCO"
+  ],
+  "backbones": [
+   "ResNet-50"
+  ],
+  "models": [
+   "MS-DETR",
+   "DETR",
+   "Deformable DETR",
+   "Deformable DETR++",
+   "DAB-DETR",
+   "DINO",
+   "DN-DETR",
+   "Group-DETR",
+   "Hybrid DETR",
+   "DAC-DETR",
+   "Align-DETR"
+  ],
+  "algorithms": [
+   "one-to-one bipartite matching",
+   "top-K one-to-many matching with score threshold",
+   "IoU + classification match score"
+  ],
+  "metrics": [
+   "mAP",
+   "AP50",
+   "AP75",
+   "APs",
+   "APm",
+   "APl",
+   "Mask mAP",
+   "training time",
+   "GPU memory"
+  ],
+  "equations": [
+   {
+    "name": "MatchScore (one-to-many matching)",
+    "expr": "MatchScore(s, b, c̄, b̄) = α·s_c̄ + (1 − α)·IoU(b, b̄)",
+    "location": "Sec 3.2"
+   },
+   {
+    "name": "one-to-one loss",
+    "expr": "L_11 = Σ_n (ℓ_c11(s_σ(n), s̄_n) + ℓ_b11(b_σ(n), b̄_n))",
+    "location": "Sec 3.1"
+   },
+   {
+    "name": "one-to-many loss",
+    "expr": "L_1m = Σ_n Σ_i≤K_n (ℓ_c1m(s_ni, s̄_n) + ℓ_b1m(b_ni, b̄_n))",
+    "location": "Sec 3.2"
+   }
+  ]
+ },
+ "industry": {
+  "applications": [],
+  "deploymentClaims": [
+   "Additional one-to-many heads affect only training; inference is unchanged from the baseline DETR.",
+   "MS-DETR adds only ~2 minutes per training epoch and ~127M (~2%) GPU memory relative to the baseline, versus +28-36 minutes and +40-60% memory for Hybrid/Group DETR."
+  ],
+  "evidence": [
+   {
+    "quote": "the additional modules only influence the training process and the inference process remains unchanged.",
+    "location": "Introduction"
+   },
+   {
+    "quote": "our method incurs only a minor increase of 127M memory",
+    "location": "Sec 4.1"
+   }
+  ]
+ },
+ "citations": {
+  "doi": null,
+  "arxivUrl": "https://arxiv.org/abs/2401.03989",
+  "venue": null,
+  "pdfUrl": "https://arxiv.org/pdf/2401.03989"
+ }
+}

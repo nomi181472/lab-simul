@@ -1,0 +1,113 @@
+{
+  "id": "OD092",
+  "arxiv": "2211.09788",
+  "title": "DiffusionDet: Diffusion Model for Object Detection",
+  "year": 2022,
+  "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+  "problem": {
+    "summary": "Modern detectors regress and classify on hand-designed object candidates (sliding windows, proposals, anchors, reference points), and even DETR-style models depend on a fixed set of learnable queries; no prior method lets detection start from arbitrary random boxes, vary the number of evaluation boxes, or reuse the detection head iteratively across sparse and crowded scenes.",
+    "statements": [
+      "Most detectors define surrogate regression and classification on empirically designed object candidates such as windows, proposals, anchors and reference points.",
+      "Query-based detectors still depend on a fixed set of learnable object queries.",
+      "Prior detectors couple the number of processed boxes between training and evaluation and use their heads only once per forward pass."
+    ],
+    "problemTags": ["anchor-design", "crowded-scenes"],
+    "evidence": [
+      { "quote": "the majority of detectors solve detection tasks by defining surrogate regression and classification on empirically designed object candidates, such as sliding windows [28, 80], region proposals [27, 74], anchor boxes [56, 72] and reference points [19, 106, 113].", "location": "Introduction" },
+      { "quote": "While these works achieve a simple and effective design, they still have a dependency on a fixed set of learnable queries.", "location": "Introduction" },
+      { "quote": "A natural question is: is there a simpler approach that does not even need the surrogate of learnable queries?", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "DiffusionDet builds on two lines: query-based end-to-end detection (DETR, Sparse R-CNN, Deformable DETR), whose decoders it borrows, and denoising diffusion generative models, which had been applied to segmentation and generation but, as the paper claims, never successfully to object detection.",
+    "relatedWork": [
+      { "name": "DETR", "relation": "prior end-to-end detector that replaced hand-designed candidates with learnable queries", "quote": "Recently, DETR [10] proposes learnable object queries to eliminate the hand-designed components and set up an end-to-end detection pipeline", "location": "Introduction" },
+      { "name": "Sparse R-CNN", "relation": "source of the 6-stage detection decoder, but with fixed learned proposals instead of random boxes", "quote": "DiffusionDet begins from random boxes while Sparse R-CNN uses a fixed set of learned boxes in inference", "location": "Sec 3.2" },
+      { "name": "Diffusion models", "relation": "generative paradigm recast as the noise-to-box detection mechanism", "quote": "Diffusion models have achieved great success in many generation tasks [3, 4, 40, 71, 95] and start to be explored in perception tasks like image segmentation [1, 5, 6, 13, 31, 47, 98].", "location": "Introduction" },
+      { "name": "Diffusion for segmentation (Bit Diffusion)", "relation": "closest prior use of diffusion for perception, but not detection", "quote": "Chen et al. [13] adopted Bit Diffusion model [14] for panoptic segmentation [49] of images and videos.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "However, despite significant interest in this idea, there are no previous solutions that successfully adapt generative diffusion models for object detection", "location": "Sec 2" },
+      { "quote": "To the best of our knowledge, this is the first work that adopts a diffusion model for object detection.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "DiffusionDet formulates detection as denoising diffusion over box coordinates: training pads and noises ground-truth boxes and learns to reverse the process with a set prediction loss, while inference starts from random Gaussian boxes and progressively refines them with DDIM steps and box renewal; a single-run image encoder feeds a 6-stage Sparse R-CNN-style decoder that is reused across steps, giving dynamic box counts and iterative evaluation with shared parameters.",
+    "approach": "Cast object detection as a generative denoising process from noisy boxes to object boxes, refined iteratively at inference by a reusable detection decoder conditioned on once-computed image features.",
+    "components": [
+      "forward diffusion corrupting padded ground-truth boxes with scheduled Gaussian noise",
+      "image encoder (ResNet or Swin with FPN) executed once per image",
+      "6-stage detection decoder cropping RoI features from the feature map",
+      "set prediction loss with optimal-transport top-k assignment",
+      "DDIM sampling to step boxes between timesteps at inference",
+      "box renewal replacing low-scoring predictions with fresh random boxes",
+      "timestep embedding so one head serves all sampling steps"
+    ],
+    "solutionTags": ["set-prediction", "anchor-free", "dynamic-assignment", "diffusion-noise-to-box"],
+    "evidence": [
+      { "quote": "We propose DiffusionDet, a new framework that formulates object detection as a denoising diffusion process from noisy boxes to object boxes.", "location": "Abstract" },
+      { "quote": "During training, we first construct the diffusion process from ground-truth boxes to noisy boxes and then train the model to reverse this process.", "location": "Sec 3.3" },
+      { "quote": "The inference procedure of DiffusionDet is a denoising sampling process from noise to object boxes.", "location": "Sec 3.4" },
+      { "quote": "we propose to separate the whole model into two parts, image encoder and detection decoder", "location": "Sec 3.2" },
+      { "quote": "We apply set prediction loss [10, 91, 115] on the set of Ntrain predictions.", "location": "Sec 3.3" }
+    ]
+  },
+  "experiments": {
+    "summary": "DiffusionDet is trained on COCO and evaluated on COCO val, zero-shot transferred from COCO to CrowdHuman, fully tuned on CrowdHuman, and benchmarked on LVIS v1.0; ablations study padding strategies, signal scaling, numbers of boxes and sampling steps, box renewal and running time, against Faster R-CNN, RetinaNet, Cascade R-CNN, DETR, Deformable DETR and Sparse R-CNN.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "45.8", "split": "val, ResNet-50, 1 sampling step, 300 boxes", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "46.6", "split": "val, ResNet-50, 4 sampling steps, 300 boxes", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "46.8", "split": "val, ResNet-50, 4 sampling steps, 500 boxes", "location": "Table 2" },
+      { "dataset": "CrowdHuman", "metric": "AP", "value": "71.9", "split": "zero-shot from COCO, 2000 evaluation boxes", "location": "Table 1" },
+      { "dataset": "CrowdHuman", "metric": "AP50", "value": "90.1", "split": "full-tuning, 1 step, 1000 boxes", "location": "Table 7" },
+      { "dataset": "LVIS v1.0", "metric": "AP", "value": "31.5", "split": "val, extra evaluation boxes/steps over 29.4 baseline", "location": "Table 3" }
+    ],
+    "baselines": ["Faster R-CNN", "RetinaNet", "Cascade R-CNN", "DETR", "Deformable DETR", "Sparse R-CNN"],
+    "evidence": [
+      { "quote": "DiffusionDet achieves 5.3 AP and 4.8 AP gains when evaluated with more boxes and iteration steps, under a zero-shot transfer setting from COCO to CrowdHuman.", "location": "Abstract" },
+      { "quote": "With ResNet-50 [37] backbone, DiffusionDet achieves 45.8 AP using a single sampling step and 300 random boxes, which significantly outperforms Faster RCNN [74] (40.2 AP), DETR [10] (42.0 AP) and on par with Sparse R-CNN [91] (45.0 AP).", "location": "Introduction" },
+      { "quote": "its performance increases from 45.8 to 46.6 (+ 0.8 AP) on COCO while from 29.4 to 31.5 (+2.1 AP) on LVIS", "location": "Sec 4.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "DiffusionDet relies on iterative denoising sampling, so like diffusion generative models it may suffer relatively slow sampling speed; the paper explores only the most fundamental DDIM strategy and leaves faster samplers to future work.",
+    "items": [
+      "Inference requires iterative denoising sampling, which can be slower than single-pass detectors.",
+      "Only the basic DDIM diffusion strategy is used, without more advanced fast samplers."
+    ],
+    "evidence": [
+      { "quote": "Similar to the Diffusion model employed in generation tasks, DiffusionDet may suffer from a relatively slow sampling speed.", "location": "Sec 4.4" },
+      { "quote": "we have utilized the most fundamental diffusion strategy, DDIM, in our pioneering exploration of using generation models for perception tasks.", "location": "Sec 4.4" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Explore more advanced, faster diffusion sampling strategies to remove the speed penalty of iterative refinement.", "quote": "We believe that a more advanced diffusion strategy could potentially address the issue of decreased speed performance of DiffusionDet, which we plan to explore in future work.", "location": "Sec 4.4" }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "CrowdHuman", "LVIS v1.0"],
+    "backbones": ["ResNet-50", "Swin Transformer"],
+    "models": ["DiffusionDet", "Faster R-CNN", "RetinaNet", "Cascade R-CNN", "DETR", "Deformable DETR", "Sparse R-CNN"],
+    "algorithms": ["DDIM sampling", "Gaussian noise schedule", "RoI Align", "set prediction loss", "optimal transport assignment", "box renewal", "Feature Pyramid Network"],
+    "metrics": ["AP", "AP50", "AP75", "APs", "APm", "APl"],
+    "equations": [
+      { "name": "Forward noising process", "expr": "q(z_t | z_0) = N(z_t | sqrt(alpha_bar_t) * z_0, (1 - alpha_bar_t) * I)", "location": "Sec 3.1, Eq. 1" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "Code released at github.com/ShoufaChen/DiffusionDet",
+      "Same trained network can be evaluated with arbitrary numbers of boxes and iteration steps without retraining"
+    ],
+    "evidence": [
+      { "quote": "Our code is available at https://github.com/ ShoufaChen/DiffusionDet.", "location": "Abstract" },
+      { "quote": "we can train DiffusionDet with Ntrain random boxes while evaluating it with Neval random boxes, where the Neval is arbitrary and does not need to be equal to Ntrain", "location": "Introduction" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/iccv51070.2023.01816",
+    "arxivUrl": "https://arxiv.org/abs/2211.09788",
+    "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+    "pdfUrl": "https://arxiv.org/pdf/2211.09788"
+  }
+}

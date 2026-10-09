@@ -1,0 +1,147 @@
+{
+  "id": "OD047",
+  "arxiv": "1904.04620",
+  "title": "Gaussian YOLOv3: An Accurate and Fast Object Detector Using Localization Uncertainty for Autonomous Driving",
+  "year": 2019,
+  "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+  "problem": {
+    "summary": "For autonomous driving, detectors must be both accurate and real time, yet one-stage detectors trade accuracy for speed while prior uncertainty-aware methods are either not real time, not applied to detection, or never used in the detection decision; conventional detectors output deterministic box coordinates with no uncertainty, so they cannot avoid false positives caused by mislocalization.",
+    "statements": [
+      "Conventional detectors output deterministic bbox coordinates without uncertainty information, so they cannot prevent mislocalizations (false positives).",
+      "A false positive in autonomous driving can cause unexpected braking and fatal accidents.",
+      "Two-stage detectors are accurate but too slow, while one-stage detectors are fast but less accurate; previous accuracy-oriented schemes could not reach 30 fps at 512x512 or higher input.",
+      "Prior uncertainty methods (Kendall et al., Feng et al.) only predict an uncertainty level and do not utilize it in actual applications.",
+      "He et al.'s detection uncertainty method targets a two-stage detector, so it cannot support real-time operation."
+    ],
+    "problemTags": ["localization", "speed-latency", "real-time-edge", "background-false-positives"],
+    "evidence": [
+      { "quote": "whereas the bbox coordinates (i.e., localization) of the detected object are known, the uncertainty of the bbox result is not.", "location": "Introduction" },
+      { "quote": "Thus, conventional object detectors cannot prevent mislocalizations (i.e., FPs) because they output the deterministic results of the bbox without information regarding the uncertainty.", "location": "Introduction" },
+      { "quote": "previous studies [1, 11, 29, 28] have been unable to meet a real-time detection speed of above 30 fps, which is a prerequisite for self-driving applications.", "location": "Introduction" },
+      { "quote": "However, the methods proposed by Kendall et al. [12] and Feng et al. [6] only predict the level of uncertainty, and do not utilize this factor in actual applications.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on YOLO/YOLOv2/YOLOv3 one-stage detection, FPN-style multi-scale prediction inside YOLOv3, and Bayesian uncertainty modeling (Kendall & Gal) as adapted by prior driving-perception work; the gap claimed is that existing uncertainty methods do not feed into detection decisions and are incompatible with real-time one-stage detection.",
+    "relatedWork": [
+      { "name": "YOLOv3", "relation": "baseline detector whose bbox head is re-modeled", "quote": "YOLOv3 consists of convolution layers, as shown in Figure 1a, and is constructed of a deep network for an improved accuracy.", "location": "Sec 2" },
+      { "name": "YOLOv2", "relation": "prior generation with anchors and multi-scale training", "quote": "YOLOv2 improves the detection accuracy compared to YOLO by using batch normalization for the convolution layer, and applying an anchor box, multi-scale training, and fine-grained features.", "location": "Sec 2" },
+      { "name": "Kendall et al. (Bayesian uncertainty)", "relation": "source of the uncertainty modeling and loss attenuation idea", "quote": "Kendall et al. [12] proposed a modeling method for uncertainty prediction using a Bayesian neural network in deep learning.", "location": "Introduction" },
+      { "name": "He et al. (Softer-NMS)", "relation": "prior detection uncertainty method limited to two-stage detectors", "quote": "However, because they focused on a two-stage detector, their method cannot support a real-time operation, and remaining a bbox overlap problem, so it is unsuitable for self-driving applications.", "location": "Introduction" },
+      { "name": "Two-stage detectors (Fast/Faster R-CNN, R-FCN)", "relation": "accurate but slow alternative family", "quote": "conduct a first stage of region proposal generation, followed by a second stage of object classification and bbox regression.", "location": "Introduction" }
+    ],
+    "evidence": [
+      { "quote": "These methods generally have a fast detection speed and high efficiency but a low accuracy.", "location": "Introduction" },
+      { "quote": "However, in general, it still has a lower accuracy than a two-stage detector using a region proposal stage.", "location": "Sec 2" },
+      { "quote": "However, owing to the processing of the grid unit, localization errors are large and the detection accuracy is low, and thus it is unsuitable for autonomous driving applications.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "Gaussian YOLOv3 models each of the four bbox coordinates in YOLOv3's detection layer as a Gaussian (mean and variance), replaces the squared-error box loss with a heteroscedastic negative log-likelihood loss that down-weights noisy targets, and multiplies the objectness and class scores by (1 - average localization uncertainty) at detection time to filter poorly localized boxes.",
+    "approach": "Emit mean and variance for every bbox coordinate, train with an NLL loss that attenuates inconsistent data, and use the predicted uncertainty as an extra score factor during detection.",
+    "components": [
+      "Gaussian parameters (mu, Sigma) for tx, ty, tw, th at each predicted box",
+      "sigmoid preprocessing of means and variances in the detection layer",
+      "negative log-likelihood bbox loss with scale weighting and eps = 1e-9",
+      "loss attenuation that makes training robust to noisy data",
+      "detection criterion Cr = sigmoid(object) * sigmoid(class_i) * (1 - uncertainty_avg)",
+      "unchanged objectness and class losses",
+      "k-means clustered anchor priors per dataset"
+    ],
+    "solutionTags": ["one-stage", "uncertainty-modeling"],
+    "evidence": [
+      { "quote": "the uncertainty of bbox can be modeled using each single Gaussian model of tx , ty , tw , and th .", "location": "Sec 3.1" },
+      { "quote": "the loss function of bbox is redesigned as a negative log likelihood (NLL) loss, whereas the loss function for objectness and class is not changed.", "location": "Sec 3.2" },
+      { "quote": "bbox with high uncertainty among the predicted results is filtered through the detection process.", "location": "Sec 3.3" },
+      { "quote": "Cr. = σ(Object) × σ(Classi ) × (1 − U ncertaintyaver ).", "location": "Eq 10" },
+      { "quote": "the redesigned loss function of bbox makes the model more robust to noisy data [12].", "location": "Sec 3.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "The method is evaluated on the KITTI and BDD autonomous-driving datasets (plus COCO) against two-stage and one-stage detectors, measuring mAP and fps at matched input resolutions, validating that predicted uncertainty anti-correlates with IoU, and counting false positives and true positives against ground truth.",
+    "benchmarks": [
+      { "dataset": "BDD", "metric": "mAP", "value": "18.4", "split": "test, Gaussian YOLOv3, 512x512, 42.5 fps", "location": "Table 3" },
+      { "dataset": "BDD", "metric": "mAP", "value": "14.9", "split": "test, YOLOv3 baseline, 512x512", "location": "Table 3" },
+      { "dataset": "BDD", "metric": "mAP", "value": "20.8", "split": "test, Gaussian YOLOv3, 736x736, 22.5 fps", "location": "Table 3" },
+      { "dataset": "KITTI", "metric": "mAP", "value": "86.79", "split": "validation, Gaussian YOLOv3, 704x704, 24.91 fps", "location": "Table 2" },
+      { "dataset": "KITTI", "metric": "mAP improvement", "value": "3.09", "split": "validation, Gaussian YOLOv3 over YOLOv3", "location": "Sec 4.2" },
+      { "dataset": "KITTI", "metric": "FPS", "value": "43.13", "split": "validation, Gaussian YOLOv3, 512x512", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "36.1", "split": "Gaussian YOLOv3 (3.1 above YOLOv3); AP75 39.0", "location": "Sec 4.2" },
+      { "dataset": "KITTI", "metric": "FP reduction", "value": "41.40", "split": "validation, vs YOLOv3 (TP +7.26%)", "location": "Table 4" }
+    ],
+    "baselines": ["YOLOv3", "SSD", "RefineDet", "CFENet", "RFBNet", "MS-CNN", "SINet"],
+    "evidence": [
+      { "quote": "The mAP of the proposed algorithm, Gaussian YOLOv3, improves by 3.09 compared to that of YOLOv3, and the detection speed is 43.13 fps, which enables real-time detection with a slight difference from YOLOv3.", "location": "Sec 4.2" },
+      { "quote": "Gaussian YOLOv3 improves the mAP by 3.5 compared with YOLOv3, and the detection speed is 42.5 fps, which is almost the same as YOLOv3.", "location": "Sec 4.2" },
+      { "quote": "For the KITTI and BDD validation sets, Gaussian YOLOv3 reduces the FP by 41.40% and 40.62%, respectively, compared to YOLOv3.", "location": "Sec 4.3" },
+      { "quote": "the IOU value tends to increase as the localization uncertainty decreases in both datasets.", "location": "Sec 4.1" }
+    ]
+  },
+  "limitations": {
+    "summary": "Accuracy at the standard 512x512 input still trails the most accurate prior method (SINet) on KITTI, there is a small fps drop relative to plain YOLOv3, only bbox localization uncertainty is modeled (not objectness or class uncertainty), and anchors must be re-clustered per dataset.",
+    "items": [
+      "At 512x512 on KITTI the mAP is 1.81 below SINet, which is 1.8 times faster.",
+      "Detection speed drops slightly versus the baseline (43.13 vs 43.57 fps on KITTI; 42.5 vs 42.9 fps on BDD).",
+      "Only the bbox coordinates are modeled as Gaussians; objectness and class scores remain deterministic.",
+      "Anchor priors are dataset-specific, obtained by k-means clustering on each training set."
+    ],
+    "evidence": [
+      { "quote": "although the mAP of Gaussian YOLOv3 with a 512 × 512 resolution is 1.81 lower than that of SINet [11]", "location": "Sec 4.2" },
+      { "quote": "Single Gaussian modeling for predicting the uncertainty of bbox only applies to the bbox coordinates of the YOLOv3 detection layer shown in Figure 1a.", "location": "Sec 3.2" },
+      { "quote": "The anchor size is extracted using k-means clustering for each training set of KITTI and BDD.", "location": "Sec 4" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Deploy the improved camera-based detection system to broaden the use of autonomous driving applications.",
+      "quote": "the proposed algorithm can significantly improve the camera-based object detection system for autonomous driving, and is consequently expected to contribute significantly to the wide use of autonomous driving applications.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["KITTI", "BDD", "COCO"],
+    "backbones": ["YOLOv3"],
+    "models": ["Gaussian YOLOv3", "YOLOv3", "SSD", "RefineDet", "CFENet", "RFBNet", "MS-CNN", "SINet", "Faster R-CNN", "R-FCN"],
+    "algorithms": ["Gaussian modeling", "negative log-likelihood loss", "loss attenuation", "k-means anchor clustering", "NMS", "sigmoid", "multi-scale training"],
+    "metrics": ["mAP", "AP", "AP75", "FPS", "FLOPs", "FP", "TP", "IOU"],
+    "equations": [
+      { "name": "Gaussian output model", "expr": "p(y|x) = N(y; mu(x), Sigma(x))", "location": "Eq 1" },
+      { "name": "Parameter preprocessing", "expr": "mu_tx = sigmoid(mu_hat_tx); Sigma_tx = sigmoid(Sigma_hat_tx)", "location": "Eq 2" },
+      { "name": "NLL bbox loss", "expr": "Lx = -sum gamma_ijk * log(N(x_G | mu_tx, Sigma_tx) + eps)", "location": "Eq 4" },
+      { "name": "Scale weight", "expr": "omega_scale = 2 - w_G * h_G", "location": "Eq 9" },
+      { "name": "Detection criterion", "expr": "Cr = sigma(Object) * sigma(Class_i) * (1 - Uncertainty_avg)", "location": "Eq 10" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving",
+        "detail": "The detector is designed and evaluated for self-driving perception on the KITTI and BDD driving datasets, detecting cars, pedestrians, cyclists and traffic elements in real time.",
+        "quote": "must accurately detect cars, pedestrians, traffic signs, traffic lights, etc. in real time to ensure safe and correct control decisions [25].",
+        "location": "Introduction"
+      },
+      {
+        "domain": "autonomous driving safety",
+        "detail": "False-positive reduction is tied directly to avoiding unexpected braking and fatal accidents in production vehicles.",
+        "quote": "the reduction in the FP prevents unnecessary unexpected braking, and the increase in the TP prevents fatal accidents from object detection errors.",
+        "location": "Sec 4.3"
+      }
+    ],
+    "deploymentClaims": [
+      "Real-time detection at over 42 fps with 512x512 input despite the accuracy gains",
+      "Only 0.04% extra FLOPs (99.04e9 vs 99e9) from the Gaussian modeling of the output layer",
+      "Measured on an NVIDIA GTX 1080 Ti with CUDA 8.0 and cuDNN v7"
+    ],
+    "evidence": [
+      { "quote": "the additional computation cost is negligible, and the proposed algorithm consequently maintains the real-time detection speed of over 42 fps with an input resolution of 512 × 512 despite the significant improvements in performance.", "location": "Introduction" },
+      { "quote": "The experiment is conducted on an NVIDIA GTX 1080 Ti with CUDA 8.0 and cuDNN v7.", "location": "Sec 4" },
+      { "quote": "This work was supported by the National Research Foundation of Korea (NRF) grant funded by the Korea government (MSIT) (No. 2019R1F1A1057530)", "location": "Acknowledgement" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/iccv.2019.00059",
+    "arxivUrl": "https://arxiv.org/abs/1904.04620",
+    "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+    "pdfUrl": "https://arxiv.org/pdf/1904.04620"
+  }
+}

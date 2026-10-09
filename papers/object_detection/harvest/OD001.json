@@ -1,0 +1,142 @@
+{
+  "id": "OD001",
+  "arxiv": "1506.01497",
+  "title": "Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks",
+  "year": 2015,
+  "venue": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+  "problem": {
+    "summary": "Region-based detectors such as Fast R-CNN are fast only when the region proposal step is ignored: proposals from Selective Search or EdgeBoxes are computed outside the network, are not shared with the detector, and dominate test-time cost. Multi-scale handling via image or filter pyramids adds further runtime.",
+    "statements": [
+      "External region proposal methods (Selective Search, EdgeBoxes) dominate the runtime of otherwise fast region-based detectors.",
+      "Proposal modules are used as external, pre-defined components, so they are not trained end-to-end with the detector and do not benefit from better features.",
+      "Addressing multiple object scales and aspect ratios with image pyramids or filter pyramids is time-consuming at test time."
+    ],
+    "problemTags": ["speed-latency", "scale-variance", "deployability"],
+    "evidence": [
+      { "quote": "State-of-the-art object detection networks depend on region proposal algorithms to hypothesize object locations.", "location": "Abstract" },
+      { "quote": "Now, proposals are the test-time computational bottleneck in state-of-the-art detection systems.", "location": "Introduction" },
+      { "quote": "Nevertheless, the region proposal step still consumes as much running time as the detection network.", "location": "Introduction" },
+      { "quote": "The images are resized at multiple scales, and feature maps (HOG [8] or deep convolutional features [9], [1], [2]) are computed for each scale (Figure 1(a)). This way is often useful but is time-consuming.", "location": "Sec 3.1.1" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on the R-CNN -> SPPnet -> Fast R-CNN lineage of detectors that share convolutions across proposals, and treats Selective Search / EdgeBoxes as the proposal baseline. The claimed gap is that proposals are external modules: MultiBox does not share features with the detector, and R-CNN itself mainly acts as a classifier.",
+    "relatedWork": [
+      { "name": "Fast R-CNN", "relation": "second-stage detector that the RPN is merged with and shares convolutional features with", "quote": "Fast R-CNN [2] enables end-to-end detector training on shared convolutional features and shows compelling accuracy and speed.", "location": "Related Work" },
+      { "name": "Selective Search", "relation": "dominant external proposal baseline, an order of magnitude slower than efficient detection networks", "quote": "Selective Search [4], one of the most popular methods, greedily merges superpixels based on engineered low-level features.", "location": "Introduction" },
+      { "name": "MultiBox", "relation": "learned proposal network prior work; not fully convolutional and does not share features with the detector", "quote": "MultiBox does not share features between the proposal and detection networks.", "location": "Related Work" },
+      { "name": "OverFeat", "relation": "prior one-stage sliding-window detector used as the one-stage comparison", "quote": "In the OverFeat method [9], a fully-connected layer is trained to predict the box coordinates for the localization task that assumes a single object.", "location": "Related Work" }
+    ],
+    "evidence": [
+      { "quote": "The MultiBox methods [26], [27] generate region proposals from a network whose last fully-connected layer simultaneously predicts multiple class-agnostic boxes", "location": "Related Work" },
+      { "quote": "By sharing convolutions at test-time, the marginal cost for computing proposals is small (e.g., 10ms per image).", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "A fully convolutional Region Proposal Network (RPN) is layered on the shared convolutional feature map and trained end-to-end to predict object bounds and objectness at every location, using a pyramid of anchor boxes as multi-scale regression references. RPN and Fast R-CNN are then merged into one unified network via 4-step alternating training that shares convolutional features.",
+    "approach": "A small sliding-window network over the shared feature map regresses k anchor-referenced boxes and objectness scores per location, whose proposals then feed the Fast R-CNN detector inside a single unified network.",
+    "components": [
+      "Region Proposal Network implemented as an n x n convolution followed by sibling 1 x 1 box-regression and box-classification layers",
+      "anchor boxes: 3 scales x 3 aspect ratios (k = 9) used as translation-invariant regression references",
+      "multi-task loss over anchor classification and box regression with smooth L1",
+      "image-centric sampling of 256 anchors per mini-batch with up to 1:1 positive/negative ratio",
+      "4-step alternating training to learn shared convolutional features between RPN and Fast R-CNN",
+      "non-maximum suppression (IoU 0.7) to prune redundant proposals before detection"
+    ],
+    "solutionTags": ["two-stage", "anchors", "post-processing-nms", "feature-fusion"],
+    "evidence": [
+      { "quote": "we introduce novel Region Proposal Networks (RPNs) that share convolutional layers with state-of-the-art object detection networks", "location": "Introduction" },
+      { "quote": "The entire system is a single, unified network for object detection (Figure 2).", "location": "Sec 3" },
+      { "quote": "By default we use 3 scales and 3 aspect ratios, yielding k = 9 anchors at each sliding position.", "location": "Sec 3.1.1" },
+      { "quote": "In this paper, we adopt a pragmatic 4-step training algorithm to learn shared features via alternating optimization.", "location": "Sec 3.2" },
+      { "quote": "we adopt non-maximum suppression (NMS) on the proposal regions based on their cls scores.", "location": "Sec 3.3" }
+    ]
+  },
+  "experiments": {
+    "summary": "The method is evaluated on PASCAL VOC 2007/2012 and MS COCO against Selective Search and EdgeBoxes proposals under Fast R-CNN, with ablations over shared vs. unshared features, proposal counts, cls/reg outputs, anchor settings and loss weight, plus a one-stage vs. two-stage comparison and timing on a K40 GPU.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "69.9", "split": "test 2007, train 07+12, 300 proposals", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "78.8", "split": "test 2007, train COCO+07+12", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2012", "metric": "mAP", "value": "70.4", "split": "test 2012, train 07++12", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "mAP@0.5", "value": "42.7", "split": "test-dev, train COCO trainval", "location": "Table 11" },
+      { "dataset": "MS COCO", "metric": "mAP@[.5,.95]", "value": "21.9", "split": "test-dev, train COCO trainval", "location": "Table 11" },
+      { "dataset": "PASCAL VOC 2007", "metric": "FPS", "value": "5", "split": "VGG-16, all steps, K40 GPU", "location": "Table 5" }
+    ],
+    "baselines": ["Fast R-CNN + Selective Search", "Fast R-CNN + EdgeBoxes", "OverFeat-style one-stage Fast R-CNN", "MultiBox"],
+    "evidence": [
+      { "quote": "RPN with Fast R-CNN achieves competitive results, with an mAP of 59.9% while using up to 300 proposals", "location": "Sec 4.1" },
+      { "quote": "Using the ZF model, the one-stage system has an mAP of 53.9%.", "location": "Sec 4.1" },
+      { "quote": "Using the COCO trainval set to train, Faster RCNN has 42.7% mAP@0.5 and 21.9% mAP@[.5, .95] on the COCO test-dev set.", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "The unified system is near real-time rather than truly real-time (198 ms / 5 fps with VGG-16), single-scale testing with a total stride of 16 limits localization precision, and the two-stage cascade still processes more work than a one-stage alternative.",
+    "items": [
+      "With the very deep VGG-16 model the full pipeline runs at 5 fps (198 ms per image), so it is only near real-time.",
+      "The 16-pixel total stride on re-scaled images may limit accuracy; a smaller stride could improve results.",
+      "Multi-scale feature extraction at test time would raise accuracy but is rejected because it lacks a good speed-accuracy trade-off.",
+      "The two-stage design retains a per-region second stage, and the one-stage comparison runs slower mainly because of its far larger proposal count."
+    ],
+    "evidence": [
+      { "quote": "Even such a large stride provides good results, though accuracy may be further improved with a smaller stride.", "location": "Sec 3.3" },
+      { "quote": "Multi-scale feature extraction (using an image pyramid) may improve accuracy but does not exhibit a good speed-accuracy trade-off [2].", "location": "Sec 3.3" },
+      { "quote": "We also note that the onestage system is slower as it has considerably more proposals to process.", "location": "Sec 4.1" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Develop an exact (non-approximate) joint-training solver that differentiates through RoI pooling with respect to predicted box coordinates, using an RoI warping layer.",
+      "quote": "a solution can be given by an “RoI warping” layer as developed in [15], which is beyond the scope of this paper.",
+      "location": "Sec 3.2"
+    },
+    {
+      "direction": "Reduce the feature stride (e.g. by predicting on finer-resolution maps) to gain further detection accuracy.",
+      "quote": "accuracy may be further improved with a smaller stride.",
+      "location": "Sec 3.3"
+    }
+  ],
+  "technical": {
+    "datasets": ["PASCAL VOC 2007", "PASCAL VOC 2012", "MS COCO"],
+    "backbones": ["ZF", "VGG-16", "ResNet-101"],
+    "models": ["Faster R-CNN", "RPN", "Fast R-CNN"],
+    "algorithms": ["non-maximum suppression", "4-step alternating training", "image-centric anchor sampling", "smooth L1 box regression"],
+    "metrics": ["mAP", "mAP@0.5", "mAP@[.5,.95]", "FPS", "recall-vs-IoU"],
+    "equations": [
+      { "name": "RPN multi-task loss", "expr": "L({pi},{ti}) = (1/Ncls) sum_i Lcls(pi,p*i) + lambda (1/Nreg) sum_i p*i Lreg(ti,t*i)", "location": "Eqn. (1), Sec 3.1.2" },
+      { "name": "anchor-relative box parameterization", "expr": "tx=(x-xa)/wa, tw=log(w/wa), ty=(y-ya)/ha, th=log(h/ha)", "location": "Eqn. (2), Sec 3.1.2" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "social media / visual recommendations",
+        "detail": "The detection system was adopted in commercial products such as Pinterest, where user engagement improvements were reported.",
+        "quote": "at Pinterests [17], with user engagement improvements reported.",
+        "location": "Introduction"
+      },
+      {
+        "domain": "competition-winning perception systems",
+        "detail": "RPN and Faster R-CNN formed the basis of 1st-place entries in ILSVRC 2015 detection/localization and COCO 2015 detection/segmentation tracks.",
+        "quote": "In ILSVRC and COCO 2015 competitions, Faster R-CNN and RPN are the foundations of the 1st-place winning entries in several tracks.",
+        "location": "Abstract"
+      }
+    ],
+    "deploymentClaims": [
+      "5 fps including all steps on a GPU for the VGG-16 model (Abstract).",
+      "Total system time of 198 ms per image with VGG-16 for both proposal and detection (Sec 4.1).",
+      "17 fps frame rate with the ZF net (Sec 4.1).",
+      "The shared RPN adds only about 10 ms per image for proposals."
+    ],
+    "evidence": [
+      { "quote": "For the very deep VGG-16 model [3], our detection system has a frame rate of 5fps (including all steps) on a GPU", "location": "Abstract" },
+      { "quote": "With the convolutional features shared, the RPN alone only takes 10ms computing the additional layers.", "location": "Sec 4.1" },
+      { "quote": "Our system has a frame-rate of 17 fps with the ZF net.", "location": "Sec 4.1" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/tpami.2016.2577031",
+    "arxivUrl": "https://arxiv.org/abs/1506.01497",
+    "venue": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+    "pdfUrl": "https://arxiv.org/pdf/1506.01497"
+  }
+}

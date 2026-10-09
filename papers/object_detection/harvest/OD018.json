@@ -1,0 +1,129 @@
+{
+  "id": "OD018",
+  "arxiv": "1707.05031",
+  "title": "Residual Features and Unified Prediction Network for Single Stage Detection",
+  "year": 2017,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "In SSD-style single-stage detectors the shallow lower-layer feature maps that must detect small objects lack representation power, and they are structurally forced to carry low-level information forward while also producing high-level predictions; backbone gradients are deformed by direct training pressure, per-layer heads cannot share cross-scale context (Box-in-Box), and existing FPN/ResNet fixes cost the speed that defines one-stage detection.",
+    "statements": [
+      "Lower-layer feature maps close to the input are too shallow to represent small objects for prediction.",
+      "Feature maps face a structural contradiction: delivering low-level information to the next layer while containing high-level abstraction for prediction.",
+      "Training the prediction heads directly on backbone feature maps causes unnecessary gradient deformations and learning instability.",
+      "Separate per-layer prediction modules cannot reflect contextual information from different scales, producing the Box-in-Box problem of redundant overlapping boxes.",
+      "Prior context-injection fixes (DSSD, FPN) increase computational complexity and reduce detection speed."
+    ],
+    "problemTags": ["small-objects", "localization", "training-instability", "one-stage-accuracy", "scale-variance"],
+    "evidence": [
+      { "quote": "However, the feature maps in the lower layers close to the input which are responsible for detecting small objects in a single stage detector have a problem of insufficient representation power because they are too shallow.", "location": "Abstract" },
+      { "quote": "There is also a structural contradiction that the feature maps have to deliver low-level information to next layers as well as contain high-level abstraction for prediction.", "location": "Abstract" },
+      { "quote": "SSD has the problem that back-propagation allows the gradient to cause unnecessary deformations in the feature maps since the feature maps of the backbone network are used directly in bounding box regression and classification.", "location": "Sec 1" },
+      { "quote": "In the figure, we can see that SSD often detects a single object with two overlapping boxes.", "location": "Sec 1 (Figure 1)" },
+      { "quote": "However, these structures have the disadvantage of increasing the computational complexity, thus reduces detection speed, which is a key advantage of a single-stage detector.", "location": "Sec 1" }
+    ]
+  },
+  "background": {
+    "summary": "The work sits in the SSD multi-scale one-stage lineage (YOLO as the single-layer predecessor, SSD's lower-level features, R-SSD's rainbow concatenation and StairNet's unified prediction) and contrasts against two-stage R-CNN methods and the DSSD/FPN/RetinaNet accuracy fixes that trade speed away.",
+    "relatedWork": [
+      { "name": "SSD", "relation": "base one-stage detector that RUN extends with residual blocks and unified prediction", "quote": "In order to solve this problem, SSD [17] utilized not only the highest-level features but also lower-level features which have enough resolution to detect small objects.", "location": "Sec 2" },
+      { "name": "YOLO", "relation": "earlier single-stage method limited to highest-level features", "quote": "However, since YOLO uses only the highest-level1 feature maps to detect objects, there is a lack of lower-level information, which results in somewhat inaccurate detection, especially for small objects.", "location": "Sec 2" },
+      { "name": "DSSD", "relation": "ResNet-101 + deconvolution accuracy fix that degrades speed", "quote": "DSSD [6] could obtain higher accuracy by changing the base network to ResNet-101 [10] and combining the FPN [14] using deconvolution layers in combination with the existing multiple layers to reflect the large scale context.", "location": "Sec 1" },
+      { "name": "Recurrent Rolling Convolution (RRC)", "relation": "prior multi-scale context method that concatenates adjacent maps via pooling/deconvolution with an RNN", "quote": "RRC made multi-scale feature maps include large and small context by concatenating adjacent feature maps by pooling and deconvolution.", "location": "Sec 2" },
+      { "name": "Rainbow SSD (R-SSD)", "relation": "closest prior art: cross-layer concatenation enabling a single unified prediction module", "quote": "Rainbow SSD (R-SSD) [11] proposed a method to concatenate feature maps not only in the adjacent layers but also in all the layers for bounding box regression and classification using pooling and deconvolution.", "location": "Sec 2" },
+      { "name": "StairNet", "relation": "combines FPN on VGG-16 with R-SSD-style unified prediction", "quote": "Woo et al. [27] proposed StairNet which utilizes both FPN [14] structure of base VGG-16 network and unified prediction of R-SSD.", "location": "Sec 2" },
+      { "name": "RetinaNet / Focal Loss", "relation": "state-of-the-art accuracy route via loss redesign with ResNet and FPN", "quote": "Their RetinaNet which uses Focal Loss in combination with ResNet and FPN [14] structure achieved the state-of-the-art performance.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "Thus, although classification may be relatively accurate, these are too slow to be used for real-time applications.", "location": "Sec 2" },
+      { "quote": "Recently, real-time detectors with low computational complexities have been actively researched.", "location": "Sec 1" }
+    ]
+  },
+  "solution": {
+    "summary": "RUN (Residual features and Unified prediction Network) inserts multi-way residual blocks (2-way, or 3-way with a deconvolution branch) between the reduced VGG-16 backbone and the heads as a gradient 'bumper' that decouples backbone features from detection, enriches each scale with cross-scale context, and then applies one unified prediction module across all now-equal-depth (256-dim) feature maps.",
+    "approach": "Decouple backbone from prediction with shared-depth multi-way Resblocks (including a deconvolution branch for large context), then predict with a single unified classifier over all scales.",
+    "components": [
+      "3-way Resblock: branch1 (1x1 conv + 3x3 conv), branch2 (3x3 conv for peripheral context), branch3 (deconvolution from the consecutive larger-scale layer)",
+      "2-way Resblock without the deconvolution branch",
+      "all Resblock branches normalize feature depth to 256 so scales share information level",
+      "unified prediction module: one classifier shared over all multi-scale feature maps, 6 default boxes per layer",
+      "Resblock acts as a bumper, blocking prediction-module gradients from flowing into the backbone",
+      "staged training: fine-tune the 3-way model from a trained 2-way model with the prediction module unfrozen",
+      "reduced VGG-16 backbone pre-trained on ILSVRC CLS-LOC"
+    ],
+    "solutionTags": ["feature-fusion", "feature-pyramid", "multi-scale", "one-stage"],
+    "evidence": [
+      { "quote": "we propose a method to enrich the representation power of feature maps using Resblock and deconvolution layers.", "location": "Abstract" },
+      { "quote": "In addition, a unified prediction module is applied to generalize output results and boost earlier layers' representation power for prediction.", "location": "Abstract" },
+      { "quote": "Instead of directly connecting the feature maps in the backbone network to the prediction module, we inserted a multi-way Resblock for each level of feature maps, which acts like a bumper.", "location": "Sec 3.1" },
+      { "quote": "This prevents the gradients of the prediction module from flowing directly into the feature maps of the backbone network.", "location": "Sec 3.1" },
+      { "quote": "Because unified prediction applies equally to feature maps of all scales, it forces the output of the 3-way Resblock between the feature map of the backbone and the prediction module to be learned at a similar information level.", "location": "Sec 3.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "Built on the public SSD codebase with reduced VGG-16, evaluated on PASCAL VOC 2007/2012 and MS COCO: an ablation over 2-way/3-way Resblock and unified prediction on VOC2007, VOC2012 comparisons against SSD/DSSD/R-SSD/StairNet, COCO test-dev comparisons including RetinaNet and two-stage methods, and a speed/accuracy study with FPS measured on Titan X and Titan X Pascal.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007 test", "metric": "mAP", "value": "79.2%", "split": "VOC2007 test (SSD300+3WAY+Unified Pred)", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2012 test", "metric": "mAP", "value": "77.1%", "split": "07++12, RUN3WAY300", "location": "Table 2" },
+      { "dataset": "PASCAL VOC 2012 test", "metric": "mAP", "value": "79.8%", "split": "07++12, RUN3WAY512", "location": "Table 3" },
+      { "dataset": "MS COCO test-dev", "metric": "mAP (IoU 0.5:0.95)", "value": "28.0%", "split": "trainval35k, RUN3WAY300", "location": "Table 4" },
+      { "dataset": "MS COCO test-dev", "metric": "mAP (IoU 0.5:0.95)", "value": "32.4%", "split": "trainval35k, RUN3WAY512", "location": "Table 4" },
+      { "dataset": "speed (Titan X Pascal)", "metric": "FPS", "value": "29.8", "split": "RUN3WAY512", "location": "Table 5" }
+    ],
+    "baselines": ["SSD", "DSSD", "R-SSD", "StairNet", "RetinaNet", "Faster R-CNN", "R-FCN", "ION"],
+    "evidence": [
+      { "quote": "we observed that the proposed model with only 2-way Resblock without the deconvolution path achieved 1.1% higher mAP than that of SSD.", "location": "Sec 4.1" },
+      { "quote": "RUN3WAY300 achieved 2.9% better mAP compared to SSD300 [17].", "location": "Sec 4 (COCO)" },
+      { "quote": "Also, RUN3WAY512 achieved 3.6% better mAP than SSD512.", "location": "Sec 4 (COCO)" },
+      { "quote": "RUN3WAY512 achieved the highest average precision and recall for small objects among compared methods except RetinaNet.", "location": "Sec 4 (COCO)" }
+    ]
+  },
+  "limitations": {
+    "summary": "End-to-end training of the 3-way model is worse than staged fine-tuning; with a shallow VGG-16 backbone RUN trails DSSD513 on COCO; accuracy gains cost speed relative to plain SSD; and the model sometimes merges a group of objects into one large box.",
+    "items": [
+      "End-to-end training of the 3-way model produced worse results than the staged 2-way-then-3-way fine-tuning strategy.",
+      "RUN3WAY512 performs slightly worse than DSSD513, attributed to the shallower VGG-16 backbone versus ResNet-101.",
+      "RUN3way-300 is 36% slower than SSD300 in exchange for +2.9 mAP.",
+      "The method often detects a single large box covering a group of objects.",
+      "Some FPS numbers in the speed table are self-measured rather than taken from original papers."
+    ],
+    "evidence": [
+      { "quote": "The end-to-end training was also applied on the 3-way model, but the results were worse than the above training strategy.", "location": "Sec 4.1" },
+      { "quote": "It performs slightly worse than DSSD513 [6], which is probably because the ResNet101 [10] backbone of DSSD513 produces better features for larger input images than VGG-16 [25] of SSD and ours.", "location": "Sec 4 (COCO)" },
+      { "quote": "The RUN-3way-300 model (25.0ms, 28.0% mAP) is 36% slower but 2.9% better in mAP than the SSD300 [17] model (18.3ms, 25.1% mAP).", "location": "Sec 4 (Speed vs Accuracy)" },
+      { "quote": "Our method often detects a large box which covers a group of objects.", "location": "Figure 10 caption" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Apply the Resblock + unified prediction design beyond SSD to other architectures that use multi-scale features.", "quote": "We expect the proposed method be not restricted to SSD-based methods but also applicable to other structures utilizing multi-scale features.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["PASCAL VOC 2007", "PASCAL VOC 2012", "MS COCO", "ILSVRC CLS-LOC"],
+    "backbones": ["reduced VGG-16", "VGG-16"],
+    "models": ["RUN", "SSD", "DSSD", "R-SSD", "StairNet", "RetinaNet", "Faster R-CNN", "R-FCN", "ION", "YOLO"],
+    "algorithms": ["3-way Resblock", "2-way Resblock", "unified prediction", "deconvolution", "default box generation", "non-maximum suppression"],
+    "metrics": ["mAP", "AP", "FPS", "inference time"],
+    "equations": [
+      { "name": "classification network relation", "expr": "xn = Fn(xn-1) = (Fn o Fn-1 o ... o F1)(I), Scores = P(xn)", "location": "Sec 3.1, Eq. 1-2" },
+      { "name": "SSD multi-scale detection", "expr": "Detection = P1(xs1), P2(xs2), ..., Pk(xsk)", "location": "Sec 3.1, Eq. 3" },
+      { "name": "detection with cascaded feature transforms", "expr": "Detection = P1(xs1), P2(Fs1s2(xs1)), ..., Pk(Fs1sk(xs1))", "location": "Sec 3.1, Eq. 4" },
+      { "name": "RUN detection on residual features", "expr": "Detection = P1(xhat{s1,s2}), P2(xhat{s2,s3}), ..., Pk-1(xhat{sk-1,sk}), Pk(xhat{sk})", "location": "Sec 3.1, Eq. 5" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "The full RUN3WAY512 model runs in real time (29.8 FPS) on Titan X Pascal, keeping the speed advantage of single-stage detection while adding residual context.",
+      "Measured on the same environment, RUN outperforms competitors with less loss of speed (e.g. about 60% faster than ResNet-101 SSD321 at similar mAP)."
+    ],
+    "evidence": [
+      { "quote": "Table 5 shows that even the most complex version of our method, RUN3WAY512, can works in real time (29.8 FPS) on Tital X Pascal.", "location": "Sec 4" },
+      { "quote": "Table5 shows that our method outperforms other competitors with less loss of speed.", "location": "Sec 4" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1707.05031",
+    "arxivUrl": "https://arxiv.org/abs/1707.05031",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/1707.05031"
+  }
+}

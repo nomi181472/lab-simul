@@ -1,0 +1,139 @@
+{
+  "id": "OD057",
+  "arxiv": "2005.12872",
+  "title": "End-to-End Object Detection with Transformers",
+  "year": 2020,
+  "venue": "ECCV 2020",
+  "problem": {
+    "summary": "Modern detectors solve set prediction only indirectly through surrogate classification/regression over proposals, anchors or window centers, and their accuracy depends heavily on NMS post-processing, anchor set design and target-assignment heuristics. End-to-end set prediction worked for translation/speech but had not yet been competitive for detection.",
+    "statements": [
+      "Detection is posed indirectly as surrogate regression/classification over a large set of proposals, anchors or window centers.",
+      "Post-processing to collapse near-duplicate predictions (NMS), anchor set design and assignment heuristics strongly influence final performance.",
+      "Previous direct set-prediction detectors added other priors or failed to compete with strong baselines on challenging benchmarks."
+    ],
+    "problemTags": ["nms", "anchor-design", "label-assignment"],
+    "evidence": [
+      { "quote": "Modern detectors address this set prediction task in an indirect way, by defining surrogate regression and classification problems on a large set of proposals [37,5], anchors [23], or window centers [53,46].", "location": "Introduction" },
+      { "quote": "Their performances are significantly influenced by postprocessing steps to collapse near-duplicate predictions, by the design of the anchor sets and by the heuristics that assign target boxes to anchors [52].", "location": "Introduction" },
+      { "quote": "previous attempts [43,16,4,39] either add other forms of prior knowledge, or have not proven to be competitive with strong baselines on challenging benchmarks.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on four lines: Hungarian-algorithm bipartite matching losses for permutation-invariant set prediction, transformer encoder-decoder self-attention, non-autoregressive parallel decoding, and standard detection baselines (Faster R-CNN with FPN, anchors, Focal loss), noting recurrent end-to-end detectors as closest prior work.",
+    "relatedWork": [
+      { "name": "Hungarian matching (Kuhn)", "relation": "bipartite matching loss used to enforce permutation-invariant unique prediction-to-target assignment", "quote": "The usual solution is to design a loss based on the Hungarian algorithm [20], to find a bipartite matching between ground-truth and prediction.", "location": "Sec 2.1" },
+      { "name": "Transformers (Vaswani et al.)", "relation": "encoder-decoder self-attention architecture adopted for the detection model", "quote": "Transformers introduced self-attention layers, which, similarly to Non-Local Neural Networks [49], scan through each element of a sequence and update it by aggregating information from the whole sequence.", "location": "Sec 2.2" },
+      { "name": "Faster R-CNN", "relation": "strong optimized baseline for COCO comparison", "quote": "Faster RCNN has undergone many design iterations and its performance was greatly improved since the original publication.", "location": "Introduction" },
+      { "name": "Recurrent end-to-end detectors", "relation": "closest prior set-prediction detectors, but autoregressive RNNs evaluated on small datasets", "quote": "Closest to our approach are end-to-end set predictions for object detection [43] and instance segmentation [41,30,36,42].", "location": "Sec 2.3" },
+      { "name": "FPN", "relation": "prior improvement trajectory for Faster R-CNN cited as the model for future small-object gains", "quote": "We expect that future work will improve this aspect in the same way the development of FPN [22] did for Faster R-CNN.", "location": "Introduction" }
+    ],
+    "evidence": [
+      { "quote": "Most modern object detection methods make predictions relative to some initial guesses.", "location": "Sec 2.3" },
+      { "quote": "Recent work [52] demonstrate that the final performance of these systems heavily depends on the exact way these initial guesses are set.", "location": "Sec 2.3" },
+      { "quote": "There is no canonical deep learning model to directly predict sets.", "location": "Sec 2.1" }
+    ]
+  },
+  "solution": {
+    "summary": "DETR views detection as direct set prediction: a CNN backbone feeds a transformer encoder-decoder whose decoder attends to a fixed small set of learned object queries and emits N predictions in parallel, trained with a set loss that performs optimal (Hungarian) bipartite matching against ground truth padded with a no-object class.",
+    "approach": "Predict a fixed-size set of boxes and classes in one pass with a transformer decoder over learned object queries, supervised by a Hungarian-matching set loss, removing anchors and NMS entirely.",
+    "components": [
+      "CNN backbone (ResNet-50/101, optionally dilated C5) producing a 2048-channel feature map",
+      "transformer encoder over flattened spatial features with fixed sine positional encodings",
+      "transformer decoder with N=100 learned object queries and parallel (non-autoregressive) decoding",
+      "shared 3-layer FFN prediction heads for class softmax and normalized box coordinates, plus a no-object class",
+      "Hungarian bipartite matching loss combining classification likelihood with L1 and GIoU box losses",
+      "auxiliary decoding losses (prediction FFNs + Hungarian loss) after every decoder layer"
+    ],
+    "solutionTags": ["transformer-query", "set-prediction", "nms-free", "self-attention", "attention"],
+    "evidence": [
+      { "quote": "The main ingredients of the new framework, called DEtection TRansformer or DETR, are a set-based global loss that forces unique predictions via bipartite matching, and a transformer encoder-decoder architecture.", "location": "Abstract" },
+      { "quote": "Given a fixed small set of learned object queries, DETR reasons about the relations of the objects and the global image context to directly output the final set of predictions in parallel.", "location": "Abstract" },
+      { "quote": "DETR simplifies the detection pipeline by dropping multiple hand-designed components that encode prior knowledge, like spatial anchors or non-maximal suppression.", "location": "Introduction" },
+      { "quote": "It contains three main components, which we describe below: a CNN backbone to extract a compact feature representation, an encoder-decoder transformer, and a simple feed forward network (FFN) that makes the final detection prediction.", "location": "Sec 3.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation is on COCO 2017 detection (val AP reported at the last epoch, median over last 10 epochs for ablations) against Detectron2 Faster R-CNN baselines strengthened with GIoU, random crops and a long schedule, plus component ablations (encoder/decoder depth, FFN, positional encodings, loss terms) and a panoptic segmentation extension.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "42.0", "split": "val 2017, DETR ResNet-50", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "43.3", "split": "val 2017, DETR-DC5 ResNet-50", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "44.9", "split": "val 2017, DETR-DC5-R101", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "APs", "value": "20.5", "split": "val 2017, DETR ResNet-50 (vs 26.6 for Faster R-CNN-FPN+)", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "APL", "value": "61.1", "split": "val 2017, DETR ResNet-50", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "FPS", "value": "28", "split": "val 2017, DETR ResNet-50, 86 GFLOPS", "location": "Table 1" },
+      { "dataset": "MS COCO panoptic", "metric": "PQ", "value": "43.4", "split": "val 2017, DETR ResNet-50 mask head", "location": "Table 5" },
+      { "dataset": "MS COCO panoptic", "metric": "PQ", "value": "46", "split": "test set, DETR-R101", "location": "Sec 4.4" }
+    ],
+    "baselines": ["Faster R-CNN (Detectron2)", "Faster R-CNN-FPN+", "Faster R-CNN-R101-FPN+", "PanopticFPN", "UPSNet"],
+    "evidence": [
+      { "quote": "DETR can be competitive with Faster R-CNN with the same number of parameters, achieving 42 AP on the COCO val subset.", "location": "Sec 4.1" },
+      { "quote": "The model has 41.3M parameters, achieves 40.6 and 42.0 AP on short and long schedules respectively, and runs at 28 FPS, similarly to Faster R-CNN-FPN with the same backbone.", "location": "Sec 4.2" },
+      { "quote": "The way DETR achieves this is by improving APL (+7.8), however note that the model is still lagging behind in APS (-5.5).", "location": "Sec 4.1" },
+      { "quote": "We show that DETR outperforms published results on COCO-val 2017, as well as our strong PanopticFPN baseline", "location": "Sec 4.4" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors acknowledge weak small-object performance, an extra-long and expensive training schedule, new optimization challenges, and a hard cap of N prediction slots on the number of detectable objects.",
+    "items": [
+      "AP on small objects lags the tuned Faster R-CNN-FPN baseline by about 5.5 AP.",
+      "The model requires an extra-long training schedule (300-500 epochs; 3 days on 16 V100 GPUs for the 300-epoch baseline).",
+      "The fixed set size caps detections: with 100 query slots the model saturates and misses instances beyond about 50 visible objects of one class.",
+      "Training and optimization are harder than for standard detectors, and panoptic things-class mask AP remains below the baselines."
+    ],
+    "evidence": [
+      { "quote": "It obtains, however, lower performances on small objects.", "location": "Introduction" },
+      { "quote": "The new model requires extra-long training schedule", "location": "Introduction" },
+      { "quote": "This new design for detectors also comes with new challenges, in particular regarding training, optimization and performances on small objects.", "location": "Conclusion" },
+      { "quote": "By design, DETR cannot predict more objects than it has query slots, i.e. 100 in our experiments.", "location": "Appendix A.5" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Improve small-object accuracy, following the trajectory FPN provided for Faster R-CNN.",
+      "quote": "We expect that future work will improve this aspect in the same way the development of FPN [22] did for Faster R-CNN.",
+      "location": "Introduction"
+    },
+    {
+      "direction": "Address the new training, optimization and small-object challenges introduced by the design.",
+      "quote": "we expect future work to successfully address them for DETR.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Pursue fully unified models for panoptic segmentation.",
+      "quote": "We hope that our approach will inspire the exploration of fully unified models for panoptic segmentation in future work.",
+      "location": "Sec 4.4"
+    }
+  ],
+  "technical": {
+    "datasets": ["COCO 2017 detection", "COCO 2017 panoptic segmentation"],
+    "backbones": ["ResNet-50", "ResNet-101", "dilated C5 (DC5)"],
+    "models": ["DETR", "DETR-DC5", "DETR-R101", "DETR-DC5-R101", "Faster R-CNN", "Faster R-CNN-FPN", "PanopticFPN", "UPSNet"],
+    "algorithms": ["Hungarian bipartite matching", "multi-head self-attention", "encoder-decoder attention", "GIoU loss", "L1 box loss", "NMS (analysis only)", "DICE/F-1 loss", "Focal loss", "AdamW"],
+    "metrics": ["AP", "AP50", "AP75", "APs/APm/APl", "FPS", "GFLOPS", "params", "PQ", "SQ", "RQ"],
+    "equations": [
+      { "name": "optimal bipartite matching", "expr": "sigma_hat = arg min over sigma in S_N of sum_i Lmatch(y_i, y_hat_{sigma(i)})", "location": "Eqn. (1), Sec 3.1" },
+      { "name": "Hungarian loss", "expr": "L = sum_i [-log p_hat(c_i) + 1{c_i != empty} Lbox(b_i, b_hat_i)]", "location": "Eqn. (2), Sec 3.1" },
+      { "name": "box loss", "expr": "Lbox = lambda_iou * Liou + lambda_L1 * ||b - b_hat||_1", "location": "Eqn. (9), Appendix A.2" },
+      { "name": "single-head attention", "expr": "alpha_ij = exp(Q_i^T K_j / sqrt(d')) / sum_j exp(Q_i^T K_j / sqrt(d'))", "location": "Eqn. (8), Appendix A.1" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "28 FPS at 86 GFLOPS for the ResNet-50 model, similar to Faster R-CNN-FPN with the same backbone (Sec 4.2 / Table 1).",
+      "Inference code for DETR can be implemented in less than 50 lines in PyTorch and needs no specialized layers or libraries.",
+      "Training the 300-epoch baseline takes 3 days on 16 V100 GPUs with a total batch size of 64."
+    ],
+    "evidence": [
+      { "quote": "runs at 28 FPS, similarly to Faster R-CNN-FPN with the same backbone.", "location": "Sec 4.2" },
+      { "quote": "Inference code for DETR can be implemented in less than 50 lines in PyTorch [32].", "location": "Sec 3.2" },
+      { "quote": "DETR can be implemented in any deep learning framework that provides a common CNN backbone and a transformer architecture implementation with just a few hundred lines.", "location": "Sec 3.2" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1007/978-3-030-58452-8_13",
+    "arxivUrl": "https://arxiv.org/abs/2005.12872",
+    "venue": "ECCV 2020",
+    "pdfUrl": "https://arxiv.org/pdf/2005.12872"
+  }
+}

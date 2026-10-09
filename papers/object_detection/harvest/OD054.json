@@ -1,0 +1,224 @@
+{
+  "id": "OD054",
+  "arxiv": "1912.02424",
+  "title": "Bridging the Gap Between Anchor-based and Anchor-free Detection via Adaptive Training Sample Selection",
+  "year": 2019,
+  "venue": null,
+  "problem": {
+    "summary": "The paper says the reported advantage of anchor-free detectors (e.g. FCOS over RetinaNet) is confounded by implementation differences, and that once those are removed the real gap comes from how positive and negative training samples are defined, a choice made with fragile hand-set hyperparameters (IoU thresholds, scale ranges).",
+    "statements": [
+      "The claimed performance gap between anchor-based and anchor-free detectors mixes universal improvements (GroupNorm, GIoU, centerness, in-box sampling) with the essential difference of positive/negative sample definition.",
+      "Traditional sample-selection strategies depend on sensitive hyperparameters such as IoU thresholds and per-level scale ranges, so some objects are neglected under fixed rules.",
+      "Tiling multiple anchors per location is claimed to be useful, but its actual role is unclear under better sample selection."
+    ],
+    "problemTags": ["label-assignment", "anchor-design", "one-stage-accuracy"],
+    "evidence": [
+      {
+        "quote": "the essential difference between anchor-based and anchor-free detection is actually how to define positive and negative training samples, which leads to the performance gap between them.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "However, as reported in [56], FCOS outperforms RetinaNet (#A=1) by a large margin in AP performance on the MS COCO minival subset, i.e., 37.1% vs. 32.5%.",
+        "location": "Sec 3.2"
+      },
+      {
+        "quote": "Previous sample selection strategies have some sensitive hyperparameters, such as IoU thresholds in anchor-based detectors and scale ranges in anchor-free detectors.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "We argue that tiling multiple anchors per location is a useless operation under our proposed method and it needs further study to discover its right role.",
+        "location": "Sec 4.5"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The study builds on the anchor-based lineage (Faster R-CNN, SSD, RetinaNet) and the anchor-free lineage (keypoint-based CornerNet/ExtremeNet/CenterNet and center-based FCOS/FoveaBox), comparing RetinaNet and FCOS in a controlled setting to isolate sample definition from regression starting point.",
+    "relatedWork": [
+      {
+        "name": "Faster R-CNN",
+        "relation": "canonical two-stage anchor-based detector",
+        "quote": "The emergence of Faster R-CNN [47] establishes the dominant position of two-stage anchorbased detectors.",
+        "location": "Sec 2.1"
+      },
+      {
+        "name": "FPN and Focal Loss",
+        "relation": "drivers of the recent shift toward anchor-free detectors",
+        "quote": "Recent academic attention has been geared toward anchor-free detectors due to the emergence of FPN [32] and Focal Loss [33].",
+        "location": "Introduction"
+      },
+      {
+        "name": "FCOS",
+        "relation": "center-based anchor-free detector used as the controlled counterpart of RetinaNet",
+        "quote": "FCOS [56] regards all the locations inside the object bounding box as positives with four distances and a novel centerness score to detect objects.",
+        "location": "Sec 2.2"
+      },
+      {
+        "name": "RetinaNet",
+        "relation": "one-stage anchor-based baseline with IoU-threshold sample assignment",
+        "quote": "RetinaNet utilizes IoU to divide the anchor boxes from different pyramid levels into positives and negatives.",
+        "location": "Sec 3.3"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Recent academic attention has been geared toward anchor-free detectors due to the emergence of FPN [32] and Focal Loss [33].",
+        "location": "Introduction"
+      },
+      {
+        "quote": "The emergence of Faster R-CNN [47] establishes the dominant position of two-stage anchorbased detectors.",
+        "location": "Sec 2.1"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "Adaptive Training Sample Selection (ATSS) assigns positives per ground-truth box by taking the k closest-centre anchors from every pyramid level, computing the mean and standard deviation of their IoUs, and labelling candidates above t_g = m_g + v_g (and whose centre lies inside the object) as positives; the paper also shows that with such selection the number of anchors per location no longer matters.",
+    "approach": "Select positives per ground-truth from the k nearest anchors on each pyramid level using an adaptive IoU threshold equal to the mean plus standard deviation of the candidate IoUs, with candidate centres constrained inside the object.",
+    "components": [
+      "candidate positives: k anchors per pyramid level closest to the ground-truth centre by L2 distance (k x L candidates)",
+      "adaptive per-object IoU threshold t_g = mean(IoU) + std(IoU) of the candidates",
+      "centre-in-ground-truth constraint that removes poor candidates",
+      "conflict rule: an anchor assigned to several ground-truths goes to the highest-IoU one",
+      "single hyperparameter k (default 9), making the method nearly hyperparameter-free",
+      "shared application to anchor-based RetinaNet and anchor-free FCOS (plus a centre-sampling lite variant)"
+    ],
+    "solutionTags": ["label-assignment", "anchors", "anchor-design", "dynamic-assignment"],
+    "evidence": [
+      {
+        "quote": "we propose an Adaptive Training Sample Selection (ATSS) to automatically select positive and negative samples according to statistical characteristics of object",
+        "location": "Abstract"
+      },
+      {
+        "quote": "on each pyramid level, we select k anchor boxes whose center are closest to the center of g based on L2 distance.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "Finally, we select these candidates whose IoU are greater than or equal to the threshold tg as final positive samples",
+        "location": "Algorithm 1"
+      },
+      {
+        "quote": "if an anchor box is assigned to multiple ground-truth boxes, the one with the highest IoU will be selected.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "Our method only has one hyperparameter k. Subsequent experiments prove that it is quite insensitive to the variations of k and the proposed ATSS can be considered almost hyperparameter-free.",
+        "location": "Sec 4.1"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Experiments use MS COCO with 115K trainval35k images for training and 5K minival for analysis, first reproducing a controlled RetinaNet-vs-FCOS comparison, then verifying ATSS on both detectors, ablating k, anchor scale/aspect ratio and the number of anchors per location, and finally reporting test-dev results with multi-scale training and testing.",
+    "benchmarks": [
+      {"dataset": "MS COCO", "metric": "AP", "value": "50.7", "split": "test-dev, ATSS (ResNeXt-64x4d-101-DCN) multi-scale testing", "location": "Table 8"},
+      {"dataset": "MS COCO", "metric": "AP", "value": "47.7", "split": "test-dev, ATSS (ResNeXt-64x4d-101-DCN) single-model single-scale", "location": "Table 8"},
+      {"dataset": "MS COCO", "metric": "AP", "value": "46.3", "split": "test-dev, ATSS (ResNet-101-DCN) single-scale", "location": "Table 8"},
+      {"dataset": "MS COCO", "metric": "AP", "value": "45.6", "split": "test-dev, ATSS (ResNeXt-64x4d-101) single-scale", "location": "Table 8"},
+      {"dataset": "MS COCO", "metric": "AP", "value": "43.6", "split": "test-dev, ATSS (ResNet-101), no bells and whistles", "location": "Table 8"},
+      {"dataset": "MS COCO", "metric": "AP", "value": "39.3", "split": "minival, RetinaNet (#A=1) + ATSS", "location": "Table 3"},
+      {"dataset": "MS COCO", "metric": "AP", "value": "39.2", "split": "minival, FCOS + ATSS", "location": "Table 3"},
+      {"dataset": "MS COCO", "metric": "AP", "value": "37.0", "split": "minival, RetinaNet (#A=1) baseline", "location": "Table 3"}
+    ],
+    "baselines": ["RetinaNet", "FCOS", "Cascade R-CNN", "C-Mask RCNN", "RefineDet", "SNIP", "YOLOv2", "SSD512"],
+    "evidence": [
+      {
+        "quote": "our method with ResNet-101 achieves 43.6% AP without any bells and whistles",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "The best result 47.7% is achieved with singlemodel and single-scale testing, outperforming all the previous detectors by a large margin.",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "Finally, with the multiscale testing strategy, our best model achieves 50.7% AP.",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "it consistently boosts the performance by 2.3% on AP",
+        "location": "Sec 4.2"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors note that the lite centre-sampling variant still carries FCOS's fixed scale-range hyperparameters, that very small k hurts accuracy through statistical instability, and that the role of multiple anchors per location still needs study; the analysis is also built on RetinaNet/FCOS comparisons.",
+    "items": [
+      "The lite version (center sampling) keeps the scale-range hyperparameters of FCOS, so it is not hyperparameter-free.",
+      "Too small k (e.g. 3) gives too few candidates and statistical instability, causing a noticeable accuracy drop.",
+      "The claim that multiple anchors per location are unnecessary is argued for the current setup and left open for further study.",
+      "Analysis is centred on a ResNet-50 RetinaNet/FCOS comparison on COCO."
+    ],
+    "evidence": [
+      {
+        "quote": "the hyperparameters of scale ranges still exist in the lite version.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "Too small k (e.g., 3) causes a noticeable drop in accuracy, because too few candidate positive samples will cause statistical instability.",
+        "location": "Sec 4.3"
+      },
+      {
+        "quote": "We argue that tiling multiple anchors per location is a useless operation under our proposed method and it needs further study to discover its right role.",
+        "location": "Sec 4.5"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Re-examine what role tiling multiple anchors per location actually plays once positives are selected adaptively.",
+      "quote": "it needs further study to discover its right role.",
+      "location": "Sec 4.5"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO (trainval35k, minival, test-dev)", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt-32x8d-101", "ResNeXt-64x4d-101"],
+    "models": ["ATSS", "RetinaNet (#A=1)", "RetinaNet (#A=9)", "FCOS", "FCOS + center sampling"],
+    "algorithms": ["IoU-based sample selection", "NMS", "centerness", "GroupNorm", "GIoU loss", "multi-scale training", "deformable convolution (DCN)"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL"],
+    "equations": [
+      {"name": "adaptive IoU threshold", "expr": "t_g = m_g + v_g", "location": "Algorithm 1 line 10"},
+      {"name": "IoU mean of candidates", "expr": "m_g = Mean(D_g), D_g = IoU(C_g, g)", "location": "Algorithm 1 lines 7-8"},
+      {"name": "IoU standard deviation", "expr": "v_g = Std(D_g)", "location": "Algorithm 1 line 9"},
+      {"name": "candidate count per ground-truth", "expr": "|C_g| = k * L", "location": "Sec 4.1"}
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "image recognition and video surveillance",
+        "detail": "Named as the application areas that motivate accurate object detection.",
+        "quote": "Accurate object detection would have far reaching impact on various applications including image recognition and video surveillance.",
+        "location": "Introduction"
+      },
+      {
+        "domain": "general detection systems (drop-in training change)",
+        "detail": "ATSS only redefines positive/negative samples, so it adds no inference cost and can be plugged into existing detectors.",
+        "quote": "Since our method only redefines positive and negative samples without incurring any additional overhead, these improvements can be considered cost-free.",
+        "location": "Sec 4.2"
+      }
+    ],
+    "deploymentClaims": [
+      "Improves state-of-the-art detectors to 50.7% AP on COCO test-dev without introducing any overhead",
+      "Cost-free at inference: only the training-time sample assignment changes",
+      "Code released at https://github.com/sfzhang15/ATSS"
+    ],
+    "evidence": [
+      {
+        "quote": "detectors by a large margin to 50.7% AP without introducing any overhead.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "The code is available at https://github.com/sfzhang15/ATSS.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Accurate object detection would have far reaching impact on various applications including image recognition and video surveillance.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr42600.2020.00978",
+    "arxivUrl": "https://arxiv.org/abs/1912.02424",
+    "venue": "CVPR 2020",
+    "pdfUrl": "https://arxiv.org/pdf/1912.02424"
+  }
+}

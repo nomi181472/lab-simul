@@ -1,0 +1,114 @@
+{
+  "id": "OD062",
+  "arxiv": "2008.13367",
+  "title": "VarifocalNet: An IoU-aware Dense Object Detector",
+  "year": 2020,
+  "venue": "CVPR 2021",
+  "problem": {
+    "summary": "Dense object detectors rank candidate boxes in NMS using the classification score or a product of classification and predicted localization scores, neither of which gives a reliable ranking, so well-localized detections can be suppressed.",
+    "statements": [
+      "The classification score is not a good estimate of bounding box localization accuracy, so accurate detections with low classification scores may be removed in NMS.",
+      "Multiplying two imperfect predictions (classification and localization scores) yields a sub-optimal ranking basis with a limited performance upper bound.",
+      "Predicting an extra localization branch to fix ranking adds an additional computation burden and is inelegant."
+    ],
+    "problemTags": ["localization", "nms", "one-stage-accuracy"],
+    "evidence": [
+      { "quote": "However, neither option results in a reliable ranking, thus degrading detection performance.", "location": "Abstract" },
+      { "quote": "the classification score is not always a good estimate of the bounding box localization accuracy", "location": "Introduction" },
+      { "quote": "Besides, adding an extra network branch to predict the localization score is not an elegant solution and incurs additional computation burden.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "VFNet builds on the anchor-free FCOS+ATSS detector with FPN, and on prior ranking work (IoU-Net, Fitness NMS, IoU-aware RetinaNet, FCOS centerness) and focal loss. The gap claimed is that prior ranking measures are sub-optimal and that point features fail to capture box geometry.",
+    "relatedWork": [
+      { "name": "FCOS + ATSS", "relation": "base architecture the proposed detector is built on", "quote": "We build our VFNet based on the ATSS [12] version of FCOS due to its simplicity, high efficiency and excellent performance.", "location": "Sec 2" },
+      { "name": "IoU-Net", "relation": "prior ranking method that predicts a separate IoU score", "quote": "IoU-Net [10] adopts an additional network to predict the IoU and uses it to rank bounding boxes in NMS, but it still selects the classification score as the final detection score.", "location": "Sec 2" },
+      { "name": "Generalized Focal Loss", "relation": "concurrent work on joint localization-quality and classification prediction", "quote": "The most similar work to ours is a concurrent work, Generalized Focal Loss (GFL) [32].", "location": "Sec 2" },
+      { "name": "Focal Loss", "relation": "loss the Varifocal Loss is designed from", "quote": "The Varifocal Loss, inspired by the focal loss [8], is a dynamically scaled binary cross entropy loss.", "location": "Introduction" }
+    ],
+    "evidence": [
+      { "quote": "In addition to the classification score, other detection ranking measures have been proposed.", "location": "Sec 2" },
+      { "quote": "However, these local features fail to capture the geometry of the bounding box and essential contextual information.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "The paper proposes learning an IoU-aware Classification Score (IACS) as the detection score, trained with a new asymmetrically weighted Varifocal Loss, plus a star-shaped box feature representation and a residual bounding box refinement branch, combined into the VarifocalNet detector on FCOS+ATSS.",
+    "approach": "Predict a single IoU-aware classification score (class probability at the ground-truth label set to the box IoU, zero elsewhere) and train it with a focal-style loss that down-weights negatives but up-weights high-quality positives.",
+    "components": [
+      "IoU-aware Classification Score (IACS) target definition",
+      "Varifocal Loss with asymmetric positive/negative weighting and q-weighting of positives",
+      "star-shaped bounding box feature representation at nine fixed sampling points via deformable convolution",
+      "residual bounding box refinement with four predicted distance scaling factors",
+      "FCOS+ATSS head with the centerness branch removed",
+      "GIoU box regression loss weighted by ground-truth IoU, ATSS label assignment",
+      "inference with a single NMS post-processing step"
+    ],
+    "solutionTags": ["anchor-free", "focal-loss-quality", "dense-prediction", "iou-loss", "dynamic-assignment"],
+    "evidence": [
+      { "quote": "we propose to learn an Iou-aware Classification Score (IACS) as a joint representation of object presence confidence and localization accuracy.", "location": "Abstract" },
+      { "quote": "We design a new loss function, named Varifocal Loss, to train a dense object detector to predict the IACS, and propose a new star-shaped bounding box feature representation for IACS prediction and bounding box refinement.", "location": "Abstract" },
+      { "quote": "It uses the features at nine fixed sampling points (yellow circles in Figure 1) to represent a bounding box with the deformable convolution [13, 14].", "location": "Sec 4.3" },
+      { "quote": "Attaching the above three components to the FCOS network architecture and removing the original centerness branch, we get the VarifocalNet.", "location": "Sec 4.5" }
+    ]
+  },
+  "experiments": {
+    "summary": "The authors ablate loss hyper-parameters and each component on COCO val2017 with a ResNet-50 backbone, compare VFNet variants against state-of-the-art detectors on COCO test-dev, test the generality of Varifocal Loss by swapping it into RetinaNet, FoveaBox, RepPoints and ATSS, and report FPS on a V100.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "55.1", "split": "test-dev, VFNet-X-1200, single-model single-scale", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "53.7", "split": "test-dev, VFNet-X-800, single-model single-scale", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "46.0", "split": "test-dev, VFNet with ResNet-101", "location": "Sec 5.2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "41.6", "split": "val2017, ablation VFNet with ResNet-50", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.2", "split": "val2017, FCOS+ATSS baseline", "location": "Sec 3" },
+      { "dataset": "MS COCO", "metric": "FPS", "value": "19.3", "split": "test-dev, Nvidia V100, VFNet at 44.8 AP", "location": "Sec 5.2" }
+    ],
+    "baselines": ["ATSS", "FCOS", "RetinaNet", "FoveaBox", "RepPoints", "GFL", "EfficientDet"],
+    "evidence": [
+      { "quote": "Extensive experiments on MS COCO show that our VFNet consistently surpasses the strong baseline by ∼2.0 AP with different backbones.", "location": "Abstract" },
+      { "quote": "VFNet consistently outperforms the strong baseline ATSS by ∼2.0 AP. Our best model VFNet-X-1200 reaches 55.1 AP, achieving the new stat-of-the-art.", "location": "Table 4" }
+    ]
+  },
+  "limitations": {
+    "summary": "VFNet still relies on NMS at inference, the speed comparison covers only the ATSS baseline because other detectors' speeds were unavailable under identical settings, and the reported gains depend on extra modules (star deformable convolution, refinement, longer training with SWA for VFNet-X).",
+    "items": [
+      "Inference still requires an NMS post-processing step to remove redundant detections.",
+      "Inference speed is only compared with ATSS, not with the full set of detectors in the comparison table.",
+      "The best 55.1 AP result relies on the extended VFNet-X recipe (wider multi-scale training, longer schedule, stochastic weight averaging) rather than the base VFNet."
+    ],
+    "evidence": [
+      { "quote": "It involves simply forwarding an input image through the network and a NMS post-processing step for removing redundant detections.", "location": "Sec 4.6" },
+      { "quote": "Since it is difficult to get the speed of all the listed detectors under exactly same settings, we only compare VFNet with the baseline ATSS.", "location": "Sec 5.2" }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["MS COCO"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt-101", "Res2Net-101", "FPN", "PAFPN"],
+    "models": ["VarifocalNet", "VFNet", "VFNet-X", "FCOS", "ATSS", "RetinaNet", "GFL"],
+    "algorithms": ["Varifocal Loss", "Focal Loss", "GIoU loss", "NMS", "soft-NMS", "Adaptive Training Sample Selection", "deformable convolution", "stochastic weight averaging"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "FPS"],
+    "equations": [
+      { "name": "Focal loss", "expr": "FL(p,y) = -alpha*(1-p)^gamma*log(p) for y=1, else -(1-alpha)*p^gamma*log(1-p)", "location": "Sec 4.2, Eq. 1" },
+      { "name": "Varifocal loss", "expr": "VFL(p,q) = -q*(q*log(p) + (1-q)*log(1-p)) if q>0, else -alpha*p^gamma*log(1-p)", "location": "Sec 4.2, Eq. 2" },
+      { "name": "IACS target", "expr": "q = gt IoU at ground-truth class position, 0 otherwise", "location": "Sec 4.2" },
+      { "name": "Bounding box refinement", "expr": "(l,t,r,b) = (Delta_l*l', Delta_t*t', Delta_r*r', Delta_b*b')", "location": "Sec 4.4" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "VFNet achieves 44.8 AP at 19.3 FPS on an Nvidia V100 GPU",
+      "Only small additional computation overhead compared to the ATSS baseline",
+      "Implemented with the MMDetection toolbox"
+    ],
+    "evidence": [
+      { "quote": "We also report the inference speed of VFNet in terms of frame per second (FPS) on a Nvidia V100 GPU.", "location": "Sec 5.2" },
+      { "quote": "e.g. achieving 44.8 AP at 19.3 FPS, and only incurs small additional computation overhead compared to the baseline.", "location": "Sec 5.2" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr46437.2021.00841",
+    "arxivUrl": "https://arxiv.org/abs/2008.13367",
+    "venue": "CVPR 2021",
+    "pdfUrl": "https://arxiv.org/pdf/2008.13367"
+  }
+}

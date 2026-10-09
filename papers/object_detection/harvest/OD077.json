@@ -1,0 +1,133 @@
+{
+  "id": "OD077",
+  "arxiv": "2108.11101",
+  "title": "Detecting Small Objects in Thermal Images Using Single-Shot Detector",
+  "year": 2021,
+  "venue": "Automatic Control and Computer Sciences",
+  "problem": {
+    "summary": "SSD's shallow detection layers (mainly Conv4_3) lack semantic information and their receptive field is too small for the grid size, so small objects such as those in thermal images are detected poorly despite SSD's speed advantage.",
+    "statements": [
+      "Features from shallow layers of SSD lack semantic information, which is an important supplement for small object detection.",
+      "The receptive field of SSD prediction layers is not large enough for the size of the grid.",
+      "SSD treats feature maps from different levels as the same level and cannot capture both local detailed and global semantic features.",
+      "Small objects in thermal images have limited resolution and information."
+    ],
+    "problemTags": ["small-object-detection", "semantic-gap", "receptive-field", "thermal-imaging"],
+    "evidence": [
+      { "quote": "the features from shallow layer (mainly Conv4_3) of SSD lack semantic information, resulting in poor performance in small objects.", "location": "Abstract" },
+      { "quote": "Detecting small objects, for example those in thermal images [1], is a quite challenging task due to their limited resolution and information in images.", "location": "Introduction" },
+      { "quote": "The disadvantages of this strategy are that SSD lacks the capability to capture both the local detailed features and global semantic features.", "location": "Sec 3.1" },
+      { "quote": "as studied in [7], the receptive field of the prediction layers is not large enough for the size of the grid.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The work situates SSD among one-stage and two-stage detectors, reviews multi-scale representation, contextual-information fusion (ION, HyperNet, DSSD, FSSD, FFSSD, MDSSD) and receptive-field analyses (Zhou et al.'s empirical receptive fields, CSSD/DiCSSD), noting prior SSD enhancements that inject context or deconvolution features into prediction layers.",
+    "relatedWork": [
+      { "name": "SSD", "relation": "baseline detector chosen for its accuracy-vs-speed balance", "quote": "SSD [5] uses multi-scale representations that detect objects with different scales and aspect ratios from multiple layers.", "location": "Related Work" },
+      { "name": "DSSD", "relation": "adds extra deconvolution layers at the end of SSD to inject contextual information", "quote": "DSSD [17] adds extra deconvolution layers at the end of SSD and the contextual information is injected by integrating every prediction layer and its deconvolution layer.", "location": "Related Work" },
+      { "name": "FSSD", "relation": "recombines multi-layer VGG-16 features into a feature pyramid", "quote": "FSSD [18] combines the multi-layer features from VGG-16 [6] and then generates a feature pyramid like the original SSD detection part.", "location": "Related Work" },
+      { "name": "Feature-Fused SSD", "relation": "fuses conv4_3 and conv5_3 features to replace the original conv4_3 layer", "quote": "Feature-Fused SSD [19] extracts VGG16 features from conv4_3 and conv5_3 to replace the original conv4_3 layer.", "location": "Related Work" },
+      { "name": "MDSSD", "relation": "fuses multiple high-level features of different scales via deconvolution", "quote": "MDSSD [20] (Multi-scale Deconvolutional Single Shot Detector) combines multiple highlevel features with different scales simultaneously via deconvolution Fusion Block.", "location": "Related Work" },
+      { "name": "CSSD / DiCSSD", "relation": "expands theoretical receptive field sizes of SSD prediction layers", "quote": "CSSD [7] studies the relation between TRF and ERF, and proposes DiCSSD which rapidly expands the TRF sizes of each prediction layer of the conventional SSD, ensuring that every feature point sees sufficiently large areas.", "location": "Related Work" },
+      { "name": "Faster R-CNN", "relation": "two-stage reference that is accurate but slower", "quote": "it is hard for two-stage approaches to detect images fast.", "location": "Introduction" }
+    ],
+    "evidence": [
+      { "quote": "Contextual information plays an important role in object detection task, especially for small objects.", "location": "Related Work" },
+      { "quote": "Multi-scale representation has been demonstrated useful for many detection tasks.", "location": "Related Work" },
+      { "quote": "Except for the two-stage detectors, there are also some efficient one-stage object detectors.", "location": "Related Work" }
+    ]
+  },
+  "solution": {
+    "summary": "DDSSD extends SSD with a Dilation and Deconvolution Module: a 3x3 dilation-2 convolution enlarges Conv4_3's receptive field while keeping resolution, a deconvolution upsamples fc_7 feature maps, and the two branches are concatenated to replace the original Conv4_3 feature before prediction, adding batch normalization for stable learning.",
+    "approach": "Fuse a dilated-convolution branch over Conv4_3 with a deconvolution branch over fc_7 by concatenation, replacing the shallow prediction feature with context- and semantics-enriched features.",
+    "components": [
+      "Dilation Module: 3×3 conv plus 3×3 conv with dilation 2 applied to Conv4_3, keeping the 38×38 resolution",
+      "Deconvolution Module: 2×2 deconvolution followed by 3×3 convolution expanding fc_7 feature map resolution",
+      "concatenation of the two branches to replace the original Conv4_3 feature feeding the prediction layers",
+      "batch normalization layer after each context layer for more stable learning",
+      "SSD baseline with reduced VGG-16 plus fc_6/fc_7, trained with SSD's augmentation, hard negative mining and loss functions"
+    ],
+    "solutionTags": ["feature-fusion", "dilated-convolution", "deconvolution", "one-stage"],
+    "evidence": [
+      { "quote": "Dilation and Deconvolution Module are proposed to enlarge the receptive field and introduce semantic information for small object detection.", "location": "Introduction, contributions" },
+      { "quote": "features from these two modules are concatenated together to replace the original feature from Conv4_3.", "location": "Sec 3.2" },
+      { "quote": "we adopt a 3 × 3 convolution layer with dilation 2 to enlarge the receptive field of Conv4_3 while keeping the resolution.", "location": "Sec 3.2" },
+      { "quote": "Deconvolution Module is utilized to expand the resolution of feature maps from deeper layer fc7, ensuring the feature maps have the same dimension which is essential to the later concatenation operation.", "location": "Sec 3.2" },
+      { "quote": "DDSSD uses the feature maps of prediction layers after fusion of context layers, rather than using them directly as in SSD.", "location": "Sec 3.1" }
+    ]
+  },
+  "experiments": {
+    "summary": "DDSSD is trained on PASCAL VOC2007+2012 union (250 epochs with warmup), evaluated on VOC2007 test, MS COCO test-dev and the FLIR ADAS thermal dataset, with an ablation on VOC2007 isolating the dilation and deconvolution branches; it reports 79.7% mAP on VOC at 41 FPS, 28.3 mmAP (10.5 AP_S) on COCO and 22.8 mmAP on FLIR ADAS.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007 test", "metric": "mAP", "value": "79.7", "split": "300×300 input, VGG16", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2012 test", "metric": "mAP", "value": "77.6", "split": "300×300 input, VGG16", "location": "Table 1" },
+      { "dataset": "MS COCO test-dev", "metric": "mmAP", "value": "28.3", "split": "300×300, trainval35k", "location": "Table 4" },
+      { "dataset": "MS COCO test-dev", "metric": "AP_S", "value": "10.5", "split": "300×300, trainval35k", "location": "Table 4" },
+      { "dataset": "MS COCO test-dev", "metric": "AP50", "value": "48.3", "split": "300×300, trainval35k", "location": "Table 4" },
+      { "dataset": "FLIR ADAS", "metric": "mmAP", "value": "22.8", "split": "validation, IoU 0.5:0.95", "location": "Table 2" },
+      { "dataset": "FLIR ADAS", "metric": "AP50", "value": "49.9", "split": "validation, IoU 0.5", "location": "Table 2" },
+      { "dataset": "PASCAL VOC 2007 test", "metric": "FPS", "value": "41", "split": "single nVIDIA GTX 1080, 300×300", "location": "Table 1 / Sec 4.2" }
+    ],
+    "baselines": ["SSD", "DSSD", "FSSD", "FFSSD", "MDSSD", "DiSSD", "DSOD", "ESSD", "Faster R-CNN", "R-FCN", "RON", "HyperNet"],
+    "evidence": [
+      { "quote": "The proposed DDSSD network achieves the highest mAP, while maintaining a real-time speed of 41 FPS on a single nVIDIA GTX 1080 GPU", "location": "Sec 4.2" },
+      { "quote": "Especially, we achieve 48.3% under IoU over 0.5 and 10.5% for small objects, which is much better than the original SSD.", "location": "Sec 4.5" },
+      { "quote": "For small objects, DDSSD outperforms all one-stage methods except MDSSD, but it achieves the highest Recall for small objects, exceeding MDSSD by a large margin.", "location": "Sec 4.5" },
+      { "quote": "Replacing the convolution layer with a dilation convolution layer, we boost the performance with 0.2%.", "location": "Sec 4.4" },
+      { "quote": "DDSSD exceeds the other two models in a large margin", "location": "Sec 4.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "There is no limitations section; acknowledged drawbacks are that dilation convolution adds noise to the feature maps, deconvolution layers substantially increase memory usage and parameters, and on COCO the method still performs worse than two-stage DSOD and RefineDet.",
+    "items": [
+      "Dilation convolution introduces additional noise in the feature maps.",
+      "Using deconvolution layers to integrate multi-scale information significantly increases network memory usage.",
+      "On COCO, DDSSD performs worse than DSOD and RefineDet under mmAP.",
+      "Compared with original SSD, DDSSD adds parameters and FLOPs (extra conv/deconv branches)."
+    ],
+    "evidence": [
+      { "quote": "Unfortunately, dilation convolution also introduces additional noise as shown in the feature maps.", "location": "Introduction" },
+      { "quote": "Using deconvolution layers to integrate multi-scale information has one obvious drawback that the memory usage of network increases significantly.", "location": "Sec 3.2" },
+      { "quote": "DDSSD exceeds SSD, FSSD, MDSSD under mmAP and AP50 significantly, but it performs worse than DSOD and RefineDet.", "location": "Sec 4.5" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Improve inference speed of DDSSD through model compression: pruning, quantization and knowledge distillation.",
+      "quote": "Our future work will focus on the improve the inference speed of DDSSD through model compression with techniques like pruning, quantization and knowledge distillation.",
+      "location": "Conclusion and Future Work"
+    },
+    {
+      "direction": "Test compression techniques in object detection networks, where they have not yet been validated.",
+      "quote": "However, they have not been tested in an object detection network.",
+      "location": "Conclusion and Future Work"
+    }
+  ],
+  "technical": {
+    "datasets": ["PASCAL VOC 2007/2012", "MS COCO", "FLIR ADAS", "ImageNet"],
+    "backbones": ["VGG-16 (reduced, SSD)", "VGG16"],
+    "models": ["DDSSD", "SSD", "DSSD", "FSSD", "FFSSD", "MDSSD", "DiSSD", "DSOD", "ESSD", "Faster R-CNN", "R-FCN", "RON"],
+    "algorithms": ["dilated convolution", "deconvolution (transposed convolution)", "multi-scale feature fusion", "hard negative mining", "Hungarian-style default boxes (SSD)", "SGD with momentum", "xavier initialization"],
+    "metrics": ["mAP", "mmAP (AP IoU 0.5:0.95)", "AP50", "AP75", "AP_S/M/L", "AR_S/M/L", "FPS"],
+    "equations": [
+      { "name": "feature fusion of prediction features", "expr": "F' = concat(D(C4_3), T(fc7))", "location": "Eqn (1)-(2), Sec 3.2" },
+      { "name": "detection prediction", "expr": "detections = predict(F')", "location": "Eqn (2), Sec 3.2" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "automotive ADAS (thermal imaging)", "detail": "Evaluated on the FLIR ADAS thermal dataset for person, bicycle and car detection, with over 58% of instances being small objects.", "quote": "Over 58% of these instances are belonging to small objects with area under 32 × 32.", "location": "Sec 4.3" }
+    ],
+    "deploymentClaims": ["79.7% mAP on PASCAL VOC2007 test and 28.3% mmAP on MS COCO test-dev at 41 FPS with only 300×300 input using a single Nvidia 1080 GPU", "real-time speed of 41 FPS on a single nVIDIA GTX 1080 GPU"],
+    "evidence": [
+      { "quote": "Our network achieves 79.7% mAP on PASCAL VOC2007 test and 28.3% mmAP on MS COCO test-dev at 41 FPS with only 300×300 input using a single", "location": "Abstract" },
+      { "quote": "we use the training and validation splits provided in the dataset benchmark, which contains the person (22,372 instances), car (14,013 instances) and bicycle (1,205 instances).", "location": "Sec 4.3" }
+    ]
+  },
+  "citations": {
+    "doi": "10.3103/S0146411621020097",
+    "arxivUrl": "https://arxiv.org/abs/2108.11101",
+    "venue": "Automatic Control and Computer Sciences",
+    "pdfUrl": "https://arxiv.org/pdf/2108.11101"
+  }
+}

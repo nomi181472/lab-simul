@@ -1,0 +1,144 @@
+{
+  "id": "OD003",
+  "arxiv": "1509.04874",
+  "title": "DenseBox: Unifying Landmark Localization with End to End Object Detection",
+  "year": 2015,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "Two-stage R-CNN pipelines are hard to train end-to-end and lose recall on small, low-context objects such as faces and distant cars, motivating the question of how far a single one-stage fully convolutional network can go on detection.",
+    "statements": [
+      "Region-proposal pipelines cannot be optimized jointly end-to-end because their two stages are separate.",
+      "Small objects (faces, far-away cars) are hard to detect in proposal-based systems because candidate boxes are low resolution and lack context.",
+      "General proposal methods designed for general detection lose recall on small-sized faces and faces with complex appearance variation."
+    ],
+    "problemTags": ["small-objects", "localization", "one-stage-accuracy"],
+    "evidence": [
+      { "quote": "it is very hard to detect small objects [27] such as human faces and far-away cars, since the low resolution and lack of contexts in each candidate box significantly decrease the classification accuracy on them.", "location": "Introduction" },
+      { "quote": "Moreover, the two different stages in the R-CNN pipeline cannot be optimized jointly, leaving the trouble for applying end-toend training on R-CNN.", "location": "Introduction" },
+      { "quote": "In this work, we focus on one question: To what extent can an one-stage FCN perform on object detection?", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "DenseBox builds on the FCN line of detectors (OverFeat, MultiBox, YOLO), on early neural face detectors (Rowley et al.), and on multi-task landmark learning; the gap it claims is that prior systems either keep classification and localization disjoint or rely on proposal generation that fails on small/occluded objects.",
+    "relatedWork": [
+      { "name": "R-CNN", "relation": "two-stage state of the art whose proposal/classification split blocks joint end-to-end training", "quote": "the second phase applies a CNN classifier to distinguish different objects for every proposal.", "location": "Introduction" },
+      { "name": "OverFeat", "relation": "prior FCN localizer; disjoint classification and localization with complex post-processing", "quote": "However it still disjoints classification and localization in training, and need complex post-processing to produce detection results.", "location": "Sec 3.5" },
+      { "name": "Faster R-CNN (RPN)", "relation": "closest proposal-network design; needs predefined anchors and multi-scale training", "quote": "However, The PRN needs predefined anchors while ours does not.", "location": "Sec 3.5" },
+      { "name": "YOLO", "relation": "contemporaneous unified detector with a coarse 7 x 7 output grid", "quote": "YOLO [29] also predicts bounding boxes and class probabilities directly from full images in one evaluation.", "location": "Related Work" },
+      { "name": "MultiBox", "relation": "learned proposal generator with non-translation-invariant anchors", "quote": "the MultiBox method generates 800 non-translation-invariant anchors, whereas our DenseBox output translation-invariant bounding boxes like RPN.", "location": "Sec 3.5" }
+    ],
+    "evidence": [
+      { "quote": "Recently, the fully convolutional neural network (FCN) [24] based methods [34, 8, 29] bring a revolution to the field of object detection.", "location": "Introduction" },
+      { "quote": "Object detection is often involved with multi-task learning such as landmark localization, pose estimation and semantic segmentation.", "location": "Related Work" }
+    ]
+  },
+  "solution": {
+    "summary": "DenseBox is a single end-to-end FCN that densely predicts a confidence score plus four box-boundary offsets at every output pixel (stride 4), trained segmentation-style with hard negative mining, and optionally refined by a landmark-localization branch fused through joint multi-task learning.",
+    "approach": "A VGG-19-derived fully convolutional network upsamples a fused conv3_4/conv4_4 feature map to a dense 5-channel output (score and box distances), with non-max suppression as the only non-network step.",
+    "components": [
+      "fully convolutional detector with 16 convolutional layers derived from VGG-19",
+      "dense 5-channel output map (1 score channel + 4 box-distance channels) at 1/4 image resolution",
+      "multi-level feature fusion of conv3_4 and conv4_4 with bilinear up-sampling",
+      "segmentation-like ground truth: positive disk of radius 0.3 x box size plus distance channels",
+      "balance sampling with gray-zone ignore mask and online hard negative mining (top 1% loss)",
+      "landmark localization branch with heatmap fusion refine stage",
+      "image-pyramid testing across scales with NMS (IoU 0.5 for faces, 0.75 for cars)"
+    ],
+    "solutionTags": ["one-stage", "anchor-free", "feature-fusion", "gaussian-heatmap"],
+    "evidence": [
+      { "quote": "We introduce DenseBox, a unified end-to-end FCN framework that directly predicts bounding boxes and object class confidences through all locations and scales of an image.", "location": "Abstract" },
+      { "quote": "All components of object detection in DenseBox are modeled as a fully convolutional network except the non-maximum suppression step, so region proposal generation is unnecessary.", "location": "Sec 3" },
+      { "quote": "In our implementation, we concatenate feature map from conv3 4 and conv4 4.", "location": "Sec 3.2" },
+      { "quote": "we further integrate landmark localization into the system through joint multi-task learning [1].", "location": "Introduction" },
+      { "quote": "The highlight of DenseBox is that it frames object detection as a regression problem and provides an end-to-end detection framework.", "location": "Sec 3.5" }
+    ]
+  },
+  "experiments": {
+    "summary": "DenseBox is evaluated on MALF face detection and KITTI car detection, each with and without landmark supervision (plus a 10-model ensemble on MALF), and compared against classical and CNN detectors on those two benchmarks.",
+    "benchmarks": [
+      { "dataset": "MALF", "metric": "mean recall rate", "value": "87.26", "split": "test set, DenseBoxEnsemble", "location": "Fig 6" },
+      { "dataset": "KITTI", "metric": "AP (moderate)", "value": "85.74", "split": "test, with landmark", "location": "Table 1" },
+      { "dataset": "KITTI", "metric": "AP (moderate)", "value": "85.07", "split": "test, without landmark", "location": "Table 1" },
+      { "dataset": "KITTI", "metric": "AP (easy)", "value": "83.63", "split": "test, with landmark", "location": "Table 1" },
+      { "dataset": "KITTI", "metric": "AP (hard)", "value": "76.71", "split": "test, with landmark", "location": "Table 1" }
+    ],
+    "baselines": ["DDFD", "DeepInsight", "Regionlets", "AOG", "3DVP", "spCov LBP", "DPM", "HeadHunter"],
+    "evidence": [
+      { "quote": "our model achieves the best performance, with mean recall rate of 87.26%, almost outperform DDFD by 10%, which claims to have better performance than R-CNN on face detection task.", "location": "Sec 4.1" },
+      { "quote": "Our average precision on moderate car is 85.74%, slightly better than DeepInsight, which use R-CNN framework with ImageNet pre-trained GoogLeNet[36].", "location": "Sec 4.2" },
+      { "quote": "On average, model with landmark localization slightly outperforms no-landmark model by 0.9% in average precision.", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "The admitted main weakness is speed: the paper's DenseBox takes several seconds per image on a K40 GPU, it must be run over an image pyramid at test time, landmark supervision helps far less on cars than on faces, and detections can still miss objects or fire false alarms.",
+    "items": [
+      "Speed is the key problem: several seconds per image on an Nvidia K40 GPU.",
+      "The model is trained on a single scale, so test time requires evaluating an image pyramid across scales.",
+      "Landmark gains are small on KITTI (+0.9% AP) because only 27% of cars and 8 landmarks are annotated, versus 100%/72 for faces.",
+      "The system can still miss objects and produce false alarms in complex scenes.",
+      "Only the NMS step lies outside the fully convolutional pipeline."
+    ],
+    "evidence": [
+      { "quote": "The key problem of DenseBox is the speed.", "location": "Conclusion" },
+      { "quote": "The original DenseBox presented in this paper needs several seconds to process one image.", "location": "Conclusion" },
+      { "quote": "The promotion on performance is not as great as in face detection.", "location": "Sec 4.2" },
+      { "quote": "However, it still could miss some objects and generate false alarm.", "location": "Fig 7" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Release DenseBox2, a real-time version of the detector for KITTI car detection and face detection.",
+      "quote": "We will present another paper describing a real-time detection system on KITTI and face detection, called DenseBox2.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Extend landmark supervision to car detection (the paper manually annotates keypoints for KITTI and plans to release them).",
+      "quote": "we manually annotate a set of keypoints for the KITTI car detection dataset [13] and will release annotation afterward.",
+      "location": "Introduction"
+    }
+  ],
+  "technical": {
+    "datasets": ["MALF", "KITTI", "ImageNet"],
+    "backbones": ["VGG-19"],
+    "models": ["DenseBox", "DenseBox with landmark", "DenseBoxEnsemble"],
+    "algorithms": ["hard negative mining", "multi-task learning", "non-maximum suppression", "bilinear up-sampling", "image pyramid testing", "SGD with momentum"],
+    "metrics": ["mean recall rate", "average precision", "true positive rate", "false positives per image"],
+    "equations": [
+      { "name": "classification loss", "expr": "Lcls(y_hat, y*) = ||y_hat - y*||^2", "location": "Eq. (1), Sec 3.3" },
+      { "name": "localization loss", "expr": "Lloc(d_hat, d*) = sum_{i in {tx,ty,bx,by}} |d_hat_i - d*_i|^2", "location": "Eq. (2), Sec 3.3" },
+      { "name": "masked multi-task detection loss", "expr": "Ldet(theta) = sum_i M(t_hat_i) Lcls + lambda_loc [y*_i > 0] M(t_hat_i) Lloc", "location": "Eq. (4), Sec 3.3" },
+      { "name": "full loss with landmarks", "expr": "Lfull(theta) = lambda_det Ldet(theta) + lambda_lm Llm(theta) + Lrf(theta)", "location": "Eq. (5), Sec 3.4" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "automotive / traffic perception",
+        "detail": "Car detection on the KITTI autonomous-driving benchmark, where many cars are small and occluded; results are compared against driving-oriented detectors.",
+        "quote": "The key difficulty of KITTI car detection task is that a great amount of cars are in small size (height ¡ 40 pixels) and occluded.",
+        "location": "Sec 4.2"
+      },
+      {
+        "domain": "face detection",
+        "detail": "Face detection on MALF with Internet-collected imagery, described as closer to real-world use than the FDDB news-photo benchmark.",
+        "quote": "the face images in MALF have much larger diversity, making it closer to real world application than FDDB.",
+        "location": "Sec 4.1"
+      }
+    ],
+    "deploymentClaims": [
+      "Several seconds per image on an Nvidia K40 GPU on the MALF test set.",
+      "Testing downsamples images so the longest side does not exceed 800 pixels and runs 7 scales per image.",
+      "The work is from Baidu Research, Institute of Deep Learning."
+    ],
+    "evidence": [
+      { "quote": "Under this configuration, it taks several seconds to process one image in MALF dataset on an Nvidia K40 GPU.", "location": "Sec 4.1" },
+      { "quote": "Checking for nearby cars during driving, finding a person, and localizing a familiar face are all examples of object detection.", "location": "Introduction" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1509.04874",
+    "arxivUrl": "https://arxiv.org/abs/1509.04874",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/1509.04874"
+  }
+}

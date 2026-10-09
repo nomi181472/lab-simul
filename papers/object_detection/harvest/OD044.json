@@ -1,0 +1,146 @@
+{
+  "id": "OD044",
+  "arxiv": "1901.03278",
+  "title": "Region Proposal by Guided Anchoring",
+  "year": 2019,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+  "problem": {
+    "summary": "Modern detectors prepare anchors with a uniform sliding-window scheme over feature maps using a hand-picked set of scales and aspect ratios; this is inefficient because anchors are scattered over regions where objects are unlikely to exist, and it forces per-task manual anchor design while most anchors are irrelevant candidates.",
+    "statements": [
+      "A fixed set of anchor scales and aspect ratios must be predefined for each problem, and a wrong design may hamper the speed and accuracy of the detector.",
+      "Maintaining high proposal recall requires a large number of anchors, most of which are false candidates irrelevant to the objects of interest.",
+      "A large number of anchors causes significant computational cost, especially when the proposal stage involves a heavy classifier.",
+      "Many anchors are placed in regions where the objects of interest are unlikely to exist."
+    ],
+    "problemTags": ["anchor-design", "speed-latency", "background-false-positives"],
+    "evidence": [
+      { "quote": "A neat set of anchors of fixed aspect ratios has to be predefined for different problems. A wrong design may hamper the speed and accuracy of the detector.", "location": "Introduction" },
+      { "quote": "To maintain a sufficiently high recall for proposals, a large number of anchors are needed, while most of them correspond to false candidates that are irrelevant to the object of interests.", "location": "Introduction" },
+      { "quote": "Meanwhile, a large number of anchors can lead to significant computational cost especially when the pipeline involves a heavy classifier in the proposal stage.", "location": "Introduction" },
+      { "quote": "This scheme is inefficient, as many of the anchors are placed in regions where the objects of interest are unlikely to exist.", "location": "Sec 3" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on sliding-window anchoring in RPN-based two-stage detectors and in one-stage detectors (SSD, RetinaNet, YOLOv2), on FPN multi-level feature maps, and on focal loss for imbalanced anchors; the claimed gap is that prior methods, including cascade and anchor-free variants, still rely on dense uniform anchors and none has explored sparse, feature-guided anchoring.",
+    "relatedWork": [
+      { "name": "Faster R-CNN / RPN", "relation": "canonical sliding-window anchor framework the paper modifies", "quote": "Faster RCNN [27] proposes the Region Proposal Network (RPN) to generates object proposals.", "location": "Sec 2" },
+      { "name": "RetinaNet", "relation": "prior one-stage detector and focal-loss source used for the location branch", "quote": "RetinaNet [19] introduces focal loss to address the foreground-background class imbalance.", "location": "Sec 2" },
+      { "name": "MetaAnchor", "relation": "prior work on learnable anchor generation", "quote": "MetaAnchor [32] introduces meta-learning to anchor generation.", "location": "Sec 2" },
+      { "name": "Anchor-free methods (DenseBox, YOLO, etc.)", "relation": "contrast: simpler pipelines that lack anchor-based refinement", "quote": "Anchor-free methods [14, 15, 25] usually have simple pipelines and produce final detection results within a single stage.", "location": "Sec 2" },
+      { "name": "FPN", "relation": "architecture followed for multi-level anchor generation", "quote": "we develop a multi-level anchor generation scheme, which collects anchors at multiple feature maps, following the FPN architecture [18].", "location": "Sec 3" }
+    ],
+    "evidence": [
+      { "quote": "previous methods (singlestage, two-stage and multi-stage) still rely on dense and uniform anchors by sliding window.", "location": "Sec 2" },
+      { "quote": "We discard the sliding window scheme and propose a better counterpart to guide the anchoring and generate sparse anchors, which has not been explored before.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "Guided Anchoring factorizes the anchor distribution into a location term and a conditional shape term: one branch predicts an object-center probability map from which sparse anchor locations are selected, another predicts a per-location (w, h), and a feature-adaption module deformably convolves features to match the predicted anchor shapes; high-quality proposals from this RPN can then fine-tune trained detectors.",
+    "approach": "Jointly predict anchor center probabilities and location-dependent anchor shapes from semantic features, then adapt features to those shapes with a deformable-convolution offset field.",
+    "components": [
+      "anchor location prediction branch (1x1 convolution + sigmoid objectness map, thresholded for sparsity)",
+      "anchor shape prediction branch with log-space transform w = sigma * s * exp(dw), h = sigma * s * exp(dh)",
+      "anchor-guided feature adaptation implemented as a 3x3 deformable convolution driven by predicted shapes",
+      "masked convolution on excluded regions for more efficient inference",
+      "multi-level anchor generation with parameters shared across FPN levels",
+      "center/ignore/outside region targets for location training with focal loss",
+      "vIoU-based shape targets approximated by 9 sampled (w, h) pairs and a bounded-IoU-style shape loss",
+      "fine-tuning schedule that replaces RPN with pre-computed GA-RPN proposals for 3 epochs"
+    ],
+    "solutionTags": ["anchors", "sparse-sampling", "feature-pyramid", "focal-loss"],
+    "evidence": [
+      { "quote": "we present an alternative scheme, named Guided Anchoring, which leverages semantic features to guide the anchoring.", "location": "Abstract" },
+      { "quote": "The proposed method jointly predicts the locations where the center of objects of interest are likely to exist as well as the scales and aspect ratios at different locations.", "location": "Abstract" },
+      { "quote": "On top of predicted anchor shapes, we mitigate the feature inconsistency with a feature adaption module.", "location": "Abstract" },
+      { "quote": "we further introduce a feature adaptation module, which adapts the feature according to the anchor shape.", "location": "Sec 3" },
+      { "quote": "we adopt a 3 × 3 deformable convolutional layer [4] to implement NT .", "location": "Sec 3.3" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation is on MS COCO 2017 (train split, val for ablations, test-dev for detection), measuring proposal recall (AR100/AR300/AR1000 and AR by size) for GA-RPN against RPN and prior proposal methods, and detection AP after integrating guided anchoring into Fast R-CNN, Faster R-CNN and RetinaNet, plus ablations of each module, the location threshold and proposal fine-tuning.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AR1000", "value": "68.5", "split": "GA-RPN, ResNet-50-FPN", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AR1000", "value": "59.4", "split": "RPN baseline, ResNet-50-FPN", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AR100", "value": "59.2", "split": "GA-RPN, ResNet-50-FPN", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.8", "split": "test-dev, GA-Faster-RCNN", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "37.1", "split": "test-dev, Faster R-CNN baseline", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "37.1", "split": "test-dev, GA-RetinaNet (RetinaNet 35.9)", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.6", "split": "test-dev, fine-tuned Faster R-CNN with GA-RPN proposals", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.4", "split": "test-dev, GA-Fast-RCNN (Fast R-CNN 37.1)", "location": "Table 2" }
+    ],
+    "baselines": ["RPN", "Faster R-CNN", "Fast R-CNN", "RetinaNet", "RefineRPN", "RPN+9 anchors", "SharpMask", "GCN-NS", "AttractioNet", "ZIP"],
+    "evidence": [
+      { "quote": "With Guided Anchoring, we achieve 9.1% higher recall on MS COCO with 90% fewer anchors than the RPN baseline.", "location": "Abstract" },
+      { "quote": "Specifically, it improves AR300 by 10.5% and AR1000 by 9.1% respectively.", "location": "Sec 4.2" },
+      { "quote": "it improves a fully converged Faster R-CNN model from 37.4% to 39.6%, in only 3 epochs.", "location": "Introduction" },
+      { "quote": "The shape prediction branch is shown effective which leads to a gain of 4.2%.", "location": "Sec 4.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "The location branch adds only marginal recall, the speed benefit is limited because the RPN head is a single convolution, exploiting high-quality proposals requires re-tuning training thresholds rather than dropping them in as-is, and the analytic vIoU objective is too hard to implement exactly so it is approximated by sampled shapes.",
+    "items": [
+      "The location prediction branch brings only marginal accuracy improvement; its value is sparsity and efficiency.",
+      "Speedup from fewer anchors is not apparent with the current single-layer RPN head.",
+      "Simply replacing RPN with GA-RPN and keeping the old training settings gives less than 1 point of gain.",
+      "The exact vIoU objective is complicated and is only approximated by sampling 9 (w, h) pairs."
+    ],
+    "evidence": [
+      { "quote": "The location prediction branch brings marginal improvement.", "location": "Sec 4.3" },
+      { "quote": "It is noteworthy that the head in RPN is just one convolutional layer, so the speedup is not apparent.", "location": "Sec 4.3" },
+      { "quote": "adopting exactly the same settings as before can only bring limited gain (e.g.,", "location": "Sec 3.5" },
+      { "quote": "the analytic expression of vIoU(awh , gt) is complicated, and hard to be implemented efficiently in an end-to-end network.", "location": "Sec 3.4" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Exploit the anchor sparsity for faster inference by pairing it with a heavier detection head than the current single-convolution RPN head.",
+      "quote": "Nevertheless, a significant reduction in the number of anchors offers a possibility to perform more efficient inference with a heavier head.",
+      "location": "Sec 4.3"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO 2017"],
+    "backbones": ["ResNet-50-FPN", "ResNet-152-FPN", "ResNeXt-101-FPN", "VGG-16", "BN-inception"],
+    "models": ["GA-RPN", "RPN", "GA-Faster-RCNN", "GA-Fast-RCNN", "GA-RetinaNet", "Faster R-CNN", "Fast R-CNN", "RetinaNet", "RefineRPN", "SharpMask", "AttractioNet", "ZIP"],
+    "algorithms": ["focal loss", "deformable convolution", "masked convolution", "bounded IoU loss", "vIoU approximation", "sigmoid objectness", "NMS"],
+    "metrics": ["AR", "AR100", "AR300", "AR1000", "ARS", "ARM", "ARL", "AP", "AP50", "AP75", "fps"],
+    "equations": [
+      { "name": "Anchor distribution factorization", "expr": "p(x, y, w, h|I) = p(x, y|I) * p(w, h|x, y, I)", "location": "Eq 1" },
+      { "name": "Anchor shape transform", "expr": "w = sigma * s * exp(dw); h = sigma * s * exp(dh)", "location": "Eq 2" },
+      { "name": "Feature adaption", "expr": "fi' = NT(fi, wi, hi)", "location": "Eq 3" },
+      { "name": "Joint multi-task loss", "expr": "L = lambda1 * Lloc + lambda2 * Lshape + Lcls + Lreg", "location": "Eq 4" },
+      { "name": "vIoU", "expr": "vIoU(awh, gt) = max over w>0,h>0 of IoUnormal(awh, gt)", "location": "Eq 5" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "industrial research labs (SenseTime, Amazon Rekognition)",
+        "detail": "The work originates from the CUHK-SenseTime Joint Lab with an author at Amazon Rekognition, and is funded by a SenseTime collaborative research grant.",
+        "quote": "CUHK - SenseTime Joint Lab, The Chinese University of Hong Kong",
+        "location": "Author affiliations"
+      },
+      {
+        "domain": "cloud vision services",
+        "detail": "One author is affiliated with Amazon Rekognition, Amazon's commercial vision service.",
+        "quote": "Amazon Rekognition",
+        "location": "Author affiliations"
+      }
+    ],
+    "deploymentClaims": [
+      "GA-RPN runs at 0.13 s/img versus 0.09 s/img for the RPN baseline on TITAN X GPUs (Table 1)",
+      "The runtime is measured on TITAN X GPUs",
+      "Code released at github.com/open-mmlab/mmdetection"
+    ],
+    "evidence": [
+      { "quote": "The runtime is measured on TITAN X GPUs.", "location": "Sec 4.1" },
+      { "quote": "This work is partially supported by the Collaborative Research grant from SenseTime Group", "location": "Acknowledgment" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2019.00308",
+    "arxivUrl": "https://arxiv.org/abs/1901.03278",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+    "pdfUrl": "https://arxiv.org/pdf/1901.03278"
+  }
+}

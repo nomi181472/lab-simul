@@ -1,0 +1,126 @@
+{
+  "id": "OD038",
+  "arxiv": "1810.08425",
+  "title": "ScratchDet: Training Single-Shot Object Detectors from Scratch",
+  "year": 2018,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+  "problem": {
+    "summary": "State-of-the-art detectors are fine-tuned from ImageNet classification networks, which biases the learning objective (classification wants translation invariance, detection wants texture detail) and locks the detector architecture to the classification network. Training from scratch avoids this but existing from-scratch detectors train unstably, converge poorly, and lag pretrained ones.",
+    "statements": [
+      "Classification and detection tasks have different degrees of sensitivity to translation, so fine-tuning from classification networks creates a learning objective bias.",
+      "The detector architecture is limited by the classification network; any architectural change requires costly re-pretraining on ImageNet.",
+      "Detectors trained from scratch generally perform worse than pretrained ones and can suffer convergence issues, with unstable gradients falling into bad local minima.",
+      "DSOD, the prior from-scratch detector, is bound to the DenseNet architecture and degrades or crashes when other network types are used."
+    ],
+    "problemTags": ["convergence", "training-instability", "pretraining-dependence"],
+    "evidence": [
+      { "quote": "The classification and detection have different degrees of sensitivity to translation, resulting in the learning objective bias", "location": "Abstract" },
+      { "quote": "The architecture is limited by the classification network, leading to the inconvenience of modification.", "location": "Abstract" },
+      { "quote": "However, the detectors trained from scratch generally perform worse than the pretrained ones, even suffer from the convergence issue in training.", "location": "Abstract" },
+      { "quote": "If DSOD employs other types of network (e.g., VGGNet and ResNet), the performance decreases dramatically (sometimes even crashes in training).", "location": "Introduction" },
+      { "quote": "to train SSD with the original architecture from scratch or pretrained networks usually leads to gradient explosion, poor stability and weak prediction of gradients", "location": "Sec 4.2.1" }
+    ]
+  },
+  "background": {
+    "summary": "ScratchDet builds on SSD (one-stage, VGG/ResNet backbone plus detection head subnetworks), on DSOD's from-scratch training with deep supervision, and on Santurkar et al.'s analysis that BatchNorm smooths the optimization landscape rather than merely reducing internal covariate shift. The claimed gap is that DSOD attributes success to deep supervision while overlooking BatchNorm and architecture flexibility.",
+    "relatedWork": [
+      { "name": "SSD", "relation": "base one-stage detector framework the work modifies", "quote": "SSD is formed by the backbone subnetwork (e.g., truncated VGGNet-16 with several additional convolution blocks) and the detection head subnetwork", "location": "Sec 3.1" },
+      { "name": "DSOD", "relation": "prior train-from-scratch detector built on DenseNet deep supervision", "quote": "DSOD [32] is the first to train CNN detectors from scratch, in which the deep supervision plays a critical role.", "location": "Introduction" },
+      { "name": "DSOD (revisited)", "relation": "whose success the paper re-attributes to BatchNorm", "quote": "DSOD attributes its success to deep supervision of DenseNet and ignores the effect of BatchNorm.", "location": "Sec 4.2.1" },
+      { "name": "Santurkar et al. (BatchNorm optimization analysis)", "relation": "theoretical basis for using BatchNorm to stabilize from-scratch training", "quote": "More recently, Santurkar et al. [30] provides both empirical demonstration and theoretical justification for the explanation that BatchNorm makes the optimization landscape significantly smoother instead of reducing internal covariate shift.", "location": "Sec 2" },
+      { "name": "Faster R-CNN / R-FCN / FPN / Mask R-CNN", "relation": "prior two-stage pretrained detectors", "quote": "With the gradual improvements from Faster R-CNN [28], R-FCN [4], FPN [21] to Mask R-CNN [11], the two-stage methods achieve top performance on several challenging datasets", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "The current state-of-the-art detectors are generally fine-tuned from high accuracy classification networks, e.g., VGGNet [36], ResNet [12] and GoogLeNet [37] pretrained on ImageNet", "location": "Introduction" },
+      { "quote": "Fortunately, training detectors from scratch is able to eliminate the aforementioned limitations.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "ScratchDet trains the full SSD network from scratch by inserting BatchNorm into every convolution of both the backbone and the detection head, which smooths the optimization landscape, stabilizes gradients and allows large learning rates. Freed from pretrained architectures, the authors then redesign the ResNet stem into a Root-ResNet: the first downsampling is removed and the 7x7 stride-2 conv is replaced by stacked 3x3 convolutions, preserving image information for small-object detection.",
+    "approach": "Insert BatchNorm throughout the SSD backbone and detection head to make from-scratch training converge stably, then remove the first-layer downsampling and replace the 7x7 stem conv with a stack of 3x3 convs (root block) to keep small-object information.",
+    "components": [
+      "BatchNorm in every convolution layer of the backbone subnetwork",
+      "BatchNorm in every convolution layer of the detection head subnetwork",
+      "large batch size 128 for stable BatchNorm statistics during from-scratch training",
+      "root block: three stacked 3x3 convolutions replacing the 7x7 stride-2 stem convolution",
+      "removal of the first downsampling operation of ResNet",
+      "four residual blocks replacing SSD's extra convolution blocks, 128 output channels each",
+      "Xavier initialization and SSD's original data augmentation, anchors and loss"
+    ],
+    "solutionTags": ["one-stage", "batchnorm-stabilization", "root-block-stem"],
+    "evidence": [
+      { "quote": "Resorting to the stable and predictable gradient brought by BatchNorm, detectors can be trained from scratch stably while keeping the favourable performance independent to the network architecture.", "location": "Abstract" },
+      { "quote": "we integrate BatchNorm into both the backbone and detection head subnetworks (Figure 2)", "location": "Introduction" },
+      { "quote": "we redesign the architecture of the detector by introducing a new root block, which keeps the abundant information for detection feature maps and substantially improves the detection accuracy, especially for small objects.", "location": "Introduction" },
+      { "quote": "We remove the downsampling operation in the first conv layer and replace the 7 × 7 convolution kernel by a stack of 3 × 3 convolution filters", "location": "Sec 3.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "Experiments first ablate BatchNorm placement (backbone/head/whole network) and learning rate for SSD trained from scratch on VOC 2007, then ablate first-layer kernel size, downsampling and root-block depth on ResNet-18 backbones, and finally compare ScratchDet with pretrained and from-scratch detectors on PASCAL VOC 2007/2012 and MS COCO. Training uses Caffe on 4 Tesla P40 GPUs; FPS is reported on Tesla P40/TITAN X.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "80.4", "split": "test, ScratchDet300, Root-ResNet-34, 300x300", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "84.1", "split": "test, ScratchDet300+ multi-scale testing", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2012", "metric": "mAP", "value": "78.5", "split": "test, ScratchDet300", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2012", "metric": "mAP", "value": "83.6", "split": "test, ScratchDet300+ multi-scale testing", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "32.7", "split": "test-dev, ScratchDet300, trainval35k", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.1", "split": "test-dev, ScratchDet300+ multi-scale testing", "location": "Table 4" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "78.7", "split": "test, SSD VGG-16 from scratch, BatchNorm in whole network, lr 0.05", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "67.6", "split": "test, SSD VGG-16 from scratch without BatchNorm baseline", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "86.3", "split": "test, ScratchDet300+ after MS COCO pretraining", "location": "Table 5" }
+    ],
+    "baselines": ["SSD", "DSOD", "GRP-DSOD", "RefineDet", "DSSD", "DES300", "RetinaNet", "YOLOv2", "Faster R-CNN", "R-FCN", "Mask R-CNN"],
+    "evidence": [
+      { "quote": "Our ScratchDet achieves the state-of-the-art accuracy on PASCAL VOC 2007, 2012 and MS COCO among all the train-from-scratch detectors", "location": "Abstract" },
+      { "quote": "improving the state-of-the-art mAP by 1.7% on VOC 2007, 1.5% on VOC 2012, and 2.7% of AP on COCO.", "location": "Introduction" },
+      { "quote": "ScratchDet produces 32.7% AP that is better than all the other methods with similar input size by a large margin", "location": "Sec 4.4" }
+    ]
+  },
+  "limitations": {
+    "summary": "From-scratch training costs far more wall-clock time than fine-tuning, all headline results use 300x300 inputs, stable BatchNorm needs a large batch size of 128, and two-stage Faster R-CNN trained from scratch still underperforms its pretrained counterpart.",
+    "items": [
+      "Training the detector from scratch takes 84.6 hours versus 29.7 hours for fine-tuning a pretrained classifier on the same 4-GPU setup for MS COCO.",
+      "All reported models use 300 x 300 input; the authors state accuracy should improve with larger input size but do not evaluate it.",
+      "VGG16-based Faster R-CNN from scratch converges only to 67.2% mAP, still below the pretrained 73.2%.",
+      "Batch size 128 is required during training to ensure stable statistical results of BatchNorm."
+    ],
+    "evidence": [
+      { "quote": "ScratchDet uses obviously more time than fine-tuning a pretrained classifier on the 4 NVIDIA Tesla P40 GPUs workstation with the 300 × 300 input image size for the MS COCO dataset (i.e., 84.6 vs. 29.7 hours).", "location": "Sec 4.6" },
+      { "quote": "with BatchNorm it can converge successfully to 67.2% mAP, although it is still lower than the pretrained one (73.2% mAP).", "location": "Sec 4.2.1" },
+      { "quote": "we use a relatively large batch size 128 to train our ScratchDet from scratch, in order to ensure the stable statistical results of BatchNorm in training phase.", "location": "Sec 4.1" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Evaluate ScratchDet with larger input image sizes than 300 x 300, which the authors expect to raise accuracy further.",
+      "quote": "we believe that the accuracy of ScratchDet can be further improved using larger input size.",
+      "location": "Sec 4.1"
+    }
+  ],
+  "technical": {
+    "datasets": ["PASCAL VOC 2007", "PASCAL VOC 2012", "MS COCO", "ImageNet"],
+    "backbones": ["VGG-16", "ResNet-18", "ResNet-34", "ResNet-101", "Root-ResNet-18", "Root-ResNet-34", "DS/64-192-48-1"],
+    "models": ["ScratchDet300", "ScratchDet300+", "SSD", "DSOD", "GRP-DSOD", "RefineDet", "DSSD", "DES300", "RetinaNet", "YOLOv2", "Faster R-CNN", "R-FCN", "Mask R-CNN"],
+    "algorithms": ["BatchNorm", "SGD with momentum", "Xavier initialization", "SSD multibox training (unchanged anchors, augmentation and loss)", "multi-scale testing"],
+    "metrics": ["mAP", "AP", "AP50", "AP75", "APS", "APM", "APL", "FPS"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "ScratchDet300 runs at 17.8 FPS and is benchmarked on one TITAN X GPU; backbone ablations reach 59.5 FPS on one Tesla P40",
+      "Training runs on 4 NVIDIA Tesla P40 GPUs with 300 x 300 inputs",
+      "Implemented in Caffe with codes and trained models to be released at github.com/KimSoybean/ScratchDet"
+    ],
+    "evidence": [
+      { "quote": "The FPS of ScratchDet is measured on one TITAN X GPU for the fair comparison.", "location": "Table 3 caption" },
+      { "quote": "FPS is measured on one Tesla P40 GPU.", "location": "Table 2 caption" },
+      { "quote": "The proposed ScratchDet is implemented in Caffe library [15] and all the codes and the trained models will be made publicly available.", "location": "Sec 4" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2019.00237",
+    "arxivUrl": "https://arxiv.org/abs/1810.08425",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+    "pdfUrl": "https://arxiv.org/pdf/1810.08425"
+  }
+}

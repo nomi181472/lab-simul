@@ -1,0 +1,123 @@
+{
+  "id": "OD034",
+  "arxiv": "1804.02767",
+  "title": "YOLOv3: An Incremental Improvement",
+  "year": 2018,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "YOLOv3 is presented as an incremental set of fixes to YOLO: accuracy on COCO still lagged RetinaNet on the average-AP metric, localization degrades at higher IOU thresholds, small/medium/large object trade-offs remained uneven, and the authors question whether the COCO metric itself measures what matters.",
+    "statements": [
+      "Box alignment quality drops as the IOU threshold rises, so localization is imperfect.",
+      "Small objects were historically a weakness of YOLO and medium/large object performance is comparatively worse.",
+      "On COCO average AP (.5-.95 IOU) YOLOv3 trails RetinaNet-style detectors.",
+      "The COCO mAP metric may emphasize box precision over classification in ways practitioners do not care about."
+    ],
+    "problemTags": ["localization", "small-objects", "one-stage-accuracy", "benchmark-inconsistency"],
+    "evidence": [
+      { "quote": "However, performance drops significantly as the IOU threshold increases indicating YOLOv3 struggles to get the boxes perfectly aligned with the object.", "location": "Sec 3" },
+      { "quote": "In the past YOLO struggled with small objects.", "location": "Sec 3" },
+      { "quote": "However, it has comparatively worse performance on medium and larger size objects. More investigation is needed to get to the bottom of this.", "location": "Sec 3" },
+      { "quote": "mAP is already screwed up because all that matters is per-class rank ordering.", "location": "Rebuttal" }
+    ]
+  },
+  "background": {
+    "summary": "The report builds directly on YOLO9000/YOLOv2 (dimension-cluster anchors), borrows the multi-scale idea from FPN, the speed/accuracy comparison framing from the Focal Loss paper, and residual-network design from ResNets; the authors are explicit that most components are adopted ideas rather than new ones.",
+    "relatedWork": [
+      { "name": "YOLO9000 / YOLOv2", "relation": "immediate predecessor whose anchor-cluster formulation is kept", "quote": "Following YOLO9000 our system predicts bounding boxes using dimension clusters as anchor boxes [15].", "location": "Sec 2.1" },
+      { "name": "Feature Pyramid Networks", "relation": "prior multi-scale feature design mirrored by YOLOv3's three-scale predictions", "quote": "Our system extracts features from those scales using a similar concept to feature pyramid networks [8].", "location": "Sec 2.3" },
+      { "name": "Faster R-CNN", "relation": "two-stage baseline whose dual IOU threshold training scheme was tried and rejected", "quote": "Faster RCNN uses two IOU thresholds during training.", "location": "Sec 4" },
+      { "name": "Darknet-19 / ResNets", "relation": "backbone predecessors combined into the new Darknet-53 extractor", "quote": "Our new network is a hybrid approach between the network used in YOLOv2, Darknet-19, and that newfangled residual network stuff.", "location": "Sec 2.4" }
+    ],
+    "evidence": [
+      { "quote": "So here\u2019s the deal with YOLOv3: We mostly took good ideas from other people.", "location": "Sec 2" },
+      { "quote": "We also trained a new classifier network that\u2019s better than the other ones.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "YOLOv3 combines a new 53-layer residual backbone (Darknet-53) with three-scale FPN-like predictions, k-means anchor priors, logistic-regression objectness, and multilabel classification with independent logistic classifiers trained by binary cross-entropy.",
+    "approach": "Detect at three scales on a residual Darknet-53 backbone using k-means anchor boxes, sigmoid-constrained center offsets and exponentiated size offsets, with independent per-class logistic classifiers.",
+    "components": [
+      "Darknet-53 feature extractor with 53 convolutional layers and shortcut connections",
+      "9 k-means clustered anchor priors split across 3 scales",
+      "three-scale prediction with 2x upsampling and concatenation",
+      "logistic regression objectness with one assigned prior per ground truth",
+      "multilabel classification with independent logistic classifiers (no softmax)",
+      "multi-scale training, data augmentation and batch normalization"
+    ],
+    "solutionTags": ["one-stage", "anchors", "feature-pyramid", "multi-scale"],
+    "evidence": [
+      { "quote": "YOLOv3 predicts boxes at 3 different scales.", "location": "Sec 2.3" },
+      { "quote": "We still use k-means clustering to determine our bounding box priors.", "location": "Sec 2.3" },
+      { "quote": "YOLOv3 predicts an objectness score for each bounding box using logistic regression.", "location": "Sec 2.1" },
+      { "quote": "Each box predicts the classes the bounding box may contain using multilabel classification.", "location": "Sec 2.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "The report tabulates COCO test-dev AP/AP50/AP75 and size-specific AP against two-stage and one-stage detectors, ImageNet backbone accuracy/speed for Darknet-53, and speed-accuracy curves on an M40/Titan X, plus an informal list of ideas that were tried and failed.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "33.0", "split": "test-dev, YOLOv3 608x608", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP50", "value": "57.9", "split": "test-dev, YOLOv3 608x608, 51 ms", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "28.2", "split": "test-dev, YOLOv3 320x320, 22 ms", "location": "Figure 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.1", "split": "test-dev, RetinaNet ResNet-101-FPN baseline", "location": "Table 3" },
+      { "dataset": "ImageNet", "metric": "Top-1 accuracy", "value": "77.2", "split": "Darknet-53, 256x256 single crop", "location": "Table 2" },
+      { "dataset": "ImageNet", "metric": "FPS", "value": "78", "split": "Darknet-53, 256x256 on Titan X", "location": "Table 2" }
+    ],
+    "baselines": ["RetinaNet", "SSD321", "SSD513", "DSSD513", "R-FCN", "Faster R-CNN", "YOLOv2", "Darknet-19"],
+    "evidence": [
+      { "quote": "At 320 \u00d7 320 YOLOv3 runs in 22 ms at 28.2 mAP, as accurate as SSD but three times faster.", "location": "Abstract" },
+      { "quote": "It achieves 57.9 AP50 in 51 ms on a Titan X, compared to 57.5 AP50 in 198 ms by RetinaNet, similar performance but 3.8\u00d7 faster.", "location": "Abstract" },
+      { "quote": "Darknet-53 is better than ResNet-101 and 1.5\u00d7 faster.", "location": "Sec 2.4" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors freely admit YOLOv3 is not as strong on COCO average AP, is weaker on medium/large objects, and that several attempted improvements (focal loss, linear x/y offsets, dual IOU thresholds) hurt or failed to help.",
+    "items": [
+      "Localization quality falls off as the IOU threshold increases (AP75 34.4 versus AP50 57.9).",
+      "Comparatively worse performance on medium and large objects despite improved small-object APS.",
+      "On COCO average AP (.5-.95) YOLOv3 (33.0) remains behind RetinaNet (39.1).",
+      "Focal loss, linear x/y offset prediction and dual IOU thresholds were all tried and reduced mAP or destabilized training."
+    ],
+    "evidence": [
+      { "quote": "It\u2019s not as great on the COCO average AP between .5 and .95 IOU metric.", "location": "Sec 5" },
+      { "quote": "We tried using focal loss. It dropped our mAP about 2 points.", "location": "Sec 4" },
+      { "quote": "We tried lots of stuff while we were working on YOLOv3. A lot of it didn\u2019t work.", "location": "Sec 4" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Investigate why medium/large object performance lagged despite strong APS.", "quote": "More investigation is needed to get to the bottom of this.", "location": "Sec 3" },
+    { "direction": "Revisit the rejected training techniques with tuning to stabilize training.", "quote": "It is possible that some of these techniques could eventually produce good results, perhaps they just need some tuning to stabilize the training.", "location": "Sec 4" },
+    { "direction": "Develop evaluation metrics that reflect what practitioners actually care about.", "quote": "if we\u2019re going to come up with new metrics we should focus on these discrepancies", "location": "Rebuttal" }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "ImageNet", "Open Images Dataset", "PASCAL VOC"],
+    "backbones": ["Darknet-53", "Darknet-19", "ResNet-101", "ResNet-152", "ResNeXt-101"],
+    "models": ["YOLOv3", "YOLOv2", "RetinaNet", "SSD", "DSSD", "Faster R-CNN", "R-FCN"],
+    "algorithms": ["k-means anchor clustering", "logistic regression objectness", "binary cross-entropy loss", "sum of squared error loss", "multi-scale training", "batch normalization"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "FPS", "Top-1", "Top-5"],
+    "equations": [
+      { "name": "Box prediction decode", "expr": "bx = sigmoid(tx) + cx, by = sigmoid(ty) + cy, bw = pw * e^tw, bh = ph * e^th", "location": "Sec 2.1" },
+      { "name": "Per-scale output tensor", "expr": "N x N x [3 * (4 + 1 + 80)]", "location": "Sec 2.3" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "wildlife monitoring and consumer vision", "detail": "The authors cite benign uses of detectors such as counting zebras in a national park and tracking a pet camera, while stressing that computer vision is also being put to questionable use.", "quote": "counting the number of zebras in a national park [13]", "location": "Sec 5" },
+      { "domain": "research ethics / dual use", "detail": "The discussion section explicitly raises personal-data harvesting and military funding as harms researchers should consider and mitigate.", "quote": "computer vision is already being put to questionable use and as researchers we have a responsibility to at least consider the harm our work might be doing and think of ways to mitigate it.", "location": "Sec 5" }
+    ],
+    "deploymentClaims": [
+      "YOLOv3 runs at 22 ms (320x320 input), 29 ms (416) and 51 ms (608) on an M40 or Titan X.",
+      "Darknet-53 reaches 78 FPS at 256x256 on a Titan X with 18.7B ops.",
+      "All the code is online at https://pjreddie.com/yolo/"
+    ],
+    "evidence": [
+      { "quote": "Times from either an M40 or Titan X, they are basically the same GPU.", "location": "Figure 1" },
+      { "quote": "Run times are measured on a Titan X at 256 \u00d7 256.", "location": "Sec 2.4" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1804.02767",
+    "arxivUrl": "https://arxiv.org/abs/1804.02767",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/1804.02767"
+  }
+}

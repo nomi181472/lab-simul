@@ -1,0 +1,132 @@
+{
+  "id": "OD036",
+  "arxiv": "1808.01244",
+  "title": "CornerNet: Detecting Objects as Paired Keypoints",
+  "year": 2018,
+  "venue": "Lecture notes in computer science",
+  "problem": {
+    "summary": "One-stage detectors depend on hand-designed anchor boxes: enormous anchor sets are needed to cover boxes densely, only a tiny fraction ever matches ground truth (severe positive/negative imbalance that slows training), and anchor sizes, aspect ratios and matching thresholds add many ad-hoc hyperparameters.",
+    "statements": [
+      "Anchor-based one-stage detectors need huge hand-designed anchor sets (more than 40k in DSSD, more than 100k in RetinaNet).",
+      "Only a tiny fraction of anchors overlap ground truth, creating a huge positive/negative imbalance that slows training.",
+      "Anchor design introduces many hyperparameters and heuristic choices (sizes, aspect ratios, IoU thresholds)."
+    ],
+    "problemTags": ["anchor-design", "label-assignment", "class-imbalance"],
+    "evidence": [
+      { "quote": "But the use of anchor boxes has two drawbacks.", "location": "Introduction" },
+      { "quote": "First, we typically need a very large set of anchor boxes, e.g. more than 40k in DSSD (Fu et al., 2017) and more than 100k in RetinaNet (Lin et al., 2017).", "location": "Introduction" },
+      { "quote": "As a result, only a tiny fraction of anchor boxes will overlap with ground truth; this creates a huge imbalance between positive and negative anchor boxes and slows down training (Lin et al., 2017).", "location": "Introduction" },
+      { "quote": "Second, the use of anchor boxes introduces many hyperparameters and design choices.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "CornerNet builds on dense one-stage detectors (SSD, RetinaNet) that place anchor boxes over multi-scale feature maps, and on associative embedding from multiperson pose estimation for grouping keypoints; the paper claims anchor-free alternatives (DeNet, PLN) are under-explored.",
+    "relatedWork": [
+      { "name": "SSD", "relation": "prior dense anchor-based one-stage detector", "quote": "SSD places anchor boxes densely over feature maps from multiple scales, directly classifies and refines each anchor box.", "location": "Sec 2.2" },
+      { "name": "RetinaNet", "relation": "prior one-stage detector / focal loss source", "quote": "the authors suggest that the dense anchor boxes create a huge imbalance between positive and negative anchor boxes during training.", "location": "Sec 2.2" },
+      { "name": "Associative Embedding (Newell et al., 2017)", "relation": "grouping technique this work builds on", "quote": "Our approach is inspired by the associative embedding method proposed by Newell et al. (2017), who detect and group keypoints in the context of multiperson human-pose estimation.", "location": "Introduction" },
+      { "name": "DeNet", "relation": "prior anchor-free detector", "quote": "DeNet (Tychsen-Smith and Petersson, 2017a) is a two-stage detector which generates RoIs without using anchor boxes.", "location": "Sec 2.1" }
+    ],
+    "evidence": [
+      { "quote": "A common component of state-of-the-art approaches is anchor boxes (Ren et al., 2015; Liu et al., 2016), which are boxes of various sizes and aspect ratios that serve as detection candidates.", "location": "Introduction" },
+      { "quote": "However, these one-stage detectors are still outperformed by the two-stage detectors until the introduction of RetinaNet (Lin et al., 2017).", "location": "Sec 2.2" }
+    ]
+  },
+  "solution": {
+    "summary": "CornerNet detects each object as a pair of keypoints: an hourglass network predicts top-left and bottom-right corner heatmaps, per-corner embeddings that group corners of the same instance, and offsets that refine corner locations. A new corner pooling layer looks toward object boundaries so corners lying outside the object can be localized.",
+    "approach": "Replace anchor boxes by predicting two corner heatmaps grouped via associative embeddings and refined by offsets, with corner pooling extending feature evidence toward object boundaries.",
+    "components": [
+      "top-left and bottom-right corner heatmaps (C channels, no background channel)",
+      "associative embeddings with pull and push losses",
+      "corner pooling layer on each prediction branch",
+      "corner offset prediction with smooth L1 loss",
+      "reduced Gaussian penalty for negative locations near positives (object-dependent radius)",
+      "hourglass-104 backbone with two prediction modules and intermediate supervision",
+      "variant of focal loss for corner heatmaps",
+      "soft-NMS post-processing on top-100 corner pairs"
+    ],
+    "solutionTags": ["anchor-free", "keypoint-based", "gaussian-heatmap", "one-stage"],
+    "evidence": [
+      { "quote": "By detecting objects as paired keypoints, we eliminate the need for designing a set of anchor boxes commonly used in prior single-stage detectors.", "location": "Abstract" },
+      { "quote": "The embeddings serve to group a pair of corners that belong to the same object—the network is trained to predict similar embeddings for them.", "location": "Introduction" },
+      { "quote": "we reduce the penalty given to negative locations within a radius of the positive location.", "location": "Sec 3.2" },
+      { "quote": "We use the hourglass network (Newell et al., 2016) as the backbone network of CornerNet.", "location": "Sec 3.1" }
+    ]
+  },
+  "experiments": {
+    "summary": "CornerNet is trained from scratch with Adam on MS COCO (80k train, 35k train + 5k ablation split of validation) and evaluated on test-dev with single- and multi-scale testing, comparing against one- and two-stage detectors and ablating corner pooling, penalty reduction and the backbone.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "42.2", "split": "test-dev, multi-scale", "location": "Table 7" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "40.6", "split": "test-dev, single-scale", "location": "Table 7" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.1", "split": "test-dev, RetinaNet800 baseline", "location": "Table 7" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "38.4", "split": "val, with corner pooling", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "36.5", "split": "val, without corner pooling", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP90", "value": "23.4", "split": "val, high-IoU comparison vs detectors", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "73.1", "split": "val, ground-truth heatmaps error analysis", "location": "Table 6" }
+    ],
+    "baselines": ["RetinaNet", "Cascade R-CNN", "Faster R-CNN w/ FPN", "Mask R-CNN", "SSD513", "DSSD513", "RefineDet", "YOLOv2", "DeNet"],
+    "evidence": [
+      { "quote": "CornerNet achieves a 42.2% AP on MS COCO, outperforming all existing one-stage detectors.", "location": "Abstract" },
+      { "quote": "CornerNet achieves an AP of 42.2%, the state of the art among existing one-stage methods and competitive with two-stage methods.", "location": "Sec 4.5" },
+      { "quote": "using the ground-truth corner heatmaps alone improves the AP from 38.4% to 73.1%.", "location": "Sec 4.4.6" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors' error analysis shows corner detection is the main bottleneck and grouping errors remain; small-object accuracy lags large-object accuracy, inference is far from real time, and the multi-scale model still trails the best two-stage detector on COCO test-dev.",
+    "items": [
+      "Corner detection is the bottleneck: ground-truth heatmaps alone raise AP from 38.4% to 73.1%.",
+      "Grouping errors remain: corners from different objects can receive similar embeddings and be merged.",
+      "Small-object AP (19.1 single-scale) is far below large-object AP (54.3) on test-dev.",
+      "Average inference time is 244 ms per image (original + flipped fusion), so it is not real time.",
+      "Multi-scale CornerNet (42.2 AP) still trails D-RFCN + SNIP (45.7 AP) on test-dev."
+    ],
+    "evidence": [
+      { "quote": "Using the ground-truth heatmaps alone improves the AP from 38.4% to 73.1%, suggesting that the main bottleneck of CornerNet is detecting corners.", "location": "Table 6" },
+      { "quote": "The first row shows images where CornerNet mistakenly combines boundary evidence from different objects.", "location": "Fig 9" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Improve both corner detection and corner grouping, which the error analysis identifies as leaving ample room for improvement.",
+      "quote": "there is still ample room for improvement in both detecting and grouping corners, the main bottleneck is detecting corners.",
+      "location": "Sec 4.4.6"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO"],
+    "backbones": ["Hourglass-104", "ResNet-101", "FPN"],
+    "models": ["CornerNet", "CornerNet511", "RetinaNet", "Cascade R-CNN", "Faster R-CNN w/ FPN", "Mask R-CNN", "SSD513", "DSSD513", "RefineDet", "YOLOv2", "DeNet"],
+    "algorithms": ["corner pooling", "associative embedding", "focal loss variant", "soft-NMS", "Gaussian heatmap penalty", "Adam", "3x3 max-pooling NMS"],
+    "metrics": ["AP", "AP50", "AP75", "APs", "APm", "APl", "AP90", "AR100"],
+    "equations": [
+      { "name": "Focal loss variant", "expr": "Ldet = -1/N sum alpha(1-p)^beta log(p) if y=1 else alpha(1-y)p^beta log(1-p)", "location": "Eq 1" },
+      { "name": "Pull loss", "expr": "Lpull = 1/N sum_k (et_k - e_k)^2 + (eb_k - e_k)^2", "location": "Eq 4" },
+      { "name": "Push loss", "expr": "Lpush = 1/(N(N-1)) sum_k sum_{j!=k} max(0, delta - |e_k - e_j|)", "location": "Eq 5" },
+      { "name": "Top-left corner pooling", "expr": "t_ij = max(f_t(i,j), t_(i+1,j)); l_ij = max(f_l(i,j), l_(i,j+1))", "location": "Eq 6-7" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving and defense research",
+        "detail": "The work was funded by Toyota Research Institute and a DARPA grant, indicating industry and government interest in the approach.",
+        "location": "Acknowledgements"
+      }
+    ],
+    "deploymentClaims": [
+      "Average inference time of 244 ms per image on a Titan X (PASCAL) GPU",
+      "Testing fuses detections from original and flipped images with soft-NMS and reports the top 100 detections",
+      "PyTorch code released at github.com/princeton-vl/CornerNet"
+    ],
+    "evidence": [
+      { "quote": "The average inference time is 244ms per image on a Titan X (PASCAL) GPU.", "location": "Sec 4.2" },
+      { "quote": "This work is partially supported by a grant from Toyota Research Institute and a DARPA grant FA8750-18-2-0019.", "location": "Acknowledgements" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1007/978-3-030-01264-9_45",
+    "arxivUrl": "https://arxiv.org/abs/1808.01244",
+    "venue": "Lecture notes in computer science",
+    "pdfUrl": "https://arxiv.org/pdf/1808.01244"
+  }
+}

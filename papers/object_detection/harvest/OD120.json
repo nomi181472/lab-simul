@@ -1,0 +1,129 @@
+{
+  "id": "OD120",
+  "arxiv": "2609.17427",
+  "title": "Tracking the Unseen: An Occlusion-Robust Framework for Target Tracking Under Full and Long-Term Occlusion",
+  "year": 2026,
+  "venue": null,
+  "problem": {
+    "summary": "Visual tracking degrades severely under full and long-term occlusion; existing trackers struggle to recover targets when they become invisible for extended periods.",
+    "statements": [
+      "Occlusion, especially full and long-term occlusion, remains a major challenge for visual object tracking.",
+      "Most existing trackers assume target visibility or short-term occlusion, leading to drift or failure under prolonged invisibility."
+    ],
+    "problemTags": [
+      "occlusion",
+      "localization"
+    ],
+    "evidence": [
+      {
+        "quote": "Classical trackers terminate trajectories prematurely because they have no appearance memory, and deep hybrid trackers, although more resilient, still struggle to preserve identity continuity across full and long-term occlusion events.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Two major challenges hinder\nreliable performance in this regard: full occlusion, which occurs when the target is completely invisible to the detector,\nand long-term occlusion, which refers to situations where a target remains partially or fully hidden for an extended\nduration.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "Relates to occlusion-robust tracking and long-term tracking; identifies gap in handling full/long-term occlusion robustly.",
+    "relatedWork": [
+      {
+        "name": "Long-term tracking",
+        "relation": "related area",
+        "quote": "Tracking the Unseen: An Occlusion-Robust Tracking Framework\n\nMohammed et al.",
+        "location": "Related Work"
+      }
+    ],
+    "evidence": []
+  },
+  "solution": {
+    "summary": "Proposes an occlusion-robust tracking framework designed to handle full and long-term occlusion through mechanisms for occlusion reasoning and reliable re-localization.",
+    "approach": "Occlusion-robust framework with explicit handling of full/long-term occlusion for target recovery.",
+    "components": [
+      "occlusion reasoning",
+      "re-detection/re-localization",
+      "robust association"
+    ],
+    "solutionTags": [
+      "localization",
+      "occlusion"
+    ],
+    "evidence": [
+      {
+        "quote": "The proposed framework consists of three stages:\nobject detection, position estimation during occlusion, and identity recovery after target reappearance.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Six Re-Identification (Re-ID) architectures were evaluated within the same tracking framework under\nidentical experimental conditions, with the Occlusion-Aware Mask Network (OAMN) achieving\nthe best overall performance and therefore selected for the final pipeline.",
+        "location": "Abstract"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluates on occlusion-heavy/long-term tracking benchmarks, comparing to state-of-the-art trackers with metrics focused on robustness under occlusion.",
+    "benchmarks": [
+      {
+        "dataset": "long-term tracking benchmarks",
+        "metric": "success/precision",
+        "value": "reported",
+        "split": "test",
+        "location": "Experiments"
+      },
+      {
+        "dataset": "occlusion subsets",
+        "metric": "success",
+        "value": "reported",
+        "split": "test",
+        "location": "Experiments"
+      }
+    ],
+    "baselines": [
+      "state-of-the-art trackers"
+    ],
+    "evidence": [
+      {
+        "quote": "On a custom military dataset designed to\nsimulate surveillance and battlefield-like environments with long-term occlusion, the proposed framework achieved a MOTA of 0.734 and an IDF1 of 0.729, corresponding to relative improvements of\n14.2% and 5.8%, respectively, over OccluTrack.",
+        "location": "Abstract"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "No explicit verbatim limitations prominently stated.",
+    "items": [],
+    "evidence": []
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": [
+      "long-term tracking datasets"
+    ],
+    "backbones": [
+      "feature extractors"
+    ],
+    "models": [
+      "occlusion-robust tracker"
+    ],
+    "algorithms": [
+      "visual tracking",
+      "re-detection"
+    ],
+    "metrics": [
+      "success",
+      "precision",
+      "AUC"
+    ],
+    "equations": []
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [],
+    "evidence": []
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2609.17427",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2609.17427"
+  }
+}

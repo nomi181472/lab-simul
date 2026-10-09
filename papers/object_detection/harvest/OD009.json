@@ -1,0 +1,124 @@
+{
+  "id": "OD009",
+  "arxiv": "1611.10012",
+  "title": "Speed/accuracy trade-offs for modern convolutional object detectors",
+  "year": 2016,
+  "venue": "CVPR 2017",
+  "problem": {
+    "summary": "Practitioners cannot compare modern detectors fairly: papers report speeds measured on different hardware, frameworks, resolutions and feature extractors, and most report only a single frame rate rather than a full speed/accuracy/memory trade-off.",
+    "statements": [
+      "Comparisons across detection papers are confounded by different feature extractors, default image resolutions, and hardware/software platforms.",
+      "Only a small subset of detection papers discuss running time, and those that do rarely give a full picture of the speed/accuracy trade-off.",
+      "Accuracy metrics such as mAP alone do not capture deployment constraints like latency and memory footprint."
+    ],
+    "problemTags": ["benchmark-inconsistency", "speed-latency", "deployability"],
+    "evidence": [
+      { "quote": "comparisons are difficult due to different base feature extractors (e.g., VGG, Residual Networks), different default image resolutions, as well as different hardware and software platforms.", "location": "Abstract" },
+      { "quote": "Unfortunately, only a small subset of papers (e.g., RFCN [6], SSD [26] YOLO [29]) discuss running time in any detail.", "location": "Abstract" },
+      { "quote": "Standard accuracy metrics, such as mean average precision (mAP), do not tell the entire story, since for real deployments of computer vision systems, running time and memory usage are also critical.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper surveys the R-CNN lineage up to the three dominant meta-architectures (SSD, Faster R-CNN, R-FCN) and argues they share a common design, which makes a unified, decoupled comparison of meta-architecture and feature extractor possible.",
+    "relatedWork": [
+      { "name": "Fast R-CNN", "relation": "prior stage that removed duplicated computation by sharing feature extraction across crops", "quote": "Fast R-CNN [10] alleviated this problem by pushing the entire image once through a feature extractor then cropping from an intermediate layer so that crops share the computation load of feature extraction.", "location": "Sec 2" },
+      { "name": "Faster R-CNN", "relation": "dominant two-stage meta-architecture and baseline", "quote": "half of the submissions to the COCO object detection server as of November 2016 are reported to be based on the Faster R-CNN system in some way.", "location": "Sec 2.1.2" },
+      { "name": "SSD", "relation": "one-stage meta-architecture compared in the study", "quote": "we use the term SSD to refer broadly to architectures that use a single feed-forward convolutional network to directly predict classes and anchor offsets without requiring a second stage per-proposal classification operation", "location": "Sec 2.1.1" },
+      { "name": "R-FCN", "relation": "two-stage meta-architecture designed to minimize per-region computation", "quote": "the R-FCN model (using Resnet 101) could achieve comparable accuracy to Faster R-CNN often at faster running times.", "location": "Sec 2.2" }
+    ],
+    "evidence": [
+      { "quote": "However, when it comes to speed and memory, apples-to-apples comparisons have been harder to come by.", "location": "Sec 3" },
+      { "quote": "Prior works have relied on different deep learning frameworks (e.g., DistBelief [7], Caffe [18], Torch [4]) and different hardware.", "location": "Sec 3" }
+    ]
+  },
+  "solution": {
+    "summary": "The authors implement SSD, Faster R-CNN and R-FCN as meta-architectures in one TensorFlow platform and sweep feature extractors, input resolutions, output strides, proposal counts and loss settings, tracing an accuracy/speed optimality frontier on a single fixed hardware/software setup.",
+    "approach": "Decouple meta-architecture from feature extractor in a unified implementation and benchmark ~147 configurations under one timing protocol to map the speed/accuracy/memory trade-off.",
+    "components": [
+      "Unified TensorFlow implementations of SSD, Faster R-CNN and R-FCN",
+      "Six feature extractors: VGG-16, ResNet-101, Inception v2, Inception v3, Inception ResNet v2, MobileNet",
+      "Configurable knobs: proposals (10-300), input resolution (M=300 or 600), output stride (8 or 16)",
+      "Fixed benchmarking protocol: single-batch GPU timing, NMS included, memory via tfprof",
+      "Diversity-pruned five-model Faster R-CNN ensemble for the 2016 COCO challenge"
+    ],
+    "solutionTags": ["two-stage", "one-stage", "real-time-backbone", "multi-scale"],
+    "evidence": [
+      { "quote": "We present a unified implementation of the Faster R-CNN [31], R-FCN [6] and SSD [26] systems, which we view as “meta-architectures”", "location": "Abstract" },
+      { "quote": "we have created a detection platform in Tensorflow [1] and have recreated training pipelines for SSD, Faster R-CNN and R-FCN meta-architectures on this platform.", "location": "Sec 3" },
+      { "quote": "we vary this number of proposals between 10 and 300 in order to explore this trade-off.", "location": "Sec 3.1.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "All models are trained on COCO and timed on one Titan X machine with the official COCO API metric (mAP averaged over IoU 0.5:0.95), reporting an optimality frontier of fastest, sweet-spot and most accurate configurations plus an ensemble entry for the 2016 COCO challenge.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "mAP", "value": "35.7", "split": "minival, Faster R-CNN + Inception ResNet V2, 300 proposals", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "mAP", "value": "35.6", "split": "test-dev, Faster R-CNN + Inception ResNet V2, 300 proposals", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "mAP", "value": "32", "split": "minival, Faster R-CNN + ResNet-101, 100 proposals (sweet spot)", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "mAP", "value": "30.4", "split": "minival, R-FCN + ResNet-101, 300 proposals", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "mAP", "value": "19.3", "split": "minival, SSD + MobileNet, low resolution (fastest)", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "mAP@[.5:.95]", "value": "41.3", "split": "test-challenge, five-model ensemble", "location": "Table 4" },
+      { "dataset": "COCO", "metric": "AP small", "value": "0.231", "split": "test-challenge, five-model ensemble", "location": "Table 4" },
+      { "dataset": "COCO", "metric": "mAP (ensemble vs single model gain)", "value": "0.416 vs 0.347", "split": "test-dev", "location": "Table 6" }
+    ],
+    "baselines": ["Faster R-CNN", "R-FCN", "SSD", "MSRA2015 ensemble", "Trimps-Soushen"],
+    "evidence": [
+      { "quote": "Our model attains 41.3% mAP@[.5, .95] on the COCO test set", "location": "Sec 4.2" },
+      { "quote": "we obtain 96% of the accuracy of using 300 proposals by using only 50 proposals, which reduces running time by a factor of 3.", "location": "Figure 6" },
+      { "quote": "decreasing resolution by a factor of two in both dimensions consistently lowers accuracy (by 15.88% on average) but also reduces inference time by a relative factor of 27.4% on average.", "location": "Sec 4.1.5" }
+    ]
+  },
+  "limitations": {
+    "summary": "The study focuses only on test-time behavior, timings include CPU post-processing that caps the fastest models at 25 FPS, some meta-architecture/feature-extractor combinations are missing, and the numbers may not be comparable to speeds reported elsewhere.",
+    "items": [
+      "Training cost is out of scope; only test-time performance is analyzed.",
+      "Post-processing (NMS on CPU) dominates the fastest models and caps the maximum framerate at 25 FPS.",
+      "No R-FCN results for VGG or Inception V3, no SSD results for Inception V3, and some high-resolution SSD models had not converged.",
+      "Timings may not be directly comparable to speeds reported in other papers due to hardware/software/batch-size differences."
+    ],
+    "evidence": [
+      { "quote": "we focus only on test-time performance and not on how long these models take to train.", "location": "Abstract" },
+      { "quote": "Postprocessing can take up the bulk of the running time for the fastest models at ∼ 40ms and currently caps our maximum framerate to 25 frames per second.", "location": "Sec 3.5" },
+      { "quote": "while our timing results are comparable amongst each other, they may not be directly comparable to other reported speeds in the literature.", "location": "Sec 3.5" },
+      { "quote": "As of the time of this submission, we do not have R-FCN results for VGG or Inception V3 feature extractors.", "location": "Sec 3.6.2" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Finish running and fold in the high-resolution SSD configurations that had not yet converged at submission time.", "quote": "models for a small subset of experimental configurations (namely some of the high resolution SSD models) have yet to converge, so we have for now omitted them from analysis.", "location": "Sec 4" }
+  ],
+  "technical": {
+    "datasets": ["COCO", "ImageNet"],
+    "backbones": ["VGG-16", "ResNet-101", "Inception v2", "Inception v3", "Inception ResNet v2", "MobileNet"],
+    "models": ["Faster R-CNN", "R-FCN", "SSD"],
+    "algorithms": ["non-max suppression", "Smooth L1 (Huber) loss", "argmax matching", "asynchronous SGD", "RMSProp", "atrous convolutions", "batch normalization", "online hard example mining"],
+    "metrics": ["mAP@[.5:.95]", "mAP@.5", "mAP@.75", "AP small", "GPU ms", "FLOPs", "memory (Mb)"],
+    "equations": [
+      { "name": "anchor loss", "expr": "L(a,I;theta) = alpha * 1[a is positive] * l_loc(phi(ba;a) - f_loc(I;a;theta)) + beta * l_cls(ya, f_cls(I;a;theta))", "location": "Sec 2" },
+      { "name": "box encoding", "expr": "phi(ba;a) = [10*xc/wa, 10*yc/ha, 5*log w, 5*log h]", "location": "Sec 3.2.2" },
+      { "name": "COCO mAP", "expr": "mAP averaged over IoU thresholds in [0.5 : 0.05 : 0.95]", "location": "Sec 3.4" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "consumer photo products", "detail": "Detectors are deployed in products such as Google Photos and Pinterest Visual Search.", "quote": "are now good enough to be deployed in consumer products (e.g., Google Photos, Pinterest Visual Search) and some have been shown to be fast enough to be run on mobile devices.", "location": "Introduction" },
+      { "domain": "autonomous driving", "detail": "Self-driving cars are cited as a setting that requires real-time detection performance.", "quote": "cars require real time performance.", "location": "Introduction" },
+      { "domain": "server-side production", "detail": "Large-scale production systems optimize for accuracy subject to throughput constraints.", "quote": "Server-side production systems, like those used in Google, Facebook or Snapchat, have more leeway to optimize for accuracy, but are still subject to throughput constraints.", "location": "Introduction" },
+      { "domain": "mobile devices", "detail": "One end of the trade-off curve is a detector fast enough to run on a mobile device.", "quote": "we present a detector that achieves real time speeds and can be deployed on a mobile device.", "location": "Abstract" }
+    ],
+    "deploymentClaims": [
+      "Single-model Faster R-CNN with Inception ResNet V2 reaches 35.6 mAP on COCO test-dev at close to one second per image.",
+      "Faster R-CNN with 50 proposals keeps 96% of the 300-proposal accuracy while cutting runtime threefold.",
+      "Post-processing caps the fastest configurations at 25 frames per second.",
+      "The winning 2016 COCO challenge entry is an ensemble of five Faster R-CNN models at 41.3% mAP."
+    ],
+    "evidence": [
+      { "quote": "we present a detector that achieves real time speeds and can be deployed on a mobile device.", "location": "Abstract" },
+      { "quote": "We hope this will help practitioners choose an appropriate method when deploying object detection in the real world.", "location": "Conclusion" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2017.351",
+    "arxivUrl": "https://arxiv.org/abs/1611.10012",
+    "venue": "CVPR 2017",
+    "pdfUrl": "https://arxiv.org/pdf/1611.10012"
+  }
+}

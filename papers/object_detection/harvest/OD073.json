@@ -1,0 +1,137 @@
+{
+  "id": "OD073",
+  "arxiv": "2105.04206",
+  "title": "You Only Learn One Representation: Unified Network for Multiple Tasks",
+  "year": 2021,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "A trained CNN is usually built for a single objective and its extracted features adapt poorly to other problems, because the implicit knowledge abundant in the network is never used; naively sharing one network across tasks can also drag overall performance below separately trained models.",
+    "statements": [
+      "A CNN trained for one objective usually fulfills only that objective, and its features are poorly adaptable to other types of problems.",
+      "Implicit knowledge, which is abundant in CNNs, is not used by conventional feature extraction.",
+      "There is no systematic definition of how implicit learning operates and how to obtain implicit knowledge.",
+      "Joint multi-task optimization can make overall performance worse than training models per task and then integrating them.",
+      "Kernel space misalignment is a frequent problem in multi-task and multi-head neural networks."
+    ],
+    "problemTags": ["multi-task-interference", "single-task-models"],
+    "evidence": [
+      { "quote": "However, a trained convolutional neural network (CNN) model can usually only fulfill a single objective.", "location": "Introduction" },
+      { "quote": "The main cause for the above problem is that we only extract features from neurons, and implicit knowledge, which is abundant in CNN, is not used.", "location": "Introduction" },
+      { "quote": "In multi-task and multi-head neural networks, kernel space misalignment is a frequent problem", "location": "Sec 3.2" },
+      { "quote": "The above situation will cause the final overall performance to be worse than training multiple models individually and then integrating them.", "location": "Sec 5.4" }
+    ]
+  },
+  "background": {
+    "summary": "The paper reviews explicit deep learning (Transformers, non-local networks, input-dependent kernels), implicit deep learning (implicit neural representations, deep equilibrium models) and knowledge modeling (sparse representation, memory networks), and builds on the authors' earlier compressive-sensing and sparse-coding work; the claimed gap is that implicit and explicit knowledge are not integrated in one network.",
+    "relatedWork": [
+      { "name": "Transformer", "relation": "explicit deep learning via query/key/value self-attention", "quote": "Transformer [14, 5, 20] is one way, and it mainly uses query, key, or value to obtain self-attention.", "location": "Sec 2.1" },
+      { "name": "Non-local networks", "relation": "another explicit route to pair-wise attention in time and space", "quote": "Non-local networks [21, 4, 24] is another way to obtain attention, and it mainly extracts pair-wise attention in time and space.", "location": "Sec 2.1" },
+      { "name": "Implicit neural representations / deep equilibrium models", "relation": "prior implicit deep learning methods", "quote": "The methods that belong to the category of implicit deep learning are mainly implicit neural representations [11] and deep equilibrium models [2, 3, 19].", "location": "Sec 2.2" },
+      { "name": "Sparse representation and memory networks", "relation": "prior knowledge-modeling approaches for integrating implicit and explicit knowledge", "quote": "sparse representation [1, 23] and memory networks [22, 12] are mainly included", "location": "Sec 2.3" },
+      { "name": "Feature Pyramid Networks", "relation": "target of the proposed feature-alignment application", "quote": "the feature alignment of large objects and small objects in feature pyramid networks (FPN) [8]", "location": "Sec 3.2" },
+      { "name": "Scaled-YOLOv4 (YOLOv4-CSP)", "relation": "baseline architecture for all experiments", "quote": "We choose YOLOv4CSP [15] as the baseline model in the experiments", "location": "Sec 5.1" }
+    ],
+    "evidence": [
+      { "quote": "The way to construct the above unified networks is to combine compressive sensing and deep learning, and the main theoretical basis can be found in our previous work [16, 17, 18].", "location": "Introduction" },
+      { "quote": "In [16], we prove the effectiveness of reconstructing residual error by extended dictionary.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "The paper proposes YOLOR, a unified network that trains explicit knowledge f_theta(x) together with an implicit representation g_phi(z) of constant tensors, combined through operators such as addition, multiplication and concatenation, so that one representation can serve detection and other tasks.",
+    "approach": "Model an implicit latent code jointly with the explicit features and merge them with operators chosen for the physical meaning of each layer, giving a single multi-purpose representation at almost no extra inference cost.",
+    "components": [
+      "implicit representation modeled as vector, neural network, or matrix factorization over a latent code z",
+      "kernel space alignment: adding/multiplying outputs with the implicit representation to translate, rotate and scale output kernel spaces",
+      "prediction refinement of detection outputs, learning (x, y), (w, h), objectness and class patterns per anchor",
+      "canonical multi-task representation via joint detection and classification (JDC) and joint detection and embedding (JDE)",
+      "operator selection among addition, multiplication and concatenation matched to each layer's semantics",
+      "closed-form folding of the implicit term into following convolution weights at inference time"
+    ],
+    "solutionTags": ["implicit-knowledge", "multi-task-learning", "kernel-space-alignment"],
+    "evidence": [
+      { "quote": "In this paper, we propose a unified network to encode implicit knowledge and explicit knowledge together, just like the human brain can learn knowledge from normal learning as well as subconsciousness learning.", "location": "Abstract" },
+      { "quote": "The unified network can generate a unified representation to simultaneously serve various tasks.", "location": "Abstract" },
+      { "quote": "We can perform kernel space alignment, prediction refinement, and multi-task learning in a convolutional neural network.", "location": "Abstract" },
+      { "quote": "we can perform addition and multiplication of output feature and implicit representation, so that Kernel space can be translated, rotated, and scaled to align each output kernel space of neural networks", "location": "Sec 3.2" },
+      { "quote": "the formation of implicit information has almost no effect on the computational complexity of our algorithm.", "location": "Sec 4.4" }
+    ]
+  },
+  "experiments": {
+    "summary": "All experiments use MS COCO with a YOLOv4-CSP-fast baseline at 640x640 (and YOLOv4-P6-light at 1280x1280): ablations isolate feature alignment, prediction refinement, combining operators, implicit-modeling form and multi-task joint learning, and a final table compares YOLOR with state-of-the-art detectors on val and test splits.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "47.9", "split": "val, YOLOv4-CSP-fast + feature alignment (vs 47.8 baseline), 640", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "48.3", "split": "val, joint detection and embedding + implicit (JDE + iJDE), 640", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "52.5", "split": "val, YOLOv4-P6-light fine-tuned with implicit knowledge, 1280", "location": "Table 8" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "55.4", "split": "val, YOLOR-D6, 1280", "location": "Table A2" },
+      { "dataset": "MS COCO", "metric": "AP50", "value": "73.5", "split": "val, YOLOR-D6, 1280", "location": "Table A2" },
+      { "dataset": "MS COCO", "metric": "FPS", "value": "31", "split": "Titan RTX batch 32, YOLOR-D6, 1280", "location": "Table A2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "55.4", "split": "test, YOLOR-D6, 1280", "location": "Table A3" }
+    ],
+    "baselines": ["YOLOv4-CSP", "YOLOv4-CSP-fast", "YOLOv4-P6-light", "Scaled-YOLOv4", "EfficientDet", "Swin Transformer", "CenterNet2", "CopyPaste", "Ultralytics YOLOv5 (U5R5)", "PP-YOLOv2"],
+    "evidence": [
+      { "quote": "After using implicit representation for feature space alignment, all performances, including APS , APM , and APL , have been improved by about 0.5%, which is a very significant improvement.", "location": "Sec 5.2" },
+      { "quote": "By introducing the unified network of implicit knowledge, we still achieve results that are sufficient to match the state-of-the-art methods.", "location": "Sec 5.8" },
+      { "quote": "YOLOR-E6 get better AP than Y4-P6 with 5% less computation, 10% fewer #parameters, and 15% faster inference speed.", "location": "Table A2" },
+      { "quote": "Our experiments adopted the MSCOCO dataset [9]", "location": "Sec 5" }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper has no dedicated limitations section; evident constraints are that the combining operator must match the layer's physical meaning (multiplication hurts feature alignment), multi-task training without implicit representation can end up worse than separate models, and every experiment stays on MS COCO with YOLOv4-family models.",
+    "items": [
+      "The multiplication operator degrades feature-alignment performance unless the feature space is first split per anchor cluster.",
+      "Gains in the core ablations are modest, around 0.5% AP for feature alignment.",
+      "Joint multi-task optimization can perform worse than separately trained single-task models when no implicit representation is introduced.",
+      "Evaluation is limited to MS COCO; no other detection datasets are reported."
+    ],
+    "evidence": [
+      { "quote": "we see that addition and concatenation both improve performance, while multiplication actually degrades performance.", "location": "Sec 5.5" },
+      { "quote": "The above situation will cause the final overall performance to be worse than training multiple models individually and then integrating them.", "location": "Sec 5.4" },
+      { "quote": "Our experiments adopted the MSCOCO dataset [9]", "location": "Sec 5" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Extend the unified training beyond vision tasks to multi-modal and multi-task learning.",
+      "quote": "In the future, we shall extend the training to multi-modal and multi-task, as shown in Figure 12.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Further explore the potential of implicit representation for downstream tasks.",
+      "quote": "Meanwhile, we confirmed the potential of implicit representation in the future.",
+      "location": "Sec 5.6"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO"],
+    "backbones": ["YOLOv4-CSP"],
+    "models": ["YOLOR-P6", "YOLOR-W6", "YOLOR-E6", "YOLOR-D6", "YOLOv4-CSP-fast", "YOLOv4-P6-light", "YOLOv4-CSP-SSS", "YOLOv4-CSP-SSSS", "Ultralytics YOLOv5 (U5R5)"],
+    "algorithms": ["kernel space alignment", "prediction refinement", "implicit knowledge modeling (vector / neural network / matrix factorization)", "manifold space reduction", "joint detection and classification (JDC)", "joint detection and embedding (JDE)", "addition / multiplication / concatenation operators"],
+    "metrics": ["AP", "AP50", "AP75", "AP_S", "AP_M", "AP_L", "FPS", "FLOPs", "parameter count"],
+    "equations": [
+      { "name": "conventional network objective", "expr": "y = f_theta(x) + epsilon, minimize epsilon", "location": "Eqn (1), Sec 4.1" },
+      { "name": "unified network objective", "expr": "y = f_theta(x) + epsilon + g_phi(epsilon_ex(x), epsilon_im(z)), minimize epsilon + g_phi(epsilon_ex(x), epsilon_im(z))", "location": "Eqn (2), Sec 4.1" },
+      { "name": "multi-task prediction over implicit codes", "expr": "d_Psi(f_theta(x), g_Phi(z), y) = 0", "location": "Eqn (5), Sec 4.1" },
+      { "name": "folding multiplication into a following convolution", "expr": "x_(l+1) = sigma(W_l (g_phi(z) x_l) + b_l)", "location": "Eqn (9), Sec 4.4" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "YOLOR-D6 runs at 31 FPS on a Titan RTX (batch 32, 1280 input).",
+      "YOLOR-D6 is 88% faster than YOLOv4-P7 at nearly the same AP.",
+      "YOLOR-Y4-SSSS is 39% faster than Ultralytics YOLOv5-S with slightly better AP.",
+      "Implicit knowledge adds less than 0.01% parameters and FLOPs to the baseline."
+    ],
+    "evidence": [
+      { "quote": "YOLOR-D6 get 88% faster inference speed than Y4-P7 with almost same AP.", "location": "Table A3" },
+      { "quote": "YOLOR-Y4-SSSS get 0.1% better AP than U5R5-S with 39% faster inference speed.", "location": "Table A1" },
+      { "quote": "we only increased the amount of parameters and calculations by less than one ten thousandth", "location": "Sec 5.7" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2105.04206",
+    "arxivUrl": "https://arxiv.org/abs/2105.04206",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/2105.04206"
+  }
+}

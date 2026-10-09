@@ -1,0 +1,132 @@
+{
+  "id": "OD040",
+  "arxiv": "1811.08883",
+  "title": "Rethinking ImageNet Pre-training",
+  "year": 2018,
+  "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+  "problem": {
+    "summary": "The field assumes detectors must be fine-tuned from ImageNet-pretrained networks and that from-scratch training is non-trivial, while the actual detection gains from ever-larger pre-training sets are small and diminishing. Comparisons are also confounded because the cost of ImageNet pre-training is usually ignored and short schedules hide what from-scratch training really needs.",
+    "statements": [
+      "Most modern object detectors follow the pre-training and fine-tuning paradigm, and the belief that training from scratch is non-trivial became conventional wisdom.",
+      "Improvements on object detection from large-scale pre-training are relatively small (about +1.5 AP on COCO with 3000x larger pre-training data) and the marginal benefit diminishes rapidly.",
+      "Controlled comparisons using short training schedules can veil the true behavior of training from random initialization because the cost of ImageNet pre-training is often ignored.",
+      "Prior from-scratch detectors (DSOD, DetNet, CornerNet) rely on detection-specific architectures, leaving the role of pre-training on unspecialized architectures untested."
+    ],
+    "problemTags": ["convergence", "benchmark-inconsistency", "pretraining-dependence"],
+    "evidence": [
+      { "quote": "As modern object detectors [9, 15, 8, 36, 35, 28, 26, 13] evolved under the pre-training paradigm, the belief that training from scratch is non-trivial became conventional wisdom.", "location": "Sec 2" },
+      { "quote": "the improvements on object detection are relatively small (on the scale of +1.5 AP on COCO with 3000× larger pre-training data [30]).", "location": "Sec 2" },
+      { "quote": "As the cost of ImageNet pre-training is often ignored when studying the target task, ‘controlled’ comparisons with a short training schedule can veil the true behavior of training from random initialization.", "location": "Introduction" },
+      { "quote": "However, in [41, 25, 22] there is little evidence that these specialized architectures are required for models to be trained from scratch.", "location": "Sec 2" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on the R-CNN/Fast R-CNN/Faster R-CNN lineage of fine-tuned detectors, on Mask R-CNN + FPN + Detectron as the experimental baseline, on GroupNorm/SyncBN for small-batch normalization, and on earlier from-scratch work (DSOD, DetNet, CornerNet) plus early analyses showing scratch training can reach ~90% of fine-tuning accuracy.",
+    "relatedWork": [
+      { "name": "R-CNN / OverFeat", "relation": "origin of the fine-tuning-from-ImageNet paradigm", "quote": "The initial breakthrough of applying deep learning to object detection (e.g., R-CNN [9] and OverFeat [40]) were achieved by fine-tuning networks that were pre-trained for ImageNet classification.", "location": "Sec 2" },
+      { "name": "Agrawal et al. analysis", "relation": "earlier evidence foreshadowing that scratch training can nearly match fine-tuning", "quote": "later analysis [1] found that pre-training plays an important role in detector accuracy when training data is limited, but also illustrated that training from scratch on more detection data is possible and can achieve 90% of the fine-tuning accuracy, foreshadowing our results.", "location": "Sec 2" },
+      { "name": "DSOD", "relation": "prior from-scratch detector with a specialized architecture", "quote": "Shen et al. [41] argued for a set of new design principles to obtain a detector that is optimized for the accuracy when trained from scratch.", "location": "Sec 2" },
+      { "name": "DetNet and CornerNet", "relation": "other detection-specific from-scratch architectures", "quote": "DetNet [25] and CornerNet [22] also present results when training detectors from scratch.", "location": "Sec 2" },
+      { "name": "Mask R-CNN / Detectron", "relation": "baseline system and hyper-parameters used throughout", "quote": "our baselines and hyper-parameters follow Mask R-CNN [13] in the publicly available code of Detectron [10]", "location": "Sec 4" },
+      { "name": "Group Normalization", "relation": "normalization that replaces frozen BN to enable scratch training", "quote": "GN’s accuracy is insensitive to batch sizes [48].", "location": "Sec 3.1" }
+    ],
+    "evidence": [
+      { "quote": "Following these results, most modern object detectors and many other computer vision algorithms employ the", "location": "Sec 2" },
+      { "quote": "Our work demonstrates that it is often possible to match fine-tuning accuracy when training from scratch even without making any architectural specializations.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "The paper's method is a controlled experimental recipe: train standard Mask R-CNN (ResNet/ResNeXt + FPN) from random initialization with only two necessary changes - appropriate normalization (GroupNorm or SyncBN, or normalized initialization for VGG) and training schedules long enough (5x/6x) to compensate for the missing pre-training - while keeping architectures and hyper-parameters identical to the fine-tuned counterparts.",
+    "approach": "Train unmodified baseline detectors from random initialization with batch-size-independent normalization and 5x-6x longer schedules, then compare against identical ImageNet-pretrained systems under controlled hyper-parameters.",
+    "components": [
+      "GroupNorm or Synchronized BatchNorm replacing all frozen-BN layers",
+      "normalized (MSRA) initialization enabling VGG nets to train without BN/GN",
+      "extended training schedules (2x up to 6x, and 9x/11x in enhanced settings)",
+      "identical architectures and hyper-parameters for scratch and pre-trained runs",
+      "sample-count analysis (images, instances, pixels) to argue fairness of longer training",
+      "evaluations across bbox AP, mask AP, keypoint AP, augmentation and cascade variants"
+    ],
+    "solutionTags": ["random-init-training", "long-schedule", "two-stage"],
+    "evidence": [
+      { "quote": "We report competitive results on object detection and instance segmentation on the COCO dataset using standard models trained from random initialization.", "location": "Abstract" },
+      { "quote": "We find that there is no fundamental obstacle preventing us from training from scratch, if: (i) we use normalization techniques appropriately for optimization, and (ii) we train the models sufficiently long to compensate for the lack of pre-training", "location": "Introduction" },
+      { "quote": "We describe the only two modifications that we find to be necessary, related to model normalization and training length", "location": "Sec 3" },
+      { "quote": "Our experiments show that both GN and SyncBN can enable detection models to train from scratch.", "location": "Sec 3.1" },
+      { "quote": "we argue that models trained from scratch must be trained for longer than typical fine-tuning schedules.", "location": "Sec 3.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "Mask R-CNN with ResNet-50/101/ResNeXt-152 and VGG-16 backbones is trained on COCO train2017 from random init versus ImageNet init across 2x-6x schedules and evaluated on val2017 (bbox, mask, keypoint AP), plus reduced-data regimes (35k, 10k, 3.5k, 1k images) and PASCAL VOC; the best scratch model is also submitted to the COCO 2018 challenge.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "bbox AP", "value": "41.3", "split": "val2017, ResNet-50-FPN GN, random init, 6x schedule", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "bbox AP", "value": "41.1", "split": "val2017, ResNet-50-FPN GN, ImageNet pre-training", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "bbox AP", "value": "42.7", "split": "val2017, ResNet-101-FPN GN, random init, 6x schedule", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "bbox AP", "value": "50.9", "split": "val2017, ResNeXt-152 8x32d FPN GN, random init", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "mask AP", "value": "43.2", "split": "val2017, ResNeXt-152, random init", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "bbox AP", "value": "51.3", "split": "2018 test-challenge, ResNeXt-152 random init submission", "location": "Sec 5.1" },
+      { "dataset": "MS COCO", "metric": "keypoint AP", "value": "65.6", "split": "val2017, R50-FPN GN random init vs 65.5 pre-trained, 2x schedule", "location": "Fig 6" },
+      { "dataset": "MS COCO", "metric": "bbox AP", "value": "35.2", "split": "val2017, VGG-16 Faster R-CNN from scratch, 11x schedule", "location": "Sec 5.1" },
+      { "dataset": "MS COCO", "metric": "bbox AP", "value": "25.9", "split": "val2017, 10k training images, random init (26.0 with pre-training)", "location": "Fig 7" },
+      { "dataset": "PASCAL VOC", "metric": "mAP", "value": "77.6", "split": "val2012, Faster R-CNN R101-FPN GN from scratch (82.7 with pre-training)", "location": "Sec 5.2" }
+    ],
+    "baselines": ["Mask R-CNN with ImageNet pre-training", "Faster R-CNN with ImageNet pre-training", "DSOD", "CornerNet"],
+    "evidence": [
+      { "quote": "To push the envelope we demonstrate 50.9 AP on COCO object detection without using any external data", "location": "Abstract" },
+      { "quote": "models trained from scratch can catch up in accuracy with ones that are fine-tuned.", "location": "Sec 5.1" },
+      { "quote": "training from scratch is better than fine-tuning by noticeable margins (1.0 or 0.8 AP).", "location": "Sec 5.1" },
+      { "quote": "The result is 65.6 vs. 65.5 (random initialization vs. pretraining) with 2× schedules.", "location": "Fig 6" }
+    ]
+  },
+  "limitations": {
+    "summary": "From-scratch training needs roughly three times more target-task iterations (extra compute), it breaks down below roughly 10k COCO images and on PASCAL VOC, and it is impossible with vanilla BatchNorm under typical detection batch sizes unless GN/SyncBN or special initialization is used.",
+    "items": [
+      "Requires much longer training: 540k iterations (6x schedule), and up to 9x/11x in enhanced or VGG settings.",
+      "Breaks down in very small data regimes: with 1k COCO images, scratch reaches only 3.5-5.4 AP vs 9.9 AP with pre-training; the breakdown point lies between 3.5k and 10k COCO images.",
+      "On PASCAL VOC, training from scratch gives 77.6 mAP versus 82.7 mAP with ImageNet pre-training and never catches up.",
+      "Small batch sizes degrade BatchNorm, so frozen-BN style training from scratch is invalid and normalization must be changed.",
+      "Training for longer on the small learning rate stage often leads to overfitting."
+    ],
+    "evidence": [
+      { "quote": "the model with ImageNet pre-training has 9.9 AP vs. the from scratch model’s 3.5 AP.", "location": "Sec 5.2" },
+      { "quote": "Its counterpart trained from scratch in VOC has 77.6 mAP at 144k iterations and does not catch up even training longer.", "location": "Sec 5.2" },
+      { "quote": "We find that training longer for the first (large) learning rate is useful, but training for longer on small learning rates often leads to overfitting.", "location": "Sec 4" },
+      { "quote": "small batch sizes severely degrade the accuracy of BN [19, 34, 48].", "location": "Sec 3.1" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Prefer collecting and training on target-task data over ever-larger generic pre-training sets as compute and data grow.",
+      "quote": "looking forward, when the community will proceed with more data and faster computation, our study suggests that collecting data and training on the target tasks is a solution worth considering",
+      "location": "Introduction"
+    },
+    {
+      "direction": "Shift data-collection effort into the target domain if classification-level pre-training gains keep diminishing.",
+      "quote": "If the gain of large-scale classification-level pre-training becomes exponentially diminishing [44, 30], it would be more effective to collect data in the target domain.",
+      "location": "Sec 6"
+    },
+    {
+      "direction": "Re-evaluate self-supervised and other pre-trained features against random-initialization baselines.",
+      "quote": "our study suggests that the community should be more careful when evaluating pre-trained features",
+      "location": "Sec 6"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "ImageNet", "PASCAL VOC"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt-152 8x32d", "VGG-16", "FPN"],
+    "models": ["Mask R-CNN", "Faster R-CNN", "Cascade R-CNN", "RPN", "DSOD", "CornerNet"],
+    "algorithms": ["GroupNorm", "Synchronized BatchNorm", "frozen BN", "MSRA initialization", "linear warm-up", "synchronized SGD", "scale augmentation", "test-time augmentation", "horizontal flipping"],
+    "metrics": ["bbox AP", "mask AP", "AP50", "AP75", "keypoint AP", "mAP"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [],
+    "evidence": []
+  },
+  "citations": {
+    "doi": "10.1109/iccv.2019.00502",
+    "arxivUrl": "https://arxiv.org/abs/1811.08883",
+    "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+    "pdfUrl": "https://arxiv.org/pdf/1811.08883"
+  }
+}

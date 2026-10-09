@@ -1,0 +1,131 @@
+{
+  "id": "OD078",
+  "arxiv": "2109.07107",
+  "title": "Anchor DETR: Query Design for Transformer-Based Object Detection",
+  "year": 2021,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "Learned object queries in DETR-like detectors have no explicit physical meaning: each query's prediction slots lack a specific mode, queries cover very large areas (positional ambiguity), which makes optimization hard; additionally standard transformer attention consumes a lot of GPU memory.",
+    "statements": [
+      "Each learned embedding does not have an explicit physical meaning and cannot be explained in terms of where it focuses.",
+      "The prediction slot of each object query does not have a specific mode, so each query does not focus on a specific region.",
+      "One region may contain multiple objects, which a single prediction per position cannot handle.",
+      "Self-attention has high complexity and cannot well deal with a very large number of queries and keys."
+    ],
+    "problemTags": ["query-interpretability", "slow-convergence", "attention-memory"],
+    "evidence": [
+      { "quote": "each learned embedding does not have an explicit physical meaning and we cannot explain where it will focus on.", "location": "Abstract" },
+      { "quote": "It is difficult to optimize as the prediction slot of each object query does not have a specific mode.", "location": "Abstract" },
+      { "quote": "This positional ambiguity, i.e., the object query does not focus on a specific region, makes it hard to optimize.", "location": "Introduction" },
+      { "quote": "The transformer will cost a lot of GPU memory which may limit it using the high-resolution feature or other extensions.", "location": "Sec Row-Column Decoupled Attention" }
+    ]
+  },
+  "background": {
+    "summary": "The paper reviews CNN anchors (anchor boxes vs anchor points), the DETR transformer detector, Deformable DETR, SMCA, concurrent Conditional DETR, and efficient attention families (linear-complexity vs restricted-attention), noting that Conditional DETR still keeps learned object queries and does not address multiple predictions per position or attention variants.",
+    "relatedWork": [
+      { "name": "DETR", "relation": "base paradigm whose learned object queries are uninterpretable", "quote": "It uses a set of learned object queries to reason about the relations of the objects and the global image context to output the final predictions set.", "location": "Introduction" },
+      { "name": "Deformable DETR", "relation": "uses deformable sampling and multi-level features to fix slow convergence", "quote": "Zhu et al. (Zhu et al. 2020) propose the Deformable DETR with sampling deformable points of value to the query and using multiple level features to solve the slowly converge speed of the transformer detector.", "location": "Transformer Detector" },
+      { "name": "Conditional DETR", "relation": "concurrent; encodes reference point as position embedding but object queries remain learned embeddings", "quote": "the object queries are still the learned embeddings.", "location": "Transformer Detector" },
+      { "name": "Efficient Attention (linear complexity)", "relation": "computes key/value first for linear complexity but underperforms on DETR-like detectors", "quote": "One method is to compute the key and value first which can lead to linear complexity of the number of the query or key.", "location": "Efficient Attention" },
+      { "name": "Restricted Self-Attention / Deformable Attention / LongFormer", "relation": "restrict the attention region of the key per query", "quote": "Another method is to restrict the attention region of the key for each query instead of the whole region.", "location": "Efficient Attention" },
+      { "name": "Anchor-free detectors (FCOS, Objects as Points)", "relation": "anchor points in CNN detectors that inspire the query design", "quote": "the anchors are highly related to the position and contain interpretable physical meanings.", "location": "Introduction" }
+    ],
+    "evidence": [
+      { "quote": "The self-attention of the transformer has high complexity so that it cannot well deal with a very large number of queries and keys.", "location": "Efficient Attention" },
+      { "quote": "Concurrent with us, the Conditional DETR (Meng et al. 2021) encodes the reference point as the query position embedding.", "location": "Transformer Detector" }
+    ]
+  },
+  "solution": {
+    "summary": "Anchor DETR encodes anchor points (grid or learned, 300 by default) as object queries through a position encoder (two-layer MLP), attaches multiple pattern embeddings (3 by default) per anchor point to predict multiple objects per position, and replaces standard attention with Row-Column Decoupled Attention (RCDA), which decouples keys into row/column features by 1D global average pooling and attends successively.",
+    "approach": "Encode anchor-point coordinates as query position embeddings with shared position encoding, add pattern embeddings for multiple predictions per position, and use row-column decoupled attention to cut memory cost.",
+    "components": [
+      "anchor points: 300 learned points (default) or uniform 17×17 grid points, positions normalized to [0,1]",
+      "query position embedding Qp = g(Posq) with g a small two-layer MLP, sharing the encoding form with key positions",
+      "pattern embeddings Qif = Embedding(Np, C) with Np = 3, shared across queries for translation invariance",
+      "Pattern-Position query Q = Qif_init + Qp with Nq = Np × NA",
+      "Row-Column Decoupled Attention: decouple Kf into row and column features by 1D global average pooling, run row attention then column attention",
+      "1D position encodings for row/column coordinates and DETR-like architecture otherwise (6 encoder/decoder layers, focal loss classification)"
+    ],
+    "solutionTags": ["anchor-points", "transformer-query", "row-column-attention", "set-prediction"],
+    "evidence": [
+      { "quote": "object queries are based on anchor points, which are widely used in CNN-based detectors. So each object query focuses on the objects near the anchor point.", "location": "Abstract" },
+      { "quote": "we improve the object query design by adding multiple patterns to each anchor point so that each anchor point can predict multiple objects.", "location": "Relative Work" },
+      { "quote": "The object queries are the encodings of anchor points' coordinates so that each object query has an explicit physical meaning.", "location": "Relative Work" },
+      { "quote": "It decouples the 2D key feature into the 1D row feature and the 1D column feature, then conducts the row attention and column attention successively.", "location": "Relative Work" },
+      { "quote": "we prefer to use a small MLP network with two linear layers to adapt it additionally.", "location": "Anchor Points to Object Query" },
+      { "quote": "For the property of translation invariance, the patterns are shared for all the object queries.", "location": "Multiple Predictions for Each Anchor Point" }
+    ]
+  },
+  "experiments": {
+    "summary": "Trained on COCO train2017 for 50 epochs (AdamW, 8 GPUs), Anchor DETR compares against DETR (500 epochs), SMCA, Deformable DETR, Conditional DETR and mainstream CNN detectors, and ablates query design, patterns, anchor-point types and attention variants; RCDA cuts training memory from 10.5G to 4.4G at DC5 with equal AP.",
+    "benchmarks": [
+      { "dataset": "MS COCO val2017", "metric": "AP", "value": "44.2", "split": "ResNet-50-DC5, 50 epochs", "location": "Table 2" },
+      { "dataset": "MS COCO val2017", "metric": "AP", "value": "42.1", "split": "ResNet-50-C5, 50 epochs", "location": "Table 2" },
+      { "dataset": "MS COCO val2017", "metric": "AP", "value": "45.1", "split": "ResNet-101-DC5, 50 epochs", "location": "Table 2" },
+      { "dataset": "MS COCO val2017", "metric": "AP50", "value": "64.7", "split": "ResNet-50-DC5, 50 epochs", "location": "Table 2" },
+      { "dataset": "MS COCO val2017", "metric": "APs", "value": "24.7", "split": "ResNet-50-DC5, 50 epochs", "location": "Table 2" },
+      { "dataset": "MS COCO val2017", "metric": "FPS", "value": "19", "split": "ResNet-50-DC5, batch size 1", "location": "Table 1" },
+      { "dataset": "MS COCO val2017", "metric": "training memory", "value": "4.4G", "split": "RCDA with DC5 vs 10.5G standard attention", "location": "Table 6" },
+      { "dataset": "MS COCO val2017", "metric": "AP", "value": "39.3", "split": "ablation baseline without proposed components", "location": "Table 3" }
+    ],
+    "baselines": ["DETR", "SMCA", "Deformable DETR", "Conditional DETR", "RetinaNet", "FCOS", "POTO", "Faster R-CNN", "Cascade R-CNN", "Sparse R-CNN"],
+    "evidence": [
+      { "quote": "it achieves 44.2 AP with 19 FPS on the MSCOCO dataset when using the ResNet50-DC5 feature for training 50 epochs.", "location": "Abstract" },
+      { "quote": "The proposed detector can achieve better performance than DETR with 10× fewer training epochs.", "location": "Main Results" },
+      { "quote": "our detector with a single DC5 feature can achieve better performance than the Deformable DETR and SCMA which use multiple-level features.", "location": "Main Results" },
+      { "quote": "The proposed query design based on anchor points that can predict multiple objects for each position improves the performance from 39.3 AP to 44.2 AP.", "location": "Ablation Study" },
+      { "quote": "RCDA reduces the memory from 10.5G to 4.4G and gets the same performance as the standard attention when using the DC5 feature.", "location": "Ablation Study" },
+      { "quote": "their performance is decreased by about 10 AP compared to the standard attention module.", "location": "Ablation Study" }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper has no limitations section; stated caveats are that linear-complexity attention modules cannot well handle DETR-like detectors, RCDA only saves memory with high-resolution features (roughly same cost on C5), and RCDA does not improve accuracy once the proposed query design is used.",
+    "items": [
+      "Linear-complexity attention modules (Luna, Efficient Attention) drop about 10 AP on DETR-like detectors.",
+      "RCDA gives roughly the same memory cost as standard attention when using the C5 feature; savings come with higher-resolution features.",
+      "With the proposed query design, RCDA matches but does not exceed standard attention accuracy.",
+      "Multiple predictions cannot benefit the original DETR object query, which is not strongly position-related."
+    ],
+    "evidence": [
+      { "quote": "we find that these attention modules cannot well deal with the DETR-like detectors.", "location": "Row-Column Decoupled Attention" },
+      { "quote": "the memory cost is roughly the same when the large side W is equal to 32 which is a typical value for the C5 feature in object detection.", "location": "Memory analysis" },
+      { "quote": "Applying the multiple predictions to the original object query in DETR will not improve the performance.", "location": "Ablation Study" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Serve as a strong simple baseline for research and be useful in practice.",
+      "quote": "We hope the proposed detector can be useful in practice and be a strong simple baseline for research.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO train2017/val2017"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNet-50-DC5", "ResNet-101-DC5"],
+    "models": ["Anchor DETR", "DETR", "Deformable DETR", "Conditional DETR", "SMCA", "Sparse R-CNN", "Cascade R-CNN", "RetinaNet", "FCOS"],
+    "algorithms": ["multi-head self-attention", "cross-attention", "Row-Column Decoupled Attention", "1D global average pooling", "sinusoidal position encoding", "Hungarian bipartite matching", "focal loss", "AdamW"],
+    "metrics": ["AP", "AP50", "AP75", "APs", "APm", "APl", "FPS", "GFLOPs", "GPU memory"],
+    "equations": [
+      { "name": "attention formulation", "expr": "Attention(Q,K,V) = softmax(QK/sqrt(dk))V, Q = Qf + Qp, K = Kf + Kp, V = Vf", "location": "Eqn (1)-(2), Attention Formulation" },
+      { "name": "learned query position embedding", "expr": "Qp = Embedding(Nq, C)", "location": "Eqn (2), Attention Formulation" },
+      { "name": "key position embedding", "expr": "Kp = gsin(Posk)", "location": "Eqn (3), Attention Formulation" },
+      { "name": "anchor-point query encoding", "expr": "Qp = Encode(Posq); Qp = g(Posq), Kp = g(Posk)", "location": "Eqn (4)-(5), Anchor Points to Object Query" },
+      { "name": "pattern embeddings and Pattern-Position query", "expr": "Qif = Embedding(Np, C); Q = Qf_init + Qp, Nq = Np * NA", "location": "Eqn (6)-(7), Multiple Predictions" },
+      { "name": "row-column decoupled attention and memory ratio", "expr": "Ax = softmax(Qx*Kx^T/sqrt(dk)); Z = weightedSum_W(Ax,V); Ay = softmax(Qy*Ky^T/sqrt(dk)); Out = weightedSum_H(Ay,Z); r = W*M/C", "location": "Eqn (8)-(10), RCDA" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": ["44.2 AP with 19 FPS on MSCOCO using ResNet50-DC5 trained for 50 epochs", "RAM-free (no random access of memory), which can be very friendly for hardware in practice"],
+    "evidence": [
+      { "quote": "The RAM-free means the detector will not involve any random access of memory which can be very friendly for hardware in practice.", "location": "Main Results" },
+      { "quote": "The proposed detector is an end-to-end detector with the property of anchor-free, NMS-free, and RAM-free.", "location": "Conclusion" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2109.07107",
+    "arxivUrl": "https://arxiv.org/abs/2109.07107",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/2109.07107"
+  }
+}

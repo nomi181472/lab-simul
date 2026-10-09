@@ -1,0 +1,205 @@
+{
+  "id": "OD068",
+  "arxiv": "2103.09460",
+  "title": "You Only Look One-level Feature",
+  "year": 2021,
+  "venue": "CVPR 2021",
+  "problem": {
+    "summary": "The paper argues FPN's benefit in one-stage detectors comes mainly from its divide-and-conquer treatment of the optimization problem rather than multi-scale feature fusion, yet the multi-level feature paradigm makes detectors complex, memory-hungry and slow; a naive single-level replacement fails because one C5 feature covers only a limited scale range and sparse anchors create an imbalanced number of positive anchors.",
+    "statements": [
+      "Multi-level feature pyramids bring memory burdens, slow detectors down, and complicate detector structure in one-stage detectors like RetinaNet.",
+      "A single C5 feature's receptive field covers only a limited scale range, so objects whose scales mismatch it are detected poorly.",
+      "Collapsing anchors onto one level reduces anchor count from 100k to 5k, and Max-IoU matching then biases positive anchors toward large ground-truth boxes."
+    ],
+    "problemTags": ["scale-variance", "label-assignment", "speed-latency", "deployability"],
+    "evidence": [
+      {
+        "quote": "This paper revisits feature pyramids networks (FPN) for one-stage detectors and points out that the success of FPN is due to its divide-and-conquer solution to the optimization problem in object detection rather than multi-scale feature fusion.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "the multi-level feature paradigm is inevitable to make detectors complex, brings memory burdens, and slows down the detector.",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "the C5 feature's receptive field can only cover a limited scale range, resulting in poor performance if the objects' scales mismatches with the receptive field.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "an imbalance problem for positive anchors. This imbalance makes detectors pay attention to large ground-truth boxes while ignoring the small ones when training.",
+        "location": "Sec 4.2"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on FPN-based dense detectors (RetinaNet, FCOS), single-level predecessors (YOLO/YOLOv2, CornerNet/CenterNet), and DETR's single-C5 set prediction; it claims prior belief over-credits multi-scale fusion and that single-level detectors so far either lag in accuracy, need high-resolution maps, or need long transformer training.",
+    "relatedWork": [
+      {
+        "name": "FPN",
+        "relation": "whose two claimed benefits the paper decouples",
+        "quote": "The most popular way to build feature pyramids is the feature pyramid networks (FPN) [22], which mainly brings two benefits: (1) multi-scale feature fusion: fusing multiple low-resolution and high-resolution feature inputs to obtain better representations",
+        "location": "Introduction"
+      },
+      {
+        "name": "SSD",
+        "relation": "earliest CNN detector performing detection on each feature scale",
+        "quote": "SSD [26] first utilizes multiple-scale features and performs object detection on each scale for different scales objects.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "DETR",
+        "relation": "prior single-C5-feature detector, but with transformers and slow convergence",
+        "quote": "Recently, DETR [4] introduces the transformer [39] to detection and shows that it could achieve state-of-the-art results only use a single C5 feature.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "YOLO / YOLOv2",
+        "relation": "early one-stage detectors using only the last backbone feature",
+        "quote": "YOLO [29] and YOLOv2 [30] only use the last output feature of the backbone. They can be super fast but have to bear a performance decline in detection.",
+        "location": "Sec 2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Compared with SiSo encoders, the MiMo encoder brings enormous memory burdens to the encoder and the decoder(134G vs. 6G) (Figure 3). Moreover, the detector with MiMo encoder runs much slower than the ones with SiSo encoders (13 FPS vs. 34 FPS) (Figure 3).",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "the number of anchors diminish extensively compare to the one in the MiMo encoder, from 100k to 5k, resulting in sparse anchors",
+        "location": "Sec 4.2"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "YOLOF detects on a single C5 feature (stride 32) with two components: a Dilated Encoder that stacks four dilated residual blocks to give the output feature multiple receptive fields covering all object scales, and a Uniform Matching strategy that assigns each ground-truth box the same number (top-4) of positive anchors regardless of size.",
+    "approach": "Replace FPN with a single-level C5 feature plus a dilated-residual encoder for multi-receptive-field context, and balance positive anchors by always matching the k nearest anchors per ground-truth box.",
+    "components": [
+      "Single-level C5 backbone output (downsample rate 32, 2048 channels)",
+      "Dilated Encoder: 1x1/3x3 projector followed by four dilated residual blocks with shortcuts",
+      "Uniform Matching: k nearest anchors per ground-truth box as positives, with IoU ignore thresholds (0.7/0.15)",
+      "RetinaNet-style decoder with unequal head depths and an implicit objectness prediction",
+      "Random image shift (max 32 pixels) with restricted anchor-center shift to improve match quality"
+    ],
+    "solutionTags": ["one-stage", "dynamic-assignment", "anchors", "multi-scale"],
+    "evidence": [
+      {
+        "quote": "We propose You Only Look One-level Feature (YOLOF), which only uses one single C5 feature (with a downsample rate of 32) for detection.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "stack four successive dilated residual blocks with different dilation rates in the 3 × 3 convolution layers to generate output features with multiple receptive fields, covering all objects' scales.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "we propose an Uniform Matching strategy: adopting the k nearest anchor as positive anchors for each ground-truth box, which makes sure that all groundtruth boxes can be matched with the same number of positive anchors uniformly regardless of their sizes (Figure 6).",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "we follow Autoassign [52] and add an implicit objectness prediction (without direct supervision) for each anchor on the regression head. The final classification scores for all predictions are generated by multiplying the classification output with the corresponding implicit objectness.",
+        "location": "Sec 4.3"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "YOLOF is evaluated on COCO against RetinaNet, DETR and YOLOv4, with controlled ablations of Dilated Encoder and Uniform Matching on COCO2017 val using ResNet-50, plus error analysis with TIDE and comparisons of training time/memory.",
+    "benchmarks": [
+      { "dataset": "MS COCO 2017 val", "metric": "AP", "value": "37.7", "split": "1x, ResNet-50", "location": "Table 1" },
+      { "dataset": "MS COCO 2017 val", "metric": "AP", "value": "44.7", "split": "3x, ResNeXt-101, multi-scale training", "location": "Table 1" },
+      { "dataset": "MS COCO 2017 val", "metric": "AP", "value": "47.1", "split": "3x, multi-scale testing", "location": "Table 1" },
+      { "dataset": "MS COCO 2017 val", "metric": "AP", "value": "41.6", "split": "6x (~72 epochs), vs DETR 500 epochs", "location": "Table 2" },
+      { "dataset": "MS COCO test-dev", "metric": "mAP", "value": "44.3", "split": "608x608, 60 fps", "location": "Table 3" },
+      { "dataset": "MS COCO 2017 val", "metric": "FPS", "value": "32", "split": "1x, ResNet-50 (RetinaNet: 13)", "location": "Table 1" },
+      { "dataset": "MS COCO 2017 training", "metric": "training time (hours)", "value": "4.5", "split": "8x2080Ti, 1x schedule", "location": "Table 6" }
+    ],
+    "baselines": ["RetinaNet", "RetinaNet+", "DETR", "YOLOv4", "Faster R-CNN w/ FPN", "ATSS", "Max-IoU matching"],
+    "evidence": [
+      {
+        "quote": "With an image size of 608 × 608, YOLOF achieves 44.3 mAP running at 60 fps on 2080Ti, which is 13% faster than YOLOv4.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Thanks to the single-level feature, YOLOF achieves results on par with RetinaNet+ with a 57% flops reduction (flops for each component in YOLOF are shown in Figure 3) and a 2.5× speed up.",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "These two components improve the original singlelevel detector by 16.6 mAP.",
+        "location": "Table 4"
+      },
+      {
+        "quote": "DETR needs 112.5 hours to converge on COCO with eight 2080Ti GPUs, while YOLOF and RetinaNet+ only need 4.5 hours and 9.8 hours, respectively.",
+        "location": "Appendix A"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "Because detection happens on a stride-32 feature with sparse pre-defined anchors, YOLOF is weaker than its FPN counterpart on small objects, trails YOLOv4 on small objects, lags DETR on large objects, and suffers more missing errors from inflexible anchor placement.",
+    "items": [
+      "Inferior small-object performance versus RetinaNet+ (-3.1 AP) due to the large stride of the C5 feature.",
+      "Less competitive small-object results than YOLOv4 (24.0 vs 26.7 AP) even for YOLOF-DC5.",
+      "Lags DETR on large objects (-3.5 and -2.9 AP) while beating it on small objects.",
+      "Sparse, non-flexible pre-defined anchors cause higher missing error than DETR."
+    ],
+    "evidence": [
+      {
+        "quote": "Due to the large stride (32) of the C5 feature, YOLOF has an inferior performance (−3.1) than RetinaNet+ on small objects.",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "achieves less competitive results on small objects than YOLOv4 (24.0 mAP vs. 26.7 mAP) while outperforms it on large objects by a large margin (+7.1 mAP).",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "YOLOF outperforms DETR on small objects (+1.9 and +2.4) while lags behind DETR on large objects (-3.5 and -2.9).",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "YOLOF relies on pre-defined anchors, which is responsible for higher missing error than DETR [4] in the predictions.",
+        "location": "Sec 5.3"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Introduce an anchor-free mechanism into YOLOF to reduce missing errors caused by sparse, non-flexible pre-defined anchors.",
+      "quote": "free mechanism into YOLOF may help alleviate this problem, and we leave it for future work.",
+      "location": "Sec 5.3"
+    },
+    {
+      "direction": "Use YOLOF as a baseline to guide the design of single-level feature detectors.",
+      "quote": "We hope our YOLOF can serve as a solid baseline and provide insight for designing single-level feature detectors in future research.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt-101-64x4d", "CSPDarkNet-53"],
+    "models": ["YOLOF", "YOLOF-DC5", "RetinaNet", "DETR", "YOLOv4", "FPN", "ATSS"],
+    "algorithms": ["Uniform Matching", "Max-IoU matching", "ATSS", "Hungarian matching", "NMS", "dilated convolution", "group normalization", "GIoU loss", "multi-scale training", "implicit objectness", "SWA"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "mAP", "FPS", "GFLOPs"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "44.3 mAP at 60 fps on a 2080Ti with 608x608 input, 13% faster than YOLOv4.",
+      "2.5x speedup and 57% FLOPs reduction versus its FPN counterpart RetinaNet+ at comparable accuracy.",
+      "Trains in 4.5 hours on eight 2080Ti GPUs versus 112.5 hours for DETR, with less training memory than RetinaNet+ and DETR."
+    ],
+    "evidence": [
+      {
+        "quote": "YOLOF converges faster and achieves promising performance; thus, YOLOF can serve as a simple baseline for fast and accurate detectors.",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "YOLOF needs less memory than RetinaNet+ and DETR, which make YOLOF be trained with larger batch size and converge faster.",
+        "location": "Appendix A"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr46437.2021.01284",
+    "arxivUrl": "https://arxiv.org/abs/2103.09460",
+    "venue": "CVPR 2021",
+    "pdfUrl": "https://arxiv.org/pdf/2103.09460"
+  }
+}

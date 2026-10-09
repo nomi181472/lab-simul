@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import type { Confidence, Evidence, EvidenceKind, Paper, ProblemStatus } from "@/labs/object-detection/data/types";
 import { PAPER_BY_ID } from "@/labs/object-detection/data/papers";
-import { SIMULATOR_INDEX } from "@/labs/object-detection/data/concepts";
+import { SIM_BY_ID } from "@/labs/object-detection/sims/registry";
 
 /* ---------- atoms ---------- */
 
@@ -196,7 +196,7 @@ export function MiniBar({
 
 export function checkSim(sim?: string) {
   if (!sim) return null;
-  return SIMULATOR_INDEX[sim] ? sim : null;
+  return SIM_BY_ID[sim] ? sim : null;
 }
 
 export function KV({ k, v }: { k: string; v: ReactNode }) {

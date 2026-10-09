@@ -1,0 +1,200 @@
+{
+  "id": "OD070",
+  "arxiv": "2104.01318",
+  "title": "Efficient DETR: Improving End-to-End Object Detector with Dense Prior",
+  "year": 2021,
+  "venue": null,
+  "problem": {
+    "summary": "The paper argues that end-to-end transformer detectors like DETR and Deformable DETR only work well because they stack 6 decoder layers in a cascade, and that the real cause is the random initialization of object containers (object queries and reference points); this makes training slow (10-20x more epochs than mainstream detectors) while dense anchor-based detectors still depend on hand-crafted NMS to be usable.",
+    "statements": [
+      "DETR-style end-to-end detectors rely on a cascade of 6 decoder layers to update object queries iteratively, and performance degrades seriously without it.",
+      "Random initialization of object containers (object queries and reference points) is mainly responsible for the requirement of multiple iterations.",
+      "DETR requires 10 to 20 times the training epochs of modern mainstream detectors to converge.",
+      "Removing decoder iterations is costly: a 1-layer decoder loses 10.3 AP relative to a 6-layer decoder."
+    ],
+    "problemTags": ["convergence", "speed-latency", "deployability"],
+    "evidence": [
+      {
+        "quote": "The recently proposed end-to-end transformer detectors, such as DETR and Deformable DETR, have a cascade structure of stacking 6 decoder layers to update object queries iteratively, without which their performance degrades seriously.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "we investigate that the random initialization of object containers, which include object queries and reference points, is mainly responsible for the requirement of multiple iterations.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "However, DETR requires 10 to 20 times of training epochs than modern mainstream detectors [27, 24, 20] to converge",
+        "location": "Introduction"
+      },
+      {
+        "quote": "There is a huge drop of 10.3 AP between a 6-layer decoder and a 1-layer decoder. It is worth noting that only object queries are updated after each iteration.",
+        "location": "Sec 4.1"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on DETR's bipartite-matching set prediction, Deformable DETR's fast-converging sparse attention, and Sparse R-CNN's sparse proposals, while contrasting them with dense sliding-window detectors that need NMS; the claimed gap is that no prior end-to-end detector has a good initial state for its object containers.",
+    "relatedWork": [
+      {
+        "name": "DETR",
+        "relation": "prior end-to-end set-prediction detector with bipartite matching, but very slow to converge",
+        "quote": "Recently, DETR [2] proposed to build an end-to-end framework based on an encoder-decoder transformer [34] architecture and bipartite matching, which directly predicts a set of bounding boxes without post-processing.",
+        "location": "Introduction"
+      },
+      {
+        "name": "Deformable DETR",
+        "relation": "prior work that speeds convergence with local attention and multi-scale feature maps",
+        "quote": "Deformable DETR [43] solves the two problems in the following two aspects: (i). replacing global scoped attention with local spatial attention, which accelerates the convergence of training.",
+        "location": "Introduction"
+      },
+      {
+        "name": "Sparse R-CNN",
+        "relation": "sparse-proposal detector with learnable proposals that converges in 36 epochs",
+        "quote": "The RoI layer limits the proposal feature to only interact with a few local features and makes Sparse RCNN have a fast converging speed (36 epochs).",
+        "location": "Sec 2"
+      },
+      {
+        "name": "Modern anchor-based detectors",
+        "relation": "dense sliding-window detectors whose NMS post-processing prevents end-to-end detection",
+        "quote": "Modern detectors [9, 27, 24, 20] generate dense anchors with the sliding window method to establish connections between network predictions and the ground truth. Post-processing methods like non-maximum suppression (NMS) is used to remove the redundancy of predictions.",
+        "location": "Introduction"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "End-to-end detectors, such as [36], DETR [2], Deformable DETR [43], and Sparse RCNN [31], don't require extra post-processing stages and perform object detection in an end-to-end framework.",
+        "location": "Sec 2.2"
+      },
+      {
+        "quote": "However, object queries are randomly initialized at the start of training. We hypothesize that this random initialization does not offer a good initial state, which might be the reason why DETR needs a cascade structure of 6 iterations to achieve competitive performance.",
+        "location": "Sec 3"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "Efficient DETR adds a dense prior to set prediction: a class-specific sliding-window head produces proposals, and the top-K (K=100) scored 4-d proposals with their 256-d encoder features become the reference points and object queries of a 3-encoder, 1-decoder transformer, which refines them with one-to-one Hungarian assignment instead of a 6-layer decoder cascade.",
+    "approach": "Initialize object queries and reference points from top-K dense sliding-window proposals (dense prior) so that a single decoder layer with one-to-one Hungarian matching suffices, eliminating both the cascade and NMS.",
+    "components": [
+      "Dense part: class-specific sliding-window prediction generating candidate proposals, sharing the detection head with the sparse part",
+      "Top-K (K=100) selection of 4-d proposals and their 256-d features as reference points and object queries",
+      "3 encoder layers and only 1 decoder layer, without the 6-layer cascade structure",
+      "Dynamically tuned proposal number: starts at 300 and decreases linearly to 100 during training",
+      "One-to-one label assignment via the Hungarian algorithm shared by dense and sparse parts"
+    ],
+    "solutionTags": ["transformer-query", "set-prediction", "nms-free", "dense-prediction"],
+    "evidence": [
+      {
+        "quote": "we present a simple but efficient framework for object detection, called Efficient DETR. It has 3 encoder layers and only 1 decoder layer, without the cascade structure in the decoder.",
+        "location": "Sec 1"
+      },
+      {
+        "quote": "In the dense part, a class specific dense prediction based on sliding-windows is performed to generate proposals. Top-K (K=100 in this paper) scored 4-d proposals and their 256-d encoder features are taken as the reference points and object queries.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "In the sparse part, object containers, the reference points, and object queries initialized with dense prior are fed to a 1-layer decoder to interact with the encoder feature for further refinement. The final results are predicted from the refined object containers.",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "To avoid post-processing like NMS, a one-to-one label assignment rule is adopted. Following [30, 2, 43], we match predictions with ground truth by Hungarian algorithm [16].",
+        "location": "Sec 4"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "The paper evaluates on COCO 2017 (train2017/val2017) against modern one-stage, two-stage and end-to-end detectors with ResNet-50/101 backbones over 36-epoch schedules, and on CrowdHuman for crowded scenes, plus ablations on decoder stacking, proposal numbers, head sharing and label assignment.",
+    "benchmarks": [
+      { "dataset": "MS COCO 2017 val", "metric": "AP", "value": "44.2", "split": "Efficient DETR-R50, 36 epochs, 159 GFLOPs", "location": "Table 5" },
+      { "dataset": "MS COCO 2017 val", "metric": "AP", "value": "45.1", "split": "Efficient DETR*-R50 (6-encoder, 1-decoder), 36 epochs", "location": "Table 5" },
+      { "dataset": "MS COCO 2017 val", "metric": "AP", "value": "45.2", "split": "Efficient DETR-R101, 6-encoder and 1-decoder structure", "location": "Table 5" },
+      { "dataset": "MS COCO 2017 val", "metric": "training epochs", "value": "36", "split": "same schedule contrasted with DETR's 500 epochs", "location": "Table 5" },
+      { "dataset": "CrowdHuman", "metric": "AP50", "value": "90.75", "split": "Efficient DETR, 100 proposals", "location": "Table 10" },
+      { "dataset": "CrowdHuman", "metric": "mMR", "value": "48.98", "split": "Efficient DETR, 100 proposals", "location": "Table 10" }
+    ],
+    "baselines": ["DETR", "Deformable DETR", "Sparse R-CNN", "Faster R-CNN", "TSP-FCOS", "TSP-RCNN", "SMCA", "RetinaNet", "FCOS", "ATSS", "POTO+3DMF+Aux"],
+    "evidence": [
+      {
+        "quote": "our Efficient DETR based on ResNet50 achieves 44.2 AP with 36 epochs training, outperforming Faster RCNN and most end-to-end detectors with fewer FLOPs and parameters.",
+        "location": "Sec 5.2"
+      },
+      {
+        "quote": "It achieves the-state-of-the-art in 45.2 AP, with a 6-encoder and 1-decoder structure, which still has fewer parameters than other end-to-end models, thanks to the reasonable design of its framework.",
+        "location": "Sec 5.2"
+      },
+      {
+        "quote": "Efficient DETR outperforms other detectors by a large margin, e.g., 4 AP and 5 mMR gains over the Deformable DETR. Especially, our approach achieves this with only 100 proposals.",
+        "location": "Sec 5.4"
+      },
+      {
+        "quote": "Efficient DETR-R50 Efficient DETR∗ -R50 36 36 159 210 32 35 44.2 45.1",
+        "location": "Table 5"
+      },
+      {
+        "quote": "Efficient DETR Efficient DETR 400 400 400 100 89.2 49.6 96.6 66.12 80.62 86.74 53.98 92.51 90.68 49.80 97.99 90.75 48.98 97.94",
+        "location": "Table 10"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "Even with a fast 36-epoch schedule, Efficient DETR still trails the state-of-the-art Sparse R-CNN by 0.3 AP on COCO, and its dense-proposal design can introduce extra false positives when many proposals are used in crowded scenes; adding decoder layers on top of it does not help.",
+    "items": [
+      "0.3 AP below Sparse R-CNN on COCO 2017 val (44.2 vs 44.5) for the 3-encoder, 1-decoder ResNet-50 model.",
+      "A large number of proposals may bring more false positives to the final results, especially in crowded scenes.",
+      "Cascading decoder layers after Efficient DETR brings only slight improvement and degrades performance after two iterations."
+    ],
+    "evidence": [
+      {
+        "quote": "is only a 0.3 drop in AP (44.2 AP vs 44.5 AP) compared to the state-of-the-art Sparse RCNN.",
+        "location": "Sec 5.2"
+      },
+      {
+        "quote": "A large number of proposals may bring more false positives to the final results.",
+        "location": "Sec 5.4"
+      },
+      {
+        "quote": "stacking decoder layers after Efficient DETR brings slight improvement. Instead, the model's performance even degrades after two iterations. It indicates that cascading decoder layers to Efficient DETR is not necessary.",
+        "location": "Table 7"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Use the dense-prior design as inspiration for simpler, more efficient end-to-end object detectors.",
+      "quote": "We hope our work could inspire designs of more simple and efficient object detectors.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "CrowdHuman", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101"],
+    "models": ["Efficient DETR", "Efficient DETR*", "DETR", "Deformable DETR", "Sparse R-CNN", "Faster R-CNN", "TSP-FCOS", "TSP-RCNN", "SMCA", "RetinaNet", "FCOS", "ATSS"],
+    "algorithms": ["Hungarian algorithm", "one-to-one label assignment", "top-k selection", "sliding-window dense prediction", "deformable attention", "focal loss", "L1 loss", "GIoU loss", "Adam"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "mAP", "mMR", "Recall", "GFLOPs", "epochs"],
+    "equations": [
+      { "name": "loss and matching cost", "expr": "L = λcls·Lcls + λL1·LL1 + λgiou·Lgiou", "location": "Sec 4 (Loss)" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "44.2 AP with 36 epochs of training, a 10 times faster convergence speed than the original DETR (36 epochs vs 500 epochs).",
+      "Only 20 percent fewer parameters than most models (32M vs 40M), and it only needs a small number of 100 proposals to achieve this performance."
+    ],
+    "evidence": [
+      {
+        "quote": "It has a 10 times faster convergence speed than the original DETR (36 epochs vs 500 epochs). On the other hand, Efficient DETR outperforms Deformable DETR by 0.4 AP with a simpler structure (3-encoder and 1-decoder vs 6-encoder and 6-decoder) and fewer training epochs (36epochs vs 50 epochs).",
+        "location": "Sec 5.2"
+      },
+      {
+        "quote": "of Efficient DETR are 20 percent fewer than that of most models (32M vs 40M). And Efficient DETR only needs a small number of 100 proposals to achieve this performance,",
+        "location": "Sec 5.2"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2104.01318",
+    "arxivUrl": "https://arxiv.org/abs/2104.01318",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2104.01318"
+  }
+}

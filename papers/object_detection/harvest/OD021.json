@@ -1,0 +1,147 @@
+{
+  "id": "OD021",
+  "arxiv": "1711.06897",
+  "title": "Single-Shot Refinement Neural Network for Object Detection",
+  "year": 2017,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition",
+  "problem": {
+    "summary": "One-stage detectors like SSD are efficient but their accuracy trails two-stage detectors, which the authors attribute to class imbalance, one-step box regression that is inaccurate especially for small objects, and the lack of two-stage features for describing objects.",
+    "statements": [
+      "One-stage detection accuracy usually lags the two-stage approach, mainly because of the class imbalance problem in dense sampling.",
+      "One-step regression from regularly tiled default boxes is rather inaccurate in challenging scenarios, especially for small objects.",
+      "One-stage detectors lack the two advantages two-stage systems exploit: sampling heuristics for imbalance and two-step cascade box regression.",
+      "One-stage detectors must still process a large set of densely sampled candidate boxes, dominated by easy background negatives."
+    ],
+    "problemTags": ["one-stage-accuracy", "class-imbalance", "localization", "small-objects"],
+    "evidence": [
+      { "quote": "However, its detection accuracy is usually behind that of the two-stage approach, one of the main reasons being due to the class imbalance problem [28].", "location": "Introduction" },
+      { "quote": "Although the one-stage detectors have made good progress, their accuracy still trails that of twostage methods.", "location": "Related Work" },
+      { "quote": "Current one-stage methods [13, 24, 30] rely on one-step regression based on various feature layers with different scales to predict the locations and sizes of objects, which is rather inaccurate in some challenging scenarios, especially for the small objects.", "location": "Sec 3" },
+      { "quote": "To early reject well-classified negative anchors and mitigate the imbalance issue, we design a negative anchor filtering mechanism.", "location": "Sec 3" }
+    ]
+  },
+  "background": {
+    "summary": "RefineDet builds directly on SSD's single-shot feed-forward design plus NMS, while explicitly importing three advantages of two-stage systems (Faster R-CNN, R-FCN, FPN): imbalance-handling sampling heuristics, two-step cascade regression, and two-stage features. Related one-stage work (YOLO/YOLOv2, RON, DSSD, DSOD) and loss-based imbalance fixes (focal loss, max-out labeling) frame the gap.",
+    "relatedWork": [
+      { "name": "SSD", "relation": "the single-shot architecture RefineDet is based on; its regularly tiled default boxes are replaced by refined anchors", "quote": "However, in contrast to SSD [30] directly uses the regularly tiled default boxes for detection, RefineDet uses two-step strategy", "location": "Sec 3" },
+      { "name": "Faster R-CNN / R-CNN lineage", "relation": "the two-stage family whose cascade structure and accuracy advantages RefineDet imitates", "quote": "the two-stage approach (e.g., R-CNN [16], SPPnet [18], Fast RCNN [15] to Faster R-CNN [36]) achieves dominated performance on several challenging datasets", "location": "Related Work" },
+      { "name": "SSD anchor spread", "relation": "multi-layer anchor design inherited for handling object scales", "quote": "Liu et al. [30] propose the SSD method, which spreads out anchors of different scales to multiple layers within a ConvNet and enforces each layer to focus on predicting objects of a certain scale.", "location": "Related Work" },
+      { "name": "Focal Loss (Lin et al.)", "relation": "prior one-stage fix for class imbalance by reshaping cross entropy, adopted as an alternative route to accuracy", "quote": "Lin et al. [28] address the class imbalance issue by reshaping the standard cross entropy loss to focus training on a sparse set of hard examples and down-weights the loss assigned to well-classified examples.", "location": "Introduction" }
+    ],
+    "evidence": [
+      { "quote": "the current state-of-the-art two-stage methods, e.g., Faster R-CNN [36], R-FCN [5], and FPN [27], have three advantages over the one-stage methods as follows", "location": "Introduction" },
+      { "quote": "these two inter-connected modules imitate the two-stage structure and thus inherit the three aforementioned advantages to produce accurate detection results with high efficiency", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "RefineDet is a single-shot detector made of two inter-connected modules: an anchor refinement module (ARM) that filters negative anchors and coarsely adjusts anchor boxes, and an object detection module (ODM) that takes those refined anchors to predict multi-class labels and accurate boxes. Transfer connection blocks pass ARM features into the ODM, and the whole network trains end-to-end with a multi-task loss.",
+    "approach": "Chain a binary anchor-refinement stage and a multi-class detection stage inside one one-stage network, linked by transfer connection blocks, giving two-step cascade regression and negative-anchor filtering at single-shot speed.",
+    "components": [
+      "anchor refinement module (ARM): binary object/not-object classification plus anchor location/size regression",
+      "object detection module (ODM): multi-class classification and accurate box regression on refined anchors",
+      "transfer connection block (TCB): deconvolution and element-wise sum that converts ARM features and integrates large-scale context for the ODM",
+      "two-step cascaded regression: ARM adjusts anchors first, ODM refines further",
+      "negative anchor filtering with threshold theta = 0.99 before the ODM",
+      "hard negative mining keeping the negative/positive ratio at or below 3:1",
+      "four prediction feature layers with strides 8/16/32/64, anchor scale 4x the stride, aspect ratios 0.5/1.0/2.0",
+      "NMS with jaccard overlap 0.45 per class, top-200 detections per image"
+    ],
+    "solutionTags": ["one-stage", "anchors", "cascade", "post-processing-nms", "hard-negative-mining"],
+    "evidence": [
+      { "quote": "RefineDet consists of two inter-connected modules, namely, the anchor refinement module and the object detection module.", "location": "Abstract" },
+      { "quote": "To link between the ARM and ODM, we introduce the TCBs to convert features of different layers from the ARM, into the form required by the ODM, so that the ODM can share features from the ARM.", "location": "Sec 3" },
+      { "quote": "we present a two-step cascaded regression strategy to regress the locations and sizes of objects.", "location": "Sec 3" },
+      { "quote": "we use hard negative mining to mitigate the extreme foreground-background class imbalance", "location": "Sec 4" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation covers PASCAL VOC 2007, PASCAL VOC 2012 and MS COCO with mAP/AP, including component ablations on VOC 2007, speed measurements on an NVIDIA Titan X, multi-scale testing variants (marked with +), and COCO-pretrained fine-tuning.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "80.0", "split": "test 2007, train 07+12, RefineDet320", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "81.8", "split": "test 2007, train 07+12, RefineDet512", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "83.8", "split": "test 2007, RefineDet512+ multi-scale testing", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "85.8", "split": "test 2007, train COCO+07+12, RefineDet512+", "location": "Table 4" },
+      { "dataset": "PASCAL VOC 2012", "metric": "mAP", "value": "86.8", "split": "test 2012, train COCO+07++12, RefineDet512+", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "41.8", "split": "test-dev, ResNet-101, RefineDet512+ multi-scale", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "36.4", "split": "test-dev, ResNet-101, RefineDet512 single-scale", "location": "Table 2" },
+      { "dataset": "PASCAL VOC 2007", "metric": "FPS", "value": "40.3", "split": "320x320 input, batch size 1, NVIDIA Titan X", "location": "Table 1" }
+    ],
+    "baselines": ["SSD513", "DSSD513", "YOLOv2", "RetinaNet800", "Faster R-CNN w FPN", "R-FCN", "CoupleNet", "DSOD300", "OHEM++"],
+    "evidence": [
+      { "quote": "Specifically, it achieves 85.8% and 86.8% mAPs on VOC 2007 and 2012, with VGG-16 network.", "location": "Introduction" },
+      { "quote": "The best performance of RefineDet is 41.8%, which is the state-of-the-art, surpassing all published two-stage and one-stage approaches.", "location": "Sec 5.3" },
+      { "quote": "Removing negative anchor filtering leads to 0.5% drop in mAP (i.e., 80.0% vs. 79.5%).", "location": "Sec 5.1.2" },
+      { "quote": "This sharp decline (i.e., 2.2%) demonstrates that the two-step anchor cascaded regression significantly help promote the performance.", "location": "Sec 5.1.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "Small-object detection remains weak and larger inputs are only a temporary fix that hurts speed; compute limits restricted experiments to 320x320 and 512x512 inputs, and COCO accuracy still trails systems using much larger inputs.",
+    "items": [
+      "There is still much room to improve detection of small objects, especially chairs and tables.",
+      "Increasing input size helps small objects but is only a temporary solution and large inputs burden inference speed.",
+      "Only 320x320 and 512x512 input sizes were trained because of the shortage of computational resources.",
+      "On COCO, RefineDet trails methods such as Faster R-CNN w TDM, Deformable R-FCN, RetinaNet800, umd det and G-RMI that use 1000x600 or 800x800 inputs.",
+      "Training ResNet-101 RefineDet512 required reducing batch size to 20 due to memory limits on 4 NVIDIA M40 GPUs."
+    ],
+    "evidence": [
+      { "quote": "Therefore, detecting small objects is still a challenge task and needs to be further studied.", "location": "Sec 9" },
+      { "quote": "Increasing the input size (e.g., from 320 × 320 to 512 × 512) can improve the performance for small objects", "location": "Sec 9" },
+      { "quote": "Large input will be a burden on running speed in inference.", "location": "Sec 9" },
+      { "quote": "Due to the shortage of computational resources, we only train", "location": "Footnote 6" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Apply RefineDet to specific object categories such as pedestrians, vehicles and faces, and add an attention mechanism.",
+      "quote": "In the future, we plan to employ RefineDet to detect some other specific kinds of objects, e.g., pedestrian, vehicle, and face, and introduce the attention mechanism in RefineDet to further improve the performance.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Train with larger input images than 320x320/512x512 to raise accuracy once resources allow.",
+      "quote": "We believe the accuracy of RefineDet can be further improved using larger input images.",
+      "location": "Footnote 6"
+    },
+    {
+      "direction": "Combine focal loss with RefineDet, since the authors view it as complementary to their design.",
+      "quote": "We believe that it can be used in RefineNet to further improve the performance.",
+      "location": "Sec 5.3"
+    }
+  ],
+  "technical": {
+    "datasets": ["PASCAL VOC 2007", "PASCAL VOC 2012", "MS COCO", "ILSVRC CLS-LOC (ImageNet pre-training)"],
+    "backbones": ["VGG-16", "ResNet-101"],
+    "models": ["RefineDet320", "RefineDet512", "RefineDet320+", "RefineDet512+", "SSD", "DSSD", "YOLOv2", "RetinaNet"],
+    "algorithms": ["hard negative mining", "non-maximum suppression", "two-step cascaded regression", "negative anchor filtering", "L2 normalization", "multi-scale testing", "SGD with momentum"],
+    "metrics": ["mAP", "AP", "AP50", "AP75", "APS", "FPS"],
+    "equations": [
+      { "name": "RefineDet multi-task loss", "expr": "L = (1/Narm)*sum_i Lb(pi,[li>=1]) + sum_i [li>=1]Lr(xi,gi*) + (1/Nodm)*sum_i Lm(ci,li) + sum_i [li>=1]Lr(ti,gi*)", "location": "Eq. (1), Sec 4" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "pedestrian, vehicle and face detection",
+        "detail": "The authors state the intent to apply RefineDet to these specific object categories as future work.",
+        "quote": "we plan to employ RefineDet to detect some other specific kinds of objects, e.g., pedestrian, vehicle, and face",
+        "location": "Conclusion"
+      }
+    ],
+    "deploymentClaims": [
+      "Runs at 40.2 FPS and 24.1 FPS on an NVIDIA Titan X GPU with input sizes 320x320 and 512x512 during inference.",
+      "Processes an image in 24.8 ms (40.3 FPS) at 320x320 and 41.5 ms (24.1 FPS) at 512x512, measured with batch size 1 on NVIDIA Titan X, CUDA 8.0 and cuDNN v6.",
+      "First real-time method to reach above 80% mAP on PASCAL VOC 2007.",
+      "Uses fewer anchor boxes than SSD512 (16320 vs 24564) while achieving higher accuracy."
+    ],
+    "evidence": [
+      { "quote": "RefineDet is time efficient, i.e., it runs at 40.2 FPS and 24.1 FPS on a NVIDIA Titan X GPU with the input sizes 320 × 320 and 512 × 512 in inference.", "location": "Introduction" },
+      { "quote": "RefineDet is the first real-time method to achieve detection accuracy above 80% mAP on PASCAL VOC 2007.", "location": "Sec 5.1.1" },
+      { "quote": "In summary, RefineDet achieves the best trade-off between accuracy and speed.", "location": "Sec 5.1.1" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2018.00442",
+    "arxivUrl": "https://arxiv.org/abs/1711.06897",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition",
+    "pdfUrl": "https://arxiv.org/pdf/1711.06897"
+  }
+}

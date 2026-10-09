@@ -1,0 +1,135 @@
+{
+  "id": "OD046",
+  "arxiv": "1904.01355",
+  "title": "FCOS: Fully Convolutional One-Stage Object Detection",
+  "year": 2019,
+  "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+  "problem": {
+    "summary": "Mainstream detectors depend on pre-defined anchor boxes, which introduce many sensitive hyper-parameters (sizes, aspect ratios, counts, IoU thresholds), struggle with large shape variation and small objects, require extremely dense anchors that create huge positive/negative imbalance, and add costly IoU matching computation during training.",
+    "statements": [
+      "Detection performance is sensitive to anchor sizes, aspect ratios and counts; in RetinaNet varying them moves AP by up to 4% on COCO.",
+      "Fixed anchor scales and aspect ratios make it hard to handle candidates with large shape variations, particularly small objects, and hurt generalization to new tasks.",
+      "High recall requires densely placed anchors (over 180K in FPN at shorter side 800), most labelled negative, aggravating the positive/negative imbalance.",
+      "Anchor boxes involve complicated computation such as IoU scoring against ground-truth boxes during training.",
+      "Anchor hyper-parameters and the IoU thresholds used for labelling are task-specific heuristics that make detection deviate from a clean FCN design."
+    ],
+    "problemTags": ["anchor-design", "label-assignment", "class-imbalance", "scale-variance"],
+    "evidence": [
+      { "quote": "detection performance is sensitive to the sizes, aspect ratios and number of anchor boxes.", "location": "Introduction" },
+      { "quote": "Even with careful design, because the scales and aspect ratios of anchor boxes are kept fixed, detectors encounter difficulties to deal with object candidates with large shape variations, particularly for small objects.", "location": "Introduction" },
+      { "quote": "Most of these anchor boxes are labelled as negative samples during training. The excessive number of negative samples aggravates the imbalance between positive and negative samples in training.", "location": "Introduction" },
+      { "quote": "Anchor boxes also involve complicated computation such as calculating the intersection-over-union (IoU) scores with ground-truth bounding boxes.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "FCOS builds on fully convolutional dense prediction (segmentation, DenseBox) and on FPN multi-level features, and compares against anchor-based one-stage detectors (RetinaNet, SSD, YOLO) and anchor-free ones (YOLOv1, CornerNet); the claimed gap is that FCN-style detectors were believed to fail on generic detection because of overlapping boxes and low recall.",
+    "relatedWork": [
+      { "name": "Faster R-CNN / SSD / YOLOv2,v3", "relation": "mainstream anchor-based detectors this work replaces", "quote": "All current mainstream detectors such as Faster R-CNN [24], SSD [18] and YOLOv2, v3 [23] rely on a set of pre-defined anchor boxes and it has long been believed that the use of anchor boxes is the key to detectors’ success.", "location": "Introduction" },
+      { "name": "DenseBox", "relation": "prior FCN-based detector limited to special domains and image pyramids", "quote": "these methods are mainly used in special domain objection detection such as scene text detection [33, 10] or face detection [32, 12]", "location": "Introduction" },
+      { "name": "YOLOv1", "relation": "prior anchor-free point-prediction detector with low recall", "quote": "The most popular anchor-free detector might be YOLOv1 [21].", "location": "Sec 2" },
+      { "name": "CornerNet", "relation": "prior anchor-free one-stage detector with costly grouping post-processing", "quote": "An extra distance metric is learned for the purpose of grouping.", "location": "Sec 2" },
+      { "name": "Anchor-based detectors (RPN convention)", "relation": "framing of anchors as pre-defined sliding windows/proposals", "quote": "the anchor boxes can be viewed as pre-defined sliding windows or proposals, which are classified as positive or negative patches, with an extra offsets regression to refine the prediction of bounding box locations.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "However, as described above, anchor boxes result in excessively many hyper-parameters, which typically need", "location": "Sec 2" },
+      { "quote": "since it is believed that these methods do not work well when applied to generic object detection with highly overlapped bounding boxes.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "FCOS reformulates detection as per-pixel prediction: every foreground location regresses a 4D distance vector (l, t, r, b) to a ground-truth box with a per-level maximum-distance assignment over FPN levels P3-P7, uses shared heads with per-level exponential scalars, and adds a single-layer center-ness branch whose score multiplies the classification score to suppress low-quality boxes before NMS.",
+    "approach": "Treat feature locations as training samples and regress box distances directly at each foreground pixel across FPN levels, with a center-ness score weighting away far-from-center predictions.",
+    "components": [
+      "per-pixel 4D regression targets (l, t, r, b) instead of anchor references",
+      "multi-level FPN prediction over P3-P7 with per-level max regression distance m_i",
+      "assignment of overlapping ambiguous samples to the ground-truth box of minimal area",
+      "single-layer center-ness branch trained with binary cross entropy",
+      "score = classification score multiplied by predicted center-ness at test time",
+      "shared heads across feature levels with exp(s_i x) level-specific scalars",
+      "focal loss for classification and IoU loss for regression",
+      "NMS as the only post-processing step"
+    ],
+    "solutionTags": ["anchor-free", "dense-prediction", "one-stage", "feature-pyramid", "focal-loss", "iou-loss"],
+    "evidence": [
+      { "quote": "our proposed detector FCOS is anchor box free, as well as proposal free.", "location": "Abstract" },
+      { "quote": "we directly regress the target bounding box at the location.", "location": "Sec 3.1" },
+      { "quote": "we directly limit the range of bounding box regression for each level.", "location": "Sec 3.2" },
+      { "quote": "we add a singlelayer branch, in parallel with the classification branch (as shown in Fig. 2) to predict the “center-ness” of a location", "location": "Sec 3.3" },
+      { "quote": "is computed by multiplying the predicted center-ness with the corresponding classification score.", "location": "Sec 3.3" }
+    ]
+  },
+  "experiments": {
+    "summary": "Experiments use COCO trainval35k/minival for ablations and test-dev for main results, comparing FCOS against RetinaNet under identical settings, ablating FPN multi-level prediction, center-ness and several cost-free improvements, evaluating FCOS as an RPN, and reporting BPR and ambiguous-sample analyses.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "44.7", "split": "test-dev, FCOS w/ improvements, ResNeXt-64x4d-101-FPN, single-scale", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "43.2", "split": "test-dev, FCOS, ResNeXt-64x4d-101-FPN", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "41.5", "split": "test-dev, FCOS, ResNet-101-FPN", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.1", "split": "test-dev, RetinaNet, ResNet-101-FPN", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "37.1", "split": "minival, FCOS with GN and NMS 0.6, ResNet-50-FPN", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "36.3", "split": "minival, FCOS with RetinaNet's exact settings", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "37.1", "split": "minival, with center-ness branch (33.5 without)", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "AR100", "value": "52.8", "split": "minival, FCOS as RPN (re-implemented RPN 44.7)", "location": "Table 6" }
+    ],
+    "baselines": ["RetinaNet", "Faster R-CNN w/ FPN", "Faster R-CNN by G-RMI", "YOLOv2", "SSD513", "DSSD513", "CornerNet", "FSAF", "RPN w/ FPN & GN"],
+    "evidence": [
+      { "quote": "With the only post-processing non-maximum suppression (NMS), FCOS with ResNeXt-64x4d-101 achieves 44.7% in AP with single-model and single-scale testing, surpassing previous one-stage detectors with the advantage of being much simpler.", "location": "Abstract" },
+      { "quote": "the center-ness branch can boost AP from 33.5% to 37.1%, making anchor-free FCOS outperform anchorbased RetinaNet (35.9%).", "location": "Sec 4.1.2" },
+      { "quote": "with ResNet-101-FPN, our FCOS outperforms the RetinaNet with the same backbone ResNet-101-FPN by 2.4% in AP.", "location": "Sec 4.2" },
+      { "quote": "which are 18% relative improvement for AR100 and 3.4% absolute improvement for AR1k over the RPNs with FPN.", "location": "Sec 5" }
+    ]
+  },
+  "limitations": {
+    "summary": "FCOS still needs NMS post-processing and a separate center-ness branch (computing it from the regression vector does not work), a residual 3.75% of cross-class ambiguous samples remain, the small BPR gap to anchor-based detectors persists, and reported numbers largely inherit RetinaNet's hyper-parameters rather than tuned ones.",
+    "items": [
+      "Center-ness cannot be derived from the predicted regression vector; the separate branch is necessary.",
+      "Multi-level prediction reduces but does not eliminate ambiguous samples: 3.75% of positive samples remain ambiguous across classes.",
+      "Best possible recall (98.40% with FPN) still trails the anchor-based upper bound of 99.23%.",
+      "Hyper-parameters such as learning rate and NMS threshold were taken directly from RetinaNet and are not tuned for FCOS."
+    ],
+    "evidence": [
+      { "quote": "However, as shown in Table 4, the center-ness computed from the regression vector cannot improve the performance and thus the separate center-ness is necessary.", "location": "Sec 4.1.2" },
+      { "quote": "the multi-level prediction reduces the ratio of ambiguous samples from 17.84% to 3.75%.", "location": "Sec 4.1.1" },
+      { "quote": "a location in the overlap might predict A’s class but regress B’s bounding-box, which is a mistake.", "location": "Appendix 10" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Tune the inherited hyper-parameters specifically for FCOS, which the authors expect to improve results further.",
+      "quote": "We hypothesize that the performance of our detector may be improved further if we carefully tune the hyper-parameters.",
+      "location": "Sec 4.1"
+    },
+    {
+      "direction": "Extend the anchor-free per-pixel framework to other instance-level recognition tasks such as instance segmentation and keypoint detection.",
+      "quote": "We also believe that FCOS can be extended to solve many other instancelevel recognition tasks.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt-32x8d-101", "ResNeXt-64x4d-101", "HRNet-W32", "FPN"],
+    "models": ["FCOS", "RetinaNet", "Faster R-CNN", "CornerNet", "FSAF", "YOLOv2", "SSD513", "DSSD513", "RPN"],
+    "algorithms": ["NMS", "focal loss", "IoU loss", "Group Normalization", "FPN multi-level prediction", "center-ness", "binary cross entropy"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "AR1", "AR10", "AR100", "AR1k", "BPR"],
+    "equations": [
+      { "name": "Regression targets", "expr": "l* = x - x0; r* = x1 - x; t* = y - y0; b* = y1 - y", "location": "Eq 1" },
+      { "name": "Training loss", "expr": "L = (1/Npos) sum Lcls(p, c*) + (lambda/Npos) sum 1{c*>0} Lreg(t, t*)", "location": "Eq 2" },
+      { "name": "Center-ness target", "expr": "centerness* = sqrt( min(l*,r*)/max(l*,r*) * min(t*,b*)/max(t*,b*) )", "location": "Eq 3" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "Anchor-free design yields faster training and testing and a smaller training memory footprint than the anchor-based counterpart",
+      "Code released at tinyurl.com/FCOSv1"
+    ],
+    "evidence": [
+      { "quote": "resulting in faster training and testing as well as less training memory footprint than its anchor-based counterpart.", "location": "Introduction" },
+      { "quote": "Code is available at: tinyurl.com/FCOSv1", "location": "Abstract" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/iccv.2019.00972",
+    "arxivUrl": "https://arxiv.org/abs/1904.01355",
+    "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+    "pdfUrl": "https://arxiv.org/pdf/1904.01355"
+  }
+}

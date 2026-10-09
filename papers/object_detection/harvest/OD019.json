@@ -1,0 +1,145 @@
+{
+  "id": "OD019",
+  "arxiv": "1708.01241",
+  "title": "DSOD: Learning Deeply Supervised Object Detectors from Scratch",
+  "year": 2017,
+  "venue": "IEEE International Conference on Computer Vision (ICCV)",
+  "problem": {
+    "summary": "State-of-the-art detectors all fine-tune networks pre-trained on ImageNet classification, which the authors argue limits structure design space, biases optimization toward a classification-tuned solution, and breaks down when source and target domains differ (RGB vs. depth, medical, multi-spectral images).",
+    "statements": [
+      "Object detectors depend on off-the-shelf ImageNet pre-trained networks, restricting how detector architectures can be designed and how much compute they use.",
+      "Because loss functions and category distributions differ between classification and detection, fine-tuning starts learning in a biased optimization space that may be a poor local minimum for detection.",
+      "Domain mismatch makes transferring classification pre-training to depth, medical or multi-spectral detection inputs unreliable.",
+      "Previous attempts to train detectors from scratch failed because of more complicated loss functions and limited detection training data."
+    ],
+    "problemTags": ["domain-shift", "deployability", "training-instability"],
+    "evidence": [
+      { "quote": "A better solution to tackle these two critical problems is to train object detectors from scratch, which motivates our proposed DSOD.", "location": "Abstract" },
+      { "quote": "However, there are also critical limitations when adopting the pre-trained networks in object detection: (1) Limited structure design space.", "location": "Introduction" },
+      { "quote": "(2) Learning bias. As both the loss functions and the category distributions between classification and detection tasks are different, we argue that this will lead to different searching/optimization spaces.", "location": "Introduction" },
+      { "quote": "Previous efforts in this direction mostly failed due to much more complicated loss functions and limited training data in object detection.", "location": "Abstract" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on the SSD single-shot framework for speed, DenseNet for deep layer-wise supervision, and the R-CNN/Fast R-CNN/Faster R-CNN/R-FCN and YOLO/SSD families as the detection landscape. The claimed gap is that no prior work trains an object detection network from scratch.",
+    "relatedWork": [
+      { "name": "SSD", "relation": "the single-shot, proposal-free framework DSOD is built on for its speed/accuracy trade-off", "quote": "Our proposed DSOD is built upon the SSD framework and thus it inherits the speed and accuracy advantages of SSD, while produces smaller and more flexible models.", "location": "Related Work" },
+      { "name": "DenseNet", "relation": "source of the dense layer-wise connections that provide implicit deep supervision", "quote": "A block is called dense block when all preceding layers in the block are connected to the current layer.", "location": "Sec 3.1" },
+      { "name": "Faster R-CNN / R-FCN", "relation": "region-proposal-based detectors with integrated RPNs; failed to converge when trained from scratch", "quote": "Proposal based methods include R-CNN [5], Fast RCNN [4], Faster R-CNN [27] and R-FCN [19].", "location": "Related Work" },
+      { "name": "YOLO / SSD", "relation": "single-shot proposal-free detectors, the category the authors found trainable from scratch", "quote": "YOLO and SSD are single-shot and proposal-free methods, which handle object location and bounding box coordinates as a regression problem.", "location": "Sec 3.1" }
+    ],
+    "evidence": [
+      { "quote": "Most detection methods [5, 4, 27, 21] directly utilize pre-trained ImageNet models as the backbone network.", "location": "Related Work" },
+      { "quote": "To the best of our knowledge, there are no works which train object detection networks from scratch.", "location": "Related Work" }
+    ]
+  },
+  "solution": {
+    "summary": "DSOD is a proposal-free, SSD-style multi-scale detector trained entirely from scratch, using a deeply supervised DenseNet-style backbone plus a dense front-end prediction structure. Dense layer-wise connections deliver deep supervision so earlier layers still receive gradient signal from the single top loss.",
+    "approach": "Combine a proposal-free SSD-style detector with dense layer-wise connections in both the backbone and the multi-scale prediction layers, giving implicit deep supervision that lets the network converge from random initialization.",
+    "components": [
+      "proposal-free multi-scale detection framework derived from SSD",
+      "deeply supervised DenseNet-style backbone (stem block, four dense blocks, transition layers)",
+      "transition w/o pooling layers to add dense blocks without shrinking feature-map resolution",
+      "stem block of three 3x3 convolutions plus 2x2 max pooling to reduce early information loss",
+      "dense front-end prediction layers that learn half the feature maps and reuse half from preceding scales",
+      "L2 normalization of feature norms to 20 on all prediction outputs"
+    ],
+    "solutionTags": ["one-stage", "anchors", "feature-fusion", "dense-prediction"],
+    "evidence": [
+      { "quote": "One of the key findings is that deep supervision, enabled by dense layer-wise connections, plays a critical role in learning a good detector.", "location": "Abstract" },
+      { "quote": "Hence, we arrive at the first principle: training detection network from scratch requires a proposal-free framework.", "location": "Sec 3.1" },
+      { "quote": "For each scale, we only learn half of new feature maps and reuse the remaining half of the previous ones.", "location": "Sec 3.1" },
+      { "quote": "This dense prediction structure can yield more accurate results with fewer parameters than the plain structure", "location": "Sec 3.1" }
+    ]
+  },
+  "experiments": {
+    "summary": "The paper reports controlled ablations on PASCAL VOC 2007 for each design principle, then full evaluations on PASCAL VOC 2007/2012 and MS COCO with mAP, comparing against SSD, Faster R-CNN, R-FCN and YOLOv2 in both accuracy, parameters and FPS.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "77.7", "split": "test 2007, train 07+12, from scratch", "location": "Table 4" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "81.7", "split": "test 2007, train 07+12+COCO", "location": "Table 4" },
+      { "dataset": "PASCAL VOC 2012", "metric": "mAP", "value": "76.3", "split": "test 2012, train 07++12", "location": "Table 5" },
+      { "dataset": "PASCAL VOC 2012", "metric": "mAP", "value": "79.3", "split": "test 2012, train 07++12+COCO", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "mAP@[0.5:0.95]", "value": "29.3", "split": "test-dev 2015, train trainval", "location": "Table 6" },
+      { "dataset": "MS COCO", "metric": "mAP@0.5", "value": "47.3", "split": "test-dev 2015, train trainval", "location": "Table 6" },
+      { "dataset": "PASCAL VOC 2007", "metric": "FPS", "value": "17.4", "split": "300x300 input, dense prediction layers, Titan X", "location": "Table 4" }
+    ],
+    "baselines": ["SSD300", "Faster R-CNN", "R-FCN", "YOLOv2", "ION"],
+    "evidence": [
+      { "quote": "Experiments on PASCAL VOC 2007, 2012 and MS COCO datasets demonstrate that DSOD can achieve better results than the state-of-the-art solutions with much more compact models.", "location": "Abstract" },
+      { "quote": "Our DSOD300 achieves 77.7% mAP, which is much better than the SSD300S that is trained from scratch using VGG16 (69.6%)", "location": "Sec 4.1.2" },
+      { "quote": "After adding COCO as training data, the performance is further improved to 81.7%.", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "From-scratch training is restricted to proposal-free frameworks (RoI pooling blocked gradient flow in two-stage variants tested), the 300x300 input hurts small-object precision relative to larger-input detectors, and the dense prediction head costs some speed.",
+    "items": [
+      "Small-object detection precision on COCO lags R-FCN because DSOD uses 300x300 inputs versus roughly 600x1000 for R-FCN.",
+      "The dense front-end prediction structure runs slower than the plain SSD structure (17.4 fps vs. 20.6 fps) due to extra down-sampling blocks.",
+      "Faster R-CNN and R-FCN variants attempted from scratch failed to converge with every backbone tried (VGGNet, ResNet, DenseNet).",
+      "The behavior of ImageNet pre-training for DSOD-style backbones was only probed with one small backbone and left unexplained."
+    ],
+    "evidence": [
+      { "quote": "It is reasonable that our small object detection precision is slightly lower than R-FCN since our input image size (300×300) is much smaller than R-FCN's (∼ 600×1000).", "location": "Sec 4.4" },
+      { "quote": "DSOD with dense front-end structure runs slightly lower than the plain structure (17.4 fps vs. 20.6 fps) on a Titan X GPU, due to the overhead from additional down-sampling blocks.", "location": "Sec 4.1.2" },
+      { "quote": "However, the training process failed to converge for all the network structures we attempted (VGGNet, ResNet, DenseNet).", "location": "Sec 4.1.2" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Apply from-scratch training to non-RGB domains (depth, medical, multi-spectral imagery) where ImageNet pre-training does not transfer.",
+      "quote": "Our future work will consider these domains, as well as learning ultra efficient DSOD models to support resource-bounded devices.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Clarify whether pre-training the DSOD backbone on ImageNet helps or not, which the single probe left open.",
+      "quote": "Future work will investigate this point more thoroughly.",
+      "location": "Sec 4.1.2"
+    }
+  ],
+  "technical": {
+    "datasets": ["PASCAL VOC 2007", "PASCAL VOC 2012", "MS COCO"],
+    "backbones": ["DS/64-192-48-1 (DenseNet-style)", "VGG-16", "ResNet-101"],
+    "models": ["DSOD300", "SSD300", "Faster R-CNN", "R-FCN", "YOLOv2"],
+    "algorithms": ["SGD", "L2 normalization", "smooth L1 localization loss", "softmax classification loss", "gradient accumulation over two iterations", "Xavier initialization"],
+    "metrics": ["mAP", "mAP@[0.5:0.95]", "mAP@0.5", "FPS", "parameter count"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "surveillance and autonomous driving",
+        "detail": "The paper frames object detection as a fast-moving area with wide industrial applications in surveillance and autonomous driving.",
+        "quote": "Among them, object detection is one of the fastest moving areas due to its wide applications in surveillance, autonomous driving, etc.",
+        "location": "Introduction"
+      },
+      {
+        "domain": "resource-limited IoT deployment",
+        "detail": "Freedom from heavy pre-trained backbones is presented as critical for deploying detectors on resource-constrained IoT hardware.",
+        "quote": "This is very critical for the deployment of deep neural networks models to resource-limited Internet-of-Things (IoT) scenario.",
+        "location": "Discussion"
+      },
+      {
+        "domain": "low-end / embedded devices",
+        "detail": "A 5.9M-parameter variant reaching 73.6% mAP is highlighted as suitable for low-end devices such as mobile phones and embedded electronics.",
+        "quote": "our smallest dense model (DS/64-64-16-1, with dense prediction layers) achieves 73.6% mAP with only 5.9M parameters, which shows great potential for applications on low-end devices",
+        "location": "Discussion"
+      }
+    ],
+    "deploymentClaims": [
+      "DSOD runs at 20.6 fps (48.6 ms/image) with plain prediction layers and 17.4 fps (57.5 ms/image) with dense prediction layers on a single Titan X GPU.",
+      "A lite version with 10.4M parameters runs at 25.8 fps with only a 1% mAP drop.",
+      "57.5 ms per image on one Titan X GPU or 590 ms on an Intel Core i7-5960X CPU at 3.00GHz.",
+      "Model size is about 1/2 of SSD300, 1/4 of R-FCN and 1/10 of Faster R-CNN."
+    ],
+    "evidence": [
+      { "quote": "For instance, DSOD outperforms SSD on all three benchmarks with real-time detection speed, while requires only 1/2 parameters to SSD and 1/10 parameters to Faster RCNN.", "location": "Abstract" },
+      { "quote": "our full DSOD can process an image in 48.6ms (20.6 fps) on a single Titan X GPU with the plain prediction structure", "location": "Sec 4.1.3" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/iccv.2017.212",
+    "arxivUrl": "https://arxiv.org/abs/1708.01241",
+    "venue": "IEEE International Conference on Computer Vision (ICCV)",
+    "pdfUrl": "https://arxiv.org/pdf/1708.01241"
+  }
+}

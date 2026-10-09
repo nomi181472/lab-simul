@@ -1,0 +1,213 @@
+{
+  "id": "OD084",
+  "arxiv": "2203.01305",
+  "title": "DN-DETR: Accelerate DETR Training by Introducing Query DeNoising",
+  "year": 2022,
+  "venue": "CVPR 2022",
+  "problem": {
+    "summary": "DETR-like detectors train very slowly because their one-to-one supervision relies on bipartite (Hungarian) matching, which is unstable early in training and gives decoder queries inconsistent optimization goals from epoch to epoch.",
+    "statements": [
+      "DETR needs about 500 epochs of COCO training for good performance, in contrast to the 12 epochs of the original Faster R-CNN training.",
+      "Bipartite graph matching is unstable in early training due to stochastic optimization, so the same query is matched to different objects in different epochs, making optimization ambiguous.",
+      "Prior speedup works change the architecture or the decoder queries but do not treat the Hungarian matching itself as the main reason for slow convergence."
+    ],
+    "problemTags": ["convergence", "training-instability", "label-assignment"],
+    "evidence": [
+      {
+        "quote": "We show that the slow convergence results from the instability of bipartite graph matching which causes inconsistent optimization goals in early training stages.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "However, DETR suffers from prohibitively slow training convergence compared with previous detectors. To obtain a good performance, it usually takes 500 epochs of training on the COCO detection dataset, in contrast to 12 epochs used in the original Faster-RCNN training.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "A small change in the cost matrix may cause an enormous change in the matching result, which will further lead to inconsistent optimization goals for decoder queries.",
+        "location": "Sec 3.1"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on DETR and its faster-converging variants (Conditional DETR, Deformable DETR, Anchor DETR, DAB-DETR) plus classical one- and two-stage CNN detectors, claiming the gap is that none of them identifies Hungarian bipartite matching itself as the source of slow convergence.",
+    "relatedWork": [
+      {
+        "name": "DETR",
+        "relation": "prior transformer detector that removes anchors and NMS but converges very slowly",
+        "quote": "Carion et al. [1] proposed an end-to-end object detector based on Transformers [20] named DETR (DEtection TRansformer) without using anchors.",
+        "location": "Sec 2.2"
+      },
+      {
+        "name": "DAB-DETR",
+        "relation": "baseline architecture whose 4D anchor-box queries DN-DETR is built on",
+        "quote": "DAB-DETR [14] uses 4-D box coordinates as queries and updates boxes layer by layer in a cascade manner.",
+        "location": "Sec 2.2"
+      },
+      {
+        "name": "Deformable DETR and Anchor DETR",
+        "relation": "prior query designs that bind each query to a spatial position",
+        "quote": "Deformable DETR [25] and Anchor DETR [21] directly treat 2D reference points as queries to perform cross-attention.",
+        "location": "Introduction"
+      },
+      {
+        "name": "Faster R-CNN",
+        "relation": "classical two-stage anchor-based baseline used for convergence comparison",
+        "quote": "Ren et al. [18] proposed an end-to-end method that utilizes a Region Proposal Network to predict anchor boxes.",
+        "location": "Sec 2.1"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Despite all the progress, none of them treats bipartite graph matching used in the Hungarian loss as the main reason for slow convergence.",
+        "location": "Sec 2.2"
+      },
+      {
+        "quote": "In this work, we give a different analysis with an effective solution that leads to a different conclusion.",
+        "location": "Sec 2.2"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "DN-DETR adds an auxiliary denoising task: noised ground-truth boxes and labels are fed to the Transformer decoder as extra queries and trained to reconstruct the originals, which bypasses the unstable bipartite matching; an attention mask prevents information leakage between the denoising and matching parts.",
+    "approach": "Feed noised GT box-label pairs as extra decoder queries and reconstruct them with a matching-free reconstruction loss added to the standard Hungarian loss.",
+    "components": [
+      "noised GT box queries using center shifting and box scaling noise",
+      "label flipping with class label embeddings plus an indicator to support label denoising",
+      "reconstruction loss (l1 + GIoU for boxes, focal loss for labels) alongside the Hungarian loss",
+      "attention mask blocking leakage from the denoising part to the matching part and among denoising groups",
+      "multiple noised versions (denoising groups) of each GT object per image",
+      "denoising part removed at inference, so there is no testing overhead"
+    ],
+    "solutionTags": ["transformer-query", "anchors", "set-prediction", "denoising-training"],
+    "evidence": [
+      {
+        "quote": "except for the Hungarian loss, our method additionally feeds GT bounding boxes with noises into the Transformer decoder and trains the model to reconstruct the original boxes, which effectively reduces the bipartite graph matching difficulty and leads to faster convergence.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "As the noised bounding boxes do not need to go through the bipartite graph matching component, the denoising task can be regarded as an easier auxiliary task, helping DETR alleviate the unstable discrete bipartite matching and learn bounding box prediction more quickly.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Therefore, our attention mask is to make sure the matching part cannot see the denoising part and the denoising groups cannot see each other as shown in Fig. 6.",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "Notice that denoising is only considered in training, during inference the denoising part is removed, leaving only the matching part.",
+        "location": "Sec 4.3"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "The method is evaluated on MS-COCO 2017 (train2017/val2017) with standard AP, comparing against DAB-DETR, DETR, Faster R-CNN, Deformable DETR and Dynamic DETR under matched 12- and 50-epoch settings, plus ablations over components, denoising-group count and noise scale.",
+    "benchmarks": [
+      { "dataset": "MS-COCO 2017", "metric": "AP", "value": "44.1", "split": "val2017", "location": "Table 1 (DN-DETR-R50, 50 epochs)" },
+      { "dataset": "MS-COCO 2017", "metric": "AP", "value": "45.2", "split": "val2017", "location": "Table 1 (DN-DETR-R101, 50 epochs)" },
+      { "dataset": "MS-COCO 2017", "metric": "AP", "value": "41.7", "split": "val2017", "location": "Table 2 (DN-DETR-DC5-R50, 12 epochs)" },
+      { "dataset": "MS-COCO 2017", "metric": "AP", "value": "46.0", "split": "val2017", "location": "Table 2 (DN-Deformable-DETR-R50++, 12 epochs)" },
+      { "dataset": "MS-COCO 2017", "metric": "AP", "value": "49.5", "split": "val2017", "location": "Table 4 (DN-Deformable-DETR-R50++, 50 epochs)" },
+      { "dataset": "MS-COCO 2017", "metric": "AP", "value": "38.4", "split": "val2017", "location": "Table 3 (DN-Faster R-CNN-FPN-R50, 12 epochs)" },
+      { "dataset": "MS-COCO 2017", "metric": "AP", "value": "42.6", "split": "val2017", "location": "Table 3 (DN-Vanilla-DETR-R50, 300 epochs)" }
+    ],
+    "baselines": ["DAB-DETR", "DETR", "Faster R-CNN", "Deformable DETR", "Conditional DETR", "Anchor DETR", "Dynamic DETR"],
+    "evidence": [
+      {
+        "quote": "As a result, our DN-DETR results in a remarkable improvement (+1.9AP) under the same setting and achieves 46.0 AP and 49.5 AP trained for 12 and 50 epochs with the ResNet-50 backbone.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Under the same setting with the DC5-R50 backbone, DN-DETR can outperform DAB-DETR by +3.7 AP within 12 epochs.",
+        "location": "Sec 5.3"
+      },
+      {
+        "quote": "Our method achieves results comparable to the baseline with only half of the training epochs, resulting in 2x acceleration.",
+        "location": "Sec 5.6.3"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors restrict themselves to uniformly distributed noise with no more complex noising schemes, note that overly large noise hurts accuracy, and that denoising slightly raises per-epoch training time.",
+    "items": [
+      "Noise is sampled only from a uniform distribution; more complex noising schemes were not explored.",
+      "Accuracy drops when the noise scale is too large.",
+      "Denoising raises per-epoch training time (57.7 min vs 51.1 min for the DAB-DETR-R50 baseline).",
+      "Without an attention mask, denoising training degrades performance instead of improving it.",
+      "Benefits for segmentation and traditional CNN detectors are shown only in preliminary adaptations."
+    ],
+    "evidence": [
+      {
+        "quote": "In this work, the added noises are simply sampled from a uniform distribution. We have not explored more complex noising schemes and leave these for future work.",
+        "location": "Conclusion"
+      },
+      {
+        "quote": "But when the noise is too large, the performance drops.",
+        "location": "Sec 5.6.2"
+      },
+      {
+        "quote": "Without an attention mask, the denoising training will compromise the performance instead of improving it as shown in Table 5.",
+        "location": "Sec 4.4"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Explore more complex noising schemes beyond uniform noise for the denoising task.",
+      "quote": "We have not explored more complex noising schemes and leave these for future work.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Pre-train detectors on weakly labeled data with unsupervised learning techniques and apply other denoising schemes in detection.",
+      "quote": "In the future, we will explore how to pre-train detectors on weakly labeled data with unsupervised learning techniques and explore applying other denoising training schemes in detection models.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Zero-shot / open-set detection by feeding pre-trained class label embeddings into the decoder queries.",
+      "quote": "In inference time, class label embeddings from unseen classes can be fed into the decoder to achieve zeroshot detection.",
+      "location": "Sec 5.7.2"
+    },
+    {
+      "direction": "Progressive inference that iteratively treats high-scoring predictions as known objects.",
+      "quote": "Based on known object detection, a progressive inference method can be designed.",
+      "location": "Sec 5.7.2"
+    },
+    {
+      "direction": "Add a multi-label classification network that supplies labels to DN-DETR before detection.",
+      "quote": "Therefore, one potential future work is to add a muli-label classification network to provide labels and feed them to DN-DETR, which may help improve detection performance.",
+      "location": "Sec 5.7.2"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS-COCO 2017"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNet-50-DC5", "ResNet-101-DC5"],
+    "models": ["DN-DETR", "DN-Deformable-DETR", "DN-Deformable-DETR++", "DAB-DETR", "DETR", "Anchor DETR", "Conditional DETR", "Deformable DETR", "Faster R-CNN", "Mask2Former", "Mask DINO"],
+    "algorithms": ["Hungarian matching", "denoising training", "focal loss", "GIoU loss", "deformable attention", "attention masking"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "GFLOPs"],
+    "equations": [
+      { "name": "Matching index vector", "expr": "V^i_n = m if O^i_n matches T_m, else -1", "location": "Eq. (1)" },
+      { "name": "Matching instability (IS)", "expr": "IS^i = sum_n 1(V^i_n != V^{i-1}_n)", "location": "Eq. (2)" },
+      { "name": "Decoder with attention mask", "expr": "o = D(q, F|A)", "location": "Eq. (3)" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "Denoising groups add negligible training GFLOPs (94.4 to 94.6 with 5 groups) and no computation overhead for testing, as stated by the authors.",
+      "Total training time drops from 2555 min (50 epochs) to 1443 min (25 epochs) on 8 NVIDIA A100 GPUs while matching baseline performance."
+    ],
+    "evidence": [
+      {
+        "quote": "when 5 denoising groups are introduced, GFLOPs for training are only increased from 94.4 to 94.6 for DAB-DETR with a ResNet-50 backbone, and there is no computation overhead for testing.",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "The training time per epoch is 51.1min and 57.7min for DAB-DETRR50 and DN-DAB-DETR-R50, respectively.",
+        "location": "Sec 5.6.4"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr52688.2022.01325",
+    "arxivUrl": "https://arxiv.org/abs/2203.01305",
+    "venue": "CVPR 2022",
+    "pdfUrl": "https://arxiv.org/pdf/2203.01305"
+  }
+}

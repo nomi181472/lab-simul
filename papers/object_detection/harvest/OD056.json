@@ -1,0 +1,252 @@
+{
+  "id": "OD056",
+  "arxiv": "2004.10934",
+  "title": "YOLOv4: Optimal Speed and Accuracy of Object Detection",
+  "year": 2020,
+  "venue": null,
+  "problem": {
+    "summary": "There are many claimed CNN accuracy-improving features but no systematically validated combination for a real-time detector: the most accurate networks are not real-time and need many GPUs, while fast detectors are inaccurate.",
+    "statements": ["The large number of claimed accuracy-improving features lacks practical combination testing on large datasets and theoretical justification.", "The most accurate modern neural networks do not run in real time and require many GPUs with large mini-batches for training.", "Detector design is usually judged by the low computation volume theoretical indicator (BFLOP) rather than operating speed in production systems."],
+    "problemTags": ["speed-latency", "deployability", "real-time-edge"],
+    "evidence": [
+      {
+        "quote": "There are a huge number of features which are said to improve Convolutional Neural Network (CNN) accuracy.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Practical testing of combinations of such features on large datasets, and theoretical justification of the result, is required.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "The most accurate modern neural networks do not operate in real time and require large number of GPUs for training with a large mini-batch-size.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "The majority of CNN-based object detectors are largely applicable only for recommendation systems.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The paper organizes prior detection work as backbone/neck/head and inventories 'bag of freebies' (training-only tricks such as augmentation and IoU-family losses) and 'bag of specials' (inference-cost plugins such as SPP and attention), building on the YOLO line, FPN/PAN necks and CSPNet.",
+    "relatedWork": [
+      {
+        "name": "R-CNN series",
+        "relation": "representative two-stage detectors used as the two-stage reference class",
+        "quote": "The most representative two-stage object detector is the R-CNN [19] series, including fast R-CNN [18], faster R-CNN [64], R-FCN [9], and Libra R-CNN [58].",
+        "location": "Sec 2.1"
+      },
+      {
+        "name": "YOLOv3",
+        "relation": "direct predecessor whose SPP-equipped head and Darknet-53 backbone the architecture builds on",
+        "quote": "YOLOv3-608 upgrades AP50 by 2.7% on the MS COCO object detection task at the cost of 0.5% extra computation.",
+        "location": "Sec 2.3"
+      },
+      {
+        "name": "Focal Loss (RetinaNet)",
+        "relation": "prior solution to class data imbalance for dense one-stage detectors",
+        "quote": "Lin et al. [45] proposed focal loss to deal with the problem of data imbalance existing between various classes.",
+        "location": "Sec 2.2"
+      },
+      {
+        "name": "CIoU loss",
+        "relation": "bounding-box regression loss adopted for the detector, combining overlap, center distance and aspect ratio",
+        "quote": "CIoU can achieve better convergence speed and accuracy on the BBox regression problem.",
+        "location": "Sec 2.2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "A modern detector is usually composed of two parts, a backbone which is pre-trained on ImageNet and a head which is used to predict classes and bounding boxes of objects.",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "We call these methods that only change the training strategy or only increase the training cost as “bag of freebies.”",
+        "location": "Sec 2.2"
+      },
+      {
+        "quote": "For those plugin modules and post-processing methods that only increase the inference cost by a small amount but can significantly improve the accuracy of object detection, we call them “bag of specials”.",
+        "location": "Sec 2.3"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "YOLOv4 fixes the architecture as CSPDarknet53 backbone + SPP + PANet neck + anchor-based YOLOv3 head, then systematically selects bag-of-freebies and bag-of-specials ingredients (Mosaic 4-image augmentation, SAT, CmBN, Mish, CIoU loss, DropBlock, genetic-algorithm hyper-parameters, modified SAM and PAN) for single-GPU training.",
+    "approach": "Combine a CSP backbone with a PAN path-aggregation neck and YOLOv3 head, then add empirically validated free training tricks and low-cost inference plugins to maximize COCO AP at real-time FPS on a conventional GPU.",
+    "components": ["CSPDarknet53 backbone chosen for receptive field and parameter balance", "SPP additional block over the backbone to enlarge receptive field at near-zero speed cost", "PANet path-aggregation neck instead of the FPN used in YOLOv3", "YOLOv3 anchor-based detection head", "Mosaic data augmentation mixing 4 training images and Self-Adversarial Training", "Cross mini-Batch Normalization (CmBN), DropBlock regularization, class label smoothing", "genetic algorithm hyper-parameter search and modified SAM (point-wise) / PAN (concatenation)"],
+    "solutionTags": ["one-stage", "anchors", "feature-fusion", "mosaic-augmentation", "ciou"],
+    "evidence": [
+      {
+        "quote": "Finally, we choose CSPDarknet53 backbone, SPP additional module, PANet path-aggregation neck, and YOLOv3 (anchor based) head as the architecture of YOLOv4.",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "Mosaic represents a new data augmentation method that mixes 4 training images.",
+        "location": "Sec 3.3"
+      },
+      {
+        "quote": "CmBN represents a CBN modified version, as shown in Figure 4, defined as Cross mini-Batch Normalization (CmBN).",
+        "location": "Sec 3.3"
+      },
+      {
+        "quote": "The basic aim is fast operating speed of neural network, in production systems and optimization for parallel computations, rather than the low computation volume theoretical indicator (BFLOP).",
+        "location": "Sec 3"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Features are first screened on ImageNet (ILSVRC 2012 val) classifier accuracy and then on COCO test-dev 2017 detector accuracy, with ablations over bag-of-freebies, bag-of-specials, backbones/pre-trained weights and mini-batch size, plus batch=1 speed comparisons on Maxwell, Pascal and Volta GPUs.",
+    "benchmarks": [
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "43.5",
+        "split": "test-dev 2017, YOLOv4 CSPDarknet-53 608",
+        "location": "Table 8"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP50",
+        "value": "65.7",
+        "split": "test-dev 2017, YOLOv4 CSPDarknet-53 608",
+        "location": "Table 8"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "43.0",
+        "split": "test-dev 2017, YOLOv4 CSPDarknet-53 512",
+        "location": "Table 8"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "FPS",
+        "value": "62",
+        "split": "test-dev 2017, YOLOv4 608 on Volta GPU (Tesla V100), batch=1",
+        "location": "Table 10"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "FPS",
+        "value": "96",
+        "split": "test-dev 2017, YOLOv4 416 on Volta GPU, batch=1",
+        "location": "Table 10"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "42.7",
+        "split": "512x512 ablation, CSPResNeXt50-PANet-SPP-SAM (Bag of Specials)",
+        "location": "Table 5"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "41.7",
+        "split": "size 512, CSPDarknet53-PANet-SPP with BoF/BoS, mini-batch 8",
+        "location": "Table 7"
+      }
+    ],
+    "baselines": ["YOLOv3", "YOLOv3-SPP", "EfficientDet-D0..D3", "RetinaNet", "SSD", "CenterNet", "ATSS", "FreeAnchor", "Cascade R-CNN"],
+    "evidence": [
+      {
+        "quote": "at a realtime speed of ∼65 FPS on Tesla V100",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Our YOLOv4 are located on the Pareto optimality curve and are superior to the fastest and most accurate detectors in terms of both speed and accuracy.",
+        "location": "Sec 5"
+      },
+      {
+        "quote": "after adding BoF and BoS training strategies, the mini-batch size has almost no effect on the detector's performance.",
+        "location": "Sec 4.5"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper has no dedicated limitations section, but it acknowledges that speed numbers come from different GPU architectures and are therefore hard to compare, that a classification-optimal backbone is not detector-optimal, and that the final ingredient set was picked empirically from a large verified list.",
+    "items": ["Speed comparisons mix Maxwell, Pascal and Volta GPUs (batch=1, no TensorRT), so FPS figures are not directly comparable across papers.", "The bag-of-freebies/bag-of-specials ablations are run on CSPResNeXt50-PANet-SPP variants rather than on the final YOLOv4 configuration.", "Feature selection is empirical: a large number of features were verified and the useful ones kept, without a unifying theoretical account."],
+    "evidence": [
+      {
+        "quote": "Since different methods use GPUs of different architectures for inference time verification",
+        "location": "Sec 5"
+      },
+      {
+        "quote": "A reference model which is optimal for classification is not always optimal for a detector.",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "We have verified a large number of features, and selected for use such of them for improving the accuracy of both the classifier and the detector.",
+        "location": "Conclusion"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Substantially expand the bag of freebies for the detector and check the influence of each added feature experimentally.",
+      "quote": "In the future we plan to expand significantly the content of Bag of Freebies (BoF) for the detector, which theoretically can address some problems and increase the detector accuracy",
+      "location": "Sec 3.1"
+    },
+    {
+      "direction": "Use the verified feature inventory as best-practice guidance for later detector studies.",
+      "quote": "These features can be used as best-practice for future studies and developments.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO (test-dev 2017)", "ImageNet (ILSVRC 2012 val)"],
+    "backbones": ["CSPDarknet53", "CSPResNeXt50", "Darknet-53", "EfficientNet-B3", "VGG-16", "ResNet-50"],
+    "models": ["YOLOv4", "YOLOv3", "YOLOv3-SPP", "EfficientDet-D0..D3", "RetinaNet", "SSD", "RefineDet", "M2det", "CenterNet", "CornerNet", "FCOS", "ATSS", "FreeAnchor", "Cascade R-CNN", "TridentNet"],
+    "algorithms": ["Mosaic data augmentation", "Self-Adversarial Training", "Cross mini-Batch Normalization (CmBN)", "DropBlock", "CIoU loss", "GIoU loss", "DIoU loss", "DIoU-NMS", "genetic algorithm hyper-parameter search", "SPP", "PANet", "SAM", "label smoothing", "cosine annealing scheduler"],
+    "metrics": ["AP", "AP50", "AP75", "APs/APm/APl", "FPS", "Top-1", "Top-5", "BFLOPs"],
+    "equations": [
+      {
+        "name": "grid sensitivity elimination",
+        "expr": "bx = sigmoid(tx) + cx, by = sigmoid(ty) + cy, with the sigmoid multiplied by a factor exceeding 1.0",
+        "location": "Sec 4.3"
+      },
+      {
+        "name": "IoU threshold anchor assignment",
+        "expr": "IoU(truth, anchor) > IoU threshold",
+        "location": "Sec 4.3"
+      }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "smart parking / urban video surveillance",
+        "detail": "Free-parking-space search via urban video cameras is cited as an existing slow-but-accurate detector use case that better real-time accuracy would upgrade.",
+        "quote": "searching for free parking spaces via urban video cameras is executed by slow accurate models",
+        "location": "Introduction"
+      },
+      {
+        "domain": "automotive collision warning",
+        "detail": "Car collision warning is cited as a fast-but-inaccurate use case that better real-time detector accuracy would improve.",
+        "quote": "car collision warning is related to fast inaccurate models",
+        "location": "Introduction"
+      }
+    ],
+    "deploymentClaims": ["43.5% AP (65.7% AP50) on MS COCO at a real-time speed of about 65 FPS on a Tesla V100 (Abstract).", "Batch=1 FPS without TensorRT: 23-38 FPS on Maxwell, 33-54 FPS on Pascal and 62-96 FPS on Volta GPUs for input sizes 608/512/416 (Tables 8-10).", "Trainable and usable on a conventional GPU with 8-16 GB VRAM (GTX 1080 Ti / RTX 2080 Ti), no multi-GPU SyncBN required."],
+    "evidence": [
+      {
+        "quote": "at a realtime speed of ∼65 FPS on Tesla V100",
+        "location": "Abstract"
+      },
+      {
+        "quote": "This allows anyone to reproduce our state-of-the-art outcomes on a conventional graphic processor e.g. GTX 1080Ti or RTX 2080Ti.",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "The detector described can be trained and used on a conventional GPU with 8-16 GB-VRAM this makes its broad use possible.",
+        "location": "Conclusion"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2004.10934",
+    "arxivUrl": "https://arxiv.org/abs/2004.10934",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2004.10934"
+  }
+}

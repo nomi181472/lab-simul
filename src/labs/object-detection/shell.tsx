@@ -3,19 +3,21 @@
 import { SECTIONS, type SectionId } from "@/labs/object-detection/data/types";
 import { useLab } from "@/labs/object-detection/context";
 import { YearTicker } from "@/labs/object-detection/year-ticker";
+import { PAPER_COUNT, YEAR_MIN, YEAR_MAX, TOTAL_CITATIONS } from "@/labs/object-detection/data/papers";
 import { OverviewView } from "@/labs/object-detection/views/overview";
 import { YearView } from "@/labs/object-detection/views/year";
 import { EvolutionView } from "@/labs/object-detection/views/evolution";
 import { ProblemsView } from "@/labs/object-detection/views/problems";
+import { ClustersView } from "@/labs/object-detection/views/clusters";
 import { DirectionsView } from "@/labs/object-detection/views/directions";
-import { ApplicationsView } from "@/labs/object-detection/views/applications";
+import { IndustryView } from "@/labs/object-detection/views/industry";
+import { SaturationView } from "@/labs/object-detection/views/saturation";
 import { BenchmarkView } from "@/labs/object-detection/views/benchmark";
 import { ExplorerView } from "@/labs/object-detection/views/explorer";
-import { AskView } from "@/labs/object-detection/views/ask";
-import { MissingView } from "@/labs/object-detection/views/missing";
 import { PapersView } from "@/labs/object-detection/views/papers";
-import { MathView } from "@/labs/object-detection/views/math";
-import { EdgeView } from "@/labs/object-detection/views/edge";
+import { SimulatorsView } from "@/labs/object-detection/views/simulators";
+import { AnalogyView } from "@/labs/object-detection/views/analogy";
+import { AskView } from "@/labs/object-detection/views/ask";
 import { AuditView } from "@/labs/object-detection/views/audit";
 
 export function LabShell({ children }: { children: React.ReactNode }) {
@@ -38,7 +40,7 @@ export function LabShell({ children }: { children: React.ReactNode }) {
                 OBJECT DETECTION
               </button>
               <p className="font-mono text-[10px] text-zinc-500">
-                Research Lab · 48 papers · 2015–2026 · evidence-grounded
+                Research Lab · {PAPER_COUNT} papers · {YEAR_MIN}–{YEAR_MAX} · evidence-grounded
               </p>
             </div>
           </div>
@@ -68,7 +70,9 @@ export function LabShell({ children }: { children: React.ReactNode }) {
 
       <footer className="border-t border-zinc-800 bg-zinc-950 py-4">
         <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-2 px-4 font-mono text-[10px] text-zinc-600">
-          <span>CORPUS: 48 papers (49 PDFs) · 2015–2026</span>
+          <span>
+            CORPUS: {PAPER_COUNT} papers · {YEAR_MIN}–{YEAR_MAX} · {TOTAL_CITATIONS.toLocaleString()} citations
+          </span>
           <span>EVIDENCE POLICY: no claim without a paper · INSUFFICIENT_EVIDENCE shown when unsupported</span>
         </div>
       </footer>
@@ -83,15 +87,16 @@ export function ActiveSection() {
     year: YearView,
     evolution: EvolutionView,
     problems: ProblemsView,
+    clusters: ClustersView,
     directions: DirectionsView,
-    applications: ApplicationsView,
+    industry: IndustryView,
+    saturation: SaturationView,
     benchmark: BenchmarkView,
     explorer: ExplorerView,
-    ask: AskView,
-    missing: MissingView,
     papers: PapersView,
-    math: MathView,
-    edge: EdgeView,
+    simulators: SimulatorsView,
+    analogy: AnalogyView,
+    ask: AskView,
     audit: AuditView,
   };
   const Comp = map[section];

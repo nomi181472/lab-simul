@@ -1,0 +1,141 @@
+{
+  "id": "OD118",
+  "arxiv": "2511.09554",
+  "title": "RF-DETR: Neural Architecture Search for Real-Time Detection Transformers",
+  "year": 2025,
+  "venue": null,
+  "problem": {
+    "summary": "Neural Architecture Search for DETRs faces unique challenges; existing approaches don't effectively target real-time performance with accuracy-latency trade-offs.",
+    "statements": [
+      "Neural Architecture Search (NAS) for DETRs presents challenges distinct from CNNs.",
+      "Effectively balancing accuracy and latency for real-time DETRs remains difficult."
+    ],
+    "problemTags": [
+      "real-time-edge",
+      "speed-latency",
+      "deployability",
+      "nas"
+    ],
+    "evidence": [
+      {
+        "quote": "Rather than simply fine-tuning a heavyweight vision-language model (VLM) for new domains, we introduce RF-DETR,\na light-weight specialist detection transformer that discovers accuracy-latency\nPareto curves for any target dataset with weight-sharing neural architecture search\n(NAS).",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Our approach fine-tunes a pre-trained base network on a target dataset\nand evaluates thousands of network configurations with different accuracy-latency\ntradeoffs without re-training.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "Builds on DETR family and NAS; highlights the need to rethink NAS specifically for DETRs in real-time settings.",
+    "relatedWork": [
+      {
+        "name": "DETR",
+        "relation": "foundation",
+        "quote": "Rather than simply fine-tuning a heavyweight vision-language model (VLM) for new domains, we introduce RF-DETR,\na light-weight specialist detection transformer that discovers accuracy-latency\nPareto curves for any target dataset with weight-sharing neural architecture search\n(NAS).",
+        "location": "Introduction"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Further, we revisit the \u201ctunable knobs\u201d for NAS\nto improve the transferability of DETRs to diverse target domains.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "Proposes RF-DETR with a NAS design tailored for real-time Detection Transformers, optimizing for accuracy-latency trade-offs.",
+    "approach": "Tailor NAS search space and objectives specifically for real-time DETRs to discover Pareto-optimal architectures.",
+    "components": [
+      "DETR-specific NAS search space",
+      "accuracy-latency optimization",
+      "real-time DETR architecture"
+    ],
+    "solutionTags": [
+      "nas",
+      "transformer-query",
+      "real-time-backbone",
+      "nms-free"
+    ],
+    "evidence": [
+      {
+        "quote": "Rather than simply fine-tuning a heavyweight vision-language model (VLM) for new domains, we introduce RF-DETR,\na light-weight specialist detection transformer that discovers accuracy-latency\nPareto curves for any target dataset with weight-sharing neural architecture search\n(NAS).",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Notably,\nRF-DETR significantly improves over prior state-of-the-art real-time methods on\nCOCO and Roboflow100-VL.",
+        "location": "Results/Abstract"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluates RF-DETR on COCO benchmark, showing improvements over prior state-of-the-art real-time methods.",
+    "benchmarks": [
+      {
+        "dataset": "COCO",
+        "metric": "mAP",
+        "value": "reported",
+        "split": "val",
+        "location": "Experimental results"
+      },
+      {
+        "dataset": "COCO",
+        "metric": "latency",
+        "value": "reported",
+        "split": "val",
+        "location": "Experimental results"
+      }
+    ],
+    "baselines": [
+      "real-time DETR methods",
+      "YOLO variants"
+    ],
+    "evidence": [
+      {
+        "quote": "Notably,\nRF-DETR significantly improves over prior state-of-the-art real-time methods on\nCOCO and Roboflow100-VL.",
+        "location": "Abstract"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "No explicit verbatim limitations prominently stated in examined sections.",
+    "items": [],
+    "evidence": []
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": [
+      "COCO"
+    ],
+    "backbones": [
+      "searched backbones"
+    ],
+    "models": [
+      "RF-DETR"
+    ],
+    "algorithms": [
+      "Neural Architecture Search (NAS)",
+      "Detection Transformer (DETR)"
+    ],
+    "metrics": [
+      "mAP",
+      "latency",
+      "FPS"
+    ],
+    "equations": []
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "real-time performance"
+    ],
+    "evidence": []
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2511.09554",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2511.09554"
+  }
+}

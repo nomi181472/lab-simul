@@ -1,0 +1,264 @@
+{
+  "id": "OD005",
+  "arxiv": "1512.04143",
+  "title": "Inside-Outside Net: Detecting Objects in Context with Skip Pooling and Recurrent Neural Networks",
+  "year": 2015,
+  "venue": "CVPR 2016",
+  "problem": {
+    "summary": "Accurate detectors such as Fast/Faster R-CNN only use information inside the region of interest and pool from the final convolutional layer, so wider image context and fine-grained multi-scale detail are discarded; this especially hurts small and occluded objects.",
+    "statements": [
+      "Detectors restrict computation to the region of interest and ignore context elsewhere in the image, which limits how ambiguous or occluded objects can be recognized.",
+      "Pooling descriptors only from the last convolutional layer discards the high-resolution features that small objects need.",
+      "Context and multi-scale cues existed as separate ideas (spatial RNNs, skip layers) but were not combined into a single detection architecture."
+    ],
+    "problemTags": [
+      "small-objects",
+      "scale-variance",
+      "occlusion"
+    ],
+    "evidence": [
+      {
+        "quote": "Current state-of-the-art detection approaches [7, 30] only use information near an object’s region of interest (ROI). This places constraints on the type and accuracy of objects that may be detected.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "The information gained is especially important for small objects, which require the higher spatial resolution provided by lower-level layers.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "In general, small objects are challenging for detectors: there are fewer pixels on the object, they are harder to localize, and there can be many more of them per image.",
+        "location": "Sec 4.5"
+      }
+    ]
+  },
+  "background": {
+    "summary": "ION builds directly on the Fast R-CNN pipeline and borrows two prior ideas: multi-scale skip-layer features for pedestrian detection (Sermanet et al.) and spatial RNNs for context; it also compares against context-aware MR-CNN and detectors that pool only from conv5.",
+    "relatedWork": [
+      {
+        "name": "Fast R-CNN",
+        "relation": "base detector whose pipeline and hyperparameters ION extends",
+        "quote": "Our experiments are conducted with Fast R-CNN [8], which is an end-to-end trainable refinement of He et al.’s SPPnet [13].",
+        "location": "Sec 2 Prior work"
+      },
+      {
+        "name": "Faster R-CNN / SPPnet",
+        "relation": "prior detectors that pool only from the last convolutional layer, the limitation ION removes",
+        "quote": "Recent successful detectors such as Fast R-CNN, Faster R-CNN [30], and SPPnet, all pool from the last convolutional layer (“conv5 3”) in VGG16 [35].",
+        "location": "Sec 3.1"
+      },
+      {
+        "name": "Multi-stage features (Sermanet et al.)",
+        "relation": "closest prior skip-connection usage; ION adds L2 normalization before combining layers",
+        "quote": "Our usage of skip connections is most closely related to those used by Sermanet et al. [34] (termed “multi-stage features”) for pedestrian detection.",
+        "location": "Sec 2 Prior work"
+      },
+      {
+        "name": "Spatial RNNs",
+        "relation": "prior mechanism for running RNNs over feature maps, reused here to compute context features",
+        "quote": "We employ spatial RNNs as a mechanism for computing contextual features for use in object detection.",
+        "location": "Sec 2 Prior work"
+      },
+      {
+        "name": "MR-CNN",
+        "relation": "competing context-based detector and two-round box-regression scheme adopted by ION",
+        "quote": "MR-CNN also uses context and achieves 78.2%.",
+        "location": "Sec 4.2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "It is well known in the study of human and computer vision that context plays an important role in visual recognition [37, 26, 5].",
+        "location": "Introduction"
+      },
+      {
+        "quote": "We demonstrate that both sources of additional information, context and multi-scale, are complementary in nature.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "ION adds a 2x stacked four-directional IRNN on top of conv5 to produce context features, and pools each ROI's descriptor from conv3, conv4, conv5 and those context features; descriptors are L2-normalized, concatenated, rescaled and reduced by a 1x1 convolution before the Fast R-CNN classification and box heads.",
+    "approach": "Four-directional IRNNs supply inside/outside context features while ROI descriptors are skip-pooled and L2-normalized across multiple conv layers.",
+    "components": [
+      "VGG-16 backbone inside the Fast R-CNN framework",
+      "2x stacked four-direction IRNN computing context features on conv5",
+      "skip pooling of ROIs from conv3, conv4, conv5 and context features",
+      "L2 normalization plus learned/fixed per-channel scale and 1x1 dimension reduction",
+      "optional semantic segmentation auxiliary loss to regularize the top IRNN",
+      "selective search proposals (MCG + RPN mix for the COCO submission)",
+      "weighted voting with two rounds of bounding box regression at test time"
+    ],
+    "solutionTags": [
+      "two-stage",
+      "multi-scale",
+      "feature-fusion"
+    ],
+    "evidence": [
+      {
+        "quote": "Contextual information outside the region of interest is integrated using spatial recurrent neural networks.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Inside, we use skip pooling to extract information at multiple scales and levels of abstraction.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "At the top of the network, a 2x stacked 4-directional IRNN (explained later) computes context features that describe the image both globally and locally.",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "The descriptors are L2-normalized, concatenated, re-scaled, and dimension-reduced (1x1 convolution) to produce a fixed-length feature descriptor for each proposal of size 512x7x7.",
+        "location": "Sec 3"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "ION is evaluated on PASCAL VOC 2007/2012 and MS COCO against Fast R-CNN, RPN, MR-CNN and HyperNet, with a design study on pooling layers, normalization, segmentation loss, context mechanisms and IRNN variants, plus per-size AP breakdowns and COCO challenge results.",
+    "benchmarks": [
+      {
+        "dataset": "PASCAL VOC 2007",
+        "metric": "mAP",
+        "value": "79.2",
+        "split": "test, train 07+12+S, best model",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "PASCAL VOC 2012",
+        "metric": "mAP",
+        "value": "76.4",
+        "split": "test, train 07+12+S",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "mAP@[.5:.95]",
+        "value": "33.1",
+        "split": "2015 test-dev, post-competition single model",
+        "location": "Table 3"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "mAP@[.5:.95]",
+        "value": "24.9",
+        "split": "2015 test-dev, same images and schedule as Fast R-CNN baseline",
+        "location": "Table 3"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP small",
+        "value": "7.0",
+        "split": "2015 test-dev, small objects",
+        "location": "Sec 4.5"
+      }
+    ],
+    "baselines": [
+      "Fast R-CNN",
+      "RPN (Faster R-CNN)",
+      "MR-CNN",
+      "HyperNet",
+      "FRCN+YOLO"
+    ],
+    "evidence": [
+      {
+        "quote": "ION improves state-of-the-art on PASCAL VOC 2012 object detection from 73.9% to 76.4% mAP.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "As shown in Table 3, when trained on the same images with the same schedule, our method obtains a large improvement over the baseline with a mAP of 24.9%.",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "Using only a single model (no ensembling), our submission achieved 31.0% on test-competition score and 31.2% on test-dev score (Table 3).",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "For COCO, if we look at small3 objects, average precision and average recall improve from 4.1% to 7.0% and from 7.3% to 10.7% respectively.",
+        "location": "Sec 4.5"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "ION still depends on external proposals, where selective search is very weak on small COCO objects; headline numbers rely on extra tricks such as segmentation labels, weighted box voting and long schedules, and box voting can even hurt the COCO metric.",
+    "items": [
+      "Proposal generation is a bottleneck: selective search averages under 10% recall on small COCO objects.",
+      "Best numbers need SBD segmentation labels, weighted voting with tuned thresholds, dropout removal and long training schedules.",
+      "Short training schedules do not fully converge, so results are schedule-sensitive.",
+      "Two-round box regression and weighted voting initially reduced COCO 0.5:0.95 performance until thresholds were re-tuned."
+    ],
+    "evidence": [
+      {
+        "quote": "Small objects are even more challenging for proposal methods. For all experiments, we are using selective search [38] for object proposals, which performs very poorly on small objects in COCO with an average recall under 10% [27].",
+        "location": "Sec 4.5"
+      },
+      {
+        "quote": "We found that shorter training schedules are not enough to fully converge.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "found that performance decreases on the COCO metric (IOU 0.5:0.95, second row of Table 3).",
+        "location": "Sec 4.4"
+      }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": [
+      "PASCAL VOC 2007",
+      "PASCAL VOC 2012",
+      "MS COCO",
+      "ILSVRC2012 (pretraining)"
+    ],
+    "backbones": [
+      "VGG-16"
+    ],
+    "models": [
+      "ION",
+      "Fast R-CNN"
+    ],
+    "algorithms": [
+      "IRNN (spatial recurrent neural network)",
+      "selective search",
+      "non-max suppression",
+      "weighted voting",
+      "L2 normalization",
+      "Xavier initialization",
+      "semantic segmentation auxiliary loss"
+    ],
+    "metrics": [
+      "mAP",
+      "mAP@[.5:.95]",
+      "AP by object size",
+      "average recall"
+    ],
+    "equations": [
+      {
+        "name": "IRNN update (rightward)",
+        "expr": "h_{i,j} <- max(W_hh h_{i,j-1} + W_xh x_{i,j}, 0)",
+        "location": "Eq. (1), Sec 3.2"
+      },
+      {
+        "name": "IRNN without recurrent transition",
+        "expr": "h_{i,j} <- max(h_{i,j-1} + W_xh x_{i,j}, 0)",
+        "location": "Eq. (2), Sec 3.2"
+      }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "0.8 s per image on a Titan X GPU excluding proposal generation (1.15 s with two-stage box regression)."
+    ],
+    "evidence": [
+      {
+        "quote": "taking 0.8s per image on a Titan X GPU (excluding proposal generation) without two-stage bounding box regression and 1.15s per image with it.",
+        "location": "Sec 4.2"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2016.314",
+    "arxivUrl": "https://arxiv.org/abs/1512.04143",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+    "pdfUrl": "https://arxiv.org/pdf/1512.04143"
+  }
+}

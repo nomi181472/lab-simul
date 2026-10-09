@@ -1,0 +1,114 @@
+{
+  "id": "OD025",
+  "arxiv": "1711.07767",
+  "title": "Receptive Field Block Net for Accurate and Fast Object Detection",
+  "year": 2017,
+  "venue": "Lecture notes in computer science",
+  "problem": {
+    "summary": "Top-performing detectors gain accuracy from very deep backbones such as ResNet-101 and Inception, but pay for it with heavy computation and low inference speed, while fast one-stage detectors built on lightweight backbones lose substantial accuracy.",
+    "statements": [
+      "Deep-backbone detectors achieve high accuracy but suffer high computational cost and low inference speed.",
+      "One-stage detectors (YOLO, SSD) run in real time yet trail two-stage detectors by 10%-40% in accuracy.",
+      "Accuracy improvements in DSSD and RetinaNet come from deeper ResNet-101 backbones, which erase their speed advantage."
+    ],
+    "problemTags": ["speed-latency", "one-stage-accuracy", "deployability", "real-time-edge"],
+    "evidence": [
+      { "quote": "Current top-performing object detectors depend on deep CNN backbones, such as ResNet-101 and Inception, benefiting from their powerful feature representations but suffering from high computational costs.", "location": "Abstract" },
+      { "quote": "they tend to sacrifice accuracies, with a clear drop ranging from 10% to 40% relative to state-of-theart two-stage solutions [20].", "location": "Introduction" },
+      { "quote": "All these methods adopt improved features to reach better results; however, such features basically come from deeper neural networks with heavy computational costs, making them suffer from a low inference speed.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on the SSD one-stage detector and on receptive-field designs from Inception, ASPP and Deformable Conv, claiming that none of them models the relationship between receptive field size and eccentricity as in human vision, and that none had successfully improved one-stage detectors.",
+    "relatedWork": [
+      { "name": "SSD", "relation": "lightweight one-stage base detector that RFB Net extends", "quote": "We then assemble the RFB module to the top of SSD [22], a real-time approach with a lightweight backbone", "location": "Introduction" },
+      { "name": "Inception", "relation": "prior multi-scale receptive field block, but all kernels sampled at the same center", "quote": "The Inception block adopts multiple branches with different kernel sizes to capture multi-scale information.", "location": "Sec 2" },
+      { "name": "ASPP", "relation": "dilated-convolution multi-scale pooling with uniform resolution across positions", "quote": "For ASPP, dilated convolution varies the sampling distance from the center, but the features have a uniform resolution from the previous convolution layers of the same kernel size", "location": "Sec 2" },
+      { "name": "Deformable CNN", "relation": "adaptive receptive fields, but ignores RF eccentricity and holds the same downside as ASPP", "quote": "Deformable CNN [4] learns distinctive resolutions of individual objects, unfortunately it holds the same downside as ASPP.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "However, all kernels in Inception are sampled at the same center.", "location": "Introduction" },
+      { "quote": "Inception and ASPP have not been successfully adopted to improve one-stage detectors, while RFB shows an effective way to make use of their advantages in this issue.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "The authors propose a hand-crafted Receptive Field Block (RFB) module inspired by the size-eccentricity relationship of population receptive fields in human visual cortex, and mount it on top of SSD to build the RFB Net detector.",
+    "approach": "A multi-branch convolution block with kernels of different sizes followed by dilated convolutions of matched rates simulates pRF size/eccentricity, and is inserted into SSD's feature maps in place of the top convolution layers.",
+    "components": [
+      "multi-branch convolution layer with bottleneck 1x1 conv and stacked 3x3 convs",
+      "dilated pooling/convolution layers setting per-branch eccentricity",
+      "RFB-s variant with smaller kernels for shallow feature maps (conv4_3)",
+      "lightweight VGG-16 backbone shared with SSD",
+      "warmup learning-rate schedule"
+    ],
+    "solutionTags": ["one-stage", "feature-fusion", "multi-scale", "feature-pyramid"],
+    "evidence": [
+      { "quote": "we propose a novel RF Block (RFB) module, which takes the relationship between the size and eccentricity of RFs into account, to enhance the feature discriminability and robustness.", "location": "Abstract" },
+      { "quote": "RFB makes use of multi-branch pooling with varying kernels corresponding to RFs of different sizes, applies dilated convolution layers to control their eccentricities, and reshapes them to generate final representation", "location": "Introduction" },
+      { "quote": "The main modification lies in replacing the top convolution layers with RFB", "location": "Sec 3.3" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation is on PASCAL VOC 2007 and MS COCO, comparing accuracy and speed against SSD, YOLO, DSSD, RetinaNet, R-FCN and Faster R-CNN, plus an ablation over each RFB design choice and a block comparison against Inception, ASPP and Deformable CNN.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "80.5", "split": "test 2007 (07+12 train)", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "82.2", "split": "test 2007, RFB Net512", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2007", "metric": "FPS", "value": "83", "split": "test 2007, RFB Net300", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "30.3", "split": "test-dev 2015, RFB Net300", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "34.4", "split": "test-dev 2015, RFB Net512-E", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "20.7", "split": "minival 2014, MobileNet+RFB", "location": "Table 5" }
+    ],
+    "baselines": ["SSD300/SSD512", "YOLOv2", "DSSD", "RetinaNet", "R-FCN", "Faster R-CNN", "Inception", "ASPP", "Deformable CNN"],
+    "evidence": [
+      { "quote": "our basic model, i.e. RFB Net300, outperforms SSD and YOLO with an mAP of 80.5%, while keeping the real-time speed as SSD300.", "location": "Sec 4.1" },
+      { "quote": "Table 1 shows that our RFB Net300 is the most accurate one (80.5% mAP) among the real-time detectors and runs at 83 fps in Pascal VOC", "location": "Sec 5" }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper states few explicit limitations, but acknowledges that the larger RFB Net512 still trails RetinaNet500 on COCO, that very deep or high-resolution inputs are out of scope, and that the smallest feature maps cannot host large-kernel RFB filters.",
+    "items": [
+      "RFB Net512 (33.8 mAP) is slightly inferior to RetinaNet500 (34.4 mAP) on COCO test-dev.",
+      "Larger input resolutions such as RetinaNet800's 800 pixels are declared out of scope of the study.",
+      "RFB modules are not applied to the last convolutional layers because their feature maps are too small for 5x5 kernels.",
+      "Training from scratch reaches only 77.6% mAP versus 80.5% with pre-trained weights."
+    ],
+    "evidence": [
+      { "quote": "the result of RFB Net512 is slightly inferior to but still comparable to the one of the recent advanced one-stage model RetinaNet500 (33.8% vs. 34.4%).", "location": "Sec 4.3" },
+      { "quote": "The last few convolutional layers are preserved since the resolutions of their feature maps are too small to apply filters with large kernels like 5 × 5.", "location": "Sec 3.3" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Extend RFB to more lightweight backbones and target deployment on low-end devices.", "quote": "This suggests its great potential for applications on low-end devices.", "location": "Sec 5" },
+    { "direction": "Pursue efficient accuracy gains such as fusing up-sampled conv7_fc features with conv4_3 and widening RFB branches, rather than increasing input resolution.", "quote": "On the other hand, we can see that RFB Net500 averagely consumes 30 ms per image, while RetinaNet needs 90 ms.", "location": "Sec 4.3" }
+  ],
+  "technical": {
+    "datasets": ["PASCAL VOC 2007", "MS COCO", "ILSVRC CLS-LOC"],
+    "backbones": ["VGG-16", "MobileNet", "ResNet-101"],
+    "models": ["RFB Net300", "RFB Net512", "RFB Net512-E", "RFB-s", "SSD", "MobileNet-SSD"],
+    "algorithms": ["dilated (atrous) convolution", "NMS", "hard negative mining", "warmup learning rate schedule", "data augmentation"],
+    "metrics": ["mAP", "FPS", "AP50", "inference time (ms)"],
+    "equations": [
+      { "name": "IoU positive match", "expr": "IoU(pred, gt) > 0.5 defines a positive box on VOC", "location": "Sec 4" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "edge / low-end devices", "detail": "Attaching RFB to MobileNet-SSD raises COCO minival mAP from 19.3% to 20.7% with 7.4M parameters, which the authors present as evidence for low-end device use.", "quote": "This suggests its great potential for applications on low-end devices.", "location": "Sec 5" }
+    ],
+    "deploymentClaims": [
+      "RFB Net300 runs at 83 FPS on a GeForce GTX Titan X (Maxwell) on PASCAL VOC 2007.",
+      "RFB Net512 runs at 38 FPS on the same GPU.",
+      "RFB Net300 takes 15 ms per image on COCO test-dev."
+    ],
+    "evidence": [
+      { "quote": "Table 1 shows that our RFB Net300 is the most accurate one (80.5% mAP) among the real-time detectors and runs at 83 fps in Pascal VOC", "location": "Sec 5" },
+      { "quote": "All runtime information is computed on a Graphics card of Geforce GTX Titan X (Maxwell architecture).", "location": "Table 1" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1007/978-3-030-01252-6_24",
+    "arxivUrl": "https://arxiv.org/abs/1711.07767",
+    "venue": "Lecture notes in computer science",
+    "pdfUrl": "https://arxiv.org/pdf/1711.07767"
+  }
+}

@@ -14,7 +14,7 @@ export const LABS = [
   {
     id: "object-detection",
     label: "Object Detection",
-    blurb: "48 papers · 2015–2026",
+    blurb: "121 papers · 2015–2026",
     accent: "emerald",
   },
   {

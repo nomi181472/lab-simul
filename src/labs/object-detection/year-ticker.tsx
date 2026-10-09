@@ -1,13 +1,13 @@
 "use client";
 
-import { YEAR_LIST } from "@/labs/object-detection/data/years";
+import { YEARS } from "@/labs/object-detection/data/years";
 import { useLab } from "@/labs/object-detection/context";
 
 export function YearTicker({ accent = false }: { accent?: boolean }) {
   const { year, setYear, setSection } = useLab();
   return (
     <div className="flex min-w-0 items-center gap-1 overflow-x-auto font-mono">
-      {YEAR_LIST.map((y) => (
+      {YEARS.map((y) => (
         <button
           key={y}
           onClick={() => {

@@ -1,0 +1,116 @@
+{
+  "id": "OD032",
+  "arxiv": "1801.05918",
+  "title": "Extend the shallow part of Single Shot MultiBox Detector via Convolutional Neural Network",
+  "year": 2018,
+  "venue": "International Conference on Digital Image Processing",
+  "problem": {
+    "summary": "Adding context to SSD's shallow layers improves accuracy but existing deconvolution-based solutions (DSSD) lose most of the speed, so the accuracy/speed dilemma of high-precision single-stage detectors remains unsolved; shallow SSD layers also carry too little semantic information to detect small objects well.",
+    "statements": [
+      "DSSD gains 1.1% mAP over SSD on PASCAL VOC2007 but its speed drops from 46 to 11.8 FPS.",
+      "For a high-precision detector, increasing speed without degrading accuracy is still a challenging problem.",
+      "The semantic information of shallow SSD layers is limited, making small-object detection there far weaker than in deep layers."
+    ],
+    "problemTags": ["speed-latency", "small-objects", "one-stage-accuracy"],
+    "evidence": [
+      { "quote": "Although DSSD obtains higher mAP than SSD by 1.1%, the frames per second (FPS) decreases from 46 to 11.8.", "location": "Abstract" },
+      { "quote": "Therefore, for a high-precision detector, increasing the speed without degrading its accuracy, is still a challenging problem.", "location": "Introduction" },
+      { "quote": "the semantic information of shallow layers of SSD is limited, resulting in the performance of shallow layers in detecting small object is far weaker than the performance of large ones in deep layers.", "location": "Sec 2.1" }
+    ]
+  },
+  "background": {
+    "summary": "The paper situates ESSD between the two-stage R-CNN family and the single-stage YOLO/SSD family, using SSD (reduced VGG-16) as its base and treating DSSD as the closest prior work that adds deconvolutional context but pays for it in speed.",
+    "relatedWork": [
+      { "name": "SSD", "relation": "base single-stage detector that ESSD extends", "quote": "The Single Shot MultiBox Detector (SSD) [7] uses the reduced VGG-16 [9] as based network and add extra convolution layers to the end of it.", "location": "Sec 2.1" },
+      { "name": "DSSD", "relation": "closest prior method; adds deconvolutional context but loses too much speed", "quote": "the Deconvolutional Single Shot Detector (DSSD) [8] is currently one of the best models in terms of detection accuracy and speed at that time.", "location": "Introduction" },
+      { "name": "R-CNN series", "relation": "two-stage prior family (R-CNN, SPPnet, Fast R-CNN, Faster R-CNN)", "quote": "First one is the R-CNN series, including R-CNN [1], SPPnet [2], Fast R-CNN [3], Faster R-CNN [4], which use two stage to solve the problem.", "location": "Introduction" },
+      { "name": "YOLO / SSD", "relation": "single-stage prior family that removes the region proposal stage", "quote": "Second is single stage series, including You Only Look Once (YOLO) [5], YOLOv2 [6], Single Shot MultiBox Detector (SSD) [7], which aim to remove the region proposal stage and then predict confidence and offset for every default box.", "location": "Introduction" }
+    ],
+    "evidence": [
+      { "quote": "DSSD [8] still inevitably loses too much speed in order to improve accuracy.", "location": "Introduction" },
+      { "quote": "adding too much deconvolution layers will inevitably lead to a significant increase in computational time-consuming [8, 11], while providing too little semantic information will certainly lose some detection performance [13].", "location": "Sec 2.2" }
+    ]
+  },
+  "solution": {
+    "summary": "The authors propose ESSD, which attaches extension modules to the shallow SSD layers: a deconvolution layer upsamples the next layer's features, conv-bn-relu branches match learning capacity, and an extend operation (elementwise-sum chosen as best) fuses the two, plus one extra 1x1 convolution on each prediction layer.",
+    "approach": "Fuse deconvolved higher-level context into SSD's shallow prediction layers through a compact extension module, so shallow features gain semantic information without the heavy deconvolution stack of DSSD.",
+    "components": [
+      "extension module with a 2x2 deconvolution and conv-bn-relu refinement branches",
+      "extend operation over concatenation / elementwise-sum / elementwise-product",
+      "one extra 1x1x512 convolution on each prediction layer",
+      "reduced VGG-16 SSD base network",
+      "three-step training schedule (SSD, extra layers, full fine-tune)",
+      "weighted average depth analysis of prediction layers"
+    ],
+    "solutionTags": ["one-stage", "feature-fusion", "multi-scale"],
+    "evidence": [
+      { "quote": "Our solution to this problem is to cleverly extend better context information for the shallow layers of the best single stage (e.g. SSD) detectors.", "location": "Abstract" },
+      { "quote": "For our extension module, firstly we use a deconvolution layer to make the Conv layer n+1 the same size as Conv layer n, and a convolution layer followed with batch normalization layer and ReLU layer are applied to refine the features we learned.", "location": "Sec 2.2" },
+      { "quote": "we only add one extra 1x1x512 convolution layer to each prediction layer in order not to make the model too complicated.", "location": "Sec 2.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "ESSD is trained on VOC2007+2012 trainval and evaluated on PASCAL VOC2007 test (4952 images) with mAP, comparing accuracy against SSD, DSSD and Faster R-CNN and speed against SSD, DSSD, YOLOv2 and R-FCN on a Titan X; the extend-operation variants and the extra prediction convolution are ablated.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "79.4", "split": "test, ESSD-sum", "location": "Table 2" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "79.0", "split": "test, ESSD-less", "location": "Table 2" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "77.5", "split": "test, SSD300", "location": "Table 2" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "78.6", "split": "test, DSSD321", "location": "Table 2" },
+      { "dataset": "PASCAL VOC 2007", "metric": "FPS", "value": "25", "split": "test, ESSD, Titan X, 300x300 input", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2007", "metric": "FPS", "value": "46", "split": "test, SSD300, 300x300 input", "location": "Table 3" }
+    ],
+    "baselines": ["SSD300", "SSD512", "DSSD321", "DSSD513", "Faster R-CNN", "R-FCN", "YOLOv2"],
+    "evidence": [
+      { "quote": "Experimental results show that our model can reach 79.4% mAP, which is higher than DSSD and SSD by 0.8 and 1.9 points respectively.", "location": "Abstract" },
+      { "quote": "Meanwhile, our testing speed is 25 FPS in Titan X GPU which is more than double the original DSSD.", "location": "Abstract" },
+      { "quote": "Our model is trained on the union of PASCAL VOC2007 trainval and PASCAL VOC2012 trainval that has 20 object categories, and evaluate the results on PASCAL VOC2007 test (4952 images).", "location": "Sec 3" }
+    ]
+  },
+  "limitations": {
+    "summary": "ESSD is slower than the original SSD and slightly less accurate than the slower DSSD513 and R-FCN; evaluation is confined to PASCAL VOC2007 test with a 300x300 input, and no COCO results are reported.",
+    "items": [
+      "ESSD runs at 25 FPS versus 46 FPS for the original SSD300.",
+      "ESSD (79.4 mAP) trails DSSD513 (81.5 mAP) and R-FCN (80.5 mAP) in accuracy while beating them in speed.",
+      "Evaluation is limited to the PASCAL VOC2007 test set with 300x300 inputs; COCO is not used.",
+      "The extension modules are only applied to SSD's shallow prediction layers, not to a general architecture."
+    ],
+    "evidence": [
+      { "quote": "Although our ESSD is slower than the original SSD, it outperforms DSSD321 [8] and Faster RCNN [4] in both detection speed and accuracy.", "location": "Sec 3.2" },
+      { "quote": "Our ESSD maintains a great speed advantage over R-FCN [15] and DSSD513 [8], but the accuracy is only slightly lower.", "location": "Sec 3.2" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Apply the extension module to other computer vision tasks such as semantic segmentation.", "quote": "For future work we hope to apply this extension module to other computer vision tasks such as semantic segmentation.", "location": "Conclusion" },
+    { "direction": "Borrow ideas from super-resolution to improve object detection.", "quote": "We are going to borrow some ideas from super-resolution to improve objection detection.", "location": "Conclusion" },
+    { "direction": "Use Generative Adversarial Networks to improve detection results.", "quote": "We also plan to use more advanced technologies such as Generative Adversarial Networks to improve our detection results.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["PASCAL VOC 2007", "PASCAL VOC 2012"],
+    "backbones": ["VGG-16", "ResNet-101"],
+    "models": ["ESSD", "ESSD-less", "ESSD-prod", "ESSD-concat", "ESSD-sum", "SSD300", "SSD512", "DSSD321"],
+    "algorithms": ["deconvolution", "batch normalization", "ReLU", "elementwise-sum", "concatenation", "Caffe"],
+    "metrics": ["mAP", "FPS"],
+    "equations": [
+      { "name": "Weighted average depth", "expr": "D(Ln) = (1/ki) * sum_i (depth of input layer i) * wi", "location": "Sec 2.3" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "video surveillance, intelligent transportation, medical diagnosis and military visual guidance", "detail": "The authors motivate fast, robust object detection by its broad application range in surveillance, transportation, medical diagnosis and military visual guidance.", "quote": "Object detection holds great significance for computer vision and image processing field because it has a wide range of applications in video surveillance, intelligent transportation, medical diagnosis and military visual guidance.", "location": "Introduction" }
+    ],
+    "deploymentClaims": [
+      "ESSD reaches 25 FPS on a single Titan X GPU at 300x300 input (Table 3).",
+      "Speed is measured with batch size 1 using Titan X and cuDNN 6.0.2 with an Intel Core i7-4790K@4.00GHz host."
+    ],
+    "evidence": [
+      { "quote": "We measure the speed with batch size 1 using Titan X and cuDNN 6.0.21 with Intel(R) Core(TM) i7-4790K@4.00GHz, as shown in Table 3.", "location": "Sec 3.2" },
+      { "quote": "which can reach 79.4% mAP on PASCAL VOC2007 test and up to 25 FPS on a single Titan X GPU", "location": "Conclusion" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1117/12.2503001",
+    "arxivUrl": "https://arxiv.org/abs/1801.05918",
+    "venue": "International Conference on Digital Image Processing",
+    "pdfUrl": "https://arxiv.org/pdf/1801.05918"
+  }
+}

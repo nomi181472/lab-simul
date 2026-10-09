@@ -1,0 +1,306 @@
+{
+  "id": "OD089",
+  "arxiv": "2207.02696",
+  "title": "YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors",
+  "year": 2022,
+  "venue": null,
+  "problem": {
+    "summary": "Real-time detectors must improve accuracy with training-cost-only tricks that never raise inference cost; two unresolved issues remain — which re-parameterized module can replace which original module across architectures, and how dynamic label assignment distributes targets across multiple output (lead/auxiliary) layers — and concatenation-based models cannot be scaled by analyzing factors independently.",
+    "statements": [
+      "Not all proposed re-parameterized modules can be perfectly applied to different architectures; RepConv's identity connection destroys the residual/concatenation gradient diversity it is inserted into.",
+      "How to assign dynamic targets for the outputs of different branches when a detector has multiple output layers under dynamic label assignment.",
+      "How to assign soft labels to the auxiliary head and the lead head under deep supervision — an issue the authors claim prior literature has not explored.",
+      "Almost all model scaling methods analyze individual scaling factors independently, which fails for concatenation-based models whose transition-layer widths change with depth scaling."
+    ],
+    "problemTags": [
+      "speed-latency",
+      "training-efficiency",
+      "label-assignment",
+      "model-scaling"
+    ],
+    "evidence": [
+      {
+        "quote": "That is: “How to assign dynamic targets for the outputs of different branches?”",
+        "location": "Sec 2.2"
+      },
+      {
+        "quote": "However, not all proposed re-parameterized module can be perfectly applied to different architectures.",
+        "location": "Sec 2.2"
+      },
+      {
+        "quote": "Our focus will be on some optimized modules and optimization methods which may strengthen the training cost for improving the accuracy of object detection, but without increasing the inference cost.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "Grounded in YOLO/FCOS-style real-time detectors, model re-parameterization (RepVGG, Diverse Branch Block, snapshot ensembles), dynamic label assignment (OTA, TOOD, AutoAssign, dual weighting), and model scaling (EfficientNet, Scaled-YOLOv4, Fast and accurate model scaling), plus deep supervision for auxiliary heads.",
+    "relatedWork": [
+      {
+        "name": "RepConv (RepVGG)",
+        "relation": "re-parameterized convolution whose identity connection the paper removes (RepConvN) in planned re-parameterization",
+        "quote": "RepConv actually combines 3 × 3 convolution, 1 × 1 convolution, and identity connection in one convolutional layer.",
+        "location": "Sec 3.2"
+      },
+      {
+        "name": "ELAN / CSPVoVNet",
+        "relation": "efficient architecture designs whose gradient-path analysis motivates E-ELAN",
+        "quote": "By controlling the shortest longest gradient path, a deeper network can learn and converge effectively.",
+        "location": "Sec 3.1"
+      },
+      {
+        "name": "YOLOR",
+        "relation": "source of the implicit-knowledge freebie and a main baseline",
+        "quote": "Implicit knowledge in YOLOR can be simplified to a vector by pre-computing at the inference stage.",
+        "location": "Sec 4.3"
+      },
+      {
+        "name": "Dynamic label assignment (OTA/TOOD/AutoAssign)",
+        "relation": "prior assignment techniques whose multi-branch extension the paper addresses",
+        "quote": "Recently, model re-parameterization [13, 12, 29] and dynamic label assignment [20, 17, 42] have become important topics in network training and object detection.",
+        "location": "Sec 2.2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Currently state-of-the-art real-time object detectors are mainly based on YOLO [61, 62, 63] and FCOS [76, 77]",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "Being able to become a state-of-the-art real-time object detector usually requires the following characteristics:",
+        "location": "Sec 2.1"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "A YOLOv7 series (tiny/base/W6, scaled to X/E6/D6/E6E) built on trainable bag-of-freebies: E-ELAN (expand, shuffle, merge cardinality) grows capacity without breaking gradient paths, compound depth+width scaling for concatenation-based models, planned re-parameterized convolution (RepConvN without identity connections), and a coarse-to-fine lead-head-guided label assigner with a constrained partial auxiliary head, plus BN folding, YOLOR implicit knowledge and EMA.",
+    "approach": "Increase training-time capacity and label-assignment quality (deep supervision guided by lead-head soft labels, planned re-parameterization, compound scaling) while keeping inference cost fixed, then scale the family for edge, normal and cloud GPUs.",
+    "components": [
+      "E-ELAN: group-convolution expand, shuffle into g groups, merge cardinality, preserving the original gradient transmission path",
+      "compound scaling for concatenation-based models: scale depth of computational blocks and correspondingly scale width of transition layers",
+      "planned re-parameterized convolution: RepConvN without identity connection where layers already have residual or concatenation connections",
+      "coarse-to-fine lead head guided label assigner: lead-head soft labels supervise both lead and auxiliary heads, with relaxed coarse labels for the auxiliary head",
+      "constrained auxiliary-head decoder with an upper-bound prior from object-center distance",
+      "partial auxiliary head connection before merge cardinality in E-ELAN",
+      "other freebies: conv-BN-activation folding, YOLOR implicit knowledge vector, EMA as the inference model"
+    ],
+    "solutionTags": [
+      "one-stage",
+      "reparameterization",
+      "label-assignment-decoupled",
+      "compound-scaling",
+      "deep-supervision"
+    ],
+    "evidence": [
+      {
+        "quote": "E-ELAN uses expand, shuffle, merge cardinality to achieve the ability to continuously enhance the learning ability of the network without destroying the original gradient path.",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "when a convolutional layer with residual or concatenation is replaced by re-parameterized convolution, there should be no identity connection.",
+        "location": "Sec 3.2"
+      },
+      {
+        "quote": "we use lead head prediction as guidance to generate coarse-to-fine hierarchical labels, which are used for auxiliary head and lead head learning, respectively.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "Since the proposed architecture is concatenation-based, we have to design a new compound scaling method for this model.",
+        "location": "Sec 2.3"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "All models train on MS COCO (train2017/val2017, final numbers on test-dev) from scratch with no pre-training; comparisons cover YOLOv4/YOLOR baselines under matched settings, SOTA real-time detectors in a speed-accuracy table, transformer/convolutional detectors in appendix tables, and ablations on compound scaling, planned re-parameterization, auxiliary-head label assignment, constrained coarse labels, and partial auxiliary heads.",
+    "benchmarks": [
+      {
+        "dataset": "COCO test-dev/val",
+        "metric": "AP",
+        "value": "51.4 / 51.2",
+        "split": "YOLOv7, 640, 161 FPS V100 (Table 2)",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "COCO test-dev/val",
+        "metric": "AP",
+        "value": "53.1 / 52.9",
+        "split": "YOLOv7-X, 640, 114 FPS V100 (Table 2)",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "COCO test-dev/val",
+        "metric": "AP",
+        "value": "38.7 / 38.7",
+        "split": "YOLOv7-tiny-SiLU, 640, 286 FPS V100 (Table 2)",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "COCO test-dev/val",
+        "metric": "AP",
+        "value": "55.9 / 55.9",
+        "split": "YOLOv7-E6, 1280, 56 FPS V100 (Table 2)",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "COCO test-dev/val",
+        "metric": "AP",
+        "value": "56.8 / 56.8",
+        "split": "YOLOv7-E6E, 1280, 36 FPS V100 (Table 2)",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "COCO test-dev/val",
+        "metric": "AP",
+        "value": "51.1 / 50.8",
+        "split": "YOLOR-CSP baseline, 640, 106 FPS (Table 2)",
+        "location": "Table 2"
+      }
+    ],
+    "baselines": [
+      "YOLOv4",
+      "YOLOv4-CSP",
+      "YOLOR-CSP",
+      "YOLOR-CSP-X",
+      "YOLOX",
+      "YOLOv5",
+      "PPYOLOE",
+      "Swin-L Cascade-Mask R-CNN",
+      "ConvNeXt-XL Cascade-Mask R-CNN",
+      "DINO-5scale-R50",
+      "EfficientDet-D7x"
+    ],
+    "evidence": [
+      {
+        "quote": "All our experiments did not use pre-trained models. That is, all models were trained from scratch.",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "From the results we see that if compared with YOLOv4, YOLOv7 has 75% less parameters, 36% less computation, and brings 1.5% higher AP.",
+        "location": "Sec 5.2"
+      },
+      {
+        "quote": "YOLOv7 has 51.4% AP at frame rate of 161 fps, while PPYOLOE-L with the same AP has only 78 fps frame rate.",
+        "location": "Sec 5.3"
+      },
+      {
+        "quote": "From the results listed in Table 6, it is clear that any model that increases assistant loss can significantly improve the overall performance.",
+        "location": "Sec 5.4.3"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper offers few explicit limitations: coarse labels can inject bad priors if weighted like fine labels, unlimited E-ELAN stacking degrades parameter utilization, the chosen freebies increase training cost, self-supervised learning and distillation are excluded, and FPS is estimated rather than fully measured.",
+    "items": [
+      "If the additional weight of coarse labels approaches that of fine labels, the coarse positives can produce a bad prior at final prediction, so the decoder must constrain them.",
+      "Stacking computational blocks in ELAN without limit destroys its stable state and lowers parameter utilization rate.",
+      "Self-supervised learning and knowledge distillation requiring extra data or large models are intentionally out of scope."
+    ],
+    "evidence": [
+      {
+        "quote": "it may produce bad prior at final prediction.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "If more computational blocks are stacked unlimitedly, this stable state may be destroyed, and the parameter utilization rate will decrease.",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "we do not intend to explore self-supervised learning or knowledge distillation methods that require additional data or large model.",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "Our inference time is estimated by using letterbox resize input image to make its long side equals to 640 or 1280.",
+        "location": "Table 2 footnote"
+      }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": [
+      "MS COCO"
+    ],
+    "backbones": [
+      "ELAN",
+      "E-ELAN",
+      "CSPDarknet (reversed, ablation)"
+    ],
+    "models": [
+      "YOLOv7-tiny",
+      "YOLOv7",
+      "YOLOv7-X",
+      "YOLOv7-W6",
+      "YOLOv7-E6",
+      "YOLOv7-D6",
+      "YOLOv7-E6E",
+      "YOLOR-CSP",
+      "YOLOX",
+      "YOLOv5"
+    ],
+    "algorithms": [
+      "planned re-parameterized convolution (RepConvN)",
+      "coarse-to-fine lead guided label assignment",
+      "deep supervision with auxiliary head",
+      "compound model scaling",
+      "E-ELAN expand-shuffle-merge",
+      "conv-BN folding",
+      "YOLOR implicit knowledge",
+      "EMA"
+    ],
+    "metrics": [
+      "AP (COCO 0.5:0.95)",
+      "AP50",
+      "AP75",
+      "APs",
+      "APm",
+      "APl",
+      "FPS",
+      "FLOPs",
+      "parameters"
+    ],
+    "equations": []
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "multi-object tracking",
+        "detail": "Real-time detection is cited as a necessary component of tracking systems built on detectors.",
+        "quote": "For example, multi-object tracking [94, 93], autonomous driving [40, 18], robotics [35, 58], medical image analysis [34, 46], etc.",
+        "location": "Introduction"
+      },
+      {
+        "domain": "edge-to-cloud deployment (mobile CPU/GPU, NPU)",
+        "detail": "Designed to run from edge mobile GPUs to cloud GPUs, spanning NPUs such as Apple neural engine, Intel neural compute stick, Nvidia Jetson, Google edge TPU, Qualcomm, MediaTek and Kneron AI SoCs.",
+        "quote": "In this paper, the real-time object detector we proposed mainly hopes that it can support both mobile GPU and GPU devices from the edge to the cloud.",
+        "location": "Introduction"
+      }
+    ],
+    "deploymentClaims": [
+      "Surpasses all known object detectors in both speed and accuracy across 5 FPS to 160 FPS, with 56.8% AP for detectors at 30 FPS or higher on a V100.",
+      "YOLOv7-E6 is 509% faster and 2% more accurate than Swin-L Cascade-Mask R-CNN, and 551% faster with +0.7% AP over ConvNeXt-XL Cascade-Mask R-CNN.",
+      "Cuts about 40% of parameters and 50% of computation versus state-of-the-art real-time detectors while improving accuracy.",
+      "Model family covers edge GPU (tiny), normal GPU and cloud GPU (W6/E6/D6/E6E) operating points; FP16 default precision with IoU-threshold tuning raises AP by 0.2%.",
+      "YOLOv7-tiny beats meituan/YOLOv6-n at identical COCO/V100 batch=32 conditions with +25% speed and +0.2% AP.",
+      "Source code released at https://github.com/WongKinYiu/yolov7."
+    ],
+    "evidence": [
+      {
+        "quote": "YOLOv7 surpasses all known object detectors in both speed and accuracy in the range from 5 FPS to 160 FPS and has the highest accuracy 56.8% AP among all known real-time object detectors with 30 FPS or higher on GPU V100.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "the method we proposed can effectively reduce about 40% parameters and 50% computation of state-of-the-art real-time object detector, and has faster inference speed and higher detection accuracy.",
+        "location": "Sec 2.2"
+      },
+      {
+        "quote": "Our YOLOv7-tiny (35.2% AP, 0.4 ms) model is +25% faster and +0.2% AP higher than meituan/YOLOv6-n (35.0% AP, 0.5 ms) under identical conditions on COCO dataset and V100 GPU with batch=32.",
+        "location": "Appendix (More comparison)"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr52729.2023.00721",
+    "arxivUrl": "https://arxiv.org/abs/2207.02696",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2207.02696"
+  }
+}

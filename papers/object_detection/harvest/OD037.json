@@ -1,0 +1,140 @@
+{
+  "id": "OD037",
+  "arxiv": "1809.08545",
+  "title": "Bounding Box Regression with Uncertainty for Accurate Object Detection",
+  "year": 2018,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+  "problem": {
+    "summary": "Ground-truth boxes in large-scale detection datasets are inherently ambiguous (inaccurate labeling, occlusion, fuzzy object boundaries), yet the standard smooth L1 box regression loss treats every target as equally certain. In addition, detectors assume a high classification score implies accurate localization, so NMS can keep poorly localized high-scoring boxes while discarding accurate low-scoring ones.",
+    "statements": [
+      "Ground-truth bounding boxes are ambiguous due to inaccurate labeling, occlusion and ambiguous object boundaries, which makes both labeling and learning the regression function hard.",
+      "The traditional smooth L1 bounding box regression loss does not take the ambiguities of the ground truth bounding boxes into account.",
+      "Bounding box regression is assumed to be accurate when the classification score is high, which is not always the case, so accurate low-scoring boxes get discarded during NMS."
+    ],
+    "problemTags": ["localization", "nms", "occlusion"],
+    "evidence": [
+      { "quote": "we observe that the ground-truth bounding boxes are inherently ambiguous in some cases. The ambiguities makes it hard to label and hard to learn the bounding box regression function.", "location": "Introduction" },
+      { "quote": "However, the traditional bounding box regression loss (i.e., the smooth L1 loss [13]) does not take such the ambiguities of the ground truth bounding boxes into account.", "location": "Introduction" },
+      { "quote": "Besides, bounding box regression is assumed to be accurate when the classification score is high, which is not always the case", "location": "Introduction" },
+      { "quote": "during the standard NMS procedure, bounding boxes with lower classification scores will be discarded even if their locations are accurate.", "location": "Sec 2" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on two-stage detectors (Faster R-CNN, Mask R-CNN) whose fast R-CNN head regresses boxes with smooth L1 loss, and on prior post-processing/refinement work: soft-NMS, learning-based NMS, IoU-Net's localization confidence, and IoU losses such as UnitBox. The claimed gap is that none learns localization uncertainty itself from a probabilistic perspective.",
+    "relatedWork": [
+      { "name": "Faster R-CNN", "relation": "baseline two-stage detector the loss is plugged into", "quote": "Current state-of-the-art object detectors (e.g., Faster RCNN [42], Cascade R-CNN [2] and Mask R-CNN [17]) rely on bounding box regression to localize objects.", "location": "Introduction" },
+      { "name": "soft-NMS", "relation": "prior post-processing method var voting composes with", "quote": "soft-NMS [1] decays the detection scores of all other neighbors as a continuous function of their overlap with the higher scored bounding box.", "location": "Sec 2" },
+      { "name": "IoU-Net", "relation": "closest prior localization-confidence refinement method", "quote": "Recently, IoU-Net [27] proposes to learn the IoU between the predicted bounding box and the ground-truth bounding box.", "location": "Sec 2" },
+      { "name": "UnitBox", "relation": "prior IoU-based box regression loss", "quote": "UnitBox [50] introduced an Intersection over Union (IoU) loss function for bounding box prediction.", "location": "Sec 2" },
+      { "name": "Learning NMS", "relation": "prior learned post-processing method", "quote": "Learning NMS [24] proposed to learn a new neural network to perform NMS using only boxes and their classification scores.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "Two-stage detectors generate cluttered object proposals, which result in a large number of duplicate bounding boxes.", "location": "Sec 2" },
+      { "quote": "Different from IoU-Net, we propose to learn the localization variance from a probabilistic perspective.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "The paper proposes KL Loss, which models the predicted box coordinate as a Gaussian and the ground truth as a Dirac delta, then regresses via the KL divergence so each coordinate also predicts its own variance. The learned variance is used at test time by var voting, which refines the selected box's location as a variance-weighted vote over its neighbors inside NMS/soft-NMS.",
+    "approach": "Predict a per-coordinate Gaussian localization distribution trained with a KL-divergence regression loss, then use the predicted variances to vote the location of each kept box during NMS.",
+    "components": [
+      "Gaussian parameterization of predicted box coordinates (mean and standard deviation from an extra FC layer on fc7)",
+      "KL divergence regression loss that learns box transformation and localization variance jointly",
+      "alpha = log(sigma^2) parameterization to avoid exploding gradients early in training",
+      "var voting: variance-weighted coordinate voting over neighbors during NMS/soft-NMS",
+      "smooth-L1-style tail of the loss for large residuals",
+      "random Gaussian initialization of the variance head so training starts like smooth L1"
+    ],
+    "solutionTags": ["uncertainty-regression", "post-processing-nms", "two-stage"],
+    "evidence": [
+      { "quote": "we propose a novel bounding box regression loss, namely KL Loss, for learning bounding box regression and localization uncertainty at the same time", "location": "Introduction" },
+      { "quote": "The ground-truth bounding box can also be formulated as a Gaussian distribution, with σ → 0, which is a Dirac delta function:", "location": "Sec 3.2" },
+      { "quote": "We use the KL-Divergence as the loss function Lreg for bounding box regression.", "location": "Sec 3.2" },
+      { "quote": "We propose var voting (variance voting) to vote the location of a candidate box using its neighbors' locations weighted by the predicted variances during nonmaximum suppression (NMS).", "location": "Introduction" }
+    ]
+  },
+  "experiments": {
+    "summary": "The authors ablate KL Loss, soft-NMS and var voting with VGG-16 Faster R-CNN on MS-COCO, then compare against MR-CNN, soft-NMS and IoU-Net/IoU-NMS with ResNet-50 FPN and ResNet-50-FPN Mask R-CNN, and finally test generalization on PASCAL VOC 2007 with VGG-CNN-M-1024 and VGG-16. Inference latency is measured on a GTX 1080 Ti.",
+    "benchmarks": [
+      { "dataset": "MS-COCO", "metric": "AP", "value": "29.1", "split": "val2014, VGG-16 Faster R-CNN, KL Loss+var voting+soft-NMS", "location": "Table 1" },
+      { "dataset": "MS-COCO", "metric": "AP", "value": "23.6", "split": "val2014, VGG-16 Faster R-CNN baseline", "location": "Table 1" },
+      { "dataset": "MS-COCO", "metric": "AP", "value": "40.4", "split": "ResNet-50-FPN Mask R-CNN, KL Loss+var voting+soft-NMS", "location": "Table 4" },
+      { "dataset": "MS-COCO", "metric": "AP90", "value": "17.5", "split": "ResNet-50-FPN Mask R-CNN, KL Loss+var voting+soft-NMS", "location": "Table 4" },
+      { "dataset": "MS-COCO", "metric": "AP", "value": "39.2", "split": "ResNet-50 FPN Faster R-CNN, KL Loss+var voting+soft-NMS", "location": "Table 6" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "71.6", "split": "test, VGG-16 Faster R-CNN, KL Loss+var voting+soft-NMS", "location": "Table 5" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "63.6", "split": "test, VGG-CNNM-1024, KL Loss+var voting+soft-NMS", "location": "Table 5" },
+      { "dataset": "MS-COCO", "metric": "latency (ms)", "value": "101", "split": "VGG-16 Faster R-CNN with KL Loss on a GTX 1080 Ti (baseline 99)", "location": "Table 2" }
+    ],
+    "baselines": ["Faster R-CNN", "Mask R-CNN", "IoU-Net / IoU-NMS", "soft-NMS", "MR-CNN", "QUBO"],
+    "evidence": [
+      { "quote": "On MS-COCO, we boost the Average Precision (AP) of VGG-16 Faster R-CNN from 23.6% to 29.1%.", "location": "Abstract" },
+      { "quote": "Variance Voting combined with soft-NMS improves the AP90 and the overall AP of the final model by 6.2% and 1.8% respectively.", "location": "Sec 4.2" },
+      { "quote": "our approach only increases 2ms latency on GPU", "location": "Sec 4.1" }
+    ]
+  },
+  "limitations": {
+    "summary": "Gains are concentrated in high-IoU localization metrics (AP50 barely moves), var voting depends on a tunable sigma_t whose acceptable range is narrow, the variance head assumes independent univariate Gaussians, and the method is only instantiated on two-stage fast R-CNN heads.",
+    "items": [
+      "Var voting needs a tunable parameter sigma_t: AP75/AP80/AP90 shift noticeably as it varies, with acceptable values only around 0.005 to 0.05.",
+      "Overall AP50 improvement from var voting is tiny (0.1%), so most of the benefit shows up only in strict high-IoU metrics.",
+      "The distribution model is simplified to independent univariate Gaussians per coordinate rather than a full joint distribution.",
+      "The method is built on and evaluated with two-stage Faster R-CNN / Mask R-CNN fast R-CNN heads."
+    ],
+    "evidence": [
+      { "quote": "We observe that the AP75 , AP80 and AP90 can be significantly affected by σt , while AP50 is less sensitive to σt .", "location": "Sec 4.1" },
+      { "quote": "Notice that the AP50 is only improved by 0.1%.", "location": "Sec 4.1" },
+      { "quote": "Though the distribution could be more complex ones like multivariate Gaussian or a mixture of Gaussians, in this paper we assume the coordinates are independent and use single variate gaussian for simplicity", "location": "Sec 3.2" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Use the interpretable predicted localization uncertainty in downstream applications such as self-driving cars and robotics.",
+      "quote": "it can potentially be helpful in down-stream applications like self-driving cars and robotics [7, 16, 21].",
+      "location": "Introduction"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS-COCO", "PASCAL VOC 2007"],
+    "backbones": ["VGG-16", "VGG-CNN-M-1024", "ResNet-50", "ResNet-50-FPN"],
+    "models": ["Faster R-CNN", "Mask R-CNN", "KL Loss detector"],
+    "algorithms": ["KL divergence loss", "var voting", "NMS", "soft-NMS", "smooth L1 loss"],
+    "metrics": ["AP", "AP50", "AP75", "AP90", "APS", "APM", "APL", "mAP", "latency (ms)"],
+    "equations": [
+      { "name": "Predicted coordinate distribution", "expr": "P_Theta(x) = 1/sqrt(2*pi*sigma^2) * exp(-(x - x_e)^2 / (2*sigma^2))", "location": "Sec 3.2, Eq 3" },
+      { "name": "KL Loss", "expr": "L_reg proportional to (x_g - x_e)^2 / (2*sigma^2) + (1/2)*log(sigma^2)", "location": "Sec 3.2, Eq 6" },
+      { "name": "Practical KL Loss parameterization", "expr": "L_reg proportional to (1/2)*exp(-alpha)*(x_g - x_e)^2 + alpha/2 with alpha = log(sigma^2)", "location": "Sec 3.2, Eq 8" },
+      { "name": "var voting coordinate update", "expr": "x = sum(p_i * x_i / sigma_x,i^2) / sum(p_i / sigma_x,i^2), p_i = exp(-(1 - IoU(b_i, b))^2 / sigma_t)", "location": "Sec 3.3, Eq 9" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving",
+        "detail": "The learned localization uncertainty is claimed to be useful for vision applications such as self-driving cars.",
+        "quote": "Our network will output higher variances for challenging object boundaries, which can be useful in vision applications like self-driving cars and robotics.",
+        "location": "Sec 4.1"
+      },
+      {
+        "domain": "robotics",
+        "detail": "Down-stream robotic systems are named as beneficiaries of the interpretable uncertainty output.",
+        "quote": "it can potentially be helpful in down-stream applications like self-driving cars and robotics [7, 16, 21].",
+        "location": "Introduction"
+      }
+    ],
+    "deploymentClaims": [
+      "Only 2ms of extra inference latency on a GTX 1080 Ti (99ms baseline vs 101ms with the method)",
+      "The extra localization-confidence head is a single 4096 x 324 fully-connected layer, so cost is negligible",
+      "Code and models released at github.com/yihui-he/KL-Loss"
+    ],
+    "evidence": [
+      { "quote": "with only 2ms increased inference latency on the GPU (GTX 1080 Ti)", "location": "Introduction" },
+      { "quote": "We also evaluate the inference time of our improved VGG-16 Faster R-CNN on a single GTX 1080 Ti GPU with CUDA 8 and CUDNN 6, as it is crucial for resource-limited applications", "location": "Sec 4.1" },
+      { "quote": "Our code and models are available at github.com/yihui-he/KL-Loss", "location": "Abstract" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2019.00300",
+    "arxivUrl": "https://arxiv.org/abs/1809.08545",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+    "pdfUrl": "https://arxiv.org/pdf/1809.08545"
+  }
+}

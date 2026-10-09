@@ -1,0 +1,226 @@
+{
+  "id": "OD088",
+  "arxiv": "2203.16527",
+  "title": "Exploring Plain Vision Transformer Backbones for Object Detection",
+  "year": 2022,
+  "venue": null,
+  "problem": {
+    "summary": "Object detection has been built around hierarchical, multi-scale backbones because ConvNets are hierarchical, which entrenched FPN-style neck/head designs; the plain (non-hierarchical, single-scale) ViT is hard to fine-tune for detection because it lacks multi-scale maps, global self-attention over high-resolution images is prohibitive, and redesigning backbones into hierarchies couples pre-training to detection.",
+    "statements": [
+      "For a long while backbones have been multi-scale, hierarchical architectures due to the de facto ConvNet design, which heavily influenced neck/head designs such as FPN.",
+      "It is unclear how to address multi-scale objects in a downstream task with a plain backbone from upstream pre-training, and whether a plain ViT is too inefficient for high-resolution detection images.",
+      "Global self-attention throughout the backbone on high-resolution detection inputs is prohibitive in memory and slow.",
+      "Redesigning Transformer backbones into hierarchies (e.g., Swin) couples the pre-training architecture to detection fine-tuning, breaking the decoupling enjoyed by ConvNet research."
+    ],
+    "problemTags": ["multi-scale-objects", "compute-efficiency", "backbone-design"],
+    "evidence": [
+      {
+        "quote": "For a long while, these backbones have been multi-scale, hierarchical architectures due to the de facto design of convolutional networks (ConvNet) [32], which has heavily influenced the neck/head design for detecting objects at multiple scales (e.g., FPN).",
+        "location": "Introduction"
+      },
+      {
+        "quote": "How can we address multi-scale objects in a downstream task with a plain backbone from upstream pre-training?",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Object detectors benefit from high-resolution input images, but computing global self-attention throughout the backbone is prohibitive in memory and is slow.",
+        "location": "Sec 3"
+      }
+    ]
+  },
+  "background": {
+    "summary": "Covers the pretrain-then-finetune detector paradigm (R-CNN, Fast/Faster R-CNN), FPN as the standard pyramid on hierarchical backbones, single-scale revisits (Trident Networks, YOLOF), hierarchical Transformers (Swin, MViT, PVT, PiT), and the plain-backbone competitor UViT; the study targets the original plain ViT with Mask R-CNN/Cascade/RetinaNet heads.",
+    "relatedWork": [
+      {
+        "name": "FPN",
+        "relation": "standard in-network pyramid that assumes a hierarchical backbone",
+        "quote": "The FPN design is widely used in object detection methods.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "Swin / MViT / PVT / PiT",
+        "relation": "hierarchical Transformers that re-introduce multi-scale structure to inherit ConvNet detector designs",
+        "quote": "These methods inherit some designs from ConvNets, including the hierarchical structure and the translation-equivariant priors (e.g., convolutions, pooling, sliding windows).",
+        "location": "Sec 2"
+      },
+      {
+        "name": "UViT",
+        "relation": "concurrent plain-backbone detector that modifies the architecture during pre-training",
+        "quote": "Unlike UViT that modifies the architecture during pre-training, our study focuses on the original ViT architecture without a priori specification for detection.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "MAE",
+        "relation": "self-supervised pre-training that supplies the plain ViT backbones used for detection",
+        "quote": "In this study, our plain-backbone detector has benefited from the readily available pretrained models from MAE [24].",
+        "location": "Conclusion"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Our method decouples the backbone design from the detection task, which is a key motivation of pursuing plain backbones.",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "our detector builds a simple feature pyramid from only the last feature map of a plain ViT backbone",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "ViTDet adapts a plain ViT to detection only at fine-tuning time: a simple feature pyramid built by parallel strided convolutions/deconvolutions from the single 1/16-scale last feature map (no FPN top-down/lateral connections), non-overlapping window attention for high-resolution maps with a few (default 4) evenly placed cross-window propagation blocks (global attention or zero-initialized conv residual blocks), and standard Mask R-CNN/Cascade heads on MAE-pre-trained ViT-B/L/H backbones.",
+    "approach": "Keep the original ViT architecture untouched by pre-training, then add only minimal fine-tuning-time modules: a simple single-scale-origin pyramid, window attention with sparse cross-window propagation, and conventional detection heads.",
+    "components": [
+      "simple feature pyramid from the last 1/16 feature map, producing scales {1/32, 1/16, 1/8, 1/4} via parallel stride-{2, 1, 1/2, 1/4} convolutions/deconvolutions (fractional stride = deconvolution)",
+      "non-overlapping window self-attention during fine-tuning, without Swin-style shifting",
+      "4 cross-window propagation blocks placed evenly: global self-attention in the last block of each subset, or added conv residual blocks initialized to identity",
+      "MAE pre-training on ImageNet-1K without labels as the backbone initialization",
+      "Mask R-CNN / Cascade Mask R-CNN / RetinaNet heads with large-scale jittering at 1024x1024 input",
+      "relative position biases added only during fine-tuning for comparisons"
+    ],
+    "solutionTags": ["plain-backbone", "window-attention", "simple-pyramid", "self-supervised-pretraining", "reparameterization-free"],
+    "evidence": [
+      {
+        "quote": "This abandons the FPN design [37] and waives the requirement of a hierarchical backbone.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "To efficiently extract features from high-resolution images, our detector uses simple non-overlapping window attention (without “shifting”, unlike [42]).",
+        "location": "Introduction"
+      },
+      {
+        "quote": "A small number of cross-window blocks (e.g., 4), which could be global attention [54] or convolutions, are used to propagate information.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "These adaptations are made only during fine-tuning and do not alter pre-training.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Our ablation reveals that the set of pyramidal feature maps, rather than the top-down/lateral connections, is the key to effective multi-scale detection.",
+        "location": "Sec 4.1"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Ablations on COCO train2017/val2017 (pyramid design, propagation strategy/location/count, pre-training recipe) with Mask R-CNN; controlled backbone comparisons against Swin and MViTv2 in the same implementation for Mask R-CNN and Cascade Mask R-CNN; system-level comparisons on COCO (with soft-nms and 1280 input) and on LVIS v1 val, plus a RetinaNet-head transfer study in the appendix.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "APbox", "value": "56.7", "split": "Mask R-CNN, ViT-H, 1K MAE (Table 5)", "location": "Table 5" },
+      { "dataset": "COCO", "metric": "APbox", "value": "55.6", "split": "Mask R-CNN, ViT-L, 1K MAE (Table 5)", "location": "Table 5" },
+      { "dataset": "COCO", "metric": "APbox", "value": "51.6", "split": "Mask R-CNN, ViT-B, 1K MAE (Table 5)", "location": "Table 5" },
+      { "dataset": "COCO", "metric": "APbox", "value": "54.1", "split": "Mask R-CNN, MViTv2-H, 21K sup baseline (Table 5)", "location": "Table 5" },
+      { "dataset": "COCO", "metric": "APbox", "value": "58.7", "split": "Cascade Mask R-CNN, ViT-H, 1K MAE (Table 5)", "location": "Table 5" },
+      { "dataset": "COCO", "metric": "APbox", "value": "61.3", "split": "Cascade, ViTDet ViT-H, multi-scale test, 1K MAE (Table 6)", "location": "Table 6" },
+      { "dataset": "COCO", "metric": "APbox", "value": "57.3", "split": "Cascade, ViTDet ViT-H, single-scale test (Table 6)", "location": "Table 6" },
+      { "dataset": "LVIS v1 val", "metric": "APmask", "value": "48.1", "split": "ViTDet ViT-H, 1K MAE, no TTA (Table 7)", "location": "Table 7" },
+      { "dataset": "LVIS v1 val", "metric": "APmask", "value": "43.1", "split": "2021 competition winner strong baseline (Table 7)", "location": "Table 7" }
+    ],
+    "baselines": ["Swin-B", "Swin-L", "SwinV2-L", "MViTv2-B", "MViTv2-L", "MViTv2-H", "UViT", "CBNetV2", "Detic", "Copy-Paste"],
+    "evidence": [
+      {
+        "quote": "We train on the train2017 split and evaluate on the val2017 split.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "In contrast, MAE [24] pre-training on IN-1K (without labels) shows massive gains, increasing APbox by 3.1 for ViT-B and 4.6 for ViT-L.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "Our result with ViT-H is 2.6 better than that with MViTv2-H.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "For the first time, we show that a plain-backbone detector can achieve highly accurate results on COCO and can compete with the leading systems.",
+        "location": "Sec 4.3"
+      },
+      {
+        "quote": "Ours is 5.0 points higher than the 2021 competition winner’s “strong baseline” [18] (48.1 vs. 43.1 APmask )",
+        "location": "Sec 4.3"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "Study scope is deliberately narrow: long-tailed LVIS issues, MAE recipes for hierarchical backbones, and detection-head inductive biases are out of scope; full global attention needs memory optimization and does not scale; system-level comparisons cannot be perfectly controlled, and the plain backbone still needs a few propagation blocks plus a pyramid to work well.",
+    "items": [
+      "Global self-attention in all 24 ViT-L blocks requires special memory optimization and is impractical for scaling to larger models such as ViT-H.",
+      "Exploiting the long-tailed class distribution of LVIS (e.g., CLIP text embeddings, rare-class techniques) is beyond the scope of the study.",
+      "Exploring detectors with even fewer inductive biases (beyond standard Mask R-CNN heads) is left as open future work."
+    ],
+    "evidence": [
+      {
+        "quote": "This requirement makes scaling to larger models (like ViT-H) impractical.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "A special issue in LVIS is on the long-tailed distribution, which is beyond the scope of our study.",
+        "location": "Sec 4.3"
+      },
+      {
+        "quote": "Exploring even fewer inductive biases in the detection heads is an open and interesting direction for future work.",
+        "location": "Sec 3 (Discussion)"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Pursue detection heads with fewer inductive biases, building on the plain-backbone approach.",
+      "quote": "Exploring even fewer inductive biases in the detection heads is an open and interesting direction for future work.",
+      "location": "Sec 3 (Discussion)"
+    },
+    {
+      "direction": "Improve hierarchical backbones with MAE pre-training as a future research topic.",
+      "quote": "While it is an interesting future topic on improving hierarchical backbones with MAE pre-training, our plain-backbone detector enables us to use the readily available ViT backbones from MAE to achieve strong results.",
+      "location": "Sec 4.2"
+    },
+    {
+      "direction": "Spread the decoupling of pre-training from fine-tuning as a general methodology, drawing NLP parallels (GPT, BERT).",
+        "quote": "We hope decoupling pre-training from fine-tuning is a methodology that will generally benefit the community.",
+        "location": "Conclusion"
+      }
+  ],
+  "technical": {
+    "datasets": ["COCO-2017", "LVIS v1", "ImageNet-1K"],
+    "backbones": ["ViT-B", "ViT-L", "ViT-H", "Swin", "MViTv2"],
+    "models": ["ViTDet (ViT-B/L/H)", "Mask R-CNN", "Cascade Mask R-CNN", "RetinaNet", "HTC/HTC++", "UViT"],
+    "algorithms": ["Masked Autoencoder (MAE) pre-training", "simple feature pyramid", "window attention", "cross-window global/convolutional propagation", "large-scale jittering", "AdamW with layer-wise lr decay"],
+    "metrics": ["APbox", "APmask", "APmask rare", "FLOPs", "parameters", "test time (ms)", "training memory"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "general-purpose ViT backbone reuse for detection systems",
+        "detail": "Decoupling pre-training from fine-tuning lets detection use any available or improved plain ViT (new block designs, self-supervised models, scaling) without re-architecting the backbone for multi-scale hierarchies.",
+        "quote": "This makes our detector compatible with ViT developments along various directions that are not necessarily limited by the hierarchical constraint, e.g., block designs [52,53], self-supervised learning [2,24], and scaling [57].",
+        "location": "Introduction"
+      }
+    ],
+    "deploymentClaims": [
+      "Convolutional propagation increases training memory and test time by at most 5%, at a 4% parameter cost.",
+      "Global propagation with 4 blocks does not increase model size; window attention plus a few propagation blocks is a practical, high-performing tradeoff.",
+      "Testing time for the ViT-L based detector is benchmarked per image on an A100 GPU (88 ms baseline in Table 3).",
+      "Plain ViT blocks are more hardware-friendly, giving better wall-clock performance than MViTv2-H at ViT-H scale.",
+      "Code for ViTDet is available in detectron2."
+    ],
+    "evidence": [
+      {
+        "quote": "Convolutional propagation is the most practical, increasing memory and time by merely ≤5%, at a small cost of 4% more parameters.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "the plain ViT has a better wall-clock performance (Figure 3 right, see ViT-H vs. MViTv2-H), as the simpler blocks are more hardware-friendly.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "The testing time (per image) is benchmarked on an A100 GPU.",
+        "location": "Table 3 caption"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1007/978-3-031-20077-9_17",
+    "arxivUrl": "https://arxiv.org/abs/2203.16527",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2203.16527"
+  }
+}

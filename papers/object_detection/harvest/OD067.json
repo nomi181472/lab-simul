@@ -1,0 +1,184 @@
+{
+  "id": "OD067",
+  "arxiv": null,
+  "title": "Scale specified single shot multibox detector",
+  "year": 2020,
+  "venue": "IET Computer Vision",
+  "problem": {
+    "summary": "Detecting objects at vastly different scales remains hard: CNN features from a single input scale have fixed receptive fields, and existing detectors share one inference module across all scales, which hurts very small and very large objects, while image-pyramid remedies are computation and memory intensive.",
+    "statements": [
+      "Object instances exhibit large scale variation, which greatly impedes detectors, especially for very small or very large objects.",
+      "Methods using multi-level features still share one inference module for all scales and do not address the scale mismatch between training and inference.",
+      "Image pyramids are computation and memory intensive, so detectors avoid pyramid representations."
+    ],
+    "problemTags": ["scale-variance", "small-objects", "one-stage-accuracy"],
+    "evidence": [
+      {
+        "quote": "In computer vision, detecting objects at vastly different scales is a fundamental challenge. The large-scale variation across object instances greatly impedes the detectors, especially for very small or very large objects.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "All aforementioned methods do not take into account the scale mismatch between training and inference. They use the same shared inference module for all scales which decreases detection performance for very small or very large objects.",
+        "location": "Sec 2.2"
+      },
+      {
+        "quote": "However, the feature map extracted by CNNs on a single input scale [8, 11-13] resulting in the fixed receptive field.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on SSD's multi-level feature predictions, FPN/TDM/DSSD top-down enhancement, and scale-mismatch treatments (SNIP's scale normalisation, TridentNet's dilated-convolution branches), plus RetinaNet's focal loss for dense single-stage training; it claims the gap is that these methods share one inference module for all scales or rely on costly image pyramids/two-stage designs.",
+    "relatedWork": [
+      {
+        "name": "SSD",
+        "relation": "prior single-shot detector using feature pyramids for prediction",
+        "quote": "the single shot multibox detector (SSD) [14] uses feature pyramids to make prediction.",
+        "location": "Introduction"
+      },
+      {
+        "name": "SNIP",
+        "relation": "prior scale-normalisation treatment of train/infer scale mismatch",
+        "quote": "SNIP [18] probes into the scale variance in object detection. To avoid scale mismatch between training and inference, SNIP proposes a scale normalisation method to train objects that fall into the desired scale range.",
+        "location": "Introduction"
+      },
+      {
+        "name": "TridentNet",
+        "relation": "parallel-branch scale-specific prior art, but two-stage and dilated-convolution based",
+        "quote": "TridentNet [19] generates scale-specific features through multiple parallel branches using dilated convolution to endow their network the same representational power for all objects of different scales.",
+        "location": "Sec 2.3"
+      },
+      {
+        "name": "RetinaNet",
+        "relation": "focal-loss treatment of foreground/background imbalance in dense single-stage detectors",
+        "quote": "To alleviate the extreme foreground-background class imbalance encountered during training of dense single-stage detectors, RetinaNet [28] proposed a novel Focal Loss which focuses training on a sparse set of hard examples.",
+        "location": "Sec 2.1"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Different from TrindentNet using dilated convolution to generate scale-specific feature maps, 4SD predict objects of a specific scale range separately by using feature maps of different sizes. Furthermore, SNIP and TridentNet are two-stage detectors while 4SD is a single-stage detector.",
+        "location": "Sec 2.3"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "4SD is a single-stage detector that adds a scale specific inference module (SSIM) of three parallel branches with feature maps of different sizes to a Darknet-53 base network, and specialises each branch with a scale specific training scheme (SSTS) that only trains on ground-truth boxes inside the branch's valid area range.",
+    "approach": "Predict each scale range in its own parallel branch of a specific feature-map size, trained only on ground-truth instances whose area falls in that branch's valid range, then merge branch outputs with soft-NMS.",
+    "components": [
+      "Darknet-53 base network with classification layers removed",
+      "Scale specific inference module (SSIM): three parallel branches (small/middle/large) built from the topmost feature map by upsampling and concatenating lower-level features",
+      "Scale specific training scheme (SSTS): valid area range per branch filters ground-truth boxes during training",
+      "k-means clustering of ground-truth box dimensions for per-branch default boxes",
+      "soft-NMS to combine detection outputs of the three branches"
+    ],
+    "solutionTags": ["one-stage", "multi-scale", "feature-fusion", "post-processing-nms"],
+    "evidence": [
+      {
+        "quote": "The SSIM consists of three parallel branches in which each extends from the same topmost feature maps F0.",
+        "location": "Sec 3.2"
+      },
+      {
+        "quote": "Here, we propose an SSTS to increase the scale awareness of each branch and avoid training in mismatched branches.",
+        "location": "Sec 3.3"
+      },
+      {
+        "quote": "Different from TridentNet, we run k-means clustering on the dimensions of ground truth bounding boxes to get good default boxes for each branch.",
+        "location": "Sec 3.3"
+      },
+      {
+        "quote": "During inference, we generate detection results for all branches and then filter out the boxes which fall outside the valid range of each branch. We then use soft-NMS [32] to combine the detection outputs of three branches to obtain the final results.",
+        "location": "Sec 3.4"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "The method is evaluated on PASCAL VOC 2007 (trained on VOC 2007+2012 trainval) and MS COCO (trainval35k, evaluated on test-dev), compared against two-stage and single-stage detectors, with an ablation on the number of branches and a speed comparison on an NVIDIA 1080Ti GPU.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "83.1", "split": "test", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "36.9", "split": "test-dev", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "AP50", "value": "58.0", "split": "test-dev", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "APS", "value": "20.3", "split": "test-dev", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "37.2", "split": "minival (3 branches)", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2007", "metric": "FPS", "value": "28", "split": "test", "location": "Table 4" }
+    ],
+    "baselines": ["Faster R-CNN", "R-FCN", "ION", "SSD513", "DSSD513", "YOLOv2", "YOLOv3", "SNIPER", "TridentNet"],
+    "evidence": [
+      {
+        "quote": "The proposed method can achieve a mean average precision of 83.1% on PASCAL VOC 2007, and 36.9% on MS-COCO at a speed of 28 frames per second, which is superior to most single-stage detectors.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "We observe that using three branches further improves the performance of the detector. Particularly, it brings additional improvements for small objects by 9.9% and for middle objects by 6%.",
+        "location": "Sec 4.3"
+      },
+      {
+        "quote": "We also observe that 4SD has a better improvement on small objects than several detectors applying skip connections structure, e.g. FPN (APS 20.3 versus 18.2) and TDM (APS 20.3 versus 16.2).",
+        "location": "Sec 4.5"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors admit over-fitting introduced by the multi-branch structure and by the reduced effective samples per branch under SSTS, which shows up as weaker large-object performance, and note that heavier two-stage methods with complex refinement and larger inputs still outperform 4SD.",
+    "items": [
+      "The multi-branch structure adds several times the parameters and may incur over-fitting.",
+      "SSTS reduces effective training samples per branch and can cause over-fitting within a branch.",
+      "Large-object AP is slightly worse than DSSD513 on COCO (49.7 versus 51.1), and large-size VOC classes such as sofa and table degrade.",
+      "Two-stage methods based on complex region refinement and large input size achieve better results than 4SD."
+    ],
+    "evidence": [
+      {
+        "quote": "First, the multi-branch structure introduces several times parameters which may potentially incur over-fitting.",
+        "location": "Sec 4.3"
+      },
+      {
+        "quote": "But the result of APL for large objects is a little worse (49.7 versus 51.1), which is due to over-fitting discussed in Section 4.3.",
+        "location": "Sec 4.5"
+      },
+      {
+        "quote": "worse performance on large-size objects, such as sofa, table. We judge that this is caused by over-fitting discussed in Section 4.3.",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "Based on a complex region refinement process and large input size, they achieve better results than 4SD.",
+        "location": "Sec 4.5"
+      }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["PASCAL VOC", "MS COCO", "ImageNet"],
+    "backbones": ["Darknet-53"],
+    "models": ["4SD", "SSIM", "SSD", "DSSD513", "YOLOv3", "Faster R-CNN"],
+    "algorithms": ["k-means anchor clustering", "soft-NMS", "non-maximum suppression", "linear interpolation upsampling", "multi-scale training"],
+    "metrics": ["mAP", "AP", "AP50", "AP75", "APS", "APM", "APL", "FPS"],
+    "equations": [
+      { "name": "branch valid range", "expr": "ei^2 <= w*h <= ki^2 for ground-truth box in branch i", "location": "Eq 1" },
+      { "name": "branch multi-part loss", "expr": "Li = Lloc^i + Lcon^i + Lcls^i", "location": "Eq 2" },
+      { "name": "total loss", "expr": "Ltotal = sum_{i=1..N} Li", "location": "Eq 3" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "4SD runs at 28 FPS (36 ms per 544x544 image) on an NVIDIA 1080Ti GPU, described as real-time speed with the best accuracy/speed trade-off.",
+      "The single-stage design is claimed to be significantly faster than SNIP and TridentNet."
+    ],
+    "evidence": [
+      {
+        "quote": "4SD processes an image in 36 ms (28 FPS), with an input size of 544 × 544, while 167 ms (6 FPS) is required on DSSD513.",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "In summary, 4SD achieves the real-time speed and best trade-off between accuracy and speed.",
+        "location": "Sec 4.4"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1049/iet-cvi.2019.0461",
+    "arxivUrl": null,
+    "venue": "IET Computer Vision",
+    "pdfUrl": null
+  }
+}

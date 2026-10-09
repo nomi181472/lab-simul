@@ -1,0 +1,121 @@
+{
+  "id": "OD063",
+  "arxiv": "2010.04159",
+  "title": "Deformable DETR: Deformable Transformers for End-to-End Object Detection",
+  "year": 2020,
+  "venue": "ICLR 2021",
+  "problem": {
+    "summary": "DETR is the first fully end-to-end detector but converges very slowly (500 epochs on COCO) and handles small objects poorly, because Transformer attention over image feature maps is quadratic in pixel count and starts near-uniform.",
+    "statements": [
+      "DETR needs roughly 10 to 20 times more training epochs to converge than Faster R-CNN on COCO.",
+      "High-resolution feature maps needed for small objects lead to unacceptable complexity for DETR's self-attention.",
+      "Transformer attention casts nearly uniform weights at initialization, so long training schedules are required before attention focuses on sparse meaningful locations."
+    ],
+    "problemTags": ["convergence", "small-objects", "speed-latency"],
+    "evidence": [
+      { "quote": "However, it suffers from slow convergence and limited feature spatial resolution, due to the limitation of Transformer attention modules in processing image feature maps.", "location": "Abstract" },
+      { "quote": "For example, on the COCO (Lin et al., 2014) benchmark, DETR needs 500 epochs to converge, which is around 10 to 20 times slower than Faster R-CNN (Ren et al., 2015).", "location": "Introduction" },
+      { "quote": "DETR delivers relatively low performance at detecting small objects.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on DETR (Transformer encoder-decoder with Hungarian set prediction), deformable convolution, and multi-scale feature pyramids (FPN and variants). The gap claimed is that prior efficient-attention designs are limited to fixed sparse patterns and that DETR's attention on feature maps is both slow to train and quadratic in spatial size.",
+    "relatedWork": [
+      { "name": "DETR", "relation": "base end-to-end detector whose attention modules are replaced", "quote": "DETR has been recently proposed to eliminate the need for many hand-designed components in object detection while demonstrating good performance.", "location": "Abstract" },
+      { "name": "Deformable Convolution", "relation": "inspiration for sparse spatial sampling in the proposed attention", "quote": "In the image domain, deformable convolution (Dai et al., 2017) is of a powerful and efficient mechanism to attend to sparse spatial locations.", "location": "Introduction" },
+      { "name": "FPN", "relation": "prior multi-scale feature fusion that the proposed module makes unnecessary", "quote": "As one of the pioneering works, FPN (Lin et al., 2017a) proposes a top-down path to combine multi-scale features.", "location": "Sec 2" },
+      { "name": "Faster R-CNN", "relation": "convergence and speed reference baseline", "quote": "which is around 10 to 20 times slower than Faster R-CNN (Ren et al., 2015)", "location": "Introduction" }
+    ],
+    "evidence": [
+      { "quote": "Modern object detectors employ many hand-crafted components (Liu et al., 2020), e.g., anchor generation, rule-based training target assignment, non-maximum suppression (NMS) post-processing.", "location": "Introduction" },
+      { "quote": "On the other hand, the attention weights computation in Transformer encoder is of quadratic computation w.r.t. pixel numbers.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "Deformable DETR replaces the Transformer attention modules that process feature maps with multi-scale deformable attention, which samples a small set of key points around a reference point from multi-scale feature maps, giving linear complexity and 10x faster convergence; iterative box refinement and a two-stage variant further raise accuracy.",
+    "approach": "Attend only to a small fixed set of learned sampling locations around a reference point (deformable style) instead of all pixels, aggregated across four feature levels inside a DETR encoder-decoder.",
+    "components": [
+      "multi-scale deformable attention module (default M = 8 heads, K = 4 sampling points)",
+      "deformable Transformer encoder over C3-C6 multi-scale feature maps without FPN",
+      "decoder cross-attention replaced by multi-scale deformable attention, self-attention unchanged",
+      "object-query reference points predicted via linear projection and sigmoid",
+      "box prediction as relative offsets to the reference point",
+      "iterative bounding box refinement across decoder layers",
+      "two-stage variant: encoder-only proposals fed back as object queries, no NMS",
+      "Focal Loss classification with 300 object queries"
+    ],
+    "solutionTags": ["transformer-query", "deformable-attention", "multi-scale", "set-prediction", "focal-loss"],
+    "evidence": [
+      { "quote": "we proposed Deformable DETR, whose attention modules only attend to a small set of key sampling points around a reference.", "location": "Abstract" },
+      { "quote": "the deformable attention module only attends to a small set of key sampling points around a reference point, regardless of the spatial size of the feature maps, as shown in Fig. 2.", "location": "Sec 4.1" },
+      { "quote": "We replace the Transformer attention modules processing feature maps in DETR with the proposed multi-scale deformable attention module.", "location": "Sec 4.1" },
+      { "quote": "each decoder layer refines the bounding boxes based on the predictions from the previous layer.", "location": "Sec 4.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation is on COCO 2017: comparison against DETR on the val set including convergence curves and runtime, ablations of the deformable attention design choices, and comparison with state-of-the-art detectors on test-dev.",
+    "benchmarks": [
+      { "dataset": "COCO 2017", "metric": "AP", "value": "43.8", "split": "val, Deformable DETR (ResNet-50), 50 epochs", "location": "Table 1" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "46.2", "split": "val, two-stage Deformable DETR with iterative refinement, 50 epochs", "location": "Table 1" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "46.9", "split": "test-dev, ResNet-50", "location": "Table 3" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "48.7", "split": "test-dev, ResNet-101, no TTA", "location": "Table 3" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "50.1", "split": "test-dev, ResNeXt-101 + DCN, no TTA", "location": "Table 3" },
+      { "dataset": "COCO 2017", "metric": "AP", "value": "52.3", "split": "test-dev, ResNeXt-101 + DCN with TTA", "location": "Table 3" },
+      { "dataset": "COCO 2017", "metric": "FPS", "value": "19", "split": "val, NVIDIA Tesla V100", "location": "Table 1" }
+    ],
+    "baselines": ["DETR", "DETR-DC5", "Faster R-CNN + FPN", "FCOS", "ATSS", "EfficientDet-D7", "TSD"],
+    "evidence": [
+      { "quote": "Compared with DETR, Deformable DETR can achieve better performance (especially on small objects) with 10× less training epochs.", "location": "Introduction" },
+      { "quote": "With ResNet-101 and ResNeXt-101 (Xie et al., 2017), our method achieves 48.7 AP and 49.0 AP without bells and whistles, respectively.", "location": "Sec 5.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "Deformable attention still relies on unordered memory access, so it remains slightly slower than plain convolution, and its runtime is about 25% slower than Faster R-CNN + FPN; the strongest numbers also depend on the iterative-refinement/two-stage variants and test-time augmentation.",
+    "items": [
+      "Deformable attention is still slightly slower than traditional convolution because of unordered memory access.",
+      "Inference is about 25% slower than Faster R-CNN + FPN despite on-par FLOPs.",
+      "Best test-dev results (52.3 AP) require test-time augmentation; base ResNet-50 model reaches 46.9 AP.",
+      "Only cross-attention is deformable; decoder self-attention is left unchanged."
+    ],
+    "evidence": [
+      { "quote": "Our proposed deformable attention can mitigate this issue, at the cost of unordered memory access.", "location": "Sec 5.1" },
+      { "quote": "But the runtime speed is much faster (1.6×) than DETR-DC5, and is just 25% slower than Faster R-CNN + FPN.", "location": "Sec 5.1" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Explore further interesting and practical variants of end-to-end object detectors built on Deformable DETR.", "quote": "It enables us to explore more interesting and practical variants of end-to-end object detectors.", "location": "Conclusion" },
+    { "direction": "Use the fast-converging, efficient design as a basis for new end-to-end detection research.", "quote": "We hope our work opens up new possibilities in exploring end-to-end object detection.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["COCO 2017", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt-101"],
+    "models": ["Deformable DETR", "DETR", "DETR-DC5", "Faster R-CNN", "FCOS", "ATSS", "EfficientDet"],
+    "algorithms": ["multi-scale deformable attention", "Hungarian loss", "Focal Loss", "iterative bounding box refinement", "bilinear interpolation", "Adam"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "FPS", "FLOPs"],
+    "equations": [
+      { "name": "Multi-head attention", "expr": "MultiHeadAttn(z_q, x) = sum_m W_m [ sum_k A_mqk W'_m x_k ]", "location": "Sec 3, Eq. 1" },
+      { "name": "Deformable attention", "expr": "DeformAttn(z_q, p_q, x) = sum_m W_m [ sum_k A_mqk W'_m x(p_q + Delta_p_mqk) ]", "location": "Sec 4.1, Eq. 2" },
+      { "name": "Multi-scale deformable attention", "expr": "MSDeformAttn(z_q, p_q, {x_l}) = sum_m W_m [ sum_l sum_k A_mlqk W'_m x^l(phi_l(p_q) + Delta_p_mlqk) ]", "location": "Sec 4.1, Eq. 3" },
+      { "name": "Encoder self-attention complexity", "expr": "O(H^2 W^2 C)", "location": "Sec 3" },
+      { "name": "Deformable attention complexity", "expr": "O(2 N_q C^2 + min(HW C^2, N_q K C^2))", "location": "Sec 4.1" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "19 FPS inference on an NVIDIA Tesla V100 GPU (Table 1)",
+      "1.6x faster runtime than DETR-DC5 at on-par FLOPs",
+      "Source code released at github.com/fundamentalvision/Deformable-DETR"
+    ],
+    "evidence": [
+      { "quote": "Run time is evaluated on NVIDIA Tesla V100 GPU.", "location": "Sec 5" },
+      { "quote": "But the runtime speed is much faster (1.6×) than DETR-DC5, and is just 25% slower than Faster R-CNN + FPN.", "location": "Sec 5.1" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2010.04159",
+    "arxivUrl": "https://arxiv.org/abs/2010.04159",
+    "venue": "ICLR 2021",
+    "pdfUrl": "https://arxiv.org/pdf/2010.04159"
+  }
+}

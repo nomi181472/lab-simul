@@ -1,0 +1,319 @@
+{
+  "id": "OD053",
+  "arxiv": "1911.09070",
+  "title": "EfficientDet: Scalable and Efficient Object Detection",
+  "year": 2019,
+  "venue": null,
+  "problem": {
+    "summary": "The paper argues that modern detectors reach high accuracy only with very large models, which blocks deployment on constrained hardware, and that prior work either targets a narrow resource range, fuses multi-scale features without weighting, or scales only one network dimension at a time.",
+    "statements": [
+      "State-of-the-art detectors are prohibitively expensive (AmoebaNet + NAS-FPN needs 167M parameters and 3045B FLOPs), so model size and compute cost discourage deployment in robotics and self-driving cars.",
+      "Prior efficiency work covers only a specific or small range of resource requirements, while real applications span mobile devices to datacenters and need different trade-offs.",
+      "Prior feature-pyramid fusion treats all input features equally even though features at different resolutions contribute unequally to the output."
+    ],
+    "problemTags": [
+      "deployability",
+      "speed-latency",
+      "scale-variance",
+      "real-time-edge"
+    ],
+    "evidence": [
+      {
+        "quote": "The large model sizes and expensive computation costs deter their deployment in many real-world applications such as robotics and self-driving cars where model size and latency are highly constrained.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "most previous works only focus on a specific or a small range of resource requirements, but the variety of real-world applications, from mobile devices to datacenters, often demand different resource constraints.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "All previous methods treat all input features equally without distinction.",
+        "location": "Sec 3.3"
+      },
+      {
+        "quote": "requires 167M parameters and 3045B FLOPs (30x more than RetinaNet [24])",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The method builds on one-stage detectors with FPN-style pyramids (FPN, PANet, NAS-FPN) and on EfficientNet's joint width/depth/resolution compound scaling from image classification; the claimed gap is that existing cross-scale fusion is undifferentiated and search-based (NAS-FPN) or single-dimension, rather than weighted, repeatable and jointly scaled for detection.",
+    "relatedWork": [
+      {
+        "name": "FPN",
+        "relation": "prior feature pyramid, top-down pathway baseline",
+        "quote": "As one of the pioneering works, feature pyramid network (FPN) [23] proposes a top-down pathway to combine multi-scale features",
+        "location": "Sec 2"
+      },
+      {
+        "name": "PANet",
+        "relation": "prior work adding a bottom-up path on top of FPN",
+        "quote": "Following this idea, PANet [26] adds an extra bottom-up path aggregation network on top of FPN",
+        "location": "Sec 2"
+      },
+      {
+        "name": "NAS-FPN",
+        "relation": "search-designed feature network, accurate but costly to search and hard to interpret",
+        "quote": "Although it achieves better performance, NAS-FPN requires thousands of GPU hours during search, and the resulting feature network is irregular",
+        "location": "Sec 2"
+      },
+      {
+        "name": "EfficientNet [39]",
+        "relation": "source of the joint width/depth/resolution compound scaling idea",
+        "quote": "Recently, [39] demonstrates remarkable model efficiency for image classification by jointly scaling up network width, depth, and resolution.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "one-stage detectors",
+        "relation": "the detector family the paper follows",
+        "quote": "While two-stage detectors tend to be more flexible and more accurate, one-stage detectors are often considered to be simpler and more efficient by leveraging predefined anchors [17].",
+        "location": "Sec 2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "As one of the pioneering works, feature pyramid network (FPN) [23] proposes a top-down pathway to combine multi-scale features",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "Although it achieves better performance, NAS-FPN requires thousands of GPU hours during search, and the resulting feature network is irregular and thus difficult to interpret.",
+        "location": "Sec 2"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "The paper proposes BiFPN, a weighted bidirectional feature pyramid that removes single-input nodes, adds same-level skip connections, repeats the bidirectional path, and learns a normalized weight per input via fast normalized fusion; a single compound coefficient phi then scales resolution, BiFPN depth/width and prediction-head depth, giving EfficientDet-D0..D7/D7x on EfficientNet backbones.",
+    "approach": "Fuse multi-scale features with a weighted bidirectional pyramid and jointly scale resolution, depth and width of backbone, BiFPN and prediction head with a single compound coefficient.",
+    "components": [
+      "BiFPN: bidirectional top-down/bottom-up cross-scale paths, repeated as feature-network layers",
+      "single-input nodes removed and same-level input-to-output skip edges added",
+      "learnable per-input feature weights with fast normalized fusion (sum of non-negative weights in the denominator)",
+      "depthwise separable convolutions with batch norm and activation for cheap feature fusion",
+      "EfficientNet-B0..B7 backbones with shared class/box prediction network across levels",
+      "compound coefficient phi controlling input resolution, BiFPN depth/width and head depth"
+    ],
+    "solutionTags": [
+      "feature-pyramid",
+      "feature-fusion",
+      "multi-scale",
+      "real-time-backbone",
+      "one-stage"
+    ],
+    "evidence": [
+      {
+        "quote": "First, we propose a weighted bi-directional feature pyramid network (BiFPN), which allows easy and fast multiscale feature fusion",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Second, we propose a compound scaling method that uniformly scales the resolution, depth, and width for all backbone, feature network, and box/class prediction networks at the same time.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "To address this issue, we propose to add an additional weight for each input, and let the network to learn the importance of each input feature.",
+        "location": "Sec 3.3"
+      },
+      {
+        "quote": "Combining EfficientNet backbones with our propose BiFPN and compound scaling, we have developed a new family of object detectors, named EfficientDet",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Models are trained on COCO 2017 (118K images) and evaluated single-model single-scale on test-dev and val with accuracy, parameter, FLOP and GPU/CPU latency comparisons against YOLOv3, RetinaNet, NAS-FPN and AmoebaNet variants; ablations isolate BiFPN, weighted fusion and compound scaling, plus a Pascal VOC 2012 segmentation transfer experiment.",
+    "benchmarks": [
+      {
+        "dataset": "COCO",
+        "metric": "AP",
+        "value": "55.1",
+        "split": "test-dev, EfficientDet-D7x (1536), single-scale",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "COCO",
+        "metric": "AP",
+        "value": "53.7",
+        "split": "test-dev, EfficientDet-D7 (1536), single-scale",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "COCO",
+        "metric": "AP",
+        "value": "52.6",
+        "split": "test-dev, EfficientDet-D6 (1280), single-scale",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "COCO",
+        "metric": "AP",
+        "value": "49.7",
+        "split": "test-dev, EfficientDet-D4 (1024), single-scale",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "Pascal VOC 2012",
+        "metric": "mIOU",
+        "value": "81.74%",
+        "split": "semantic segmentation, single-model single-scale EfficientDet-D4-based",
+        "location": "Table 3"
+      }
+    ],
+    "baselines": [
+      "YOLOv3",
+      "RetinaNet-R50/R101",
+      "Mask R-CNN (Detectron2)",
+      "ResNet-50 + NAS-FPN",
+      "AmoebaNet + NAS-FPN + AA",
+      "DeepLabV3+"
+    ],
+    "evidence": [
+      {
+        "quote": "55.1 AP on COCO test-dev with 77M parameters and 410B FLOPs",
+        "location": "Abstract"
+      },
+      {
+        "quote": "We evaluate EfficientDet on COCO 2017 detection datasets [25] with 118K training images",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "our single-model single-scale EfficientDet achieves 81.74% mIOU accuracy with 18B FLOPs on Pascal VOC 2012 semantic segmentation, outperforming DeepLabV3+ [6] by 1.7% better accuracy with 9.8x fewer FLOPs.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors admit the compound scaling rule is heuristic rather than searched or provably optimal, and that detector accuracy depends heavily on training settings (their reproduced RetinaNet differs from published numbers), while strong results require very long training schedules on large TPU pods.",
+    "items": [
+      "Compound scaling coefficients are chosen by heuristic/grid search and may not be optimal for a given resource budget.",
+      "Model quality depends on training configuration as well as architecture, so comparisons against numbers quoted from other papers are not strictly controlled.",
+      "Best accuracy needs 300-epoch training (600 epochs on 128 TPUv3 cores for D7/D7x).",
+      "Weighted fusion adds learnable parameters and a small amount of overhead relative to plain summation."
+    ],
+    "evidence": [
+      {
+        "quote": "Notably, our compound scaling is heuristic-based and might not be optimal, but we will show that this simple scaling method can significantly improve efficiency than other single-dimension scaling methods",
+        "location": "Sec 6.4"
+      },
+      {
+        "quote": "model performance depends on both network architecture and trainning settings (see appendix)",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "For D0-D6, each model is trained for 300 epochs with total batch size 128 on 32 TPUv3 cores, but to push the envelope, we train D7/D7x for 600 epochs on 128 TPUv3 cores.",
+        "location": "Sec 5.1"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Extend the EfficientDet/BiFPN design beyond detection to dense prediction tasks such as semantic segmentation.",
+      "quote": "These results suggest that EfficientDet is also quite promising for semantic segmentation.",
+      "location": "Sec 5.2"
+    }
+  ],
+  "technical": {
+    "datasets": [
+      "COCO 2017",
+      "ImageNet",
+      "Pascal VOC 2012"
+    ],
+    "backbones": [
+      "EfficientNet-B0",
+      "EfficientNet-B1",
+      "EfficientNet-B2",
+      "EfficientNet-B3",
+      "EfficientNet-B4",
+      "EfficientNet-B5",
+      "EfficientNet-B6",
+      "EfficientNet-B7"
+    ],
+    "models": [
+      "EfficientDet-D0..D7",
+      "EfficientDet-D7x",
+      "BiFPN"
+    ],
+    "algorithms": [
+      "focal loss",
+      "soft-NMS",
+      "depthwise separable convolution",
+      "compound scaling",
+      "fast normalized feature fusion",
+      "exponential moving average",
+      "SiLU (Swish-1) activation"
+    ],
+    "metrics": [
+      "AP",
+      "AP50",
+      "AP75",
+      "mIOU",
+      "FLOPs",
+      "latency (ms)",
+      "parameters"
+    ],
+    "equations": [
+      {
+        "name": "BiFPN width and depth scaling",
+        "expr": "W_bifpn = 64 * 1.35^phi; D_bifpn = 3 + phi",
+        "location": "Eq 1, Sec 4.2"
+      },
+      {
+        "name": "prediction network depth scaling",
+        "expr": "D_box = D_class = 3 + floor(phi/3)",
+        "location": "Eq 2, Sec 4.2"
+      },
+      {
+        "name": "input resolution scaling",
+        "expr": "R_input = 512 + phi * 128",
+        "location": "Eq 3, Sec 4.2"
+      },
+      {
+        "name": "fast normalized feature fusion",
+        "expr": "O = sum_i (w_i / (eps + sum_j w_j)) * I_i with w_i >= 0",
+        "location": "Sec 3.3"
+      },
+      {
+        "name": "weighted BiFPN node (level 6)",
+        "expr": "P6_td = Conv((w1*P6_in + w2*Resize(P7_in)) / (w1 + w2 + eps))",
+        "location": "Sec 4.1"
+      }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "robotics and autonomous driving",
+        "detail": "Named as the deployments where model size and latency are strongly constrained, motivating smaller detectors.",
+        "quote": "The large model sizes and expensive computation costs deter their deployment in many real-world applications such as robotics and self-driving cars where model size and latency are highly constrained.",
+        "location": "Introduction"
+      },
+      {
+        "domain": "mobile devices and datacenters",
+        "detail": "Efficiency targets differ across hardware classes, which the compound scaling family is designed to cover.",
+        "quote": "the variety of real-world applications, from mobile devices to datacenters, often demand different resource constraints.",
+        "location": "Introduction"
+      }
+    ],
+    "deploymentClaims": [
+      "Up to 4.1x faster on GPU and 10.8x faster on CPU than previous detectors on the same machine",
+      "EfficientDet-D7x: 55.1 AP, 77M params, 410B FLOPs, 285 ms Titan V / 153 ms V100 (batch size 1)",
+      "With fixed 640x640 input, EfficientDet-D6 reaches real-time 47.9AP at 34ms latency",
+      "V100 latency measured end-to-end including preprocessing and NMS postprocessing",
+      "Code released at https://github.com/google/automl/tree/master/efficientdet"
+    ],
+    "evidence": [
+      {
+        "quote": "Compared to previous detectors, EfficientDet models are up to 4.1x faster on GPU and 10.8x faster on CPU, suggesting",
+        "location": "Sec 5.1"
+      },
+      {
+        "quote": "Latency is for inference with batch size 1.",
+        "location": "Table 2 caption"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr42600.2020.01079",
+    "arxivUrl": "https://arxiv.org/abs/1911.09070",
+    "venue": "CVPR 2020",
+    "pdfUrl": "https://arxiv.org/pdf/1911.09070"
+  }
+}

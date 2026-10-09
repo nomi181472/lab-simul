@@ -1,191 +1,311 @@
 "use client";
 
-import { useMemo } from "react";
-import { yearState, YEAR_LIST } from "@/labs/object-detection/data/years";
-import { DELTAS_BY_FROM } from "@/labs/object-detection/data/year-deltas";
-import { PAPER_BY_ID } from "@/labs/object-detection/data/papers";
+import { YEARS, YEAR_STATES } from "@/labs/object-detection/data/years";
+import { YEAR_DELTAS } from "@/labs/object-detection/data/year-deltas";
 import { useLab } from "@/labs/object-detection/context";
-import { Card, Badge, PaperLink, SectionTitle, ConfidenceBadge } from "@/labs/object-detection/ui";
-import { runAudit } from "@/labs/object-detection/data/audit";
+import {
+  Card,
+  Badge,
+  PaperLink,
+  SectionTitle,
+  type BadgeTone,
+} from "@/labs/object-detection/ui";
 
-function FieldList({
-  title,
+function ChipBlock({
+  label,
+  items,
+  tone,
+}: {
+  label: string;
+  items: string[];
+  tone: BadgeTone;
+}) {
+  return (
+    <div>
+      <div className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">
+        {label}
+      </div>
+      {items.length === 0 ? (
+        <div className="mt-1 font-mono text-[11px] text-zinc-600">—</div>
+      ) : (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {items.map((it, i) => (
+            <Badge key={`${it}-${i}`} tone={tone}>
+              {it}
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ListBlock({
+  label,
   items,
   tone = "zinc",
 }: {
-  title: string;
+  label: string;
   items: string[];
-  tone?: "zinc" | "emerald" | "amber" | "sky" | "rose" | "violet";
+  tone?: BadgeTone;
 }) {
-  if (items.length === 0) return null;
   return (
     <div>
-      <div className="flex items-center gap-2">
-        <Badge tone={tone}>{title}</Badge>
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge tone={tone}>{label}</Badge>
+        <span className="font-mono text-[10px] text-zinc-600">{items.length}</span>
       </div>
-      <ul className="mt-2 space-y-1">
-        {items.map((it, i) => (
-          <li key={i} className="flex gap-2 text-[12px] leading-5 text-zinc-300">
-            <span className="text-zinc-600">›</span>
-            <span>{it}</span>
-          </li>
-        ))}
-      </ul>
+      {items.length === 0 ? (
+        <div className="mt-2 font-mono text-[11px] text-zinc-600">—</div>
+      ) : (
+        <ul className="mt-2 space-y-1">
+          {items.map((it, i) => (
+            <li key={`${it}-${i}`} className="flex gap-2 text-[12px] leading-5 text-zinc-300">
+              <span className="text-zinc-600">›</span>
+              <span>{it}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
 
 export function YearView() {
   const { year, setYear } = useLab();
-  const state = yearState(year);
-  const delta = DELTAS_BY_FROM[year];
-  const audit = useMemo(() => runAudit(), []);
-  const yearErr = audit.find((c) => c.id === "years");
+  const state = YEAR_STATES[year];
+  const delta = YEAR_DELTAS.find((d) => d.from === year);
+
+  const idx = YEARS.indexOf(year);
+  const prev = idx > 0 ? YEARS[idx - 1] : null;
+  const next = idx >= 0 && idx < YEARS.length - 1 ? YEARS[idx + 1] : null;
 
   if (!state) {
     return (
       <div className="space-y-4">
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">{year}</h1>
         <p className="text-sm text-zinc-400">No field-state record for {year}.</p>
+        <div className="flex items-center justify-between">
+          {prev ? (
+            <button
+              onClick={() => setYear(prev)}
+              className="rounded-lg border border-zinc-800 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-900"
+            >
+              ← {prev}
+            </button>
+          ) : (
+            <span />
+          )}
+          {next ? (
+            <button
+              onClick={() => setYear(next)}
+              className="rounded-lg border border-zinc-800 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-900"
+            >
+              {next} →
+            </button>
+          ) : (
+            <span />
+          )}
+        </div>
       </div>
     );
   }
 
-  const papersOfYear = (state.supportingPapers ?? []).map((id) => PAPER_BY_ID[id]).filter(Boolean);
-
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
-            Field state · {state.year}
-          </h1>
-          <p className="mt-1 font-mono text-[11px] text-zinc-500">
-            {papersOfYear.length} corpus paper{papersOfYear.length === 1 ? "" : "s"} anchor this
-            year{yearErr && !yearErr.pass ? " · ⚠ year audit failing" : ""}
-          </p>
+      {/* header */}
+      <div className="rounded-2xl border border-emerald-800/40 bg-gradient-to-b from-emerald-950/30 to-zinc-950 p-6">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="font-mono text-5xl font-semibold text-emerald-300">{state.year}</div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Badge tone="zinc">{state.paperCount} papers</Badge>
+              <Badge tone="zinc">field state</Badge>
+              <Badge tone="zinc">{state.supportingPapers.length} supporting</Badge>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {state.supportingPapers.slice(0, 14).map((id) => (
+              <PaperLink key={id} id={id} short />
+            ))}
+            {state.supportingPapers.length > 14 && (
+              <span className="font-mono text-[10px] text-zinc-500">
+                +{state.supportingPapers.length - 14} more
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* navigation */}
+      {/* year navigation */}
       <div className="flex items-center justify-between">
-        {year > YEAR_LIST[0] ? (
+        {prev ? (
           <button
-            onClick={() => setYear(year - 1)}
+            onClick={() => setYear(prev)}
             className="rounded-lg border border-zinc-800 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-900"
           >
-            ← {year - 1}
+            ← {prev}
           </button>
-        ) : <span />}
-        {year < YEAR_LIST[YEAR_LIST.length - 1] ? (
+        ) : (
+          <span className="font-mono text-[10px] text-zinc-600">first year of the corpus</span>
+        )}
+        <span className="font-mono text-[10px] uppercase tracking-wide text-zinc-600">
+          year-by-year
+        </span>
+        {next ? (
           <button
-            onClick={() => setYear(year + 1)}
+            onClick={() => setYear(next)}
             className="rounded-lg border border-zinc-800 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-900"
           >
-            {year + 1} →
+            {next} →
           </button>
-        ) : <span />}
+        ) : (
+          <span className="font-mono text-[10px] text-zinc-600">latest year of the corpus</span>
+        )}
       </div>
 
-      {/* delta headline if available */}
-      {delta && (
+      {/* vs previous year */}
+      {delta ? (
         <Card tone="accent">
-          <SectionTitle>What changed since {delta.from}</SectionTitle>
+          <div className="flex flex-wrap items-center gap-2">
+            <SectionTitle>
+              {delta.from} → {delta.to}
+            </SectionTitle>
+            <Badge tone="emerald">vs previous year</Badge>
+          </div>
           <p className="mt-2 text-xs leading-5 text-zinc-400">{delta.summary}</p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <FieldList title="added" items={delta.added} tone="emerald" />
-            <FieldList title="removed" items={delta.removed} tone="rose" />
-            <FieldList title="persisted" items={delta.persisted} tone="zinc" />
-            <FieldList title="new problems" items={delta.newProblems} tone="amber" />
-            <FieldList title="new architectures" items={delta.newArchitectures} tone="sky" />
-            <FieldList title="new losses" items={delta.newLosses} tone="violet" />
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            <ChipBlock label="added" items={delta.added} tone="emerald" />
+            <ChipBlock label="removed" items={delta.removed} tone="rose" />
+            <ChipBlock label="persisted" items={delta.persisted} tone="zinc" />
+          </div>
+          <div className="mt-3">
+            <ChipBlock label="new problems" items={delta.newProblems} tone="violet" />
           </div>
           {delta.supportingPapers.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-1.5">
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+              <span className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">
+                evidence
+              </span>
               {delta.supportingPapers.map((id) => (
-                <PaperLink key={id} id={id} />
+                <PaperLink key={id} id={id} short />
               ))}
             </div>
           )}
         </Card>
+      ) : (
+        <Card>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="zinc">baseline year</Badge>
+            <span className="text-[11px] leading-5 text-zinc-500">
+              {state.year} opens the corpus — there is no previous year to diff against.
+            </span>
+          </div>
+        </Card>
       )}
 
-      {/* field snapshot grid */}
+      {/* approaches & ideas */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <ChipBlock label="dominant approaches" items={state.dominantApproaches} tone="emerald" />
+        </Card>
+        <Card>
+          <ChipBlock label="emerging ideas" items={state.emergingIdeas} tone="sky" />
+          <div className="mt-4">
+            <ChipBlock label="declining ideas" items={state.decliningIdeas} tone="rose" />
+          </div>
+        </Card>
+        <Card>
+          <ChipBlock label="research directions" items={state.researchDirections} tone="emerald" />
+        </Card>
+      </div>
+
+      {/* problems */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <FieldList title="dominant approaches" items={state.dominantApproaches} tone="emerald" />
-        </Card>
-        <Card>
-          <FieldList title="emerging ideas" items={state.emergingIdeas} tone="sky" />
-          <div className="mt-4">
-            <FieldList title="declining" items={state.decliningIdeas} tone="rose" />
+          <SectionTitle>Problems</SectionTitle>
+          <div className="mt-3 space-y-4">
+            <ChipBlock label="new problems" items={state.newProblems} tone="violet" />
+            <ChipBlock
+              label="persistent problems"
+              items={state.persistentProblems}
+              tone="amber"
+            />
           </div>
         </Card>
         <Card>
-          <FieldList title="problems entering" items={state.newProblems} tone="amber" />
-          <div className="mt-4">
-            <FieldList title="problems improving" items={state.solvedOrReducedProblems} tone="emerald" />
-          </div>
-        </Card>
-        <Card>
-          <FieldList title="persistent problems" items={state.persistentProblems} tone="zinc" />
-          <div className="mt-4">
-            <FieldList title="unsolved" items={state.unsolvedProblems} tone="rose" />
+          <SectionTitle>Solved, reduced, unsolved</SectionTitle>
+          <div className="mt-3 space-y-4">
+            <ChipBlock
+              label="solved or reduced"
+              items={state.solvedOrReducedProblems}
+              tone="emerald"
+            />
+            <ChipBlock label="unsolved problems" items={state.unsolvedProblems} tone="amber" />
           </div>
         </Card>
       </div>
 
       {/* developments */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card>
-          <FieldList title="mathematics" items={state.mathematicalDevelopments} tone="violet" />
-        </Card>
-        <Card>
-          <FieldList title="architecture" items={state.architecturalDevelopments} tone="sky" />
-        </Card>
-        <Card>
-          <FieldList title="compute & training" items={state.computationalDevelopments} tone="emerald" />
-        </Card>
+      <div>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+          Developments
+        </h2>
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Card>
+            <ListBlock
+              label="mathematical"
+              items={state.mathematicalDevelopments}
+              tone="violet"
+            />
+          </Card>
+          <Card>
+            <ListBlock
+              label="architectural"
+              items={state.architecturalDevelopments}
+              tone="sky"
+            />
+          </Card>
+          <Card>
+            <ListBlock
+              label="computational"
+              items={state.computationalDevelopments}
+              tone="emerald"
+            />
+          </Card>
+        </div>
       </div>
 
       {/* applications + edge cases */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <FieldList title="applications" items={state.applications} tone="zinc" />
+          <ChipBlock label="applications" items={state.applications} tone="zinc" />
         </Card>
         <Card>
-          <FieldList title="edge cases surfacing" items={state.edgeCases} tone="amber" />
+          <ChipBlock label="edge cases" items={state.edgeCases} tone="rose" />
         </Card>
       </div>
 
-      {/* papers of the year */}
+      {/* supporting papers */}
       <Card>
-        <SectionTitle>Corpus papers anchoring {state.year}</SectionTitle>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {papersOfYear.map((p) => (
-            <div key={p.id} className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
-              <div className="font-mono text-[10px] text-emerald-400">{p.id}</div>
-              <div className="mt-1 text-[12px] font-medium leading-5 text-zinc-200">
-                {p.shortTitle}
-              </div>
-              <div className="mt-1 font-mono text-[10px] text-zinc-500">
-                {p.authors.slice(0, 3).join(", ")}
-                {p.authors.length > 3 ? " et al." : ""}
-              </div>
-            </div>
-          ))}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <SectionTitle>Supporting papers · {state.year}</SectionTitle>
+          <span className="font-mono text-[10px] text-zinc-600">
+            {state.supportingPapers.length} papers
+          </span>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {state.supportingPapers.length === 0 ? (
+            <span className="font-mono text-[11px] text-zinc-600">—</span>
+          ) : (
+            state.supportingPapers.map((id) => <PaperLink key={id} id={id} />)
+          )}
         </div>
       </Card>
 
-      {/* research directions of the year */}
-      {state.researchDirections.length > 0 && (
-        <Card tone="accent">
-          <FieldList title="research directions" items={state.researchDirections} tone="emerald" />
-        </Card>
-      )}
-
-      <div className="flex items-center gap-2 font-mono text-[10px] text-zinc-600">
-        <ConfidenceBadge confidence="HIGH" /> field-state claims above are traced to the year&apos;s
-        corpus papers
+      <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] text-zinc-600">
+        <Badge tone="emerald">traced</Badge>
+        <span>field-state claims above are grounded in this year&apos;s corpus papers</span>
       </div>
     </div>
   );

@@ -1,0 +1,202 @@
+{
+  "id": "OD069",
+  "arxiv": "2103.14259",
+  "title": "OTA: Optimal Transport Assignment for Object Detection",
+  "year": 2021,
+  "venue": "CVPR 2021",
+  "problem": {
+    "summary": "Label assignment in dense detectors is usually done independently per ground-truth with fixed or locally dynamic rules, so ambiguous anchors that could belong to several objects are resolved by hand-crafted heuristics; the paper argues this per-object, context-free assignment is sub-optimal and that a global assignment strategy for the one-to-many CNN setting was uncharted.",
+    "statements": [
+      "Classical label assignment matches anchors to ground truth or background with pre-defined rules such as fixed IoU thresholds.",
+      "Static division boundaries ignore that appropriate pos/neg boundaries vary with object size, shape and occlusion.",
+      "Ambiguous anchors qualified as positive for multiple ground truths are resolved by hand-crafted rules, which can introduce harmful gradients with respect to the other ground truths.",
+      "For CNN detectors in one-to-many scenarios, a global optimal assigning strategy remains uncharted."
+    ],
+    "problemTags": ["label-assignment", "crowded-scenes", "occlusion"],
+    "evidence": [
+      {
+        "quote": "Recent advances in label assignment in object detection mainly seek to independently define positive/negative training samples for each ground-truth (gt) object.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "However, independently assigning pos/neg samples for each gt without context could be sub-optimal, just like the lack of context may lead to improper prediction.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Such static strategies ignore a fact that for objects with different sizes, shapes or occlusion condition, the appropriate positive/negative (pos/neg) division boundaries may vary.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "So far, for the CNN based detectors in one-tomany scenarios, a global optimal assigning strategy remains uncharted.",
+        "location": "Sec 2.2"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The paper reviews fixed IoU-threshold assignment (Faster R-CNN, RetinaNet), anchor-free center-region assignment (FCOS), and dynamic strategies (FreeAnchor, ATSS, PAA, AutoAssign), plus DETR's global one-to-one Hungarian matching; the gap claimed is global optimal assignment that still works in the one-to-many regime of CNN detectors.",
+    "relatedWork": [
+      {
+        "name": "Faster R-CNN RPN",
+        "relation": "fixed IoU-threshold label assignment",
+        "quote": "Anchor-based detectors usually adopt IoU at a certain threshold as the assigning criterion. For example, RPN in Faster R-CNN [33] uses 0.7 and 0.3 as the positive and negative thresholds, respectively.",
+        "location": "Sec 2.1"
+      },
+      {
+        "name": "FCOS",
+        "relation": "anchor-free center-region assignment treated as positives",
+        "quote": "Anchor-free detectors like FCOS [38] treat the anchors within the center/bbox region of any gt object as the corresponding positives.",
+        "location": "Introduction"
+      },
+      {
+        "name": "ATSS",
+        "relation": "dynamic assignment baseline OTA is compared against",
+        "quote": "ATSS [47] proposes an adaptive sample selection strategy that adopts mean+std of IoU values from a set of closest anchors for each gt as a pos/neg threshold.",
+        "location": "Sec 2.2"
+      },
+      {
+        "name": "DETR",
+        "relation": "prior global-view assignment, but restricted to one-to-one matching",
+        "quote": "DeTR [3] is the first work that attempts to consider label assignment from global view. It replaces the detection head with transformer layers [39] and considers one-to-one assignment using the Hungarian algorithm that matches only one query for each gt with global minimum loss.",
+        "location": "Sec 2.1"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "These methods explore the optimal assigning strategy for individual objects, while failing to consider context information from a global perspective.",
+        "location": "Sec 2.2"
+      },
+      {
+        "quote": "existing assignment strategies are heavily based on hand-crafted rules (e.g., Min Area [38], Max IoU [16, 21, 47].)",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "OTA casts label assignment as an Optimal Transport problem in which each ground truth is a supplier of k positive labels, each anchor (across all FPN levels) a demander of one label, and background a supplier of the remaining negative labels, with transport costs built from pairwise classification and regression losses; the plan is solved by Sinkhorn-Knopp iteration, refined with a Center Prior and a Dynamic k Estimation of each ground truth's label supply.",
+    "approach": "Solve a global linear-programming assignment (min total pairwise cls+reg transport cost with supply/demand constraints) via entropic-regularised Sinkhorn-Knopp iteration instead of per-ground-truth hand-crafted rules.",
+    "components": [
+      "Cost matrix of pairwise classification and regression losses between every anchor-gt pair",
+      "Background supplier that covers all remaining (negative) labels",
+      "Sinkhorn-Knopp iteration solving the regularised OT problem (gamma=0.1, T=50)",
+      "Center Prior: only the r^2 closest anchors per FPN level are low-cost candidates",
+      "Dynamic k Estimation: sum of the top-q IoU values sets each gt's number of positive labels",
+      "IoU branch auxiliary head borrowed from YOLOv1/PAA"
+    ],
+    "solutionTags": ["dynamic-assignment", "one-stage", "optimal-transport"],
+    "evidence": [
+      {
+        "quote": "To achieve the global optimal assigning result under the one-to-many situation, we propose to formulate label assignment as an Optimal Transport (OT) problem - a special form of Linear Programming (LP) in Optimization Theory.",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "we define each gt as a supplier who supplies a certain number of labels, and define each anchor as a demander who needs one unit label.",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "After formulation, finding the best assignment solution is converted to solve the optimal transport plan, which can be quickly and efficiently solved by the off-the-shelf Sinkhorn-Knopp Iteration [5]. We name such an assigning strategy as Optimal Transport Assignment (OTA).",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "we propose a simple but effective method to roughly estimate the appropriate number of positive anchors for each gt based on the IoU values between predicted bounding boxes and gts.",
+        "location": "Sec 3.3"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Experiments run on MS COCO 2017 (ablations on val, comparisons on test-dev) with FCOS- and RetinaNet-based detectors using ResNet/ResNeXt-FPN backbones under 1x/180k schedules, plus CrowdHuman validation for crowded pedestrian detection; ablations cover Center Prior, IoU branch, Dynamic k, the radius r and ambiguity handling.",
+    "benchmarks": [
+      { "dataset": "MS COCO 2017 val", "metric": "AP", "value": "40.7", "split": "1x, FCOS-ResNet-50 + OTA", "location": "Table 1" },
+      { "dataset": "MS COCO 2017 test-dev", "metric": "AP", "value": "45.3", "split": "180k, ResNet-101-FPN", "location": "Table 5" },
+      { "dataset": "MS COCO 2017 test-dev", "metric": "AP", "value": "51.5", "split": "multi-scale testing, ResNeXt-64x4d-101-DCN", "location": "Table 5" },
+      { "dataset": "MS COCO 2017 val", "metric": "AP50", "value": "58.4", "split": "1x, FCOS-ResNet-50 + OTA", "location": "Table 1" },
+      { "dataset": "CrowdHuman val", "metric": "MR", "value": "46.6", "split": "2.5x, ResNet-50", "location": "Table 6" },
+      { "dataset": "CrowdHuman val", "metric": "AP", "value": "88.4", "split": "2.5x, ResNet-50", "location": "Table 6" }
+    ],
+    "baselines": ["FCOS", "RetinaNet", "ATSS", "PAA", "AutoAssign", "FreeAnchor", "Faster R-CNN with FPN", "LLA", "DETR"],
+    "evidence": [
+      {
+        "quote": "a single FCOS-ResNet-50 detector equipped with Optimal Transport Assignment (OTA) can reach 40.7% mAP under 1× scheduler, outperforming all other existing assigning methods.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "our method with ResNet-101-FPN achieves 45.3% AP, outperforms all other methods with the same backbone including ATSS (43.6% AP), AutoAssign (44.5% AP) and PAA (44.6% AP).",
+        "location": "Sec 4.3"
+      },
+      {
+        "quote": "our OTA takes a step forward by introducing global information into the label assignment, boosting MR to 46.6%.",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "Results in Table 4 shows that dynamic k surpasses the best performance of fixed k by 0.4% AP, validating our point and the effectiveness of Dynamic k Estimation strategy.",
+        "location": "Sec 4.2"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper has no dedicated limitations section, but it acknowledges that OTA still relies on a Center Prior for stability, that its one-to-one (k=1) form performs poorly under the 1x schedule, that assignment is sensitive to the candidate radius r, and that training time increases by up to 20%.",
+    "items": [
+      "A hand-crafted Center Prior is still needed to stabilize training despite the global optimization formulation.",
+      "With k=1 (one-to-one assignment) OTA performs poorly under the 1x scheduler without auxiliary one-to-many supervision.",
+      "The candidate radius r controls accuracy: performance drops when r grows (ATSS 39.4 to 37.2, OTA 40.7 to 40.4 for r=3 to 7).",
+      "OTA increases total training time by less than 20% (matrix multiplications run on GPU)."
+    ],
+    "evidence": [
+      {
+        "quote": "for general detection datasets like COCO, we find the Center Prior still benefit the training of OTA.",
+        "location": "Sec 3.3"
+      },
+      {
+        "quote": "When k=1, OTA becomes a one-to-one assigning strategy, the same as in DeTR. The poor performance tells us that achieving competitive performance via one-to-one assignment under the 1× scheduler remains challenging",
+        "location": "Sec 4.2"
+      }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["MS COCO 2017", "CrowdHuman", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt-64x4d-101", "FPN"],
+    "models": ["OTA", "FCOS", "RetinaNet", "ATSS", "PAA", "AutoAssign", "FreeAnchor", "Faster R-CNN", "DETR", "LLA"],
+    "algorithms": ["Sinkhorn-Knopp iteration", "Optimal Transport", "Hungarian algorithm", "Focal Loss", "IoU Loss", "GIoU Loss", "Center Prior", "Dynamic k Estimation", "NMS", "SGD", "deformable convolution", "multi-scale testing"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "mAP", "MR", "Recall"],
+    "equations": [
+      { "name": "optimal transport objective", "expr": "min_pi sum_i sum_j c_ij * pi_ij subject to row/column supply and demand constraints", "location": "Eq 1" },
+      { "name": "foreground transport cost", "expr": "c_fg_ij = L_cls(P_cls_j, G_cls_i) + alpha * L_reg(P_box_j, G_box_i)", "location": "Eq 2" },
+      { "name": "background transport cost", "expr": "c_bg_j = L_cls(P_cls_j, empty)", "location": "Eq 3" },
+      { "name": "supply vector", "expr": "s_i = k for i <= m, s_(m+1) = n - m*k", "location": "Eq 4" },
+      { "name": "entropic regularised OT", "expr": "min_pi sum_ij (c_ij * pi_ij + gamma * pi_ij * (log pi_ij - 1))", "location": "Eq 5" },
+      { "name": "Sinkhorn update", "expr": "u^(t+1) = d / (M v^t), v^(t+1) = s / (M^T u^(t+1))", "location": "Eq 10-11" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "crowded pedestrian detection",
+        "detail": "OTA is evaluated on the CrowdHuman benchmark (about 22.6 persons per image) and reports state-of-the-art one-stage results in crowd scenarios, where ambiguous anchors are frequent.",
+        "quote": "CrowdHuman contains 15000, 4370, and 5000 images in training, validation, and test set, respectively, with the average number of persons in an image 22.6.",
+        "location": "Sec 4.4"
+      },
+      {
+        "domain": "crowded pedestrian detection",
+        "detail": "One-stage detectors lag two-stage detectors on CrowdHuman; OTA closes and reverses that gap via global assignment.",
+        "quote": "RetinaNet and FCOS only achieve 58.8% and 55.0% MR respectively, which are far worse than two stage detectors like Faster R-CNN (with FPN), revealing the dilemma of one-stage detectors in crowd scenarios.",
+        "location": "Sec 4.4"
+      }
+    ],
+    "deploymentClaims": [
+      "OTA only adds under 20% to total training time and adds no cost at testing time.",
+      "The OT solve is matrix multiplications that can be accelerated on GPUs."
+    ],
+    "evidence": [
+      {
+        "quote": "OTA only increases the total training time by less than 20% and is totally cost-free in testing phase.",
+        "location": "Sec 3.2"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr46437.2021.00037",
+    "arxivUrl": "https://arxiv.org/abs/2103.14259",
+    "venue": "CVPR 2021",
+    "pdfUrl": "https://arxiv.org/pdf/2103.14259"
+  }
+}

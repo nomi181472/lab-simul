@@ -1,0 +1,122 @@
+{
+  "id": "OD028",
+  "arxiv": "1711.11575",
+  "title": "Relation Networks for Object Detection",
+  "year": 2017,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+  "problem": {
+    "summary": "Despite long-standing belief that object relations help recognition, deep detectors still recognize instances individually, and the duplicate-removal step remains a hand-crafted, sub-optimal NMS that blocks end-to-end learning.",
+    "statements": [
+      "State-of-the-art detectors recognize object instances individually without exploiting relations during learning.",
+      "Object-object relation is hard to model because objects sit at arbitrary locations, scales and categories with varying counts.",
+      "NMS is manually designed and sub-optimal, and it prohibits end-to-end learning for object detection.",
+      "Sequential relation models (LSTM, spatial memory networks) are sophisticated and show no evidence of improving state-of-the-art detectors."
+    ],
+    "problemTags": ["nms", "crowded-scenes", "localization"],
+    "evidence": [
+      { "quote": "All state-of-the-art object detection systems still rely on recognizing object instances individually, without exploiting their relations during learning.", "location": "Abstract" },
+      { "quote": "Although it is well believed for years that modeling relations between objects would help object recognition, there has not been evidence that the idea is working in the deep learning era.", "location": "Abstract" },
+      { "quote": "Although NMS works well in practice, it is manually designed and sub-optimal. It prohibits the end-to-end learning for object detection.", "location": "Sec 4.1" },
+      { "quote": "It is unclear how to accommodate above irregularities in existing methods.", "location": "Abstract" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on NLP attention modules, the region-based detection pipeline (R-CNN/Faster R-CNN/FPN/DCN), and prior context and duplicate-removal work including SoftNMS and GossipNet, claiming prior relation modelling was pre-deep-era, sequential, or task-specific.",
+    "relatedWork": [
+      { "name": "attention modules (NLP)", "relation": "core inspiration for the object relation module", "quote": "Our approach is motivated by the success of attention modules in natural language processing field [6, 56].", "location": "Abstract" },
+      { "name": "NMS / SoftNMS", "relation": "hand-crafted duplicate removal that the learned relation network replaces", "quote": "the most effective method for this task is still the greedy and hand-crafted nonmaximum suppression (NMS) and its soft version [5]", "location": "Sec 2" },
+      { "name": "GossipNet", "relation": "prior learned duplicate removal with similar spirit but a deep, complex, task-specific network", "quote": "Recently, GossipNet [30] attempts to learn duplicate removal by processing a set of objects as a whole, therefore sharing the similar spirit of ours.", "location": "Sec 2" },
+      { "name": "sequential relation modeling (LSTM / SMN)", "relation": "sequential reasoning over detections, sophisticated to train", "quote": "Several recent works perform sequential reasoning (LSTM [34, 51] and spatial memory network (SMN) [7]) to model object relations.", "location": "Sec 2" },
+      { "name": "Faster R-CNN", "relation": "base detection architecture that the module is embedded into", "quote": "Region proposal network (RPN) [44] is used to generate proposals.", "location": "Sec 4.1" }
+    ],
+    "evidence": [
+      { "quote": "It has been well recognized in the vision community for years that contextual information, or relation between objects, helps object recognition", "location": "Introduction" },
+      { "quote": "In spite of the significant progress of object detection using deep learning, the most effective method for this task is still the greedy and hand-crafted nonmaximum suppression (NMS) and its soft version [5].", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "An object relation module computes attention-style weighted sums of appearance features across a set of objects, with an extra translation-invariant geometric weight from 4-D relative box geometry; it enhances instance recognition heads and powers a learned duplicate-removal network that yields an end-to-end detector.",
+    "approach": "Extend scaled dot-product attention with a geometric weight over relative box coordinates, apply it in-place to all RoI features for recognition, and reuse it with rank features to classify duplicates instead of running NMS.",
+    "components": [
+      "object relation module with appearance weight and geometric weight",
+      "4-dimensional relative geometry feature with sinusoidal embedding",
+      "enhanced 2fc+RM instance recognition head",
+      "duplicate removal network fusing score, rank and appearance features",
+      "multi-threshold label criteria eta in {0.5, 0.6, 0.7, 0.8, 0.9}",
+      "joint end-to-end training of proposal, recognition and duplicate losses"
+    ],
+    "solutionTags": ["attention", "self-attention", "nms-free"],
+    "evidence": [
+      { "quote": "This work proposes an object relation module. It processes a set of objects simultaneously through interaction between their appearance feature and geometry, thus allowing modeling of their relations.", "location": "Abstract" },
+      { "quote": "the proposed module extends the original attention weight into two components: the original weight and a new geometric weight.", "location": "Introduction" },
+      { "quote": "It is lightweight and in-place. It does not require additional supervision and is easy to embed in existing networks.", "location": "Abstract" },
+      { "quote": "the traditional NMS method is replaced and improved by a lightweight relation network (Section 4.3), resulting in the first end-to-end object detector", "location": "Introduction" }
+    ]
+  },
+  "experiments": {
+    "summary": "All experiments are on COCO (80 classes) with ResNet-50/101 Faster R-CNN, FPN and DCN backbones; ablations cover geometric features, number of relations/modules, head capacity and duplicate-removal inputs, followed by NMS/SoftNMS comparisons and end-to-end results on minival and test-dev.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "mAP", "value": "35.2", "split": "minival, Faster R-CNN + RM + e2e", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "38.9", "split": "test-dev, FPN + RM + e2e", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "39.0", "split": "test-dev, DCN + RM + e2e", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "31.0", "split": "minival, duplicate removal end-to-end", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "mAP50", "value": "51.4", "split": "minival, duplicate removal end-to-end", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "31.9", "split": "minival, 2fc+RM head", "location": "Table 1" }
+    ],
+    "baselines": ["Faster R-CNN", "FPN", "DCN (Deformable ConvNets)", "NMS", "SoftNMS", "GossipNet", "2fc head"],
+    "evidence": [
+      { "quote": "Using faster RCNN with ResNet-101, by replacing the 2fc head with 2fc+RM head in Table 1 (default parameters), our approach improves by 2.5 mAP on COCO minival.", "location": "Sec 5.3" },
+      { "quote": "The end-to-end learning improves the accuracy by +0.5 mAP.", "location": "Sec 5.3" },
+      { "quote": "Our final mAP accuracy is better than NMS and SoftNMS, establishing the new state-of-the-art.", "location": "Sec 5.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors state that what the relation module actually learns is unclear and its understanding is preliminary; applying it to dense sliding-window detectors is computationally costly, and the end-to-end training has no theoretical justification for its label instability.",
+    "items": [
+      "It is unclear what is learnt in the relation module, especially when multiple ones are stacked.",
+      "Relation modelling for dense sliding-window detectors is computationally costly and not addressed.",
+      "Ground-truth labels for duplicate removal change during end-to-end training; no theoretical evidence explains why this is stable.",
+      "Improvements on stronger baselines (FPN, DCN) are moderate rather than large."
+    ],
+    "evidence": [
+      { "quote": "Nevertheless, it is not clear what is learnt in the relation module, especially when multiple ones are stacked.", "location": "Conclusion" },
+      { "quote": "How to effectively model relations between dense objects is yet unclear.", "location": "Sec 4.1 footnote" },
+      { "quote": "While there is no theoretical evidence yet, our guess is that the duplicate removal network is relatively easy to train and the instable label may serve as a means of regularization.", "location": "Sec 4.4" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Understand what the relation module learns when stacked, which the authors leave as future work.", "quote": "our understanding of how relation module works is preliminary and left as future work.", "location": "Conclusion" },
+    { "direction": "Extend the relation module beyond detection to instance segmentation, action recognition, captioning and VQA.", "quote": "We do not see any reason preventing it from finding broader applications in vision tasks, such as instance segmentation [35], action recognition [48], object relationship detection [33]", "location": "Introduction" }
+  ],
+  "technical": {
+    "datasets": ["MS COCO"],
+    "backbones": ["ResNet-50", "ResNet-101"],
+    "models": ["Faster R-CNN", "FPN", "DCN", "2fc+RM head", "duplicate removal network", "RPN"],
+    "algorithms": ["NMS", "SoftNMS", "OHEM", "RoI pooling", "scaled dot-product attention", "sinusoidal feature embedding"],
+    "metrics": ["mAP", "mAP50", "mAP75", "FLOPS", "# params"],
+    "equations": [
+      { "name": "relation feature", "expr": "fR(n) = sum_m omega_mn * (WV * fA_m)", "location": "Sec 3, Eq. 2" },
+      { "name": "relation weight", "expr": "omega_mn = omegaG_mn * exp(omegaA_mn) / sum_k omegaG_kn * exp(omegaA_kn)", "location": "Sec 3, Eq. 3" },
+      { "name": "geometry weight", "expr": "omegaG_mn = max(0, WG * EG(fG_m, fG_n))", "location": "Sec 3, Eq. 5" },
+      { "name": "module output", "expr": "fA_n = fA_n + Concat[fR1(n), ..., fRNr(n)]", "location": "Sec 3, Eq. 6" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "Duplicate removal network takes about 2 ms on a Titan X GPU, versus about 5 ms on a CPU for NMS and SoftNMS.",
+      "Relation module overhead is less than 2% for Faster R-CNN/DCN and about 8% for FPN.",
+      "Only 12.0% of classes have detection scores > 0.01, so pruning keeps runtime practical."
+    ],
+    "evidence": [
+      { "quote": "Running the duplicate removal network on remaining detections is practical, taking about 2 ms on a Titan X GPU.", "location": "Sec 4.3" },
+      { "quote": "The computation overhead is relatively small, compared to the complexity of whole detection networks as shown in Table. 5 (less than 2% for faster RCNN [44] / DCN [11] and about 8% for FPN [37]).", "location": "Sec 5.1" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2018.00378",
+    "arxivUrl": "https://arxiv.org/abs/1711.11575",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+    "pdfUrl": "https://arxiv.org/pdf/1711.11575"
+  }
+}

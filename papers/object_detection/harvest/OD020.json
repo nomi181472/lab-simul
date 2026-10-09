@@ -1,0 +1,140 @@
+{
+  "id": "OD020",
+  "arxiv": "1708.02002",
+  "title": "Focal Loss for Dense Object Detection",
+  "year": 2017,
+  "venue": "IEEE International Conference on Computer Vision (ICCV)",
+  "problem": {
+    "summary": "One-stage detectors sample the image densely and therefore see a huge foreground/background class imbalance during training; this imbalance, not architecture, is why one-stage detectors have trailed two-stage detectors in accuracy, since easy background negatives dominate the loss and gradients.",
+    "statements": [
+      "One-stage detectors applied over dense samplings of locations, scales and aspect ratios have trailed the accuracy of two-stage detectors.",
+      "Extreme foreground-background class imbalance (e.g. 1:1000) encountered during training of dense detectors is the central cause of this accuracy gap.",
+      "Most evaluated locations are easy negatives that contribute no useful learning signal, and en masse they overwhelm training and can lead to degenerate models.",
+      "Prior remedies (hard negative mining, bootstrapping, OHEM, fixed positive/negative sampling ratios) are heuristics that discard or down-weight examples outside the loss itself."
+    ],
+    "problemTags": ["class-imbalance", "one-stage-accuracy", "background-false-positives"],
+    "evidence": [
+      { "quote": "In contrast, one-stage detectors that are applied over a regular, dense sampling of possible object locations have the potential to be faster and simpler, but have trailed the accuracy of two-stage detectors thus far.", "location": "Abstract" },
+      { "quote": "We discover that the extreme foreground-background class imbalance encountered during training of dense detectors is the central cause.", "location": "Abstract" },
+      { "quote": "(1) training is inefficient as most locations are easy negatives that contribute no useful learning signal; (2) en masse, the easy negatives can overwhelm training and lead to degenerate models.", "location": "Sec 3" },
+      { "quote": "While similar sampling heuristics may also be applied, they are inefficient as the training procedure is still dominated by easily classified background examples.", "location": "Related Work" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on the two-stage R-CNN lineage (Selective Search proposals, RPN, FPN Faster R-CNN, OHEM) as the accuracy reference and on the one-stage line (OverFeat, YOLO, SSD, DSSD) as the speed reference. The claimed gap is that two-stage systems handle imbalance structurally via cascade and biased sampling, while one-stage systems had no comparably effective mechanism.",
+    "relatedWork": [
+      { "name": "Faster R-CNN", "relation": "dominant two-stage framework that RPN integrated into a single convolution network", "quote": "Region Proposal Networks (RPN) integrated proposal generation with the second-stage classifier into a single convolution network, forming the Faster RCNN framework [28].", "location": "Related Work" },
+      { "name": "SSD / YOLO", "relation": "prior one-stage detectors tuned for speed whose accuracy trailed two-stage methods", "quote": "These detectors have been tuned for speed but their accuracy trails that of twostage methods.", "location": "Related Work" },
+      { "name": "OHEM", "relation": "prior hard-example selection technique used as the main training baseline; discards easy examples rather than down-weighting them", "quote": "Like the focal loss, OHEM puts more emphasis on misclassified examples, but unlike FL, OHEM completely discards easy examples.", "location": "Sec 5.1" },
+      { "name": "FPN / RPN anchors", "relation": "RetinaNet reuses the anchor concept from RPN and feature pyramids from SSD and FPN", "quote": "the concept of ‘anchors’ introduced by RPN [28] and use of features pyramids as in SSD [22] and FPN [20]", "location": "Introduction" },
+      { "name": "R-CNN-like two-stage cascade", "relation": "how existing two-stage detectors address class imbalance, the mechanism focal loss replaces for one-stage training", "quote": "Class imbalance is addressed in R-CNN-like detectors by a two-stage cascade and sampling heuristics.", "location": "Related Work" }
+    ],
+    "evidence": [
+      { "quote": "SSD has a 10-20% lower AP, while YOLO focuses on an even more extreme speed/accuracy trade-off.", "location": "Related Work" },
+      { "quote": "Recent work showed that two-stage detectors can be made fast simply by reducing input image resolution and the number of proposals, but one-stage methods trailed in accuracy even with a larger compute budget [17].", "location": "Related Work" }
+    ]
+  },
+  "solution": {
+    "summary": "The focal loss modulates cross-entropy with a factor (1 − pt)^γ so that well-classified examples are sharply down-weighted (with an α-balanced variant used in practice), and RetinaNet is a deliberately simple one-stage FPN detector trained with this loss over all anchors, plus a prior-based bias initialization that stabilizes early training.",
+    "approach": "Reshape cross-entropy with a modulating factor (1 − pt)^γ (α-balanced in practice) that decays the loss of easy examples to zero, so training on all ~100k anchors is dominated by hard examples without any sampling heuristic.",
+    "components": [
+      "focal loss FL(pt) = −αt(1 − pt)^γ log(pt) with γ = 2, α = 0.25 by default",
+      "ResNet + Feature Pyramid Network backbone with levels P3 through P7 (256 channels each)",
+      "classification subnet: four 3×3 conv layers plus a final 3×3 conv with KA sigmoid outputs, shared across pyramid levels",
+      "box regression subnet: same structure with 4A class-agnostic linear outputs",
+      "9 translation-invariant anchors per level (3 scales × 3 aspect ratios) with IoU 0.5/0.4 assignment",
+      "prior bias initialization b = −log((1 − π)/π) with π = 0.01 on the final classification layer",
+      "top-1k decoding per level, confidence threshold 0.05, NMS at 0.5"
+    ],
+    "solutionTags": ["focal-loss", "one-stage", "anchors", "multi-scale"],
+    "evidence": [
+      { "quote": "We propose to address this class imbalance by reshaping the standard cross entropy loss such that it down-weights the loss assigned to well-classified examples.", "location": "Abstract" },
+      { "quote": "we propose to reshape the loss function to down-weight easy examples and thus focus training on hard negatives.", "location": "Sec 3.2" },
+      { "quote": "RetinaNet is a single, unified network composed of a backbone network and two task-specific subnetworks.", "location": "Sec 4" },
+      { "quote": "the focal loss is applied to all ∼100k anchors in each sampled image", "location": "Sec 4.1" }
+    ]
+  },
+  "experiments": {
+    "summary": "All experiments are on COCO (trainval35k training, minival ablations, test-dev for headline results) with AP metrics, including sweeps over γ/α, anchor density, FL vs. α-balanced CE vs. OHEM, and speed/accuracy trade-offs across ResNet-50/101 and input scales 400-800.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.1", "split": "test-dev, RetinaNet-101-FPN, 800px, scale jitter", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "40.8", "split": "test-dev, RetinaNet with ResNeXt-101-FPN", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP50", "value": "59.1", "split": "test-dev, RetinaNet-101-FPN", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "36.0", "split": "minival, RetinaNet-101-600 with focal loss", "location": "Table 1e" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "34.0", "split": "minival, RetinaNet-50-FPN, γ=2 α=.25", "location": "Table 1b" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "32.8", "split": "minival, best OHEM baseline, ResNet-101-FPN", "location": "Table 1d" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "31.1", "split": "minival, α-balanced CE (γ=0) upper bound", "location": "Table 1a" }
+    ],
+    "baselines": ["Faster R-CNN w FPN", "Faster R-CNN+++", "Faster R-CNN w TDM", "SSD513", "DSSD513", "YOLOv2", "OHEM"],
+    "evidence": [
+      { "quote": "Our results show that when trained with the focal loss, RetinaNet is able to match the speed of previous one-stage detectors while surpassing the accuracy of all existing state-of-the-art two-stage detectors.", "location": "Abstract" },
+      { "quote": "With γ = 2, FL yields a 2.9 AP improvement over the α-balanced CE loss.", "location": "Sec 5.1" },
+      { "quote": "Compared to existing one-stage methods, our approach achieves a healthy 5.9 point AP gap (39.1 vs. 33.2) with the closest competitor, DSSD [9], while also being faster, see Figure 2.", "location": "Sec 5.3" },
+      { "quote": "In contrast, the best setting for OHEM (no 1:3 ratio, batch size 128, nms of .5) achieves 32.8 AP.", "location": "Sec 5.1" }
+    ]
+  },
+  "limitations": {
+    "summary": "The work targets one-stage dense detectors rather than two-stage ones, top accuracy comes at roughly 5 fps, the fastest operating regimes are explicitly out of scope, and training without the special prior initialization diverges.",
+    "items": [
+      "The high frame-rate regime is not addressed and would require special network design, which is declared beyond scope.",
+      "The best-accuracy configuration (about 40.8 AP) runs at roughly 198 ms, i.e. around 5 fps, so peak accuracy is not real-time.",
+      "Standard cross-entropy training without the prior bias initialization fails quickly by diverging, so the recipe depends on that initialization.",
+      "The analysis is limited to COCO bounding-box detection with an anchor-based, NMS-post-processed design.",
+      "Two-stage detectors do not need the proposed loss: they already control imbalance through the cascade and biased minibatch sampling."
+    ],
+    "evidence": [
+      { "quote": "Addressing the high frame rate regime will likely require special network design, as in [27], and is beyond the scope of this work.", "location": "Sec 5.2" },
+      { "quote": "This fails quickly, with the network diverging during training.", "location": "Sec 5.1" },
+      { "quote": "Two-stage detectors are often trained with the cross entropy loss without use of α-balancing or our proposed loss.", "location": "Sec 3.4" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Design specialized architectures to operate in the very high frame-rate regime, which this work explicitly leaves open.",
+      "quote": "Addressing the high frame rate regime will likely require special network design, as in [27], and is beyond the scope of this work.",
+      "location": "Sec 5.2"
+    },
+    {
+      "direction": "Generalize beyond the exact focal loss formula to any loss with similar down-weighting properties (as explored with FL* in the appendix).",
+      "quote": "The exact form of the focal loss is not crucial.",
+      "location": "Appendix A"
+    },
+    {
+      "direction": "Adopt the stronger ResNeXt-101-FPN backbone reported after the main results to push accuracy further past 40 AP.",
+      "quote": "Plugging in ResNeXt32x8d-101-FPN [38] as the RetinaNet backbone further improves results another 1.7 AP, surpassing 40 AP on COCO.",
+      "location": "Sec 5.3"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO"],
+    "backbones": ["ResNet-50-FPN", "ResNet-101-FPN", "ResNeXt-101-FPN"],
+    "models": ["RetinaNet", "Faster R-CNN", "SSD", "DSSD", "YOLOv2", "RPN"],
+    "algorithms": ["focal loss", "online hard example mining (OHEM)", "non-maximum suppression", "synchronized SGD", "feature pyramid network (FPN)", "prior bias initialization"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "inference time (ms)"],
+    "equations": [
+      { "name": "Cross entropy", "expr": "CE(pt) = -log(pt)", "location": "Sec 3, Eq. (1)-(3)" },
+      { "name": "Focal loss", "expr": "FL(pt) = -(1 - pt)^gamma * log(pt)", "location": "Sec 3.2, Eq. (4)" },
+      { "name": "Alpha-balanced focal loss", "expr": "FL(pt) = -alpha_t * (1 - pt)^gamma * log(pt)", "location": "Sec 3.2, Eq. (5)" },
+      { "name": "Prior bias initialization", "expr": "b = -log((1 - pi)/pi), pi = 0.01", "location": "Sec 4.1" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "RetinaNet-101-600 runs in 122 ms per image versus 172 ms for the ResNet-101-FPN Faster R-CNN, both measured on an Nvidia M40 GPU.",
+      "RetinaNet-101-800 achieves 37.8 AP at 198 ms; RetinaNet-50-500 achieves 32.5 AP at 73 ms (COCO test-dev).",
+      "Training time ranges between 10 and 35 hours for the models in Table 1e, using 8 GPUs with synchronized SGD.",
+      "Code is released in the Detectron repository."
+    ],
+    "evidence": [
+      { "quote": "Enabled by the focal loss, our simple one-stage RetinaNet detector outperforms all previous one-stage and two-stage detectors, including the best reported Faster R-CNN [28] system from [20].", "location": "Figure 2" },
+      { "quote": "while running at 5 fps, surpassing the previously best published single-model results from both one and two-stage detectors, see Figure 2.", "location": "Introduction" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/iccv.2017.324",
+    "arxivUrl": "https://arxiv.org/abs/1708.02002",
+    "venue": "IEEE International Conference on Computer Vision (ICCV)",
+    "pdfUrl": "https://arxiv.org/pdf/1708.02002"
+  }
+}

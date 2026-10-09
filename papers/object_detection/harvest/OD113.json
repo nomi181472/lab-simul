@@ -1,0 +1,326 @@
+{
+ "id": "OD113",
+ "arxiv": "2502.12524",
+ "title": "YOLOv12: Attention-Centric Real-Time Object Detectors",
+ "year": 2025,
+ "venue": null,
+ "problem": {
+  "summary": "YOLO architecture research has stayed CNN-centric because attention models cannot match CNN speed: quadratic complexity and inefficient memory access make attention too slow for real-time detectors, so its modeling benefits go unused.",
+  "statements": [
+   "Attention-based models cannot match the speed of CNN-based models, so YOLO architecture work has stayed CNN-focused despite attention's proven modeling superiority.",
+   "Attention is slowed by quadratic computational complexity and inefficient memory access operations.",
+   "Under a similar computational budget, CNN-based architectures outperform attention-based ones by about 3x, limiting attention's adoption in speed-critical YOLO systems.",
+   "Attention-centric ViTs also suffer optimization problems (gradient blocking in ELAN-style aggregation) that make large models unstable or non-convergent."
+  ],
+  "problemTags": [
+   "speed-latency",
+   "training-instability",
+   "real-time-edge"
+  ],
+  "evidence": [
+   {
+    "quote": "This is because attention-based models cannot match the speed of CNN-based models.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "The primary reason for this situation lies in the inefficiency of the attention mechanism, which comes from two main factors: quadratic computational complexity and inefficient memory access operations of the attention mechanism",
+    "location": "Introduction"
+   },
+   {
+    "quote": "As a result, under a similar computational budget, CNN-based architectures outperform attention-based ones by a factor of ∼ 3× [38], which significantly limits the adoption of attention mechanisms in YOLO systems where high inference speed is critical.",
+    "location": "Introduction"
+   },
+   {
+    "quote": "Empirically, L- and X-scale models either fail to converge or remain unstable, even when using Adam or AdamW optimizers.",
+    "location": "Sec 3.3"
+   }
+  ]
+ },
+ "background": {
+  "summary": "The paper sits in the YOLO lineage (v6-v11) and the efficient-ViT literature (Swin, PVT, CSWin, linear attention, Mamba), and compares against end-to-end RT-DETR/RT-DETRv2, claiming prior efficient-attention designs still miss real-time speed.",
+  "relatedWork": [
+   {
+    "name": "YOLOv10",
+    "relation": "immediate prior real-time YOLO with NMS-free training",
+    "quote": "YOLOv10 [53] apply NMSfree training with dual assignments for efficiency gains.",
+    "location": "Sec 2"
+   },
+   {
+    "name": "YOLOv11",
+    "relation": "the baseline YOLOv12 is built on and scaled with",
+    "quote": "YOLOv11 [28] further reduces latency and increases accuracy by adopting the C3K2 module (a specification of GELAN [58]) and lightweight depthwise separable convolution in the detection head.",
+    "location": "Sec 2"
+   },
+   {
+    "name": "RT-DETR",
+    "relation": "end-to-end DETR-based real-time competitor",
+    "quote": "an end-to-end object detection method, namely RT-DETR [66], improved traditional end-to-end detectors [7, 33, 37, 42, 71] to meet realtime requirements by designing an efficient encoder and an uncertainty-minimal query selection mechanism.",
+    "location": "Sec 2"
+   },
+   {
+    "name": "Swin Transformer",
+    "relation": "prior local/window attention design that YOLOv12's area attention replaces",
+    "quote": "Swin Transformer [39] limits self-attention to local windows and adjusts the window partitioning style to connect non-overlapping windows, balancing communication needs with memory and computation demands.",
+    "location": "Sec 2"
+   },
+   {
+    "name": "FlashAttention",
+    "relation": "memory-access fix adopted in the model design",
+    "quote": "we employ FlashAttention to overcome inherent memory accessing problems of the attention mechanism [13, 14].",
+    "location": "Sec 2"
+   }
+  ],
+  "evidence": [
+   {
+    "quote": "Reducing computational costs from global self-attention is crucial to effectively applying vision transformers in downstream tasks.",
+    "location": "Sec 2"
+   },
+   {
+    "quote": "Although Mamba-based vision models [38, 70] aim for linear complexity, they still fall short of real-time speeds [38].",
+    "location": "Sec 2"
+   }
+  ]
+ },
+ "solution": {
+  "summary": "YOLOv12 is an attention-centric YOLO built on three changes: an area attention module (A2) that partitions the feature map into l=4 areas instead of windows, a residual ELAN (R-ELAN) with a scaled residual shortcut to fix optimization, and vanilla-attention tweaks (FlashAttention, no positional encoding, MLP ratio 4 to 1.2, Conv+BN, 7x7 position perceiver).",
+  "approach": "Replace CNN-dominant YOLO blocks with a simplified area attention plus R-ELAN aggregation, keeping hierarchical YOLO structure and conv operators where they help, so attention runs at CNN-like speed.",
+  "components": [
+   "Area attention (A2): feature map split into l segments (default 4), reshape-only partitioning",
+   "R-ELAN: block-level residual with 0.01 scaling and redesigned bottleneck-style feature aggregation",
+   "FlashAttention for memory-access efficiency",
+   "MLP ratio reduced from 4 to 1.2 (2 for N/S/M)",
+   "nn.Conv2d+BN instead of nn.Linear+LN attention implementation",
+   "No positional encoding; 7x7 separable-convolution position perceiver",
+   "Single R-ELAN block in the last backbone stage instead of stacked blocks"
+  ],
+  "solutionTags": [
+   "attention",
+   "self-attention",
+   "real-time-backbone",
+   "feature-fusion"
+  ],
+  "evidence": [
+   {
+    "quote": "we propose a simple yet efficient area attention module (A2), which maintains a large receptive field while reducing the computational complexity of attention in a very simple way, thus enhancing speed.",
+    "location": "Introduction"
+   },
+   {
+    "quote": "we introduce a residual shortcut from input to output throughout the block with a scaling factor (default to 0.01).",
+    "location": "Sec 3.3"
+   },
+   {
+    "quote": "These modifications include adjusting the MLP ratio from 4 to 1.2 (or 2 for the N- / S- / M-scale models) is used to better allocate computational resources for better performance",
+    "location": "Sec 3.4"
+   },
+   {
+    "quote": "removing positional encoding, and introduce a large separable convolution (7 × 7) (namely position perceiver) to help the area attention perceive position information.",
+    "location": "Sec 3.4"
+   }
+  ]
+ },
+ "experiments": {
+  "summary": "Five YOLOv12 scales are trained 600 epochs on COCO 2017 and compared with YOLOv6/8/9/10/11, Gold-YOLO and RT-DETR/RT-DETRv2 on AP, FLOPs, parameters and TensorRT FP16 T4 latency, plus ablations and speed tests on RTX 3080/A5000/A6000 and CPU.",
+  "benchmarks": [
+   {
+    "dataset": "MS COCO",
+    "metric": "AP50:95",
+    "value": "40.6",
+    "split": "val2017 (YOLOv12-N)",
+    "location": "Table 6"
+   },
+   {
+    "dataset": "MS COCO",
+    "metric": "AP50:95",
+    "value": "48.0",
+    "split": "val2017 (YOLOv12-S)",
+    "location": "Table 6"
+   },
+   {
+    "dataset": "MS COCO",
+    "metric": "AP50:95",
+    "value": "52.5",
+    "split": "val2017 (YOLOv12-M)",
+    "location": "Table 6"
+   },
+   {
+    "dataset": "MS COCO",
+    "metric": "AP50:95",
+    "value": "53.7",
+    "split": "val2017 (YOLOv12-L)",
+    "location": "Table 6"
+   },
+   {
+    "dataset": "MS COCO",
+    "metric": "AP50:95",
+    "value": "55.2",
+    "split": "val2017 (YOLOv12-X)",
+    "location": "Table 6"
+   },
+   {
+    "dataset": "MS COCO",
+    "metric": "latency (ms, T4 FP16)",
+    "value": "1.64",
+    "split": "val2017 (YOLOv12-N)",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "MS COCO",
+    "metric": "latency (ms, T4 FP16)",
+    "value": "11.79",
+    "split": "val2017 (YOLOv12-X)",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "MS COCO",
+    "metric": "AP50:95 (small)",
+    "value": "20.2",
+    "split": "val2017 (YOLOv12-N)",
+    "location": "Table 6"
+   }
+  ],
+  "baselines": [
+   "YOLOv11",
+   "YOLOv10",
+   "YOLOv9",
+   "YOLOv8",
+   "YOLOv6-3.0",
+   "Gold-YOLO",
+   "RT-DETR",
+   "RT-DETRv2"
+  ],
+  "evidence": [
+   {
+    "quote": "YOLOv12-N achieves 40.6% mAP with an inference latency of 1.64 ms on a T4 GPU, outperforming advanced YOLOv10-N / YOLOv11-N by 2.1%/1.2% mAP with a comparable speed.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "YOLOv12-S beats RT-DETR-R18 / RT-DETRv2- R18 while running 42% faster, using only 36% of the computation and 45% of the parameters.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "For N-scale models, YOLOv12-N outperforms YOLOv6-3.0-N [32], YOLOv8-N [58], YOLOv10-N [53], and YOLOv11 [28] by 3.6%, 3.3%, 2.1%, and 1.2% in mAP, respectively, while maintaining similar or even fewer computations and parameters, and achieving the fast latency speed of 1.64 ms/image.",
+    "location": "Sec 4.2"
+   }
+  ]
+ },
+ "limitations": {
+  "summary": "The main admitted limitation is dependency on FlashAttention, which restricts supported GPUs; training also needs about 600 epochs and large models need a tuned residual scaling factor to converge.",
+  "items": [
+   "Requires FlashAttention, which only supports Turing/Ampere/Ada Lovelace/Hopper GPUs (T4, RTX 20/30/40, A5000/6000, A30/40, A100, H100, etc.).",
+   "Needs a longer training schedule (about 600 epochs) than the roughly 500 epochs some YOLO detectors need for peak performance.",
+   "Large models (L/X) depend on a residual scaling factor of 0.01 to converge at all.",
+   "Results are reported only on MS COCO with the standard YOLO recipe and no additional tricks."
+  ],
+  "evidence": [
+   {
+    "quote": "YOLOv12 requires FlashAttention [13, 14], which currently supports Turing, Ampere, Ada Lovelace, or Hopper GPUs (e.g., T4, Quadro RTX series, RTX20 series, RTX30 series, RTX40 series, RTX A5000/6000, A30/40, A100, H100, etc.).",
+    "location": "Sec 6, Limitations"
+   },
+   {
+    "quote": "YOLOv12 requires a more extended training period (about 600 epochs) to achieve peak performance",
+    "location": "Sec 4.5"
+   },
+   {
+    "quote": "YOLOv12-X requires a minimal scaling factor (0.01) to ensure convergence.",
+    "location": "Sec 4.3"
+   }
+  ]
+ },
+ "futureDirections": [
+  {
+   "direction": "Continue integrating attention into YOLO for a more efficient and powerful YOLO system.",
+   "quote": "advances the integration of attention mechanisms for real-time object detection, paving the way for a more efficient and powerful YOLO system.",
+   "location": "Conclusion"
+  }
+ ],
+ "technical": {
+  "datasets": [
+   "MS COCO 2017"
+  ],
+  "backbones": [
+   "hierarchical YOLO backbone (first two stages inherited from YOLOv11)"
+  ],
+  "models": [
+   "YOLOv12-N",
+   "YOLOv12-S",
+   "YOLOv12-M",
+   "YOLOv12-L",
+   "YOLOv12-X",
+   "YOLOv11",
+   "YOLOv10",
+   "RT-DETR",
+   "RT-DETRv2"
+  ],
+  "algorithms": [
+   "area attention (A2)",
+   "R-ELAN",
+   "FlashAttention",
+   "position perceiver (large-kernel separable conv)",
+   "SGD",
+   "mosaic augmentation",
+   "mixup augmentation",
+   "copy-paste augmentation",
+   "TensorRT FP16"
+  ],
+  "metrics": [
+   "mAP (AP50:95)",
+   "AP50",
+   "AP75",
+   "APsmall",
+   "APmedium",
+   "APlarge",
+   "latency (ms)",
+   "FLOPs",
+   "parameters"
+  ],
+  "equations": [
+   {
+    "name": "self-attention complexity",
+    "expr": "O(L^2 d) for attention vs O(k L d) for convolution",
+    "location": "Sec 3.1"
+   },
+   {
+    "name": "linear attention complexity",
+    "expr": "2 n^2 h d -> 2 n h d^2",
+    "location": "Sec 3.2"
+   },
+   {
+    "name": "area attention complexity",
+    "expr": "2 n^2 h d -> (1/2) n^2 h d",
+    "location": "Sec 3.2"
+   }
+  ]
+ },
+ "industry": {
+  "applications": [
+   {
+    "domain": "real-time perception",
+    "detail": "Positioned as a low-latency real-time detector whose speed characteristics make it practically deployable.",
+    "quote": "Real-time object detection has consistently attracted significant attention due to its low-latency characteristics, which provide substantial practicality [4, 17, 24, 28].",
+    "location": "Introduction"
+   }
+  ],
+  "deploymentClaims": [
+   "YOLOv12-N runs at 1.64 ms inference latency (40.6 mAP) on an NVIDIA T4 GPU.",
+   "Latency measured with TensorRT FP16 on T4; also benchmarked on RTX 3080, RTX A5000, RTX A6000 and an Intel Core i7-10700K CPU.",
+   "YOLOv12-S uses 45% of RT-DETR-R18 parameters and 36% of its computation while running 42% faster.",
+   "Trained on 8x NVIDIA A6000 GPUs; official code released at github.com/sunsmarterjie/yolov12."
+  ],
+  "evidence": [
+   {
+    "quote": "the latencies of all models are tested on a T4 GPU with TensorRT FP16.",
+    "location": "Sec 4.1"
+   },
+   {
+    "quote": "All models are trained on 8× NVIDIA A6000 GPUs.",
+    "location": "Sec 7"
+   }
+  ]
+ },
+ "citations": {
+  "doi": null,
+  "arxivUrl": "https://arxiv.org/abs/2502.12524",
+  "venue": null,
+  "pdfUrl": "https://arxiv.org/pdf/2502.12524"
+ }
+}

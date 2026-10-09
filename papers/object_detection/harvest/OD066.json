@@ -1,0 +1,120 @@
+{
+  "id": "OD066",
+  "arxiv": "2011.12450",
+  "title": "Sparse R-CNN: End-to-End Object Detection with Learnable Proposals",
+  "year": 2020,
+  "venue": "CVPR 2021",
+  "problem": {
+    "summary": "Mainstream detectors depend on dense candidates (anchors, reference points, or RPN proposals), which forces NMS post-processing, many-to-one label assignment sensitive to heuristics, and heavy sensitivity to candidate design; DETR removes those components but each object query must interact with the whole image feature, so it converges slowly.",
+    "statements": [
+      "Dense detectors produce redundant near-duplicate boxes, so NMS is a necessary post-processing component.",
+      "Many-to-one label assignment in training makes networks sensitive to heuristic assignment rules.",
+      "Final performance depends strongly on anchor sizes, aspect ratios, counts, reference-point density and proposal generation algorithms.",
+      "DETR's global image-context interaction per query slows training convergence and prevents a fully sparse pipeline."
+    ],
+    "problemTags": ["nms-redundancy", "label-assignment", "anchor-design", "convergence"],
+    "evidence": [
+      { "quote": "Such pipelines usually produce redundant and near-duplicate results, thus making non-maximum suppression (NMS) [1, 51] post-processing a necessary component.", "location": "Introduction" },
+      { "quote": "The many-to-one label assignment problem [2, 58, 60] in training makes the network sensitive to heuristic assign rules.", "location": "Introduction" },
+      { "quote": "DETR requires each object query to interact with global image context. This dense property not only slows down its training convergence [63], but also blocks it establishing a thoroughly sparse pipeline for object detection.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper situates detectors along a dense to dense-to-sparse to sparse spectrum: anchor-based one-stage detectors, two-stage detectors whose RPN still scans dense candidates, DETR's set prediction, and earlier sparse work (G-CNN) plus concurrent Deformable DETR; sparse detection so far has trailed dense accuracy.",
+    "relatedWork": [
+      { "name": "One-stage dense detectors", "relation": "dense-candidate pipeline the method abandons", "quote": "One of mainstream pipelines is one-stage detector, which directly predicts the category and location of anchor boxes densely covering spatial positions, scales, and aspect ratios in a single-shot way, such as OverFeat [40], YOLO [36], SSD [31] and RetinaNet [29].", "location": "Sec 2.1" },
+      { "name": "Two-stage detectors (Faster R-CNN)", "relation": "dense-to-sparse baseline whose RPN is replaced", "quote": "Two-stage detector is another mainstream pipeline and has dominated modern object detection for years [2, 6, 13, 14, 37].", "location": "Sec 2.2" },
+      { "name": "DETR", "relation": "prior end-to-end set-prediction method, but not purely sparse", "quote": "Recently, DETR [3] is proposed to directly output the predictions without any hand-crafted components, achieving promising performance.", "location": "Sec 2.2" },
+      { "name": "G-CNN", "relation": "precursor sparse detector with hand-designed grid prior", "quote": "G-CNN [34] can be viewed as a precursor to this group of algorithms.", "location": "Sec 2.3" },
+      { "name": "Deformable DETR", "relation": "concurrent work restricting each query to local sampling points", "quote": "Concurrently, Deformable-DETR [63] is introduced to restrict each object query to attend to a small set of key sampling points around the reference points, instead of all points in feature map.", "location": "Sec 2.3" }
+    ],
+    "evidence": [
+      { "quote": "Dense prior has always been cornerstone to success in detectors.", "location": "Introduction" },
+      { "quote": "Sparse object detection has the potential to eliminate efforts to design dense candidates, but usually has trailed the accuracy of above dense detectors.", "location": "Sec 2.3" }
+    ]
+  },
+  "solution": {
+    "summary": "Sparse R-CNN replaces the RPN with a fixed set of N (default 100) learnable proposal boxes plus learnable proposal features; RoIAlign features are processed by a Dynamic Instance Interactive Head whose 1x1 convolution parameters are generated per proposal, iterated over six stages with self-attention and feature reuse, and trained with a one-to-one set prediction loss, yielding NMS-free end-to-end predictions.",
+    "approach": "Move from dense or dense-to-sparse detection to purely sparse detection by learning a small fixed set of proposals and conditioning each detection head on its own proposal feature instead of dense candidates and shared weights.",
+    "components": [
+      "fixed sparse set of learnable proposal boxes (N x 4) replacing RPN candidates",
+      "learnable proposal features (N x 256) encoding instance characteristics",
+      "Dynamic Instance Interactive Head whose two 1x1 conv parameters come from the proposal feature",
+      "RoIAlign feature extraction for each proposal box",
+      "iterative cascade of 6 stages with self-attention and previous-stage feature reuse",
+      "set prediction loss with one-to-one bipartite matching (focal, L1 and GIoU terms)",
+      "FPN ResNet backbone with settings aligned to Faster R-CNN"
+    ],
+    "solutionTags": ["learnable-proposals", "set-prediction", "dynamic-head", "sparse-prior"],
+    "evidence": [
+      { "quote": "We present Sparse R-CNN, a purely sparse method for object detection in images.", "location": "Abstract" },
+      { "quote": "a fixed sparse set of learned object proposals, total length of N , are provided to object recognition head to perform classification and location.", "location": "Abstract" },
+      { "quote": "The parameters of these two convolutions are generated by corresponding proposal feature.", "location": "Sec 3" },
+      { "quote": "Set-based loss produces an optimal bipartite matching between predictions and ground truth objects.", "location": "Sec 3" }
+    ]
+  },
+  "experiments": {
+    "summary": "Trained with AdamW for 36 epochs (3x schedule) on COCO train2017 with 8 GPUs, Sparse R-CNN is compared against Detectron2 detectors and DETR-series models on val2017 and test-dev; ablations isolate learnable proposals, iterative architecture, feature reuse, dynamic head and initialization, plus proposal/stage counts; appendices cover CrowdHuman, self-supervised pre-training and transformer backbones.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "42.8", "split": "val2017, Sparse R-CNN-R50, 100 proposals", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "45.0", "split": "val2017, Sparse R-CNN*-R50, 300 proposals", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "40.2", "split": "val2017, Faster R-CNN-R50 baseline", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "51.5", "split": "test-dev, ResNeXt-101-DCN with TTA", "location": "Table 2" },
+      { "dataset": "CrowdHuman", "metric": "AP", "value": "89.2", "split": "val split, 500 proposals, IoU 50", "location": "Table 11" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "46.5", "split": "val2017, DetCo self-supervised pre-training, R50", "location": "Table 12" }
+    ],
+    "baselines": ["DETR", "Deformable DETR", "Faster R-CNN", "RetinaNet", "Cascade R-CNN", "FCOS", "EfficientDet"],
+    "evidence": [
+      { "quote": "achieving 45.0 AP in standard 3× training schedule and running at 22 fps using ResNet-50 FPN model", "location": "Abstract" },
+      { "quote": "The training convergence speed of Sparse R-CNN is 10× faster over DETR, as shown in Figure 2.", "location": "Sec 4.1" }
+    ]
+  },
+  "limitations": {
+    "summary": "Learnable proposals alone are useless (40.2 AP drops to 18.5 AP) and only work with the dynamic head and iterative feature reuse; a plain cascade adds no gain; accuracy saturates at 6 stages while more proposals and stages increase training time and reduce FPS.",
+    "items": [
+      "Naively swapping RPN proposals for learnable boxes collapses AP from 40.2 to 18.5 without the iterative dynamic head.",
+      "A simple cascade architecture without feature reuse makes no big difference.",
+      "Beyond 6 stages performance is saturated while FPS drops from 23 to 17 and training time doubles.",
+      "Increasing proposals from 100 to 500 raises training time from 19h to 60h for small gains."
+    ],
+    "evidence": [
+      { "quote": "The performance drops from 40.2 AP (Table 1 line 3) to 18.5 (Table 3).", "location": "Sec 4.2" },
+      { "quote": "However, we find that a simple cascade architecture does not make a big difference, as shown in Table 4.", "location": "Sec 4.2" },
+      { "quote": "Whereas, 500 proposals take much more training time, so we choose 100 and 300 as the main configurations.", "location": "Sec 4.2" },
+      { "quote": "Gradually increasing the number of stages, the performance is saturated at 6 stages.", "location": "Sec 4.2" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Rethink the necessity of dense priors in detectors and explore next-generation detector designs.", "quote": "We hope our work could inspire rethinking the necessary of dense prior in object detection and exploring next generation of object detector.", "location": "Introduction" },
+    { "direction": "Establish sparse detectors as a solid baseline to ease future research in the detection community.", "quote": "We hope sparse methods could serve as solid baseline and help ease future research in object detection community.", "location": "Sec 2.3" }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "CrowdHuman", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt-101", "PVT", "Swin Transformer"],
+    "models": ["Sparse R-CNN", "Faster R-CNN", "RetinaNet", "DETR", "Deformable DETR", "Cascade R-CNN", "FCOS"],
+    "algorithms": ["set prediction loss", "RoIAlign", "focal loss", "AdamW", "dynamic instance interaction", "self-attention"],
+    "metrics": ["AP", "AP50", "AP75", "APs", "APm", "APl", "FPS", "mMR", "Recall"],
+    "equations": [
+      { "name": "Set prediction matching cost", "expr": "L = λcls · Lcls + λL1 · LL1 + λgiou · Lgiou", "location": "Sec 3, Eq. 1" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "Runs at 23 FPS with 100 proposals (22 FPS with 300) on NVIDIA Tesla V100",
+      "Inference needs no post-processing: the 100 predicted boxes are used directly without NMS",
+      "Code released at github.com/PeizeSun/SparseR-CNN"
+    ],
+    "evidence": [
+      { "quote": "Given an input image, Sparse R-CNN directly predicts 100 bounding boxes associated with their scores.", "location": "Sec 4" },
+      { "quote": "For evaluation, we directly use these 100 boxes without any post-processing.", "location": "Sec 4" },
+      { "quote": "The code is available at: https://github.com/PeizeSun/SparseR-CNN .", "location": "Abstract" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr46437.2021.01422",
+    "arxivUrl": "https://arxiv.org/abs/2011.12450",
+    "venue": "CVPR 2021",
+    "pdfUrl": "https://arxiv.org/pdf/2011.12450"
+  }
+}

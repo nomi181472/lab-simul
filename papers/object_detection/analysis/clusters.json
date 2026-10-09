@@ -1,0 +1,1604 @@
+[
+ {
+  "id": "speed-latency",
+  "name": "Speed & Latency",
+  "description": "External proposal stages and hand-built multi-stage pipelines dominate detector runtime. The corpus answers with one-stage dense prediction, feature fusion, lightweight real-time backbones and end-to-end training, so a single forward pass replaces proposal generation.",
+  "problemTags": [
+   "speed-latency",
+   "deployability",
+   "real-time-edge"
+  ],
+  "solutionTags": [
+   "one-stage",
+   "feature-fusion",
+   "real-time-backbone",
+   "multi-scale"
+  ],
+  "papers": [
+   "OD001",
+   "OD002",
+   "OD004",
+   "OD006",
+   "OD008",
+   "OD009",
+   "OD010",
+   "OD012",
+   "OD016",
+   "OD022",
+   "OD023",
+   "OD025",
+   "OD031",
+   "OD032",
+   "OD043",
+   "OD044",
+   "OD045",
+   "OD047",
+   "OD049",
+   "OD051",
+   "OD052",
+   "OD053",
+   "OD056",
+   "OD061",
+   "OD063",
+   "OD064",
+   "OD068",
+   "OD070",
+   "OD071",
+   "OD072",
+   "OD075",
+   "OD080",
+   "OD086",
+   "OD087",
+   "OD089",
+   "OD091",
+   "OD094",
+   "OD096",
+   "OD098",
+   "OD099",
+   "OD100",
+   "OD101",
+   "OD104",
+   "OD105",
+   "OD106",
+   "OD107",
+   "OD109",
+   "OD110",
+   "OD112",
+   "OD113",
+   "OD117",
+   "OD118"
+  ],
+  "firstYear": 2015,
+  "lastYear": 2025,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD001"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "State-of-the-art object detection networks depend on region proposal algorithms to hypothesize object locations."
+   },
+   {
+    "paperIds": [
+     "OD002"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "These complex pipelines are slow and hard to optimize because each individual component must be trained separately."
+   },
+   {
+    "paperIds": [
+     "OD004"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "While accurate, these approaches have been too computationally intensive for embedded systems and, even with high-end hardware, too slow for real-time applications."
+   },
+   {
+    "paperIds": [
+     "OD006"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, as empirically investigated in this work, this naïve solution turns out to have considerably inferior detection accuracy that does not match the network’s superior classification accuracy."
+   }
+  ]
+ },
+ {
+  "id": "deployability",
+  "name": "Deployment Efficiency",
+  "description": "Accuracy from deep backbones and proposal pipelines costs the size, memory and latency that mobile and embedded targets cannot pay. Papers respond with slim backbones, re-parameterized heads, quantization and NMS-free designs that hold accuracy while cutting compute.",
+  "problemTags": [
+   "deployability",
+   "speed-latency",
+   "real-time-edge"
+  ],
+  "solutionTags": [
+   "one-stage",
+   "real-time-backbone",
+   "feature-fusion",
+   "nms-free"
+  ],
+  "papers": [
+   "OD001",
+   "OD008",
+   "OD009",
+   "OD016",
+   "OD019",
+   "OD025",
+   "OD031",
+   "OD045",
+   "OD051",
+   "OD053",
+   "OD056",
+   "OD061",
+   "OD064",
+   "OD068",
+   "OD070",
+   "OD071",
+   "OD072",
+   "OD079",
+   "OD083",
+   "OD086",
+   "OD087",
+   "OD088",
+   "OD091",
+   "OD094",
+   "OD096",
+   "OD101",
+   "OD103",
+   "OD104",
+   "OD106",
+   "OD107",
+   "OD110",
+   "OD114",
+   "OD115",
+   "OD117",
+   "OD118",
+   "OD119"
+  ],
+  "firstYear": 2015,
+  "lastYear": 2026,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD001"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "State-of-the-art object detection networks depend on region proposal algorithms to hypothesize object locations."
+   },
+   {
+    "paperIds": [
+     "OD008"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, in terms of detection speed, even the best algorithms are still suffering from heavy computational cost."
+   },
+   {
+    "paperIds": [
+     "OD009"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "comparisons are difficult due to different base feature extractors (e.g., VGG, Residual Networks), different default image resolutions, as well as different hardware and software platforms."
+   },
+   {
+    "paperIds": [
+     "OD016"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, these advances to improve accuracy are not necessarily making networks more efficient with respect to size and speed."
+   }
+  ]
+ },
+ {
+  "id": "localization",
+  "name": "Box Localization Precision",
+  "description": "Boxes are regressed as four independent variables through per-RoI heads, so alignment degrades as the IoU threshold rises and small objects lose recall. The corpus attacks this with IoU-based joint losses, dense and keypoint decoding, feature pyramids and per-image shared heads.",
+  "problemTags": [
+   "localization",
+   "regression-limits",
+   "scale-variance"
+  ],
+  "solutionTags": [
+   "iou-loss",
+   "post-processing-nms",
+   "dense-prediction",
+   "feature-pyramid"
+  ],
+  "papers": [
+   "OD003",
+   "OD006",
+   "OD007",
+   "OD011",
+   "OD013",
+   "OD014",
+   "OD015",
+   "OD017",
+   "OD018",
+   "OD021",
+   "OD024",
+   "OD027",
+   "OD028",
+   "OD029",
+   "OD030",
+   "OD033",
+   "OD034",
+   "OD037",
+   "OD041",
+   "OD042",
+   "OD047",
+   "OD048",
+   "OD050",
+   "OD055",
+   "OD058",
+   "OD059",
+   "OD060",
+   "OD062",
+   "OD076",
+   "OD082",
+   "OD097",
+   "OD109",
+   "OD120"
+  ],
+  "firstYear": 2015,
+  "lastYear": 2026,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD003"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "it is very hard to detect small objects [27] such as human faces and far-away cars, since the low resolution and lack of contexts in each candidate box significantly decrease the classification accuracy on them."
+   },
+   {
+    "paperIds": [
+     "OD006"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, as empirically investigated in this work, this naïve solution turns out to have considerably inferior detection accuracy that does not match the network’s superior classification accuracy."
+   },
+   {
+    "paperIds": [
+     "OD007"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, existing deep CNN methods assume the object bounds to be four independent variables, which could be regressed by the `2 loss separately."
+   },
+   {
+    "paperIds": [
+     "OD011"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, most detection methods are still constrained to a small set of objects."
+   }
+  ],
+  "simulator": "iou"
+ },
+ {
+  "id": "small-objects",
+  "name": "Small-Object Detection",
+  "description": "Small faces and distant objects sit in low-resolution, context-poor candidate boxes and shallow lower-layer feature maps. Detectors answer with feature pyramids, multi-scale fusion, extra context modules and denser supervision to recover recall at small scales.",
+  "problemTags": [
+   "small-objects",
+   "tiny-objects",
+   "scale-variance"
+  ],
+  "solutionTags": [
+   "multi-scale",
+   "feature-pyramid",
+   "feature-fusion",
+   "dense-prediction"
+  ],
+  "papers": [
+   "OD003",
+   "OD004",
+   "OD005",
+   "OD007",
+   "OD010",
+   "OD012",
+   "OD013",
+   "OD017",
+   "OD018",
+   "OD021",
+   "OD026",
+   "OD030",
+   "OD032",
+   "OD033",
+   "OD034",
+   "OD043",
+   "OD050",
+   "OD052",
+   "OD063",
+   "OD067",
+   "OD077",
+   "OD080",
+   "OD083",
+   "OD110",
+   "OD116"
+  ],
+  "firstYear": 2015,
+  "lastYear": 2025,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD003"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "it is very hard to detect small objects [27] such as human faces and far-away cars, since the low resolution and lack of contexts in each candidate box significantly decrease the classification accuracy on them."
+   },
+   {
+    "paperIds": [
+     "OD004"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "While accurate, these approaches have been too computationally intensive for embedded systems and, even with high-end hardware, too slow for real-time applications."
+   },
+   {
+    "paperIds": [
+     "OD005"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Current state-of-the-art detection approaches [7, 30] only use information near an object’s region of interest (ROI). This places constraints on the type and accuracy of objects that may be detected."
+   },
+   {
+    "paperIds": [
+     "OD007"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, existing deep CNN methods assume the object bounds to be four independent variables, which could be regressed by the `2 loss separately."
+   }
+  ],
+  "simulator": "pyramid"
+ },
+ {
+  "id": "real-time-edge",
+  "name": "Real-Time & Edge Deployment",
+  "description": "Region-proposal detectors fall short of real-time even after speed-ups, and mobile or embedded budgets forbid heavy compute. The corpus converges on one-stage designs, efficient backbones, NMS-free and query-based heads to reach real frame rates.",
+  "problemTags": [
+   "real-time-edge",
+   "speed-latency",
+   "deployability"
+  ],
+  "solutionTags": [
+   "one-stage",
+   "real-time-backbone",
+   "feature-fusion",
+   "transformer-query"
+  ],
+  "papers": [
+   "OD002",
+   "OD004",
+   "OD008",
+   "OD016",
+   "OD025",
+   "OD031",
+   "OD045",
+   "OD047",
+   "OD051",
+   "OD053",
+   "OD056",
+   "OD064",
+   "OD080",
+   "OD086",
+   "OD094",
+   "OD096",
+   "OD101",
+   "OD103",
+   "OD113",
+   "OD114",
+   "OD115",
+   "OD117",
+   "OD118",
+   "OD119"
+  ],
+  "firstYear": 2015,
+  "lastYear": 2026,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD002"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "These complex pipelines are slow and hard to optimize because each individual component must be trained separately."
+   },
+   {
+    "paperIds": [
+     "OD004"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "While accurate, these approaches have been too computationally intensive for embedded systems and, even with high-end hardware, too slow for real-time applications."
+   },
+   {
+    "paperIds": [
+     "OD008"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, in terms of detection speed, even the best algorithms are still suffering from heavy computational cost."
+   },
+   {
+    "paperIds": [
+     "OD016"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, these advances to improve accuracy are not necessarily making networks more efficient with respect to size and speed."
+   }
+  ]
+ },
+ {
+  "id": "scale-variance",
+  "name": "Scale Variance & Multi-Scale Recognition",
+  "description": "Objects span a wide range of scales and aspect ratios, while image pyramids and filter pyramids cost too much test time. The answer is multi-scale feature fusion, feature pyramids, deformable sampling and attention that adapts computation to object scale.",
+  "problemTags": [
+   "scale-variance",
+   "small-objects",
+   "receptive-field"
+  ],
+  "solutionTags": [
+   "multi-scale",
+   "feature-pyramid",
+   "feature-fusion",
+   "attention"
+  ],
+  "papers": [
+   "OD001",
+   "OD005",
+   "OD007",
+   "OD010",
+   "OD012",
+   "OD013",
+   "OD017",
+   "OD018",
+   "OD026",
+   "OD030",
+   "OD033",
+   "OD039",
+   "OD043",
+   "OD046",
+   "OD053",
+   "OD067",
+   "OD068",
+   "OD082",
+   "OD088",
+   "OD098",
+   "OD099",
+   "OD107",
+   "OD115"
+  ],
+  "firstYear": 2015,
+  "lastYear": 2025,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD001"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "State-of-the-art object detection networks depend on region proposal algorithms to hypothesize object locations."
+   },
+   {
+    "paperIds": [
+     "OD005"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Current state-of-the-art detection approaches [7, 30] only use information near an object’s region of interest (ROI). This places constraints on the type and accuracy of objects that may be detected."
+   },
+   {
+    "paperIds": [
+     "OD007"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, existing deep CNN methods assume the object bounds to be four independent variables, which could be regressed by the `2 loss separately."
+   },
+   {
+    "paperIds": [
+     "OD010"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "But recent deep learning object detectors have avoided pyramid representations, in part because they are compute and memory intensive."
+   }
+  ],
+  "simulator": "pyramid"
+ },
+ {
+  "id": "one-stage-accuracy",
+  "name": "One-Stage Accuracy Gap",
+  "description": "Single-stage detectors are fast but have trailed two-stage accuracy, especially at high IoU thresholds. The corpus narrows the gap with feature pyramids, better anchors, decoupled heads, focal losses and improved positive/negative labeling.",
+  "problemTags": [
+   "one-stage-accuracy",
+   "class-imbalance",
+   "localization"
+  ],
+  "solutionTags": [
+   "one-stage",
+   "dense-prediction",
+   "feature-pyramid",
+   "post-processing-nms"
+  ],
+  "papers": [
+   "OD002",
+   "OD003",
+   "OD004",
+   "OD012",
+   "OD017",
+   "OD018",
+   "OD020",
+   "OD021",
+   "OD025",
+   "OD030",
+   "OD032",
+   "OD034",
+   "OD045",
+   "OD052",
+   "OD054",
+   "OD060",
+   "OD061",
+   "OD062",
+   "OD067",
+   "OD071",
+   "OD105",
+   "OD108"
+  ],
+  "firstYear": 2015,
+  "lastYear": 2024,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD002"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "These complex pipelines are slow and hard to optimize because each individual component must be trained separately."
+   },
+   {
+    "paperIds": [
+     "OD003"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "it is very hard to detect small objects [27] such as human faces and far-away cars, since the low resolution and lack of contexts in each candidate box significantly decrease the classification accuracy on them."
+   },
+   {
+    "paperIds": [
+     "OD004"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "While accurate, these approaches have been too computationally intensive for embedded systems and, even with high-end hardware, too slow for real-time applications."
+   },
+   {
+    "paperIds": [
+     "OD012"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "an approach for introducing additional context into state-of-the-art general object detection"
+   }
+  ]
+ },
+ {
+  "id": "label-assignment",
+  "name": "Positive/Negative Label Assignment",
+  "description": "Fixed IoU thresholds carve the positive/negative labels, admitting close false positives at u = 0.5 or starving training when raised. Papers replace hand-crafted rules with dynamic and global assignment such as ATSS, PAA, SimOTA, Hungarian matching and one-to-many supervision.",
+  "problemTags": [
+   "label-assignment",
+   "anchor-design",
+   "convergence"
+  ],
+  "solutionTags": [
+   "dynamic-assignment",
+   "set-prediction",
+   "transformer-query",
+   "anchor-free",
+   "nms-free"
+  ],
+  "papers": [
+   "OD029",
+   "OD035",
+   "OD036",
+   "OD046",
+   "OD049",
+   "OD054",
+   "OD057",
+   "OD059",
+   "OD066",
+   "OD068",
+   "OD069",
+   "OD075",
+   "OD084",
+   "OD089",
+   "OD090",
+   "OD093",
+   "OD094",
+   "OD097",
+   "OD100",
+   "OD108",
+   "OD112"
+  ],
+  "firstYear": 2017,
+  "lastYear": 2024,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD029"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "An object detector, trained with low IoU threshold, e.g. 0.5, usually produces noisy detections. However, detection performance tends to degrade with increasing the IoU thresholds."
+   },
+   {
+    "paperIds": [
+     "OD035"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "In addition, the number of available anchors is limited by the predefined B."
+   },
+   {
+    "paperIds": [
+     "OD036"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "But the use of anchor boxes has two drawbacks."
+   },
+   {
+    "paperIds": [
+     "OD046"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "detection performance is sensitive to the sizes, aspect ratios and number of anchor boxes."
+   }
+  ],
+  "simulator": "dynamic-assignment"
+ },
+ {
+  "id": "convergence",
+  "name": "Training Convergence",
+  "description": "Detector training is slow and fragile: small mini-batches, stale batch-normalization statistics, imbalanced sample ratios and unstable bipartite matching in DETR. Remedies include large-batch training with warmup, denoising queries and group or one-to-many supervision.",
+  "problemTags": [
+   "convergence",
+   "training-instability",
+   "pretraining-dependence"
+  ],
+  "solutionTags": [
+   "set-prediction",
+   "transformer-query",
+   "denoising-training",
+   "nms-free"
+  ],
+  "papers": [
+   "OD022",
+   "OD038",
+   "OD040",
+   "OD063",
+   "OD065",
+   "OD066",
+   "OD070",
+   "OD076",
+   "OD078",
+   "OD082",
+   "OD084",
+   "OD085",
+   "OD089",
+   "OD090",
+   "OD093",
+   "OD100",
+   "OD102",
+   "OD108",
+   "OD109",
+   "OD112"
+  ],
+  "firstYear": 2017,
+  "lastYear": 2024,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD022"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, mini-batch size, a key factor for the training of deep neural networks, has not been well studied for object detection."
+   },
+   {
+    "paperIds": [
+     "OD038"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "The classification and detection have different degrees of sensitivity to translation, resulting in the learning objective bias"
+   },
+   {
+    "paperIds": [
+     "OD040"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "As modern object detectors [9, 15, 8, 36, 35, 28, 26, 13] evolved under the pre-training paradigm, the belief that training from scratch is non-trivial became conventional wisdom."
+   },
+   {
+    "paperIds": [
+     "OD063"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, it suffers from slow convergence and limited feature spatial resolution, due to the limitation of Transformer attention modules in processing image feature maps."
+   }
+  ],
+  "simulator": "hungarian"
+ },
+ {
+  "id": "anchor-design",
+  "name": "Anchor Design",
+  "description": "Predefined anchors fix box priors and anchor functions for both training and inference, needing hand or clustering design, covering rare shapes poorly and shifting across datasets. The corpus answers with anchor-free and keypoint or center decoding, learned anchor generators and assignment-driven priors.",
+  "problemTags": [
+   "anchor-design",
+   "label-assignment",
+   "regression-limits"
+  ],
+  "solutionTags": [
+   "anchor-free",
+   "anchors",
+   "keypoint-based",
+   "dynamic-assignment"
+  ],
+  "papers": [
+   "OD035",
+   "OD036",
+   "OD042",
+   "OD044",
+   "OD046",
+   "OD049",
+   "OD050",
+   "OD054",
+   "OD055",
+   "OD057",
+   "OD059",
+   "OD066",
+   "OD075",
+   "OD082",
+   "OD087",
+   "OD092",
+   "OD109"
+  ],
+  "firstYear": 2018,
+  "lastYear": 2024,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD035"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "In addition, the number of available anchors is limited by the predefined B."
+   },
+   {
+    "paperIds": [
+     "OD036"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "But the use of anchor boxes has two drawbacks."
+   },
+   {
+    "paperIds": [
+     "OD042"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Especially when detecting densely packed objects in aerial images, methods relying on horizontal proposals for common object detection often introduce mismatches between the Region of Interests (RoIs) and objects."
+   },
+   {
+    "paperIds": [
+     "OD044"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "A neat set of anchors of fixed aspect ratios has to be predefined for different problems. A wrong design may hamper the speed and accuracy of the detector."
+   }
+  ],
+  "simulator": "anchors"
+ },
+ {
+  "id": "nms",
+  "name": "Non-Maximum Suppression",
+  "description": "NMS applies a hard overlap threshold that deletes genuinely overlapping objects in crowds and forces a precision/recall trade-off across evaluation thresholds. The corpus removes it through set prediction and NMS-free heads, or softens it with learned re-scoring and uncertainty.",
+  "problemTags": [
+   "nms",
+   "background-false-positives",
+   "crowded-scenes"
+  ],
+  "solutionTags": [
+   "nms-free",
+   "post-processing-nms",
+   "set-prediction",
+   "transformer-query"
+  ],
+  "papers": [
+   "OD015",
+   "OD024",
+   "OD028",
+   "OD037",
+   "OD049",
+   "OD057",
+   "OD059",
+   "OD062",
+   "OD066",
+   "OD096",
+   "OD104",
+   "OD105",
+   "OD116"
+  ],
+  "firstYear": 2017,
+  "lastYear": 2025,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD015"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "As per the design of the algorithm, if an object lies within the predefined overlap threshold, it leads to a miss."
+   },
+   {
+    "paperIds": [
+     "OD024"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Detecting individual pedestrians in a crowd remains a challenging problem since the pedestrians often gather together and occlude each other in real-world scenarios."
+   },
+   {
+    "paperIds": [
+     "OD028"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "All state-of-the-art object detection systems still rely on recognizing object instances individually, without exploiting their relations during learning."
+   },
+   {
+    "paperIds": [
+     "OD037"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "we observe that the ground-truth bounding boxes are inherently ambiguous in some cases. The ambiguities makes it hard to label and hard to learn the bounding box regression function."
+   }
+  ],
+  "simulator": "nms"
+ },
+ {
+  "id": "training-instability",
+  "name": "Training Instability",
+  "description": "Shallow feature maps, gradients deformed by direct head supervision, noisy IoU-threshold labels and unstable bipartite matching all destabilize training. Papers stabilize it with feature fusion, from-scratch normalization, denoising queries, distillation and reversible auxiliary branches.",
+  "problemTags": [
+   "training-instability",
+   "convergence",
+   "label-assignment"
+  ],
+  "solutionTags": [
+   "feature-fusion",
+   "denoising-training",
+   "distillation",
+   "set-prediction"
+  ],
+  "papers": [
+   "OD018",
+   "OD019",
+   "OD022",
+   "OD029",
+   "OD038",
+   "OD084",
+   "OD085",
+   "OD090",
+   "OD091",
+   "OD102",
+   "OD113",
+   "OD117"
+  ],
+  "firstYear": 2017,
+  "lastYear": 2025,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD018"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, the feature maps in the lower layers close to the input which are responsible for detecting small objects in a single stage detector have a problem of insufficient representation power because they are too shallow."
+   },
+   {
+    "paperIds": [
+     "OD019"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "A better solution to tackle these two critical problems is to train object detectors from scratch, which motivates our proposed DSOD."
+   },
+   {
+    "paperIds": [
+     "OD022"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, mini-batch size, a key factor for the training of deep neural networks, has not been well studied for object detection."
+   },
+   {
+    "paperIds": [
+     "OD029"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "An object detector, trained with low IoU threshold, e.g. 0.5, usually produces noisy detections. However, detection performance tends to degrade with increasing the IoU thresholds."
+   }
+  ],
+  "simulator": "query-denoising"
+ },
+ {
+  "id": "open-vocabulary",
+  "name": "Open-Vocabulary Detection",
+  "description": "Closed-set detectors need new labels for every new concept while detection annotation costs far more than classification. The corpus injects language: CLIP and phrase grounding, text prompts and prompt-free retrieval carry open-set generalization into real-time detectors.",
+  "problemTags": [
+   "open-vocabulary",
+   "long-tail",
+   "annotation-cost"
+  ],
+  "solutionTags": [
+   "open-vocabulary-clip",
+   "transformer-query",
+   "feature-fusion",
+   "attention"
+  ],
+  "papers": [
+   "OD011",
+   "OD081",
+   "OD095",
+   "OD101",
+   "OD103",
+   "OD106",
+   "OD111",
+   "OD114",
+   "OD116",
+   "OD121"
+  ],
+  "firstYear": 2016,
+  "lastYear": 2026,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD011"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, most detection methods are still constrained to a small set of objects."
+   },
+   {
+    "paperIds": [
+     "OD081"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Visual recognition models are typically trained to predict a fixed set of pre-determined object categories, which limits their usability in real-world applications since additional labeled data are needed to generalize to new visual concepts and domains."
+   },
+   {
+    "paperIds": [
+     "OD095"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "The key solution of open-set object detection is introducing language to a closed-set detector for open-set concept generalization."
+   },
+   {
+    "paperIds": [
+     "OD101"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "their reliance on predefined and trained object categories limits their applicability in open scenarios."
+   }
+  ]
+ },
+ {
+  "id": "background-false-positives",
+  "name": "Background False Positives",
+  "description": "Dense sampling floods training with easy background negatives, and hard-threshold scoring plus NMS leave close false positives standing. Answers include focal-loss re-weighting, IoU-aware scoring, cascade refinement and quality-aware classification losses.",
+  "problemTags": [
+   "background-false-positives",
+   "class-imbalance",
+   "class-confusion"
+  ],
+  "solutionTags": [
+   "focal-loss",
+   "iou-loss",
+   "cascade",
+   "post-processing-nms"
+  ],
+  "papers": [
+   "OD015",
+   "OD020",
+   "OD027",
+   "OD029",
+   "OD044",
+   "OD047",
+   "OD050",
+   "OD058",
+   "OD103"
+  ],
+  "firstYear": 2017,
+  "lastYear": 2024,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD015"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "As per the design of the algorithm, if an object lies within the predefined overlap threshold, it leads to a miss."
+   },
+   {
+    "paperIds": [
+     "OD020"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "In contrast, one-stage detectors that are applied over a regular, dense sampling of possible object locations have the potential to be faster and simpler, but have trailed the accuracy of two-stage detectors thus far."
+   },
+   {
+    "paperIds": [
+     "OD027"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "The traditional bounding box is a rotation variant data structure, which becomes a shortcoming when the detector has to deal with orientation variations of target objects."
+   },
+   {
+    "paperIds": [
+     "OD029"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "An object detector, trained with low IoU threshold, e.g. 0.5, usually produces noisy detections. However, detection performance tends to degrade with increasing the IoU thresholds."
+   }
+  ],
+  "simulator": "focal"
+ },
+ {
+  "id": "crowded-scenes",
+  "name": "Crowded Scenes & Instance Overlap",
+  "description": "Overlapping instances in crowds and instance segmentation defeat per-instance recognition, coarse RoIPool quantization and horizontal-box assumptions. The corpus uses dense positive supervision, rotated boxes, IoU losses, keypoint grouping and NMS-free matching.",
+  "problemTags": [
+   "crowded-scenes",
+   "occlusion",
+   "nms"
+  ],
+  "solutionTags": [
+   "post-processing-nms",
+   "nms-free",
+   "dynamic-assignment",
+   "iou-loss"
+  ],
+  "papers": [
+   "OD014",
+   "OD024",
+   "OD027",
+   "OD028",
+   "OD042",
+   "OD055",
+   "OD069",
+   "OD092",
+   "OD116"
+  ],
+  "firstYear": 2017,
+  "lastYear": 2025,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD014"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Instance segmentation is challenging because it requires the correct detection of all objects in an image while also precisely segmenting each instance."
+   },
+   {
+    "paperIds": [
+     "OD024"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Detecting individual pedestrians in a crowd remains a challenging problem since the pedestrians often gather together and occlude each other in real-world scenarios."
+   },
+   {
+    "paperIds": [
+     "OD027"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "The traditional bounding box is a rotation variant data structure, which becomes a shortcoming when the detector has to deal with orientation variations of target objects."
+   },
+   {
+    "paperIds": [
+     "OD028"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "All state-of-the-art object detection systems still rely on recognizing object instances individually, without exploiting their relations during learning."
+   }
+  ],
+  "simulator": "edge-scenarios"
+ },
+ {
+  "id": "class-imbalance",
+  "name": "Foreground/Background Class Imbalance",
+  "description": "Dense detectors meet roughly 1:1000 foreground-to-background imbalance, so easy negatives dominate gradient and one-stage accuracy trails two-stage. Focal loss, hard-negative and cascade filtering, and anchor-free sampling rebalance the training signal.",
+  "problemTags": [
+   "class-imbalance",
+   "background-false-positives",
+   "one-stage-accuracy"
+  ],
+  "solutionTags": [
+   "focal-loss",
+   "dense-prediction",
+   "one-stage",
+   "cascade"
+  ],
+  "papers": [
+   "OD020",
+   "OD021",
+   "OD022",
+   "OD036",
+   "OD046",
+   "OD052",
+   "OD058"
+  ],
+  "firstYear": 2017,
+  "lastYear": 2020,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD020"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "In contrast, one-stage detectors that are applied over a regular, dense sampling of possible object locations have the potential to be faster and simpler, but have trailed the accuracy of two-stage detectors thus far."
+   },
+   {
+    "paperIds": [
+     "OD021"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, its detection accuracy is usually behind that of the two-stage approach, one of the main reasons being due to the class imbalance problem [28]."
+   },
+   {
+    "paperIds": [
+     "OD022"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, mini-batch size, a key factor for the training of deep neural networks, has not been well studied for object detection."
+   },
+   {
+    "paperIds": [
+     "OD036"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "But the use of anchor boxes has two drawbacks."
+   }
+  ],
+  "simulator": "focal"
+ },
+ {
+  "id": "occlusion",
+  "name": "Occlusion & Context",
+  "description": "ROI-only computation ignores the surrounding context needed to recognize occluded or ambiguous objects, and last-layer pooling discards the high-resolution features small targets need. The corpus adds context modules, feature pyramids, relation reasoning and occlusion-aware tracking.",
+  "problemTags": [
+   "occlusion",
+   "crowded-scenes",
+   "small-objects"
+  ],
+  "solutionTags": [
+   "feature-fusion",
+   "feature-pyramid",
+   "iou-loss",
+   "dense-prediction"
+  ],
+  "papers": [
+   "OD005",
+   "OD017",
+   "OD024",
+   "OD037",
+   "OD069",
+   "OD120"
+  ],
+  "firstYear": 2015,
+  "lastYear": 2026,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD005"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Current state-of-the-art detection approaches [7, 30] only use information near an object’s region of interest (ROI). This places constraints on the type and accuracy of objects that may be detected."
+   },
+   {
+    "paperIds": [
+     "OD017"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Despite the simplicity of training and the efficiency in deployment, the single stage detection methods have not been as competitive when evaluated in benchmarks consider mAP for high IoU thresholds."
+   },
+   {
+    "paperIds": [
+     "OD024"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Detecting individual pedestrians in a crowd remains a challenging problem since the pedestrians often gather together and occlude each other in real-world scenarios."
+   },
+   {
+    "paperIds": [
+     "OD037"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "we observe that the ground-truth bounding boxes are inherently ambiguous in some cases. The ambiguities makes it hard to label and hard to learn the bounding box regression function."
+   }
+  ],
+  "simulator": "edge-scenarios"
+ },
+ {
+  "id": "annotation-cost",
+  "name": "Annotation Cost",
+  "description": "Box annotation is slow and expensive, so detection datasets stay small and category sets stay fixed. Papers cut the cost with self-training, pseudo-labeling and CLIP-based grounding that reuses cheaper image-level or text supervision instead of new box labels.",
+  "problemTags": [
+   "annotation-cost",
+   "weak-supervision",
+   "open-vocabulary"
+  ],
+  "solutionTags": [
+   "open-vocabulary-clip",
+   "self-training",
+   "transformer-query",
+   "attention"
+  ],
+  "papers": [
+   "OD011",
+   "OD065",
+   "OD074",
+   "OD081",
+   "OD111",
+   "OD121"
+  ],
+  "firstYear": 2016,
+  "lastYear": 2026,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD011"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, most detection methods are still constrained to a small set of objects."
+   },
+   {
+    "paperIds": [
+     "OD065"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, trained with scratch transformers, DETR needs large-scale training data and an extreme long training schedule even on COCO dataset."
+   },
+   {
+    "paperIds": [
+     "OD074"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, obtaining labels can be a bottleneck, due to the time-consuming and expensive annotation process."
+   },
+   {
+    "paperIds": [
+     "OD081"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Visual recognition models are typically trained to predict a fixed set of pre-determined object categories, which limits their usability in real-world applications since additional labeled data are needed to generalize to new visual concepts and domains."
+   }
+  ]
+ },
+ {
+  "id": "weak-supervision",
+  "name": "Weak & Semi Supervision",
+  "description": "Detection depends on scarce full box labels, while weak and pseudo-label routes are limited by fixed-vocabulary teachers and expensive pre-training schedules. The corpus pushes online teacher-student self-training and annotation-free set-prediction pre-training.",
+  "problemTags": [
+   "weak-supervision",
+   "annotation-cost",
+   "pseudo-label-quality"
+  ],
+  "solutionTags": [
+   "self-training",
+   "set-prediction",
+   "transformer-query",
+   "real-time-backbone"
+  ],
+  "papers": [
+   "OD011",
+   "OD065",
+   "OD074",
+   "OD097"
+  ],
+  "firstYear": 2016,
+  "lastYear": 2023,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD011"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, most detection methods are still constrained to a small set of objects."
+   },
+   {
+    "paperIds": [
+     "OD065"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, trained with scratch transformers, DETR needs large-scale training data and an extreme long training schedule even on COCO dataset."
+   },
+   {
+    "paperIds": [
+     "OD074"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, obtaining labels can be a bottleneck, due to the time-consuming and expensive annotation process."
+   },
+   {
+    "paperIds": [
+     "OD097"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Regrettably, DETReg proves inadequate in enhancing the performance of robust DETR-based models under full data conditions."
+   }
+  ]
+ },
+ {
+  "id": "class-confusion",
+  "name": "Classification/Localization Confusion",
+  "description": "Classification, objectness and localization share entangled heads over quantized features, so scores mis-rank boxes and overlapping instances confuse labels. Papers decouple the tasks, add auxiliary supervision and use denoising or contrastive queries to separate them.",
+  "problemTags": [
+   "class-confusion",
+   "localization",
+   "label-assignment"
+  ],
+  "solutionTags": [
+   "denoising-training",
+   "set-prediction",
+   "dense-prediction",
+   "feature-pyramid"
+  ],
+  "papers": [
+   "OD014",
+   "OD048",
+   "OD085",
+   "OD102"
+  ],
+  "firstYear": 2017,
+  "lastYear": 2024,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD014"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Instance segmentation is challenging because it requires the correct detection of all objects in an image while also precisely segmenting each instance."
+   },
+   {
+    "paperIds": [
+     "OD048"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "there is a lack of understanding of how does these two head structures work for these two tasks."
+   },
+   {
+    "paperIds": [
+     "OD085"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Despite its promising performance, the training convergence of DETR is slow and the meaning of queries is unclear."
+   },
+   {
+    "paperIds": [
+     "OD102"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Existing methods ignore a fact that when input data undergoes layer-by-layer feature extraction and spatial transformation, large amount of information will be lost."
+   }
+  ]
+ },
+ {
+  "id": "domain-shift",
+  "name": "Pretraining Domain Shift",
+  "description": "Off-the-shelf ImageNet pre-training ties detectors to classification losses and mismatches depth, medical or multi-spectral inputs. Responses include training from scratch with stable normalization, dataset-specific box priors and scale-robust sampling.",
+  "problemTags": [
+   "domain-shift",
+   "pretraining-dependence",
+   "backbone-design"
+  ],
+  "solutionTags": [
+   "one-stage",
+   "feature-fusion",
+   "multi-scale",
+   "sparse-sampling"
+  ],
+  "papers": [
+   "OD019",
+   "OD026",
+   "OD035",
+   "OD116"
+  ],
+  "firstYear": 2017,
+  "lastYear": 2025,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD019"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "A better solution to tackle these two critical problems is to train object detectors from scratch, which motivates our proposed DSOD."
+   },
+   {
+    "paperIds": [
+     "OD026"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "we show that CNNs are not robust to changes in scale."
+   },
+   {
+    "paperIds": [
+     "OD035"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "In addition, the number of available anchors is limited by the predefined B."
+   },
+   {
+    "paperIds": [
+     "OD116"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Dense environments remain challenging for real-time object detectors because multiple instances may overlap spatially, share similar visual characteristics, or occupy only a small number of pixels."
+   }
+  ]
+ },
+ {
+  "id": "benchmark-inconsistency",
+  "name": "Benchmark Inconsistency",
+  "description": "Comparisons are confounded by different backbones, image resolutions and hardware, and mAP alone hides latency and memory. The corpus pushes controlled from-scratch retraining, standard real-time speed reporting and alignment quality at high IoU thresholds.",
+  "problemTags": [
+   "benchmark-inconsistency",
+   "speed-latency",
+   "pretraining-dependence"
+  ],
+  "solutionTags": [
+   "random-init-training",
+   "long-schedule",
+   "real-time-backbone",
+   "two-stage"
+  ],
+  "papers": [
+   "OD009",
+   "OD034",
+   "OD040"
+  ],
+  "firstYear": 2016,
+  "lastYear": 2018,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD009"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "comparisons are difficult due to different base feature extractors (e.g., VGG, Residual Networks), different default image resolutions, as well as different hardware and software platforms."
+   },
+   {
+    "paperIds": [
+     "OD034"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "However, performance drops significantly as the IOU threshold increases indicating YOLOv3 struggles to get the boxes perfectly aligned with the object."
+   },
+   {
+    "paperIds": [
+     "OD040"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "As modern object detectors [9, 15, 8, 36, 35, 28, 26, 13] evolved under the pre-training paradigm, the belief that training from scratch is non-trivial became conventional wisdom."
+   }
+  ]
+ },
+ {
+  "id": "long-tail",
+  "name": "Long-Tail Categories",
+  "description": "Fixed-vocabulary detectors miss rare categories, and no human-annotated detection dataset covers more than a few thousand classes. Open-vocabulary grounding with CLIP text, language prompts and self-training is the corpus's route beyond the head of the label distribution.",
+  "problemTags": [
+   "long-tail",
+   "open-vocabulary",
+   "annotation-cost"
+  ],
+  "solutionTags": [
+   "open-vocabulary-clip",
+   "self-training",
+   "attention",
+   "transformer-query"
+  ],
+  "papers": [
+   "OD081",
+   "OD095",
+   "OD111"
+  ],
+  "firstYear": 2021,
+  "lastYear": 2024,
+  "evidence": [
+   {
+    "paperIds": [
+     "OD081"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Visual recognition models are typically trained to predict a fixed set of pre-determined object categories, which limits their usability in real-world applications since additional labeled data are needed to generalize to new visual concepts and domains."
+   },
+   {
+    "paperIds": [
+     "OD095"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "The key solution of open-set object detection is introducing language to a closed-set detector for open-set concept generalization."
+   },
+   {
+    "paperIds": [
+     "OD111"
+    ],
+    "kind": "paperSays",
+    "confidence": "MEDIUM",
+    "quote": "Traditional text prompt-only models [33, 47, 29], while having made great progress, still struggle to cover a sufficient range of long-tailed detection scenarios due to the difficulty of collecting sufficiently diverse training data to cover various applications."
+   }
+  ]
+ }
+]

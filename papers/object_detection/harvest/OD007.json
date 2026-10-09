@@ -1,0 +1,111 @@
+{
+  "id": "OD007",
+  "arxiv": "1608.01471",
+  "title": "UnitBox: An Advanced Object Detection Network",
+  "year": 2016,
+  "venue": null,
+  "problem": {
+    "summary": "Existing deep CNN object detectors regress the four bounding-box coordinates as four independent variables with an unnormalized l2 loss, which ignores that the bounds are correlated and skews the penalty toward large objects, hurting localization accuracy.",
+    "statements": [
+      "Bounding box regression in deep CNN detectors treats the four box bounds as independent variables optimized separately under l2 loss, contrary to the observation that they are correlated.",
+      "The unnormalized l2 loss penalizes errors on large boxes more than small ones, so networks focus on larger objects and ignore smaller ones.",
+      "Traditional region proposal stages are both a localization bottleneck and a computational bottleneck for real-time deployment."
+    ],
+    "problemTags": ["localization", "small-objects", "scale-variance"],
+    "evidence": [
+      { "quote": "However, existing deep CNN methods assume the object bounds to be four independent variables, which could be regressed by the `2 loss separately.", "location": "Abstract" },
+      { "quote": "This assumption violates the fact that the bounds of an object are highly correlated.", "location": "Sec 2.1" },
+      { "quote": "This unbalance results in that the CNNs focus more on larger objects while ignore smaller ones.", "location": "Sec 2.1" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on the three-step detection pipeline (region proposals, CNN classification, box regression) and on DenseBox's pixel-wise fully convolutional detection, arguing that both proposal-based methods and DenseBox's independent l2 box regression are flawed.",
+    "relatedWork": [
+      { "name": "Faster R-CNN (RPN)", "relation": "prior proposal mechanism whose fixed anchor scales/aspect ratios struggle with shape variation", "quote": "since the scales and aspect ratios of anchor boxes are pre-designed and fixed, the RPN shows difficult to handle the object candidates with large shape variations", "location": "Introduction" },
+      { "name": "DenseBox", "relation": "closest pixel-wise fully convolutional baseline; regresses four distances independently under l2 loss", "quote": "However, DenseBox optimizes the four-side distances as four independent variables, under the simplistic `2 loss", "location": "Introduction" },
+      { "name": "Selective Search / EdgeBoxes", "relation": "traditional proposal generators criticized for fragility and cost", "quote": "are sensitive to the local appearance changes, e.g., partial occlusion, where those algorithms are very likely to fail.", "location": "Introduction" }
+    ],
+    "evidence": [
+      { "quote": "In this pipeline, the region proposal algorithm constitutes a major bottleneck in terms of localization effectiveness, as well as efficiency.", "location": "Introduction" },
+      { "quote": "DenseBox has to perform detection on image pyramids, which unavoidably affects the efficiency of the framework.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "UnitBox is a fully convolutional pixel-wise detector built on VGG-16 that uses a new IoU loss, regressing the four box bounds jointly as a single unit so that training directly maximizes predicted/ground-truth overlap.",
+    "approach": "Regress all four bounds jointly with an IoU-based loss L = -ln(IoU) inside a two-branch fully convolutional network that predicts pixel-wise confidence and box heatmaps.",
+    "components": [
+      "IoU loss layer (L = -ln(IoU)) with closed-form forward/backward passes",
+      "confidence branch on VGG stage-4 with sigmoid cross-entropy loss",
+      "bounding-box branch on VGG stage-5 with a single convolutional layer and ReLU for non-negativity",
+      "up-sample and crop layers aligning predictions to input image size",
+      "variable-scale (multi-scale) training enabled by scale-normalized IoU"
+    ],
+    "solutionTags": ["one-stage", "anchor-free", "iou-loss", "dense-prediction"],
+    "evidence": [
+      { "quote": "we firstly introduce a novel Intersection over Union (IoU ) loss function for bounding box prediction, which regresses the four bounds of a predicted box as a whole unit.", "location": "Abstract" },
+      { "quote": "instead of optimizing four coordinates independently, the IoU loss considers the bounding box as a unit.", "location": "Sec 2.2" },
+      { "quote": "we remove the fully connected layers and add two branches of fully convolutional layers to predict the pixel-wise bounding boxes and classification scores", "location": "Sec 3" }
+    ]
+  },
+  "experiments": {
+    "summary": "The authors fine-tune UnitBox on WiderFace and evaluate face detection on the FDDB benchmark, ablating IoU loss against an otherwise identical l2-loss variant (UnitBox-l2) in terms of convergence, ROC, scale robustness, and speed.",
+    "benchmarks": [
+      { "dataset": "FDDB", "metric": "ROC (discrete scores)", "value": "best among all published methods", "split": "test", "location": "Figure 6" },
+      { "dataset": "FDDB", "metric": "fps", "value": "12 (VGA-size images)", "split": "test", "location": "Sec 4.2" },
+      { "dataset": "FDDB", "metric": "convergence iterations to best model", "value": "16k (IoU) vs 29k (l2)", "split": "test", "location": "Sec 4.1" }
+    ],
+    "baselines": ["DenseBox", "UnitBox-l2 (same network with l2 loss)", "state-of-the-art published FDDB face detectors"],
+    "evidence": [
+      { "quote": "the proposed UnitBox has achieved the best detection result on FDDB among all published methods.", "location": "Sec 4.2" },
+      { "quote": "the model with IoU loss converges more quickly and steadily than the one with `2 loss.", "location": "Sec 4.1" }
+    ]
+  },
+  "limitations": {
+    "summary": "Evaluation is restricted to face detection on a single benchmark (FDDB), and the box-generation stage relies on face-specific heuristics such as fitting ellipses to the confidence map.",
+    "items": [
+      "No generic object-detection results (e.g., PASCAL VOC or COCO) are reported; only the face detection task is evaluated.",
+      "Post-processing of heatmaps is face-specific (ellipse fitting on thresholded confidence maps) rather than a general detection decoding scheme.",
+      "The paper reports no numeric accuracy table; results are shown as ROC curves only."
+    ],
+    "evidence": [
+      { "quote": "we apply the proposed IoU loss as well as the UnitBox on face detection task, and report our experimental results on the FDDB benchmark", "location": "Sec 4" },
+      { "quote": "firstly we fit the faces by ellipses on the thresholded confidence heatmaps.", "location": "Sec 3" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Extend IoU loss and UnitBox beyond face detection to other object localization and detection tasks.", "quote": "We believe that the IoU loss layer as well as the UnitBox will be of great value to other object localization and detection tasks.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["FDDB", "WiderFace", "ImageNet"],
+    "backbones": ["VGG-16"],
+    "models": ["UnitBox", "UnitBox-l2", "DenseBox", "Faster R-CNN"],
+    "algorithms": ["IoU loss", "l2 loss", "sigmoid cross-entropy loss", "mini-batch SGD fine-tuning", "ReLU-constrained box outputs"],
+    "metrics": ["miss rate", "ROC", "fps"],
+    "equations": [
+      { "name": "IoU loss", "expr": "L = -ln(IoU)", "location": "Sec 2.2" },
+      { "name": "IoU", "expr": "IoU = I / U", "location": "Algorithm 1" },
+      { "name": "l2 localization loss", "expr": "L = sum_{i in {t,b,l,r}} (x_i - xhat_i)^2", "location": "Sec 2.1" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "face detection", "detail": "UnitBox is applied to face detection and attains the best published FDDB performance; authors are affiliated with Megvii Inc.", "quote": "We apply UnitBox on face detection task and achieve the best performance among all published methods on the FDDB benchmark.", "location": "Abstract" },
+      { "domain": "pedestrian detection", "detail": "The introduction names pedestrian detection among the application areas served by CNN-based detectors.", "quote": "such as face detection [8] [5], pedestrian detection [9] [4] and etc [2] [1] [10]", "location": "Introduction" }
+    ],
+    "deploymentClaims": [
+      "UnitBox runs at about 12 fps on VGA-size images, versus seconds per image for DenseBox.",
+      "UnitBox processes more than 10 images per second owing to its single extra convolutional layer.",
+      "Authors claim the efficiency advantage makes UnitBox suitable for real-time detection system deployment."
+    ],
+    "evidence": [
+      { "quote": "The advantage in efficiency makes UnitBox potential to be deployed in real-time detection systems.", "location": "Sec 4.2" },
+      { "quote": "the UnitBox could process more than 10 images per second, while DenseBox needs several seconds to process one image", "location": "Sec 3" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1145/2964284.2967274",
+    "arxivUrl": "https://arxiv.org/abs/1608.01471",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/1608.01471"
+  }
+}

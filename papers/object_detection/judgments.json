@@ -1,0 +1,214 @@
+{
+  "problemStatuses": {
+    "speed-latency": {
+      "status": "persistent",
+      "statusEvidence": "One-stage and transformer designs kept pushing the latency/accuracy frontier from YOLO (OD002, 2015) through RT-DETRv4 and RF-DETR (OD117, OD118, 2025), yet YOLOv12 (OD113) still concedes that attention models cannot match CNN speed, so speed is fought to the corpus end with no final fix.",
+      "statusPapers": ["OD002", "OD113", "OD115", "OD117"]
+    },
+    "deployability": {
+      "status": "persistent",
+      "statusEvidence": "Lightweight backbones and reparameterization (OD031, OD091) repeatedly narrowed the deployment gap, but Grounding DINO 1.5 (OD103, 2024) still finds open-set models exceed edge budgets and OD115 (2025) calls the performance-efficiency balance a key unsolved challenge.",
+      "statusPapers": ["OD031", "OD053", "OD091", "OD103", "OD115"]
+    },
+    "localization": {
+      "status": "reduced",
+      "statusEvidence": "IoU-aware and distributional box regression (OD058, OD062, OD109) largely retired the independent l2 formulation flagged by UnitBox (OD007), shrinking localization from an eleven-paper peak in 2017 to one paper per year by 2024.",
+      "statusPapers": ["OD007", "OD037", "OD058", "OD109"]
+    },
+    "small-objects": {
+      "status": "persistent",
+      "statusEvidence": "FPN and PANet-style fusion (OD010, OD033) and slicing inference (OD083) improved small-object recall, but OD083 (2022) still calls it a major challenge and OD116 (2025) reports instances occupying only a few pixels remain hard for real-time detectors.",
+      "statusPapers": ["OD010", "OD018", "OD083", "OD116"]
+    },
+    "real-time-edge": {
+      "status": "persistent",
+      "statusEvidence": "From SSD (OD004) to RT-DETRv4 (OD117) and RF-DETR (OD118) the corpus keeps trading accuracy for edge latency, and OD115 (2025) explicitly states that balancing performance and efficiency for lightweight models remains a key challenge.",
+      "statusPapers": ["OD004", "OD053", "OD103", "OD115", "OD117"]
+    },
+    "scale-variance": {
+      "status": "reduced",
+      "statusEvidence": "Top-down fusion from FPN (OD010) through BiFPN (OD053) and Gold-YOLO (OD099) made multi-scale handling routine, yet YOLO-MS (OD098, 2023) still calls recognition across scales a fundamental challenge for real-time detectors.",
+      "statusPapers": ["OD010", "OD026", "OD053", "OD098", "OD099"]
+    },
+    "one-stage-accuracy": {
+      "status": "reduced",
+      "statusEvidence": "Focal loss (OD020), anchor-free assignment (OD046) and YOLOX (OD075) closed most of the reported one-stage accuracy gap, but RT-DETRv3 (OD108, 2024) still attributes suboptimal training to sparse Hungarian supervision compared with dense YOLO heads.",
+      "statusPapers": ["OD020", "OD046", "OD054", "OD075", "OD108"]
+    },
+    "label-assignment": {
+      "status": "persistent",
+      "statusEvidence": "Assignment moved from static IoU thresholds (OD029, 2017) through optimal-transport dynamic assignment (OD069, 2021) to DETR one-to-one supervision (OD100, 2024), with each generation restating the problem rather than closing it.",
+      "statusPapers": ["OD029", "OD054", "OD069", "OD100", "OD112"]
+    },
+    "convergence": {
+      "status": "persistent",
+      "statusEvidence": "Deformable DETR (OD063), denoising training (OD084) and group-wise one-to-many matching (OD090) cut DETR's 500-epoch schedule substantially, but DEIM (OD112, 2024) still names slow convergence one of the primary limitations of DETRs.",
+      "statusPapers": ["OD063", "OD076", "OD084", "OD090", "OD112"]
+    },
+    "anchor-design": {
+      "status": "transformed",
+      "statusEvidence": "Anchor-free heads (OD046, OD049) and set prediction (OD057) removed hand-tuned anchors from the mainstream, so the anchor-tuning problem dissolved into query design, which DAB-DETR (OD082) then re-inherits anchors as dynamic query boxes rather than restored priors.",
+      "statusPapers": ["OD044", "OD046", "OD049", "OD057", "OD082"]
+    },
+    "nms": {
+      "status": "reduced",
+      "statusEvidence": "End-to-end set prediction (OD057) and YOLOv10 (OD104) dropped NMS outright, yet OD104 (2024) still reports reliance on NMS hampers deployment latency and OD116 (2025) keeps dense-scene suppression open, so post-processing is mitigated rather than gone.",
+      "statusPapers": ["OD015", "OD057", "OD096", "OD104", "OD116"]
+    },
+    "training-instability": {
+      "status": "reduced",
+      "statusEvidence": "Warm-up schedules and cross-GPU batch normalization (OD022) tamed batch-size instability and denoising training (OD084) fixed unstable bipartite matching, while YOLOv9 (OD102, 2024) shows a residual form persisting as layer-wise information loss.",
+      "statusPapers": ["OD019", "OD022", "OD038", "OD084", "OD102"]
+    },
+    "open-vocabulary": {
+      "status": "persistent",
+      "statusEvidence": "GLIP (OD081) and Grounding DINO (OD095) introduced language-conditioned detection, but DINO-X (OD111, 2024) still reports text-prompt-only models fail to cover long-tailed scenarios and OD121 (2026) keeps closed-set human annotation open for 3D detection.",
+      "statusPapers": ["OD081", "OD095", "OD101", "OD111", "OD121"]
+    },
+    "background-false-positives": {
+      "status": "reduced",
+      "statusEvidence": "Focal loss (OD020) directly reweighted the easy background negatives dominating dense detectors and quality-aware scoring (OD058) fixed the train-inference ranking mismatch, after which the tag stops recurring in the corpus between 2021 and 2023.",
+      "statusPapers": ["OD015", "OD020", "OD044", "OD058"]
+    },
+    "crowded-scenes": {
+      "status": "persistent",
+      "statusEvidence": "Repulsion Loss (OD024) and relation-aware learning (OD028) attacked crowd overlap from 2017, but OD092 (2022) still needed diffusion decoding for dense objects and OD116 (2025) still reports dense environments as challenging for real-time detectors.",
+      "statusPapers": ["OD024", "OD027", "OD028", "OD116"]
+    },
+    "class-imbalance": {
+      "status": "resolved",
+      "statusEvidence": "Focal loss (OD020) replaced heuristic negative mining for the 1:1000 foreground/background imbalance and anchor-free designs (OD046) removed dense anchor sets, after which no corpus paper after 2020 attributes the one-stage accuracy gap to class imbalance.",
+      "statusPapers": ["OD020", "OD021", "OD046", "OD052"]
+    },
+    "occlusion": {
+      "status": "persistent",
+      "statusEvidence": "Context modules (OD005) and Repulsion Loss (OD024) addressed occluded instances early, yet OD120 (2026) still reports trackers failing to preserve identity through full and long-term occlusion with no corpus-wide fix in between.",
+      "statusPapers": ["OD005", "OD024", "OD037", "OD120"]
+    },
+    "annotation-cost": {
+      "status": "reduced",
+      "statusEvidence": "Semi-supervised self-training (OD074) and language-supervised pre-training (OD081, OD111) substantially cut per-category labeling cost, but OD121 (2026) still notes that 3D detectors rest on large corpora of human-annotated boxes.",
+      "statusPapers": ["OD074", "OD081", "OD111", "OD121"]
+    },
+    "weak-supervision": {
+      "status": "uncertain",
+      "statusEvidence": "The corpus offers only four scattered and partly tangential reports, from OD074 (2021) reducing labeling effort to OD097 (2023) showing self-supervised DETR pre-training failing, which is too thin to judge a trajectory for weak supervision.",
+      "statusPapers": ["OD011", "OD074", "OD097"]
+    },
+    "class-confusion": {
+      "status": "reduced",
+      "statusEvidence": "Splitting classification and localization heads (OD048, 2019) became standard practice, and later class-confusion mentions (OD085, OD102) concern query semantics and information loss rather than head coupling, so the original formulation faded without a dedicated follow-up line.",
+      "statusPapers": ["OD014", "OD048", "OD085", "OD102"]
+    },
+    "domain-shift": {
+      "status": "uncertain",
+      "statusEvidence": "Only OD026 (2017) and OD035 (2018) speak to domain mismatch directly, through scale transfer and anchor priors, while the lone later recurrence (OD116, 2025) concerns dense scenes, leaving illumination, weather and sensor robustness untested in this corpus.",
+      "statusPapers": ["OD019", "OD026", "OD035", "OD116"]
+    },
+    "benchmark-inconsistency": {
+      "status": "transformed",
+      "statusEvidence": "OD009 (2016) complained that differing backbones, resolutions and platforms make accuracy comparisons incomparable, and the same complaint reappears in changed form as OD091's (2022) hardware gap in latency benchmarking while COCO mAP standardized the accuracy side.",
+      "statusPapers": ["OD009", "OD040", "OD091"]
+    },
+    "long-tail": {
+      "status": "persistent",
+      "statusEvidence": "GLIP (OD081) and Grounding DINO (OD095) brought open-vocabulary transfer to rare classes, but DINO-X (OD111, 2024) still says text-prompt-only models cannot cover long-tailed detection scenarios, so the tail stays open at the corpus end.",
+      "statusPapers": ["OD081", "OD095", "OD111"]
+    },
+    "two-stage-speed": {
+      "status": "resolved",
+      "statusEvidence": "Light-Head R-CNN (OD023, 2017) supplied the near-single-stage two-stage detector that R-FCN (OD006) lacked, and the corpus never revisits the tag afterwards as the speed objective migrated to one-stage and transformer designs.",
+      "statusPapers": ["OD006", "OD009", "OD023"]
+    },
+    "tiny-objects": {
+      "status": "uncertain",
+      "statusEvidence": "With only OD026 (2017) on scale sensitivity and OD083 (2022) on slicing-based inference, the corpus shows a technique but no verdict on whether sub-1-percent-area objects are now handled.",
+      "statusPapers": ["OD026", "OD083"]
+    },
+    "pretraining-dependence": {
+      "status": "transformed",
+      "statusEvidence": "OD040 (2018) overturned the belief that detectors must fine-tune from ImageNet, but OD065 (2020) re-found the same dependence for scratch transformers needing large data and long schedules, shifting the problem from ImageNet weights to data scale.",
+      "statusPapers": ["OD038", "OD040", "OD065"]
+    },
+    "backbone-mismatch": {
+      "status": "transformed",
+      "statusEvidence": "OD039 (2018) framed the mismatch as classification-oriented ConvNet features serving detection through FPN-style necks, and OD088 (2022) restates the same decoupling problem for plain ViT backbones where pre-training and detection fine-tuning no longer line up.",
+      "statusPapers": ["OD039", "OD088"]
+    },
+    "regression-limits": {
+      "status": "reduced",
+      "statusEvidence": "Grid-point localization (OD041) exposed that fully connected regressors discard spatial layout, and quality-aware and distributional regression (OD058, OD109) later supplied the uncertainty-aware alternative, leaving only residual high-IoU precision losses.",
+      "statusPapers": ["OD041", "OD058", "OD109"]
+    },
+    "attention-memory": {
+      "status": "reduced",
+      "statusEvidence": "Anchor DETR (OD078) showed query embeddings carry no explicit focus, and DAB-DETR (OD082) immediately re-grounded each query in an explicit anchor box, after which no corpus paper revisits attention memory for detection queries.",
+      "statusPapers": ["OD078", "OD082"]
+    },
+    "detector-specialization": {
+      "status": "uncertain",
+      "statusEvidence": "OD079 (2021) is the corpus's only paper arguing detectors are over-specialized and hard to compose, and no later paper picks the claim up in either direction, so the judgment rests on a single source.",
+      "statusPapers": ["OD079"]
+    },
+    "multi-task-interference": {
+      "status": "uncertain",
+      "statusEvidence": "OD073 (2021) alone asserts that joint multi-task optimization can underperform single-task pipelines, with no corroborating or contradicting paper anywhere else in the corpus.",
+      "statusPapers": ["OD073"]
+    },
+    "pseudo-label-quality": {
+      "status": "uncertain",
+      "statusEvidence": "OD074 (2021) both states the pseudo-label quality problem and claims to fix it end to end, and no later corpus paper evaluates whether score-filtered pseudo boxes remain a bottleneck.",
+      "statusPapers": ["OD074"]
+    },
+    "query-interpretability": {
+      "status": "reduced",
+      "statusEvidence": "Anchor DETR (OD078) and DAB-DETR (OD082) gave every query an explicit anchor-box location, which answered the interpretability complaint before it spread, and no post-2022 corpus paper raises query meaning again.",
+      "statusPapers": ["OD078", "OD082"]
+    },
+    "receptive-field": {
+      "status": "uncertain",
+      "statusEvidence": "Only OD077 (2021) reports that SSD's prediction-layer receptive field is too small for its grid, and the corpus offers no follow-up measuring whether the dilated and deconvolutional fixes generalized beyond that variant.",
+      "statusPapers": ["OD077"]
+    },
+    "semantic-gap": {
+      "status": "uncertain",
+      "statusEvidence": "OD077 (2021) is the sole paper framing shallow-feature semantic gaps as a distinct problem, so there is not enough evidence to judge whether feature-fusion necks closed it.",
+      "statusPapers": ["OD077"]
+    },
+    "single-task-models": {
+      "status": "uncertain",
+      "statusEvidence": "OD073 (2021) alone claims that CNN features trained for one objective adapt poorly to others, and no other corpus paper measures single- versus multi-task detector behavior.",
+      "statusPapers": ["OD073"]
+    },
+    "thermal-imaging": {
+      "status": "uncertain",
+      "statusEvidence": "OD077 (2021) provides the corpus's only thermal-specific observation about small, low-information objects, with no later thermal paper to establish whether the problem persists or was addressed.",
+      "statusPapers": ["OD077"]
+    },
+    "backbone-design": {
+      "status": "uncertain",
+      "statusEvidence": "OD088 (2022) is the corpus's only paper on plain-ViT detection backbones, and with no follow-up year it is unclear whether the plain-backbone efficiency trade-off persisted or resolved.",
+      "statusPapers": ["OD088"]
+    },
+    "model-scaling": {
+      "status": "uncertain",
+      "statusEvidence": "OD089 (2022) alone raises compound scaling for concatenated multi-branch detectors, and no later corpus paper reports a scaling study or follow-up for detection architectures.",
+      "statusPapers": ["OD089"]
+    },
+    "sparse-supervision": {
+      "status": "reduced",
+      "statusEvidence": "Group DETR (OD090) and collaborative DETR (OD093) added one-to-many auxiliary supervision to counter one-to-one sparsity, but MS-DETR (OD100) and RT-DETRv3 (OD108) still report the residual sparse signal in 2024, so it is mitigated rather than eliminated.",
+      "statusPapers": ["OD090", "OD093", "OD100", "OD108"]
+    },
+    "information-fusion-loss": {
+      "status": "uncertain",
+      "statusEvidence": "Gold-YOLO (OD099, 2023) is the only paper diagnosing lossy cross-level FPN fusion, and later feature-fusion papers never report whether its aggregated-fusion fix settled the question.",
+      "statusPapers": ["OD099"]
+    },
+    "nas": {
+      "status": "uncertain",
+      "statusEvidence": "RF-DETR (OD118, 2025) is the corpus's single neural architecture search paper for DETRs, and with no follow-up the accuracy-latency search problem cannot yet be judged either way.",
+      "statusPapers": ["OD118"]
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "id": "OD064",
+  "arxiv": "2011.08036",
+  "title": "Scaled-YOLOv4: Scaling Cross Stage Partial Network",
+  "year": 2020,
+  "venue": "CVPR 2021",
+  "problem": {
+    "summary": "Existing model-scaling work changes only depth, width or resolution and rarely analyses how scaling factors relate to each other, so detectors cannot be systematically sized for devices ranging from embedded systems to cloud GPUs while keeping speed and accuracy optimal.",
+    "statements": [
+      "Real-time detectors need to run on heterogeneous hardware (cloud GPUs, general GPUs, IoT clusters, embedded devices), which requires model scaling beyond depth and width.",
+      "Prior scaling methods (EfficientNet/EfficientDet compound scaling, RegNet, SpineNet) seldom analyse the relations between different scaling parameters.",
+      "Tiny models on low-end devices are limited by memory bandwidth, memory access cost and DRAM traffic, not only by FLOPs."
+    ],
+    "problemTags": ["deployability", "real-time-edge", "speed-latency"],
+    "evidence": [
+      { "quote": "We propose a network scaling approach that modifies not only the depth, width, resolution, but also structure of the network.", "location": "Abstract" },
+      { "quote": "In order to design an effective object detector, model scaling technique is very important, because it can make object detector achieve high accuracy and real-time inference on various types of devices.", "location": "Introduction" },
+      { "quote": "The above methods are all great work, but few of them analyze the relation between different parameters.", "location": "Sec 2.2" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on YOLOv4/CSPDarknet53, CSPNet, PAN/FPN feature pyramids, and prior scaling work (EfficientNet, EfficientDet, RegNet, SpineNet, NAS-FPN). The gap claimed is that CSPDarknet53 already matches optimal architecture features found by NAS but had never been systematically scaled up and down.",
+    "relatedWork": [
+      { "name": "YOLOv4", "relation": "base detector that is re-designed and scaled", "quote": "In this paper, we developed our model scaling methods based on YOLOv4 [1].", "location": "Sec 2.1" },
+      { "name": "CSPNet", "relation": "cross-stage partial design that reduces computations and is used for CSP-ization", "quote": "The CSPNet [37] proposed by Wang et al. can be applied to various CNN architectures, while reducing the amount of parameters and computations.", "location": "Sec 2.2" },
+      { "name": "EfficientDet", "relation": "prior NAS-based compound scaling competitor", "quote": "The main design concept of EfficientDet [35] is to disassemble the modules with different functions of object detector, and then perform scaling on the image size, width, #BiFPN layers, and #box/class layer.", "location": "Sec 2.2" },
+      { "name": "EfficientNet", "relation": "prior compound scaling search over depth, width and input size", "quote": "As for EfficientNet [34], it uses compound scaling search based on depth, width, and input size.", "location": "Sec 2.2" }
+    ],
+    "evidence": [
+      { "quote": "Through analysis of state-of-the-art object detectors [1, 3, 6, 26, 35, 40, 44], we found that CSPDarknet53, which is the backbone of YOLOv4 [1], matches almost all optimal architecture features obtained by network architecture search technique.", "location": "Introduction" },
+      { "quote": "Today’s popular one-stage object detectors mainly have two kinds: anchor-based [30, 18] and anchor-free [7, 13, 14, 36].", "location": "Sec 2.1" }
+    ]
+  },
+  "solution": {
+    "summary": "The paper first CSP-izes YOLOv4 into YOLOv4-CSP (CSP backbone and CSP-ized PAN neck), then applies a principled scaling framework that also scales network structure, producing YOLOv4-tiny (CSPOSANet with partial-in-computational-block for low-end devices) and YOLOv4-large (P5/P6/P7 compound scaling for cloud GPUs).",
+    "approach": "Scale depth, width, input resolution and network structure together on a CSP-ized detector, using separate scaling recipes for tiny models (bandwidth/MAC/CIO driven) and large models (compound input-size and stage scaling).",
+    "components": [
+      "YOLOv4-CSP: CSP-ized Darknet53 backbone with the first stage reverted to a Darknet residual layer",
+      "CSP-ized PAN neck with SPP, cutting about 40% of neck computation",
+      "CSPOSANet with partial in computational block (PCB) for tiny models",
+      "tiny scaling principles: computation order below O(whkb^2), balanced feature-map size, minimized MAC, minimized CIO",
+      "large model compound scaling over input size and number of stages, then depth and width",
+      "YOLOv4-large depth scale 2^ds with ds = [1, 3, 15, 15, 7, 7, 7] for P5/P6/P7",
+      "k-means and genetic algorithms to determine anchors and augmentation hyper-parameters"
+    ],
+    "solutionTags": ["one-stage", "anchors", "real-time-backbone", "feature-pyramid", "multi-scale"],
+    "evidence": [
+      { "quote": "We show that the YOLOv4 object detection neural network based on the CSP approach, scales both up and down and is applicable to small and large networks while maintaining optimal speed and accuracy.", "location": "Abstract" },
+      { "quote": "First, we re-design YOLOv4 and propose YOLOv4-CSP, and then based on YOLOv4-CSP we developed scaled-YOLOv4.", "location": "Introduction" },
+      { "quote": "In order to effectively reduce the amount of computation, we CSP-ize the PAN [20] architecture in YOLOv4.", "location": "Sec 4.1" },
+      { "quote": "we convert the first CSP stage into original Darknet residual layer.", "location": "Sec 4.1" }
+    ]
+  },
+  "experiments": {
+    "summary": "All models are trained from scratch on MSCOCO 2017 with SGD; the paper ablates CSP-ization, the YOLOv4-tiny partial-block layout and training schedules, compares all scaled models against state-of-the-art detectors on test-dev, reports TTA gains, and measures YOLOv4-tiny FPS on embedded GPUs.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "55.5", "split": "test-dev, YOLOv4-P7, input 1536", "location": "Table 11" },
+      { "dataset": "MS COCO", "metric": "AP50", "value": "73.4", "split": "test-dev, YOLOv4-P7, input 1536", "location": "Table 11" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "56.0", "split": "test-dev, YOLOv4-P7 with TTA", "location": "Table 12" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "54.5", "split": "test-dev, YOLOv4-P6, input 1280", "location": "Table 11" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "51.8", "split": "test-dev, YOLOv4-P5, input 896", "location": "Table 11" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "46.2", "split": "test-dev, YOLOv4-CSP, input 640", "location": "Table 11" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "21.7", "split": "YOLOv4-tiny, input 416", "location": "Table 13" },
+      { "dataset": "MS COCO", "metric": "FPS", "value": "17", "split": "test-dev, YOLOv4-P7, input 1536", "location": "Table 11" }
+    ],
+    "baselines": ["EfficientDet", "YOLOv3-SPP", "PP-YOLO", "YOLOv4", "RetinaNet", "ATSS", "CenterMask"],
+    "evidence": [
+      { "quote": "All scaled-YOLOv4 models reached state-of-the-art results.", "location": "Sec 5.4" },
+      { "quote": "we achieve the highest accuracy 56.0% AP on test-dev COCO dataset for the model YOLOv4-large, extremely high speed 1774 FPS for the small model YOLOv4-tiny on RTX 2080Ti by using TensorRT-FP16", "location": "Conclusion" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors acknowledge that linear scaling down of tiny models hits a bottleneck (residual additions limit frame rate) and that their scaling recipes still involve empirical trade-offs per device class.",
+    "items": [
+      "Linear scaling down of width and depth has clear limits for tiny models.",
+      "In tinyCD53s the residual addition becomes the inference-speed bottleneck under constrained operating conditions.",
+      "YOLOv4-large needs a very long from-scratch schedule (300 epochs plus 150 epochs with stronger augmentation) and its top accuracy additionally relies on test-time augmentation."
+    ],
+    "evidence": [
+      { "quote": "From the above results, we also confirmed that linear scaling down does have its limitation.", "location": "Sec 5.2" },
+      { "quote": "when under limited operating conditions, the residual addition of tinyCD53s becomes the bottleneck of inference speed, because its frame rate is much lower than the COSA architecture with the same amount of computations.", "location": "Sec 5.2" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Use FPN-like sub-nets and compound scale-down of architecture plus input size to pick the best model per resolution.", "quote": "This means that we can use sub-nets of FPN-like models to execute the object detection task well. Moreover, we can perform compound scale-down the model architectures and input size of an object detector to get the best performance.", "location": "Sec 5.5" }
+  ],
+  "technical": {
+    "datasets": ["MSCOCO 2017"],
+    "backbones": ["CSPDarknet53", "Darknet53", "CSPOSANet", "ResNet", "EfficientNet"],
+    "models": ["YOLOv4", "YOLOv4-CSP", "YOLOv4-tiny", "YOLOv4-P5", "YOLOv4-P6", "YOLOv4-P7", "EfficientDet", "PP-YOLO"],
+    "algorithms": ["CSP-ization", "k-means anchor clustering", "genetic algorithm", "SGD", "Spatial Pyramid Pooling", "PAN", "FPN", "test-time augmentation"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "FPS", "FLOPs"],
+    "equations": [
+      { "name": "Memory access cost", "expr": "MAC = hw(Cin + Cout) + K Cin Cout", "location": "Sec 3.2, Eq. 1" },
+      { "name": "Res layer FLOPs (original)", "expr": "r = 17 whkb^2 / 16", "location": "Table 1" },
+      { "name": "Res layer FLOPs (CSP)", "expr": "r = whb^2 (3/4 + 13k/16)", "location": "Table 1" },
+      { "name": "Dark layer FLOPs (original)", "expr": "d = 5 whkb^2", "location": "Table 1" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "medical imaging and face identification", "detail": "Named as everyday application areas that rely on object detection.", "quote": "The deep learning-based object detection technique has many applications in our daily life. For example, medical image analysis, self-driving vehicles, business analytics, and face identification all rely on object detection.", "location": "Introduction" },
+      { "domain": "IoT clusters and embedded devices", "detail": "Scaling is explicitly targeted at the computing facilities behind those applications, from cloud GPUs down to single embedded devices.", "quote": "The computing facilities required for the above applications maybe cloud computing facilities, general GPU, IoT clusters, or single embedded device.", "location": "Introduction" }
+    ],
+    "deploymentClaims": [
+      "YOLOv4-tiny: 443 FPS on RTX 2080Ti; 1774 FPS with TensorRT, batch size 4 and FP16",
+      "YOLOv4-tiny with FP16 batch 4 reaches 380 FPS on Xavier AGX and 199 FPS on Xavier NX",
+      "YOLOv4-tiny is real-time on Jetson TX2 and Jetson NANO (Table 14)",
+      "Scaled-YOLOv4 targets real-time detection on 16 FPS, 30 FPS and 60 FPS movies",
+      "YOLOv4-P7 runs at 17 FPS on the comparison hardware at input size 1536"
+    ],
+    "evidence": [
+      { "quote": "The YOLOv4-tiny model achieves 22.0% AP (42.0% AP50 ) at a speed of ∼443 FPS on RTX 2080Ti, while by using TensorRT, batch size = 4 and FP16-precision the YOLOv4-tiny achieves 1774 FPS.", "location": "Abstract" },
+      { "quote": "If we adopt FP16 and batch size 4 to test Xavier AGX and Xavier NX, the frame rate can reach 380 FPS and 199 FPS respectively.", "location": "Sec 5.4" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr46437.2021.01283",
+    "arxivUrl": "https://arxiv.org/abs/2011.08036",
+    "venue": "CVPR 2021",
+    "pdfUrl": "https://arxiv.org/pdf/2011.08036"
+  }
+}

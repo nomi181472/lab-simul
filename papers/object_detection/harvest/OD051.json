@@ -1,0 +1,200 @@
+{
+  "id": "OD051",
+  "arxiv": "1904.08900",
+  "title": "CornerNet-Lite: Efficient Keypoint Based Object Detection",
+  "year": 2019,
+  "venue": null,
+  "problem": {
+    "summary": "CornerNet reaches state-of-the-art one-stage accuracy but at about 1.1s per image, too slow for video or interactive use; simply processing fewer pixels or a smaller resolution destroys its accuracy, so an efficient keypoint-based detector is needed.",
+    "statements": [
+      "CornerNet costs 1.1s per image (42.2% AP on COCO), which is too slow for real-time or interactive video applications.",
+      "Reducing input resolution and test scales speeds CornerNet to 42ms but drops AP to 25.6%, far below YOLOv3's 33.0%.",
+      "Detector efficiency must be attacked along two axes: the number of pixels processed and the amount of processing per pixel."
+    ],
+    "problemTags": ["speed-latency", "real-time-edge", "deployability"],
+    "evidence": [
+      {
+        "quote": "However, this accuracy comes at high processing cost.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "However, a major drawback of CornerNet is its inference speed.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "It achieves an average precision (AP) of 42.2% on COCO at an inference cost of 1.1s per image",
+        "location": "Introduction"
+      },
+      {
+        "quote": "but would decrease the AP to 25.6% which is much lower than YOLOv3's 33.0%.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on CornerNet's corner-keypoint detector with a stacked hourglass backbone, on the saccade/cascade line of selective-crop inference (R-CNN variants, AutoFocus), and on efficient architecture design (SqueezeNet fire modules, MobileNet depth-wise separable convolutions); the gap is that no prior work made keypoint-based detection efficient.",
+    "relatedWork": [
+      {
+        "name": "CornerNet",
+        "relation": "the accurate but slow baseline being optimized",
+        "quote": "CornerNet [27], the state-of-the-art among them, detects and groups the top-left and bottom-right corners of bounding boxes;",
+        "location": "Introduction"
+      },
+      {
+        "name": "AutoFocus",
+        "relation": "prior saccade-style method whose crops are multi-type and mixed rather than single-type and multi-object",
+        "quote": "In contrast, CornerNet-Saccade produces multiple detections per crop with a single-stage network.",
+        "location": "Introduction"
+      },
+      {
+        "name": "SqueezeNet",
+        "relation": "source of the fire module design used in CornerNet-Squeeze",
+        "quote": "SqueezeNet [20] proposes a fire module to reduce the number of parameters in AlexNet [25] by 50x, while achieving similar performance.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "MobileNets",
+        "relation": "source of depth-wise separable convolutions for the compact backbone",
+        "quote": "MobileNets [16] are a class of lightweight networks that use depth-wise separable convolutions [6], and proposes strategies to achieve a good trade-off between accuracy and latency.",
+        "location": "Sec 2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "There has been a long history of using saccades [12, 42, 63] in object detection to speed up inference.",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "The efficiency of ConvNets is important to many mobile and embedded applications.",
+        "location": "Sec 2"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "CornerNet-Lite combines two variants: CornerNet-Saccade predicts attention maps on a downsized image and only processes high-resolution crops at promising locations, while CornerNet-Squeeze replaces the heavy hourglass with a compact backbone built from fire modules and depth-wise separable convolutions.",
+    "approach": "Cut pixels processed with saccade-style attention-driven crops and cut per-pixel cost with a SqueezeNet/MobileNet-inspired compact hourglass backbone.",
+    "components": [
+      "three scale-specific attention maps predicted on 255/192-pixel downsized images",
+      "zoom-in crop processing (ss=4, sm=2, sl=1) with Soft-NMS merging and boundary-box removal",
+      "redundant-location suppression similar to NMS",
+      "Hourglass-54 backbone (3 modules, 54 layers) for CornerNet-Saccade",
+      "fire modules plus depth-wise separable convolutions in CornerNet-Squeeze",
+      "1x1 prediction convolutions and transposed-convolution upsampling"
+    ],
+    "solutionTags": ["sparse-sampling", "attention", "real-time-backbone", "keypoint-based", "one-stage"],
+    "evidence": [
+      {
+        "quote": "CornerNet-Saccade, which uses an attention mechanism to eliminate the need for exhaustively processing all pixels of the image, and CornerNet-Squeeze, which introduces a new compact backbone architecture.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "CornerNet-Saccade speeds up inference by reducing the number of pixels to process.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "CornerNet-Squeeze speeds up inference by reducing the amount of processing per pixel.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "It incorporates ideas from SqueezeNet [20] and MobileNets [16], and introduces a new, compact hourglass backbone that makes extensive use of 1×1 convolution, bottleneck layer, and depth-wise separable convolution.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "All detectors are timed on the same 1080Ti/i7-7700k machine on COCO; the paper reports accuracy-speed points for both variants, ablates Hourglass-54 vs Hourglass-104 and each Squeeze modification, and tests the failed Squeeze+Saccade combination.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "AP", "value": "43.2", "split": "test, CornerNet-Saccade at 190ms", "location": "Table 6" },
+      { "dataset": "COCO", "metric": "AP", "value": "34.4", "split": "test, CornerNet-Squeeze at 30ms", "location": "Table 6" },
+      { "dataset": "COCO", "metric": "AP", "value": "42.2", "split": "test, CornerNet multi-scale at 1147ms", "location": "Table 6" },
+      { "dataset": "COCO", "metric": "AP", "value": "33.0", "split": "test, YOLOv3 at 39ms", "location": "Table 6" },
+      { "dataset": "COCO", "metric": "AP (small)", "value": "24.4", "split": "test, CornerNet-Saccade", "location": "Table 6" },
+      { "dataset": "COCO", "metric": "AP", "value": "42.6", "split": "val, CornerNet-Saccade with Hourglass-54", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "AP", "value": "40.6", "split": "test, CornerNet single-scale at 211ms", "location": "Table 6" }
+    ],
+    "baselines": ["CornerNet", "YOLOv3", "CornerNet with Hourglass-104", "CornerNet with Hourglass-54"],
+    "evidence": [
+      {
+        "quote": "CornerNet-Saccade is suitable for offline processing, improving the efficiency of CornerNet by 6.0x and the AP by 1.0% on COCO.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "(34.4% AP at 30ms for CornerNet-Squeeze compared to 33.0% AP at 39ms for YOLOv3 on COCO).",
+        "location": "Abstract"
+      },
+      {
+        "quote": "CornerNet-Squeeze is faster and more accurate than YOLOv3. CornerNet-Saccade is more accurate than CornerNet at multi-scales and 6 times faster.",
+        "location": "Sec 5"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The two variants cover opposite corners of the accuracy-efficiency tradeoff but cannot be combined: Squeeze+Saccade is slower and less accurate than Squeeze alone, and the compact backbone is too weak to predict good attention maps.",
+    "items": [
+      "Combining both tricks fails: CornerNet-Squeeze-Saccade is slower and less accurate than CornerNet-Squeeze.",
+      "The ultra-compact backbone lacks the capacity to detect objects and predict attention maps at the same time.",
+      "CornerNet-Squeeze operates on a single image scale, leaving little room for saccade-based savings, and its small-object AP (13.7) trails YOLOv3 (18.3) on COCO test."
+    ],
+    "evidence": [
+      {
+        "quote": "This is because for saccades to help, the network needs to be able to generate sufficiently accurate attention maps, but the ultra-compact architecture of CornerNet-Squeeze does not have this extra capacity.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Due to its ultra-compact architecture, CornerNetSqueeze-Saccade does not have enough capacity to detect objects and predict attention maps simultaneously.",
+        "location": "Sec 5"
+      },
+      {
+        "quote": "The results in Tab. 5 suggest that saccade can only help if the attention maps are sufficiently accurate.",
+        "location": "Sec 5"
+      }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["COCO"],
+    "backbones": ["Hourglass-104", "Hourglass-54"],
+    "models": ["CornerNet-Lite", "CornerNet-Saccade", "CornerNet-Squeeze", "CornerNet"],
+    "algorithms": ["Soft-NMS", "focal loss", "depth-wise separable convolution", "fire module", "attention-map prediction"],
+    "metrics": ["AP", "APs", "APm", "APl", "inference time (ms)", "GPU memory"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "video / real-time perception",
+        "detail": "the original CornerNet's latency is described as too slow for video applications needing real-time or interactive rates, which the Squeeze variant targets",
+        "quote": "which is too slow for video applications that require real-time or interactive rates.",
+        "location": "Introduction"
+      },
+      {
+        "domain": "applications requiring processing efficiency",
+        "detail": "the paper's stated payoff is making keypoint-based detection usable where processing efficiency matters",
+        "quote": "Together these contributions for the first time reveal the potential of keypoint-based detection to be useful for applications requiring processing efficiency.",
+        "location": "Conclusion"
+      }
+    ],
+    "deploymentClaims": [
+      "CornerNet-Squeeze runs at 34.4% AP at 30ms, real-time on the test machine",
+      "CornerNet-Saccade runs at 43.2% AP at 190ms, a 6.0x speed-up over CornerNet",
+      "All detectors timed on the same machine with a 1080Ti GPU and an Intel Core i7-7700k CPU",
+      "CornerNet-Saccade trains on four 1080Ti GPUs (44GB total) vs ten Titan X GPUs (120GB) for CornerNet"
+    ],
+    "evidence": [
+      {
+        "quote": "we measure the inference times on the same machine with a 1080Ti GPU and an Intel Core i7-7700k CPU.",
+        "location": "Sec 5"
+      },
+      {
+        "quote": "CornerNet-Saccade saves more than 60% GPU memory and requires only 4 GPUs to train, while it outperforms CornerNet.",
+        "location": "Table 2"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1904.08900",
+    "arxivUrl": "https://arxiv.org/abs/1904.08900",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/1904.08900"
+  }
+}

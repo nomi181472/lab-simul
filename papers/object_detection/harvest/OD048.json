@@ -1,0 +1,125 @@
+{
+  "id": "OD048",
+  "arxiv": "1904.06493",
+  "title": "Rethinking Classification and Localization for Object Detection",
+  "year": 2019,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+  "problem": {
+    "summary": "Two-stage detectors share a single head for both classification and box regression, but the paper shows the two widely used head structures (fully connected and convolutional) have opposite strengths: fc-head classification scores correlate better with proposal IoU while conv-head regresses boxes more accurately, so forcing one head to do both leaves accuracy on the table and misaligns the two tasks.",
+    "statements": [
+      "Most two-stage detectors share one head for classification and bounding box regression even though the two tasks prefer opposite head structures.",
+      "There is no established understanding of how fc-head and conv-head behave on classification versus localization.",
+      "Classification scores from conv-head are less correlated with proposal IoU, so detected boxes with high IoU are ranked lower when computing AP.",
+      "fc-head is spatially sensitive and cannot robustly regress the offset of a whole object.",
+      "Prior work notes misalignments between the classification and localization task domains but does not restructure the heads accordingly."
+    ],
+    "problemTags": ["localization", "class-confusion"],
+    "evidence": [
+      { "quote": "there is a lack of understanding of how does these two head structures work for these two tasks.", "location": "Abstract" },
+      { "quote": "Most two-stage object detectors [10, 11, 35, 4, 26] share a head for both classification and bounding box regression.", "location": "Introduction" },
+      { "quote": "Zhang and Wang [45] point out that there exist misalignments between classification and localization task domains.", "location": "Sec 2" },
+      { "quote": "the detected boxes with higher IoUs are ranked higher when calculating AP due to their higher classification scores.", "location": "Sec 3.2" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on R-CNN style two-stage detection (Faster R-CNN's conv head, FPN's 2-fc head, RoIAlign and Mask R-CNN benchmark training) and situates itself among detection-head variants (Cascade RCNN, Light-Head RCNN, IoU-Net, Mask Scoring RCNN); the claimed gap is that all of them still apply a single head to RoI features for both tasks.",
+    "relatedWork": [
+      { "name": "Faster R-CNN", "relation": "prior two-stage detector using a convolution head on a single feature level", "quote": "Faster RCNN [35] uses a convolution head (conv5) on a single level feature map (conv4)", "location": "Introduction" },
+      { "name": "FPN", "relation": "baseline backbone/head design with a fully connected 2-fc head", "quote": "FPN [26] uses a fully connected head (2-fc) on multiple level feature maps.", "location": "Introduction" },
+      { "name": "RetinaNet", "relation": "one-stage prior work introducing focal loss for class imbalance", "quote": "RetinaNet [27] alleviates the extreme foreground-background class imbalance problem by introducing focal loss.", "location": "Sec 2" },
+      { "name": "Mask R-CNN", "relation": "prior head-extension and RoIAlign machinery the method reuses", "quote": "Mask RCNN [13] introduces an extra head for instance segmentation.", "location": "Sec 2" },
+      { "name": "IoU-Net", "relation": "prior example of adding an auxiliary head/branch to address localization quality", "quote": "IoU-Net [20] introduces a branch to predict IoUs between detected bounding boxes and their corresponding ground truth boxes.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "In contrast to existing methods, which apply a single head to extract Region of Interests (RoI) features for both classification and bounding box regression tasks, we propose to split these two tasks into different heads, based upon our thorough analysis.", "location": "Sec 2" },
+      { "quote": "Faster RCNN [35] introduces Region Proposal Network (RPN) to generate proposals.", "location": "Sec 2" },
+      { "quote": "However, there is a lack of understanding between the two head structures with respect to the two tasks (object classification and localization).", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "Double-Head splits the RoI head into an fc-head for classification and a conv-head for bounding box regression, after an empirical analysis showing each head's preferred task; Double-Head-Ext additionally supervises each head on its unfocused task during training and combines both heads' classification scores with a complementary fusion rule at inference.",
+    "approach": "Assign classification to a fully connected head and box regression to a convolution head, then train both heads jointly (optionally with unfocused-task losses) and fuse their class scores.",
+    "components": [
+      "RoIAlign features (256x7x7) fed to both heads",
+      "fc-head: two fully connected layers, 1024-d output, classification (13.25M params)",
+      "conv-head: residual blocks with channel increase to 1024 plus average pooling, regression (1.06M params per block)",
+      "optional non-local blocks inserted before bottleneck blocks in conv-head",
+      "joint loss L = w_fc*L_fc + w_conv*L_conv + L_rpn trained end to end with RPN",
+      "unfocused task supervision with balance weights lambda_fc and lambda_conv",
+      "complementary fusion of classification scores from both heads at inference"
+    ],
+    "solutionTags": ["two-stage", "feature-pyramid", "attention"],
+    "evidence": [
+      { "quote": "we propose a Double-Head method, which has a fully connected head focusing on classification and a convolution head for bounding box regression.", "location": "Abstract" },
+      { "quote": "Our Double-Head method (see Figure 1-(c)) splits classification and localization into fc-head and conv-head, respectively.", "location": "Sec 4.1" },
+      { "quote": "we introduce unfocused task supervision in training and propose a complementary fusion method to combine classification scores from both heads during inference", "location": "Sec 4.2" },
+      { "quote": "the two heads (i.e. fc-head and conv-head) capture complementary information for object classification due to their different structures.", "location": "Sec 4.2" },
+      { "quote": "Similar to FPN [26], cross entropy loss is applied to classification, and SmoothL1 loss is used for bounding box regression.", "location": "Sec 4.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation uses MS COCO 2017 (train2017/val2017/test-dev) and Pascal VOC07 with FPN ResNet-50/ResNet-101 backbones, COCO-style AP over IoU 0.5:0.95, including ablations over head structures, conv-head depth, loss weights and fusion rules, plus comparisons against Faster R-CNN, FPN and two-stage state of the art.",
+    "benchmarks": [
+      { "dataset": "MS COCO 2017", "metric": "AP", "value": "40.3", "split": "val2017, Double-Head-Ext, ResNet-50 (FPN baseline 36.8)", "location": "Table 5" },
+      { "dataset": "MS COCO 2017", "metric": "AP", "value": "41.9", "split": "val2017, Double-Head-Ext, ResNet-101 (FPN baseline 39.1)", "location": "Table 5" },
+      { "dataset": "MS COCO 2017", "metric": "AP", "value": "39.8", "split": "val2017, Double-Head, ResNet-50", "location": "Table 5" },
+      { "dataset": "MS COCO 2017", "metric": "AP", "value": "42.3", "split": "test-dev, Double-Head-Ext, ResNet-101, single model", "location": "Table 6" },
+      { "dataset": "PASCAL VOC07", "metric": "AP", "value": "49.2", "split": "test, Double-Head-Ext, ResNet-50 (FPN baseline 47.4)", "location": "Table 4" },
+      { "dataset": "MS COCO 2017", "metric": "AP", "value": "40.3", "split": "val2017, complementary fusion of both heads' scores (39.7 without fusion), lambda_fc=0.7, lambda_conv=0.8", "location": "Table 3" },
+      { "dataset": "MS COCO 2017", "metric": "AP gain", "value": "0.6", "split": "val2017, 360k vs 180k iterations (39.8 to 40.4)", "location": "Sec 5.2" }
+    ],
+    "baselines": ["Faster R-CNN", "FPN", "Cascade RCNN", "Mask R-CNN", "Deep Regionlets", "IoU-Net", "Soft-NMS", "LTR", "Fitness NMS"],
+    "evidence": [
+      { "quote": "Without bells and whistles, our method gains +3.5 and +2.8 AP on MS COCO dataset from Feature Pyramid Network (FPN) baselines with ResNet-50 and ResNet-101 backbones, respectively.", "location": "Abstract" },
+      { "quote": "Compared with FPN, our Double-Head-Ext gains 3.5 and 2.8 AP on ResNet-50 and ResNet-101 backbones, respectively.", "location": "Sec 5.3" },
+      { "quote": "Our Double-Head-Ext achieves the best performance with 42.3 AP.", "location": "Sec 5.3" },
+      { "quote": "Double-Head outperforms single head detectors by a non-negligible margin (2.0+ AP).", "location": "Sec 5.2" },
+      { "quote": "We evaluate our approach on MS COCO 2017 dataset [28] and Pascal VOC07 dataset [8].", "location": "Sec 5" }
+    ]
+  },
+  "limitations": {
+    "summary": "The method still trails multi-stage Cascade RCNN on COCO, gains depend on conv-head depth and loss-weight tuning (a shallow conv-head is worse than the FPN baseline), the extra heads add parameters, and complementary fusion only applies when both heads supervise their unfocused tasks.",
+    "items": [
+      "With a single conv-head block the model is slightly behind the FPN baseline (drops 0.1 AP), so the head must be deep enough to help.",
+      "Performance remains slightly below Cascade RCNN (42.8 AP), which uses multiple training stages.",
+      "The fc-head alone adds 13.25M parameters, and each conv-head residual block adds 1.06M.",
+      "Head/loss configuration is tuned empirically (loss weights 2.0/2.5, lambda_fc=0.7, lambda_conv=0.8) rather than derived."
+    ],
+    "evidence": [
+      { "quote": "Even through our method only has one training stage, the performance of our method is slightly below Cascade RCNN (42.8 AP).", "location": "Sec 5.3" },
+      { "quote": "When using a single block in conv-head, the performance is slightly behind FPN baseline (drops 0.1 AP) as it is too shallow.", "location": "Sec 5.2" },
+      { "quote": "Considering the trade-off between accuracy and complexity, we choose conv-head with 3 residual blocks and 2 non-local blocks", "location": "Sec 5.2" },
+      { "quote": "The parameter size is 13.25M.", "location": "Sec 4.1" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Share the analysis findings (head preferences for classification vs localization) with the broader object detection community as a basis for future research.",
+      "quote": "We hope that our findings are helpful for future research in object detection.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO 2017", "PASCAL VOC07", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101", "FPN"],
+    "models": ["Double-Head", "Double-Head-Ext", "Faster R-CNN", "FPN", "Mask R-CNN", "Cascade RCNN"],
+    "algorithms": ["RoIAlign", "RPN", "non-local block", "complementary fusion", "NMS", "sliding-window proposal analysis"],
+    "metrics": ["AP", "AP50", "AP75", "APs", "APm", "APl"],
+    "equations": [
+      { "name": "Overall loss", "expr": "L = w_fc * L_fc + w_conv * L_conv + L_rpn", "location": "Eq 1" },
+      { "name": "fc-head loss with unfocused task", "expr": "L_fc = lambda_fc * L_cls + (1 - lambda_fc) * L_reg", "location": "Eq 2" },
+      { "name": "Complementary fusion", "expr": "s = s_fc + s_conv * (1 - s_fc)", "location": "Eq 4" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [],
+    "evidence": []
+  },
+  "citations": {
+    "doi": "10.1109/cvpr42600.2020.01020",
+    "arxivUrl": "https://arxiv.org/abs/1904.06493",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+    "pdfUrl": "https://arxiv.org/pdf/1904.06493"
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "id": "OD105",
+  "arxiv": "2406.03459",
+  "title": "LW-DETR: A Transformer Replacement to YOLO for Real-Time Detection",
+  "year": 2024,
+  "venue": null,
+  "problem": {
+    "summary": "The paper argues that transformer-based DETR detectors had not been shown to work for real-time detection, while the dominant convolutional YOLO-style solutions carry extra NMS post-processing cost that dominates latency for small models.",
+    "statements": [
+      "DETR-style detectors had not been fully explored for real-time detection and it was unclear whether they could match state-of-the-art convolutional detectors.",
+      "NMS post-processing in non-DETR real-time detectors adds end-to-end latency that dominates the total latency when the model is small.",
+      "Global self-attention in a plain ViT encoder has quadratic complexity in the number of tokens, making it expensive for real-time use."
+    ],
+    "problemTags": ["speed-latency", "nms", "one-stage-accuracy"],
+    "evidence": [
+      { "quote": "Unfortunately, DETR for real-time detection remains not fully explored, and it is unclear if the performance is comparable to the state-of-the-art convolutional methods.", "location": "Introduction" },
+      { "quote": "In particular, when the model is small, the end-to-end latency is dominated by the NMS latency.", "location": "Sec 4.3" },
+      { "quote": "The global self-attention is computationally costly, and its time complexity is quadratic with respect to the number of tokens (patches).", "location": "Sec 3.1" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on DETR and its improvements (deformable attention, Group DETR, DINO-style pretraining), on ViTDet's interleaved window/global attention, and on the dominant convolutional real-time detectors; the claimed gap is that transformer solutions to real-time detection had been little explored.",
+    "relatedWork": [
+      { "name": "DETR", "relation": "base end-to-end framework the method extends", "quote": "Detection Transformer (DETR) is an end-to-end detection method, with removing the necessity of many hand-crafted components, such as anchor generation [51] and non-maximum suppression (NMS) [24].", "location": "Sec 2" },
+      { "name": "ViTDet", "relation": "source of interleaved window and global attention", "quote": "ViTDet [36] implements the pre-trained plain ViT with interleaved window and global attentions [37].", "location": "Sec 2" },
+      { "name": "RT-DETR", "relation": "concurrent real-time DETR baseline using a CNN encoder", "quote": "Concurrent with our work, RT-DETR [45] also applies the DETR framework to construct real-time detectors with a focus on the CNN backbone forming the encoder.", "location": "Sec 2" },
+      { "name": "YOLO-NAS / YOLOv8 / RTMDet", "relation": "dominant convolutional real-time baselines compared against", "quote": "Existing state-of-the-art real-time detectors, such as YOLO-NAS [1], YOLOv8 [29], and RTMDet [46], have been largely improved compared with the first version of YOLO [50]", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "In this paper, we study transformer-based solutions to real-time detection that remains little explored.", "location": "Sec 2" },
+      { "quote": "The current dominant solutions are based on convolutional networks, such as the YOLO series [1, 2, 20, 29, 32, 33, 46, 59, 65].", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "LW-DETR is a light-weight detection transformer built as a plain ViT encoder, a C2f projector and a shallow 3-layer DETR decoder, made fast with interleaved window/global attention in a window-major layout and made accurate with multi-level feature aggregation, IoU-aware loss, Group DETR supervision and Objects365 pretraining.",
+    "approach": "Stack a plain ViT encoder with a projector and a shallow DETR decoder, aggregating multi-level encoder features and combining training-effective techniques (IA-BCE loss, Group DETR, Objects365 pretraining) with inference-efficient interleaved window and global attention.",
+    "components": [
+      "plain ViT encoder with interleaved window and global self-attention",
+      "multi-level aggregation of intermediate and final encoder feature maps",
+      "window-major feature map organization to remove permutation overhead",
+      "C2f projector connecting encoder and decoder (two-scale for large/xlarge)",
+      "3-layer DETR decoder with deformable cross-attention",
+      "mixed-query selection with top-K spatial queries from the projector",
+      "IoU-aware classification loss (IA-BCE) plus GIoU and L1 box losses",
+      "Group DETR with 13 parallel weight-sharing decoders during training",
+      "two-stage Objects365 pretraining (CAEv2 MIM then supervised)"
+    ],
+    "solutionTags": ["transformer-query", "attention", "feature-fusion", "nms-free", "real-time-backbone"],
+    "evidence": [
+      { "quote": "The architecture is a simple stack of a ViT encoder, a projector, and a shallow DETR decoder.", "location": "Abstract" },
+      { "quote": "We propose to aggregate the multi-level feature maps, the intermediate and final feature maps in the encoder, forming stronger encoded feature maps.", "location": "Sec 3.1" },
+      { "quote": "We adopt a window-major feature map organization scheme for efficient interleaved attention, which organizes the feature maps window by window.", "location": "Sec 3.4" },
+      { "quote": "In our implementation, we use 3 transformer decoder layers.", "location": "Sec 3.1" }
+    ]
+  },
+  "experiments": {
+    "summary": "Five LW-DETR scales (tiny to xlarge) are compared with YOLOv8, YOLO-NAS, RTMDet and concurrent works on COCO val2017 with end-to-end latency on a T4 GPU, plus cross-domain evaluation on UVO and multi-domain finetuning on Roboflow 100.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "mAP", "value": "42.6", "split": "val2017 (tiny, with Objects365 pretraining)", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "mAP", "value": "48.0", "split": "val2017 (small, with Objects365 pretraining)", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "mAP", "value": "52.5", "split": "val2017 (medium, with Objects365 pretraining)", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "mAP", "value": "56.1", "split": "val2017 (large, with Objects365 pretraining)", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "mAP", "value": "58.3", "split": "val2017 (xlarge, with Objects365 pretraining)", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "end-to-end latency (ms)", "value": "2.9", "split": "val2017, fp16, batch 1, T4 GPU (LW-DETR-small)", "location": "Table 3" },
+      { "dataset": "UVO", "metric": "mAP (class-agnostic)", "value": "32.3", "split": "val (LW-DETR-small, trained on COCO)", "location": "Table 7" },
+      { "dataset": "Roboflow 100", "metric": "AP50 average", "value": "82.5", "split": "all 7 domains (LW-DETR-small)", "location": "Table 8" }
+    ],
+    "baselines": ["YOLOv8", "YOLO-NAS", "RTMDet", "YOLO-MS", "Gold-YOLO", "RT-DETR", "YOLOv10"],
+    "evidence": [
+      { "quote": "achieves 42.6 mAP with 500 FPS on a T4 GPU.", "location": "Sec 4.2" },
+      { "quote": "Experimental results demonstrate that the proposed approach is superior over existing real-time detectors, e.g., YOLO and its variants, on COCO and other benchmark datasets.", "location": "Abstract" },
+      { "quote": "LW-DETR-large outperforms the closely related RT-DETR-R50 by 0.8 mAP and shows faster speed (8.8 ms vs. 9.9 ms).", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors present the work as a first step limited to real-time detection, and their explanation of why Objects365 pretraining helps DETR-based detectors far more than non-end-to-end detectors is explicitly preliminary.",
+    "items": [
+      "Only real-time detection is demonstrated; open-world detection and other vision tasks remain untested.",
+      "Best accuracy depends heavily on Objects365 pretraining, which gives an average 5.5 mAP gain (6.1 mAP for the tiny model).",
+      "The differing benefit of pretraining between DETR-based and non-end-to-end detectors is not yet explained.",
+      "Latency is measured only in one environment (T4 GPU, TensorRT, fp16, batch size 1)."
+    ],
+    "evidence": [
+      { "quote": "Currently, we only demonstrate the effectiveness of LW-DETR in real-time detection. This is the first step.", "location": "Sec 5" },
+      { "quote": "The above illustration is a preliminary step. We believe that more investigations are needed to figure out the underlying reasons for the difference in benefits of pretraining.", "location": "Sec 4.3" },
+      { "quote": "We measure the averaged inference latency in an end-to-end manner with fp16 precision and a batch size of 1 on COCO val2017 with a T4 GPU", "location": "Sec 4.1" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Extend LW-DETR from real-time detection to open-world detection and other vision tasks such as multi-person pose estimation and multi-view 3D object detection.", "quote": "Extending LW-DETR for open-world detection and applying LW-DETR to more vision tasks, such as multi-person pose estimation and multi-view 3D object detection, needs more investigation.", "location": "Sec 5" },
+    { "direction": "Add efficient multi-scale feature fusion, token sparsification and distillation on top of the simple baseline.", "quote": "We believe that our approach potentially benefits from other designs, such as efficient multi-scale feature fusion [34], token sparsification [36,72], distillation [5,5,9,64],", "location": "Introduction" },
+    { "direction": "Adopt NAS, stronger data augmentation, pseudo-labeled data and knowledge distillation as exploited by previous real-time detectors.", "quote": "We expect that our approach potentially benefits from other improvements, such as neural architecture search (NAS), data augmentation, pseudo-labeled data, and knowledge distillation that are exploited by previous real-time detectors [1, 29, 46].", "location": "Sec 4.2" }
+  ],
+  "technical": {
+    "datasets": ["COCO", "Objects365", "UVO", "Roboflow 100"],
+    "backbones": ["ViT (plain)", "ResNet-18", "ResNet-50"],
+    "models": ["LW-DETR-tiny", "LW-DETR-small", "LW-DETR-medium", "LW-DETR-large", "LW-DETR-xlarge", "YOLOv8", "YOLO-NAS", "RTMDet", "RT-DETR"],
+    "algorithms": ["Group DETR", "IA-BCE (IoU-aware classification loss)", "GIoU loss", "interleaved window and global attention", "mixed-query selection", "deformable cross-attention", "NMS", "EMA", "AdamW", "CAEv2 MIM pretraining"],
+    "metrics": ["mAP", "AP50", "AR@100", "FPS", "latency (ms)", "FLOPs"],
+    "equations": [
+      { "name": "IA-BCE classification loss", "expr": "ℓ_cls = Σ_{i=1..N_pos} BCE(s_i, t_i) + Σ_{j=1..N_neg} s_j² BCE(s_j, 0)", "location": "Eq 1" },
+      { "name": "overall objective", "expr": "ℓ_cls + λ_iou ℓ_iou + λ_L1 ℓ_1, with λ_iou = 2.0 and λ_L1 = 5.0", "location": "Eq 2" },
+      { "name": "IoU-absorbing target score", "expr": "t = s^α u^{1-α}, α = 0.25", "location": "Sec 3.1" },
+      { "name": "box regression reparameterization", "expr": "b_w = exp(δ_w) * p_w, b_h = exp(δ_h) * p_h, b_cx = δ_x * p_w + p_cx, b_cy = δ_y * p_h + p_cy", "location": "Supplementary A.3" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "general real-time visual recognition", "detail": "The paper motivates the work as real-time object detection having wide real-world applications.", "quote": "Real-time object detection is an important problem in visual recognition and has wide real-world applications.", "location": "Introduction" },
+      { "domain": "multi-domain real-world imagery", "detail": "Generalization is tested on Roboflow 100, which spans seven real-life imagery domains such as aerial, underwater, documents and electromagnetic.", "quote": "RF100 consists of 100 small datasets, 7 imagery domains, 224k images, and 829 class labels. It can help researchers test the model’s generalizability with real-life data.", "location": "Sec 4.4" }
+    ],
+    "deploymentClaims": [
+      "LW-DETR-tiny reaches 42.6 mAP at 500 FPS on a T4 GPU (fp16, batch size 1, TensorRT-8.6.1).",
+      "End-to-end latency is measured on COCO val2017 with a T4 GPU using TensorRT-8.6.1, CUDA-11.6 and cuDNN-8.7.0.",
+      "Being a DETR, LW-DETR needs no NMS, so its total latency equals the model latency."
+    ],
+    "evidence": [
+      { "quote": "Our LW-DETR does not need NMS and the total latency is equal to the model latency.", "location": "Table 3" },
+      { "quote": "The efficientNMSPlugin in TensorRT is adopted for efficient NMS implementation.", "location": "Sec 4.1" }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2406.03459",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2406.03459"
+  }
+}

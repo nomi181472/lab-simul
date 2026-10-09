@@ -1,0 +1,125 @@
+{
+  "id": "OD029",
+  "arxiv": "1712.00726",
+  "title": "Cascade R-CNN: Delving into High Quality Object Detection",
+  "year": 2017,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+  "problem": {
+    "summary": "Detectors trained at a low IoU threshold (typically 0.5) produce noisy boxes and degrade as the evaluation threshold rises, because higher thresholds exponentially shrink the positive training set (causing overfitting) and because detector quality is mismatched to hypothesis quality at inference.",
+    "statements": [
+      "An IoU threshold is needed to define positives/negatives, and u = 0.5 is a loose requirement that admits close false positives.",
+      "Increasing the training IoU threshold exponentially reduces positive samples and leads to overfitting.",
+      "A single regressor/classifier is only optimal at the IoU level it was trained on, causing inference-time quality mismatch.",
+      "Simply raising u during training can degrade detection performance."
+    ],
+    "problemTags": ["localization", "label-assignment", "background-false-positives", "training-instability"],
+    "evidence": [
+      { "quote": "An object detector, trained with low IoU threshold, e.g. 0.5, usually produces noisy detections. However, detection performance tends to degrade with increasing the IoU thresholds.", "location": "Abstract" },
+      { "quote": "Two main factors are responsible for this: 1) overfitting during training, due to exponentially vanishing positive samples, and 2) inference-time mismatch between the IoUs for which the detector is optimal and those of the input hypotheses.", "location": "Abstract" },
+      { "quote": "forcing larger IoU thresholds leads to an exponentially smaller numbers of positive training samples.", "location": "Introduction" },
+      { "quote": "However, the commonly used threshold values u, typically u = 0.5, establish quite a loose requirement for positives.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The work extends the two-stage Faster R-CNN paradigm and compares against iterative bounding box regression, the integral/multipath loss, and one-stage detectors, arguing that prior multi-stage designs either iterate on a fixed distribution or ensemble classifiers trained on different positive counts.",
+    "relatedWork": [
+      { "name": "Faster R-CNN", "relation": "two-stage architecture that Cascade R-CNN extends", "quote": "the Faster-RCNN [27] achieved further speedsup by introducing a Region Proposal Network (RPN)", "location": "Sec 2" },
+      { "name": "RetinaNet", "relation": "recent one-stage detector addressing class imbalance", "quote": "Recently, RetinaNet [22] was proposed to address the extreme foreground-background class imbalance in dense object detection, achieving better results than state-of-the-art two-stage object detectors.", "location": "Sec 2" },
+      { "name": "multi-region detector", "relation": "prior iterative bounding box regression approach", "quote": "The multi-region detector [9] introduced iterative bounding box regression, where a R-CNN is applied several times, to produce better bounding boxes.", "location": "Sec 2" },
+      { "name": "integral loss / multipath network", "relation": "multi-threshold loss ensemble that Cascade R-CNN compares against and criticizes", "quote": "This is closely related to the integral loss of [34], in which U = {0.5, 0.55, · · · , 0.75}, designed to fit the evaluation metric of the COCO challenge.", "location": "Sec 3.3" },
+      { "name": "Mask R-CNN", "relation": "state-of-the-art single-model comparator (uses segmentation masks)", "quote": "Note that, unlike Mask R-CNN, no segmentation information is exploited in the Cascade R-CNN.", "location": "Sec 5.5" }
+    ],
+    "evidence": [
+      { "quote": "a single detector can only be optimal for a single quality level.", "location": "Introduction" },
+      { "quote": "In general, a detector optimized at a single IoU level is not necessarily optimal at other levels.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "Cascade R-CNN is a multi-stage extension of R-CNN with a sequence of detectors trained at increasing IoU thresholds, where each stage resamples the progressively improved hypotheses of the previous stage so positive counts stay balanced, and the same cascade is applied at inference.",
+    "approach": "Chain three detection heads with thresholds {0.5, 0.6, 0.7}, train each on the resampled outputs of the prior stage with per-stage regression statistics, and run the identical cascade at inference so higher-quality heads see higher-quality hypotheses.",
+    "components": [
+      "proposal sub-network H0 (RPN)",
+      "three cascade detection stages with U = {0.5, 0.6, 0.7}",
+      "cascaded bounding box regression fT o ... o f1",
+      "sequential resampling of training hypotheses",
+      "per-stage normalization statistics for box regression deltas",
+      "class-agnostic regressors",
+      "FPN+ / RoIAlign baseline heads"
+    ],
+    "solutionTags": ["cascade", "two-stage", "dynamic-assignment"],
+    "evidence": [
+      { "quote": "A multi-stage object detection architecture, the Cascade R-CNN, is proposed to address these problems. It consists of a sequence of detectors trained with increasing IoU thresholds, to be sequentially more selective against close false positives.", "location": "Abstract" },
+      { "quote": "The resampling of progressively improved hypotheses guarantees that all detectors have a positive set of examples of equivalent size, reducing the overfitting problem.", "location": "Abstract" },
+      { "quote": "The cascade of R-CNN stages are trained sequentially, using the output of one stage to train the next.", "location": "Introduction" },
+      { "quote": "At inference, the same cascade procedure is applied. The progressively improved hypotheses are better matched to the increasing detector quality at each stage.", "location": "Introduction" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation is on MS-COCO 2017 (val and test-dev) with three reimplemented baselines (Faster R-CNN/VGG, R-FCN, FPN+), plus ablations over quality mismatch, iterative BBox, integral loss, stage count, IoU thresholds and regression statistics, and a state-of-the-art single-model comparison.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "42.8", "split": "test-dev, Cascade R-CNN (ResNet-101, FPN+)", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "AP50", "value": "62.1", "split": "test-dev, Cascade R-CNN", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "AP75", "value": "46.3", "split": "test-dev, Cascade R-CNN", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "APs", "value": "23.7", "split": "test-dev, Cascade R-CNN", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "38.9", "split": "val, Cascade R-CNN vs 34.9 FPN+ baseline", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP90", "value": "15.8", "split": "val, Cascade R-CNN vs 7.1 FPN+ baseline", "location": "Table 1" }
+    ],
+    "baselines": ["Faster R-CNN", "R-FCN", "FPN+", "Mask R-CNN", "RetinaNet", "SSD513", "YOLOv2", "Deformable R-FCN", "Iterative BBox", "Integral Loss", "AttractioNet"],
+    "evidence": [
+      { "quote": "A simple implementation of the Cascade R-CNN is shown to surpass all single-model object detectors on the challenging COCO dataset.", "location": "Abstract" },
+      { "quote": "the extension from FPN+ to Cascade R-CNN improved performance by ∼4 points.", "location": "Sec 5.5" },
+      { "quote": "Although many enhancements were used in AttractioNet, the vanilla Cascade R-CNN still outperforms it by 7.1 points.", "location": "Sec 5.5" },
+      { "quote": "the Cascade R-CNN improves on these baselines consistently by 2∼4 points, independently of their strength.", "location": "Sec 5.6" }
+    ]
+  },
+  "limitations": {
+    "summary": "Gains are small at low IoU thresholds, adding a fourth stage slightly hurts overall AP, FPN results depend on the authors' own reimplementation, and the cascade adds latency and parameters relative to its baseline.",
+    "items": [
+      "Adding a 4th detection stage (u = 0.75) slightly decreases overall AP; the 3-stage cascade is the best trade-off.",
+      "Improvements are mild for low IoU thresholds and concentrate at high IoU metrics.",
+      "FPN had no public source code, so the FPN+ baseline implementation may differ from the original.",
+      "All regressors are class agnostic (chosen for simplicity).",
+      "Test speed drops from 0.115 s (FPN+ ResNet-101) to 0.14 s per image, and parameters rise from 238M to 345M."
+    ],
+    "evidence": [
+      { "quote": "addition of a 4th stage (u = 0.75) led to a slight performance decrease.", "location": "Sec 5.4" },
+      { "quote": "The gains are mild for low IoU thresholds but significant for the higher ones.", "location": "Sec 5.3" },
+      { "quote": "Since no source code is publicly available yet for FPN, our implementation details could be different.", "location": "Sec 5.1" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Advance detection by modelling and understanding the various concurring factors (recognition, localization, quality matching).", "quote": "The solid and consistent detection improvements of the Cascade R-CNN on the challenging COCO dataset suggest the modeling and understanding of various concurring factors are required to advance object detection.", "location": "Conclusion" },
+    { "direction": "Apply the cascade architecture to other object detection research efforts and architectures.", "quote": "We believe that it can be useful to many future object detection research efforts.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["MS COCO 2017"],
+    "backbones": ["VGG-16", "ResNet-50", "ResNet-101"],
+    "models": ["Cascade R-CNN", "Faster R-CNN", "R-FCN", "FPN+", "Mask R-CNN", "RetinaNet", "Iterative BBox", "Integral Loss"],
+    "algorithms": ["RPN", "cascaded bounding box regression", "RoIAlign", "NMS", "sequential hypothesis resampling", "class-agnostic box regression"],
+    "metrics": ["AP", "AP50", "AP60", "AP70", "AP75", "AP80", "AP90", "APS", "APM", "APL", "seconds per image"],
+    "equations": [
+      { "name": "positive label by IoU threshold", "expr": "y = g_y if IoU(x, g) >= u else 0", "location": "Sec 3.3, Eq. 5" },
+      { "name": "bbox regression offsets", "expr": "delta_x = (gx - bx)/bw, delta_w = log(gw/bw), and likewise for y, h", "location": "Sec 3.1, Eq. 2" },
+      { "name": "cascaded regression", "expr": "f(x, b) = fT o fT-1 o ... o f1(x, b)", "location": "Sec 4.1, Eq. 7" },
+      { "name": "stage loss", "expr": "L(xt, g) = Lcls(ht(xt), yt) + lambda * [yt >= 1] * Lloc(ft(xt, bt), g)", "location": "Sec 4.2, Eq. 8" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "Cascade R-CNN tests at 0.14 s per image on a single Titan Xp GPU (345M parameters).",
+      "FPN+ ResNet-101 baseline tests at 0.115 s per image with 238M parameters.",
+      "Computational overhead of the cascade is small at both training and testing because detection heads are cheap relative to the RPN."
+    ],
+    "evidence": [
+      { "quote": "All speeds are reported per image on a single Titan Xp GPU.", "location": "Table 6" },
+      { "quote": "the computational overhead of the Cascade R-CNN is small, at both training and testing.", "location": "Sec 5.6" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2018.00644",
+    "arxivUrl": "https://arxiv.org/abs/1712.00726",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+    "pdfUrl": "https://arxiv.org/pdf/1712.00726"
+  }
+}

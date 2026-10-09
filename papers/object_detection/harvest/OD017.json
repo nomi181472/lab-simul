@@ -1,0 +1,128 @@
+{
+  "id": "OD017",
+  "arxiv": "1704.05776",
+  "title": "Accurate Single Stage Detector Using Recurrent Rolling Convolution",
+  "year": 2017,
+  "venue": "CVPR 2017",
+  "problem": {
+    "summary": "Single-stage detectors are easy to train and cheap to deploy but lag two-stage methods when mAP is measured at high IoU thresholds (e.g. KITTI car at IoU 0.7); the paper traces this to poor bounding-box quality for small and overlapping objects, because shallow multi-scale feature maps lack the depth and context needed for accurate localization.",
+    "statements": [
+      "Single-stage detection methods are not as competitive on benchmarks that evaluate mAP at high IoU thresholds.",
+      "Most low-quality bounding boxes come from failed localization of small or overlapping objects, where conventional box regression is unreliable.",
+      "In SSD each layer's feature map must single-handedly support detection and accurate localization, but shallower feature maps are not deep enough for that abstraction.",
+      "SSD cannot outperform state-of-the-art two-stage methods, and the gap widens at high IoU evaluation thresholds."
+    ],
+    "problemTags": ["localization", "small-objects", "one-stage-accuracy", "occlusion", "scale-variance"],
+    "evidence": [
+      { "quote": "Despite the simplicity of training and the efficiency in deployment, the single stage detection methods have not been as competitive when evaluated in benchmarks consider mAP for high IoU thresholds.", "location": "Abstract" },
+      { "quote": "It can be experimentally shown that most of the low quality bounding boxes come from the failure localization of either small objects or overlapping objects.", "location": "Introduction" },
+      { "quote": "However, SSD is not able to outperform state-of-the-art two stage methods. Actually, the gap becomes more significant when high IoU thresholds are used in evaluation.", "location": "Sec 3.1" },
+      { "quote": "This could be problematic for detecting small objects because in the low resolution feature map the features representing the fine details of the small objects is likely to be weak.", "location": "Sec 3.1" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on R-CNN style two-stage detectors (Fast/Faster R-CNN), the SSD single-stage multi-scale design, and sequence-modeling detection (LSTM box generation); the gap claimed is that no prior single stage method injects recurrent contextual refinement into the box regressors.",
+    "relatedWork": [
+      { "name": "SSD", "relation": "primary single-stage baseline whose multi-scale design the paper extends", "quote": "SSD [12] is a single stage model in which the feature maps with different resolutions in the feed-forward process were directly used to detect objects with sizes of a specified range.", "location": "Sec 2" },
+      { "name": "Faster R-CNN", "relation": "two-stage reference whose RoI pooling supplies context-aware refinement", "quote": "In Faster R-CNN [16], it relies on the large receptive field of each overlapping 3x3 area of the last convolutional layer to detect both small and large objects.", "location": "Sec 3.1" },
+      { "name": "YOLO", "relation": "other fast single-stage method considered", "quote": "YOLO [14] is another fast single stage method which generated promising results, however, it's not as accurate as SSD though the customized version is faster.", "location": "Sec 2" },
+      { "name": "LSTM bounding box generation [18]", "relation": "prior sequence-modelling detection that is shallow in context for the first box", "quote": "An inspiring work is [18] where the authors formalized the detection problem as a bounding box generation procedure and used Long Short-Term Memory (LSTM) [10] to learn this procedure over deep CNN features by using the Hungarian loss.", "location": "Sec 2" },
+      { "name": "LocNet [7]", "relation": "contemporary work with similar motivation but no recurrent context", "quote": "The motivation of [7] is similar to ours, but it does not consider contextual information by using recurrent architecture.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "Recent progress in object detection was heavily driven by the successful application of feed-forward deep Convolutional Neural Networks (CNN).", "location": "Introduction" },
+      { "quote": "One problem with the R-CNN style methods is that in order to process a large number of proposals the computation in the second stage is usually heavy.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "Recurrent Rolling Convolution (RRC) repeatedly rolls contextual information up and down a set of multi-scale feature maps with shared-weight 1x1 convolutions, so every detection layer is progressively enriched ('deep in context') before producing classification and box-regression outputs, all inside a single-stage end-to-end trainable network.",
+    "approach": "Iterate a shared-weight top-down/bottom-up feature aggregation over multi-scale maps with a loss at every iteration, then decode detections from the refined maps.",
+    "components": [
+      "recurrent rolling feature aggregation between adjacent-scale maps (conv + deconv / max-pool paths)",
+      "1x1 convolution channel reduction between iterations to keep map shapes unified",
+      "per-iteration supervision: cross-entropy classification loss and smooth L1 box regression loss",
+      "bounding box regression space discretized with 5 regressors per feature map",
+      "reduced VGG-16 backbone with SSD-style multi-scale layers (conv4_3, FC7, conv8_2, conv9_2, conv10_2)",
+      "non-maximum suppression over the third, fourth and fifth predictions"
+    ],
+    "solutionTags": ["feature-pyramid", "feature-fusion", "multi-scale", "dense-prediction"],
+    "evidence": [
+      { "quote": "We achieved this by introducing Recurrent Rolling Convolution (RRC) architecture over multi-scale feature maps to construct object classifiers and bounding box regressors which are \"deep in context\".", "location": "Abstract" },
+      { "quote": "In this paper, we show that it is possible to seamlessly integrate the context aware refinement procedure in a single stage network.", "location": "Introduction" },
+      { "quote": "During training, the convolution kernels corresponding to each arrow as well as the channel reduction are all shared across iterations. We call this iterative process recurrent rolling convolution.", "location": "Sec 3.2" },
+      { "quote": "we further discretize the bounding box regression space within a particular feature maps by assigning multiple regressors for it so that each regressor is responsible for an easier task.", "location": "Sec 3.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation is on the KITTI benchmark (7481 train/val images, 7518 test images, IoU 0.7 for cars): an ablation over the six successive RRC outputs, mAP at several IoU thresholds on a 2741-image validation split against a re-trained SSD, and official test-set comparison with SubCNN, MS-CNN, SDP+RPN, Mono3D and 3DOP.",
+    "benchmarks": [
+      { "dataset": "KITTI validation (car)", "metric": "mAP @ IoU 0.7", "value": "90.65%", "split": "validation", "location": "Table 2" },
+      { "dataset": "KITTI validation (car)", "metric": "mAP @ IoU 0.8", "value": "82.82%", "split": "validation", "location": "Table 2" },
+      { "dataset": "KITTI test (car, moderate)", "metric": "AP", "value": "89.85%", "split": "official test, single model", "location": "Table 3" },
+      { "dataset": "KITTI test (car, moderate)", "metric": "AP", "value": "90.19%", "split": "official test, ensemble", "location": "Table 3" },
+      { "dataset": "KITTI test (car, hard)", "metric": "AP", "value": "86.97%", "split": "official test", "location": "Table 4" },
+      { "dataset": "KITTI test (pedestrian, moderate)", "metric": "AP", "value": "75.33%", "split": "official test", "location": "Table 5" },
+      { "dataset": "KITTI test (cyclist, moderate)", "metric": "AP", "value": "76.47%", "split": "official test", "location": "Table 6" }
+    ],
+    "baselines": ["SSD", "SubCNN", "MS-CNN", "SDP+RPN", "Mono3D", "3DOP"],
+    "evidence": [
+      { "quote": "We showed that with RRC, a single reduced VGG-16 based model already significantly outperformed all the previously published results.", "location": "Abstract" },
+      { "quote": "if we increase the bar of IoU threshold to 0.8, RRC outperformed the original SSD by more than 6%.", "location": "Sec 4.2" },
+      { "quote": "Because both SSD and our method share the same reduced VGG-16 network as the backbone network, the improvement was the direct consequence of the newly added RRC architecture.", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors observe that gains from extra RRC iterations plateau and then reverse (attributed to the lack of a memory mechanism), that validation loss exceeds training loss indicating some overfitting, and that a memory mechanism would add computation and memory cost; all evaluation is on KITTI only.",
+    "items": [
+      "Prediction quality stops improving after the third or fourth RRC iteration and then degrades.",
+      "No effective memory mechanism models long-term iteration patterns, which the authors identify as the cause of eventual degeneration.",
+      "A memory mechanism would introduce considerable extra computation and memory cost.",
+      "Validation loss is consistently higher than training loss, indicating some overfitting.",
+      "Only the KITTI dataset is used; no other dataset is evaluated."
+    ],
+    "evidence": [
+      { "quote": "The lowest loss is from the third or the fourth output. However, the ensuing loss values stop to decrease.", "location": "Sec 4.1" },
+      { "quote": "the reason why RRC eventually degenerates the prediction is mainly because the lack of an effective memory mechanism [10] which is a way to model the patterns in a long term sequence.", "location": "Sec 4.1" },
+      { "quote": "We did not use any other dataset in our experiments to enhance the results.", "location": "Sec 4" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Design an efficient memory mechanism for detection.", "quote": "We leave the design of an efficient memory mechanism for detection to our future work.", "location": "Sec 4.1" },
+    { "direction": "Investigate memory-enabled recurrent architectures for object detection and quantify their impact.", "quote": "In the future work, we planned to investigate the memory enabled recurrent architecture in the context of object detection and quantify its impact to the detection performance.", "location": "Conclusion" },
+    { "direction": "Generalize RRC to 3D object detection and related applications.", "quote": "We are also interested in generalizing RRC to the task of 3D object detection and related applications.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["KITTI"],
+    "backbones": ["reduced VGG-16"],
+    "models": ["RRC", "SSD", "Faster R-CNN", "YOLO", "SubCNN", "MS-CNN", "SDP+RPN", "Mono3D", "3DOP"],
+    "algorithms": ["Recurrent Rolling Convolution", "non-maximum suppression", "cross-entropy loss", "smooth L1 loss", "bounding box regression space discretization", "deconvolution"],
+    "metrics": ["mAP", "AP", "IoU threshold"],
+    "equations": [
+      { "name": "SSD multi-scale detection", "expr": "Detection = D(tau_n(Phi_n), ..., tau_n-k(Phi_n-k)), n > k > 0", "location": "Sec 3.1, Eq. 2" },
+      { "name": "context-aware single stage detection", "expr": "Detection = D'(tau_n(Phi'_n(H)), ..., tau_n-k(Phi'_n-k(H))), H = {Phi_n, ..., Phi_n-k}", "location": "Sec 3.1, Eq. 4" },
+      { "name": "recurrent feature aggregation", "expr": "Phi'_p(t+1) = F(Phi'_p(t), Phi'_p-1(t), Phi'_p+1(t); W), t > 0", "location": "Sec 3.2, Eq. 5" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "robotic manipulation", "detail": "Vision-based robotic arm picking depends critically on object localization accuracy.", "quote": "For instance, in vision based robotic arm applications, the process of generating robust and accurate operations in picking up an object are highly dependent on the object localization accuracy.", "location": "Introduction" },
+      { "domain": "advanced driver assistance systems (ADAS)", "detail": "Accurately localizing cars and pedestrians is tied to the safety of autonomous actions in ADAS." },
+      { "domain": "3D object detection", "detail": "The authors plan to generalize RRC to 3D object detection and related applications." }
+    ],
+    "deploymentClaims": [
+      "Single-stage detectors are easier to train and more computationally efficient in production; RRC keeps this property because it is implemented with 1x1 convolutions.",
+      "At the time of writing the models ranked first in KITTI car detection (hard), first in cyclist detection and second in pedestrian detection."
+    ],
+    "evidence": [
+      { "quote": "The single stage detectors are usually easier to train and more computationally efficient in production [12].", "location": "Introduction" },
+      { "quote": "Because RRC is performed by 1x1 convolutions, the resulting model is efficient.", "location": "Sec 4" },
+      { "quote": "At the time this paper was written our models ranked the first in KITTI car detection (the hard level), the first in cyclist detection and the second in pedestrian detection.", "location": "Abstract" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2017.87",
+    "arxivUrl": "https://arxiv.org/abs/1704.05776",
+    "venue": "CVPR 2017",
+    "pdfUrl": "https://arxiv.org/pdf/1704.05776"
+  }
+}

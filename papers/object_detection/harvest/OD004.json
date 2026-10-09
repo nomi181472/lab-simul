@@ -1,0 +1,343 @@
+{
+  "id": "OD004",
+  "arxiv": "1512.02325",
+  "title": "SSD: Single Shot MultiBox Detector",
+  "year": 2015,
+  "venue": "Lecture notes in computer science",
+  "problem": {
+    "summary": "Accuracy in detection has come from the hypothesize-boxes/resample/classify pipeline (Faster R-CNN), which is too computationally intensive for embedded systems and too slow for real-time use, while prior speed-ups sacrifice accuracy; small objects are also hard without a follow-up resampling stage.",
+    "statements": [
+      "High-accuracy proposal-based detectors are too slow and too heavy for embedded and real-time applications.",
+      "Prior attempts to speed up individual pipeline stages reduce accuracy along with speed.",
+      "Single-shot predecessors (YOLO, OverFeat) predict from only one feature scale, limiting accuracy on objects of different sizes."
+    ],
+    "problemTags": [
+      "speed-latency",
+      "small-objects",
+      "one-stage-accuracy",
+      "real-time-edge"
+    ],
+    "evidence": [
+      {
+        "quote": "While accurate, these approaches have been too computationally intensive for embedded systems and, even with high-end hardware, too slow for real-time applications.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "even the fastest high-accuracy detector, Faster R-CNN, operates at only 7 frames per second (FPS).",
+        "location": "Introduction"
+      },
+      {
+        "quote": "There have been many attempts to build faster detectors by attacking each stage of the detection pipeline (see related work in Sec. 4), but so far, significantly increased speed comes only at the cost of significantly decreased detection accuracy.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "SSD sits between two prior families: proposal-based pipelines (Selective Search/R-CNN/SPPnet/Fast R-CNN/Faster R-CNN) that are accurate but slow, and single-shot detectors (OverFeat, YOLO) that are fast but coarse; it also inherits default/anchor box ideas from MultiBox and the RPN.",
+    "relatedWork": [
+      {
+        "name": "Faster R-CNN",
+        "relation": "accuracy state of the art and main baseline; SSD reuses its anchor-box idea without the two-stage merge",
+        "quote": "Our SSD is very similar to the region proposal network (RPN) in Faster R-CNN in that we also use a fixed set of (default) boxes for prediction, similar to the anchor boxes in the RPN.",
+        "location": "Related Work"
+      },
+      {
+        "name": "YOLO",
+        "relation": "fast single-shot baseline that predicts from a single topmost feature map",
+        "quote": "YOLO [5] uses the whole topmost feature map to predict both confidences for multiple categories and bounding boxes (which are shared for these categories).",
+        "location": "Related Work"
+      },
+      {
+        "name": "MultiBox",
+        "relation": "source of the default-box training objective and best-overlap matching",
+        "quote": "The SSD training objective is derived from the MultiBox objective [7,8] but is extended to handle multiple object categories.",
+        "location": "Sec 2.2"
+      },
+      {
+        "name": "Fast R-CNN",
+        "relation": "end-to-end region-based detector with Smooth L1 box regression that SSD compares against",
+        "quote": "Fast R-CNN [6] extends SPPnet so that it can fine-tune all layers end-toend by minimizing a loss for both confidences and bounding box regression, which was first introduced in MultiBox [7] for learning objectness.",
+        "location": "Related Work"
+      },
+      {
+        "name": "OverFeat",
+        "relation": "earlier deep sliding-window detector without multi-scale default boxes",
+        "quote": "OverFeat [4], a deep version of the sliding window method, predicts a bounding box directly from each location of the topmost feature map after knowing the confidences of the underlying object categories.",
+        "location": "Related Work"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Current state-of-the-art object detection systems are variants of the following approach: hypothesize bounding boxes, resample pixels or features for each box, and apply a highquality classifier.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "The second set of approaches improve the quality of proposal generation using deep neural networks.",
+        "location": "Related Work"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "SSD predicts category scores and box offsets convolutionally for a fixed set of default boxes of different scales and aspect ratios attached to multiple feature maps of a truncated base network, and is trained end-to-end with jaccard matching, hard negative mining and heavy data augmentation.",
+    "approach": "Small 3x3 convolutional predictors applied at several progressively smaller feature maps emit scores and offsets for default boxes, so detections at multiple scales are produced in a single forward pass followed by NMS.",
+    "components": [
+      "VGG-16 base network truncated before classification layers (with atrous fc6/fc7 conversions)",
+      "extra multi-scale feature layers (conv8_2 ... conv11_2) decreasing in size",
+      "convolutional 3x3 predictors producing (c+4)k outputs per location",
+      "default boxes with scales from 0.2 to 0.9 and aspect ratios {1, 2, 3, 1/2, 1/3}",
+      "best-overlap jaccard matching with 0.5 threshold",
+      "hard negative mining with negative:positive ratio at most 3:1",
+      "data augmentation: random crops (jaccard 0.1-0.9), flips, photometric distortion, and image expansion",
+      "non-maximum suppression at inference"
+    ],
+    "solutionTags": [
+      "one-stage",
+      "anchors",
+      "multi-scale",
+      "feature-pyramid",
+      "post-processing-nms"
+    ],
+    "evidence": [
+      {
+        "quote": "SSD is simple relative to methods that require object proposals because it completely eliminates proposal generation and subsequent pixel or feature resampling stages and encapsulates all computation in a single network.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "The core of SSD is predicting category scores and box offsets for a fixed set of default bounding boxes using small convolutional filters applied to feature maps.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "We add convolutional feature layers to the end of the truncated base network.",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "Our default boxes are similar to the anchor boxes used in Faster R-CNN [2], however we apply them to several feature maps of different resolutions.",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "Unlike MultiBox, we then match default boxes to any ground truth with jaccard overlap higher than a threshold (0.5).",
+        "location": "Sec 2.2"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "SSD is evaluated on PASCAL VOC 2007/2012, MS COCO and ILSVRC DET against Fast/Faster R-CNN and YOLO, with controlled ablations on data augmentation, default box shapes, prediction layers and atrous, plus a timing comparison on Titan X.",
+    "benchmarks": [
+      {
+        "dataset": "PASCAL VOC 2007",
+        "metric": "mAP",
+        "value": "74.3",
+        "split": "test, train 07+12, SSD300",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "PASCAL VOC 2007",
+        "metric": "mAP",
+        "value": "81.6",
+        "split": "test, train 07+12+COCO, SSD512",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "PASCAL VOC 2012",
+        "metric": "mAP",
+        "value": "80.0",
+        "split": "test, train 07++12+COCO, SSD512",
+        "location": "Table 4"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "mAP@[.5:.95]",
+        "value": "26.8",
+        "split": "test-dev2015, trainval35k, SSD512",
+        "location": "Table 5"
+      },
+      {
+        "dataset": "PASCAL VOC 2007",
+        "metric": "FPS",
+        "value": "59",
+        "split": "test, SSD300, batch size 8, Titan X",
+        "location": "Table 7"
+      },
+      {
+        "dataset": "ILSVRC DET",
+        "metric": "mAP",
+        "value": "43.4",
+        "split": "val2, SSD300",
+        "location": "Sec 3.5"
+      },
+      {
+        "dataset": "PASCAL VOC 2007",
+        "metric": "mAP",
+        "value": "77.2",
+        "split": "test, SSD300* with expansion augmentation",
+        "location": "Table 6"
+      }
+    ],
+    "baselines": [
+      "Faster R-CNN",
+      "Fast R-CNN",
+      "YOLO",
+      "Fast YOLO",
+      "ION",
+      "OverFeat"
+    ],
+    "evidence": [
+      {
+        "quote": "For 300 × 300 input, SSD achieves 74.3% mAP1 on VOC2007 test at 59 FPS on a Nvidia Titan X",
+        "location": "Abstract"
+      },
+      {
+        "quote": "To the best of our knowledge, SSD300 is the first real-time method to achieve above 70% mAP.",
+        "location": "Sec 3.7"
+      },
+      {
+        "quote": "Table 3 shows a decrease in accuracy with fewer layers, dropping monotonically from 74.3 to 62.4.",
+        "location": "Sec 3.2"
+      },
+      {
+        "quote": "Both our SSD300 and SSD512 method outperforms Faster R-CNN in both speed and accuracy.",
+        "location": "Sec 3.7"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "SSD remains much weaker on small objects, confuses visually similar categories because locations are shared across classes, spends most forward time in the VGG-16 base network, and SSD512 is only near real-time.",
+    "items": [
+      "Performance is much worse on small objects than on large ones; extra input resolution only partly helps.",
+      "More confusions between similar categories (especially animals) due to shared locations for multiple classes.",
+      "About 80% of forward time goes to the base network, limiting speed gains.",
+      "SSD512 runs at 19-22 FPS, below true real-time.",
+      "The default-box tiling is not aligned with receptive fields and is not optimized per dataset."
+    ],
+    "evidence": [
+      {
+        "quote": "Figure 4 shows that SSD is very sensitive to the bounding box size.",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "Increasing the input size (e.g. from 300 × 300 to 512 × 512) can help improve detecting small objects, but there is still a lot of room to improve.",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "However, SSD has more confusions with similar object categories (especially for animals), partly because we share locations for multiple categories.",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "Note that about 80% of the forward time is spent on the base network (VGG16 in our case).",
+        "location": "Sec 3.7"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Combine SSD with recurrent neural networks to detect and track objects in video simultaneously.",
+      "quote": "A promising future direction is to explore its use as part of a system using recurrent neural networks to detect and track objects in video simultaneously.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Design a better default-box tiling aligned with each position's receptive field.",
+      "quote": "An alternative way of improving SSD is to design a better tiling of default boxes so that its position and scale are better aligned with the receptive field of each position on a feature map. We leave this for future work.",
+      "location": "Sec 3.6"
+    },
+    {
+      "direction": "Use a faster base network so that the larger SSD512 model can also run in real time.",
+      "quote": "using a faster base network could even further improve the speed, which can possibly make the SSD512 model real-time as well.",
+      "location": "Sec 3.7"
+    }
+  ],
+  "technical": {
+    "datasets": [
+      "PASCAL VOC 2007",
+      "PASCAL VOC 2012",
+      "MS COCO",
+      "ILSVRC"
+    ],
+    "backbones": [
+      "VGG-16"
+    ],
+    "models": [
+      "SSD300",
+      "SSD512",
+      "SSD300*",
+      "SSD512*"
+    ],
+    "algorithms": [
+      "non-maximum suppression",
+      "hard negative mining",
+      "jaccard (IoU) matching",
+      "Smooth L1 loss",
+      "softmax confidence loss",
+      "atrous convolution",
+      "L2 feature normalization",
+      "image expansion augmentation"
+    ],
+    "metrics": [
+      "mAP",
+      "mAP@0.5",
+      "mAP@[.5:.95]",
+      "FPS",
+      "AP",
+      "AR"
+    ],
+    "equations": [
+      {
+        "name": "overall SSD loss",
+        "expr": "L(x,c,l,g) = (1/N) (Lconf(x,c) + alpha Lloc(x,l,g))",
+        "location": "Eq. (1), Sec 2.2"
+      },
+      {
+        "name": "localization loss",
+        "expr": "Lloc = sum_{i in Pos} sum_{m in {cx,cy,w,h}} x_ij smoothL1(l_im - g_hat_jm), with g_hat offsets relative to default box d",
+        "location": "Eq. (2), Sec 2.2"
+      },
+      {
+        "name": "confidence loss",
+        "expr": "Lconf = - sum_{i in Pos} x_ij log(c_hat_pi) - sum_{i in Neg} log(c_hat_0i)",
+        "location": "Eq. (3), Sec 2.2"
+      },
+      {
+        "name": "default box scale",
+        "expr": "s_k = s_min + (s_max - s_min)/(m - 1) * (k - 1), s_min=0.2, s_max=0.9",
+        "location": "Eq. (4), Sec 2.2"
+      }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "embedded / real-time perception",
+        "detail": "The paper positions SSD for embedded systems and real-time applications that current accurate detectors are too slow to serve."
+      },
+      {
+        "domain": "video perception (detection + tracking)",
+        "detail": "The conclusion proposes integrating SSD into an RNN-based system that detects and tracks objects in video."
+      },
+      {
+        "domain": "component in larger vision systems",
+        "detail": "SSD is presented as a reusable detection component for larger systems, with open-source Caffe code."
+      }
+    ],
+    "deploymentClaims": [
+      "74.3% mAP at 59 FPS for 300x300 input on an Nvidia Titan X (batch size 8, cuDNN v4).",
+      "NMS plus filtering costs about 1.7 ms per image for SSD300 with 20 VOC classes.",
+      "About 80% of forward time is in the VGG-16 base network.",
+      "Training and testing code released as open source (Caffe)."
+    ],
+    "evidence": [
+      {
+        "quote": "This step costs about 1.7 msec per image for SSD300 and 20 VOC classes, which is close to the total time (2.4 msec) spent on all newly added layers.",
+        "location": "Sec 3.7"
+      },
+      {
+        "quote": "Code is available at: https://github.com/weiliu89/caffe/tree/ssd .",
+        "location": "Abstract"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1007/978-3-319-46448-0_2",
+    "arxivUrl": "https://arxiv.org/abs/1512.02325",
+    "venue": "Lecture notes in computer science",
+    "pdfUrl": "https://arxiv.org/pdf/1512.02325"
+  }
+}

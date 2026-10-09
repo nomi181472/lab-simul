@@ -1,0 +1,119 @@
+{
+  "id": "OD026",
+  "arxiv": "1711.08189",
+  "title": "An Analysis of Scale Invariance in Object Detection - SNIP",
+  "year": 2017,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+  "problem": {
+    "summary": "Extreme scale variation in detection datasets (most COCO instances under 1% of image area, ~20x scale spread) plus the mismatch between classification and detection image scales breaks the scale invariance of CNNs, and existing training pipelines handle scale poorly.",
+    "statements": [
+      "CNNs are not robust to changes in scale, so detectors trained at one resolution degrade at another.",
+      "Most COCO object instances are smaller than 1% of the image area, with ~20x scale variation between the smallest and largest 10%.",
+      "Scale-specific detectors lose training samples per scale, while single detectors trained on all scales face a much harder learning problem.",
+      "Fine-tuning from ImageNet suffers a large domain shift because detection object scales differ from classification scales."
+    ],
+    "problemTags": ["small-objects", "scale-variance", "domain-shift", "tiny-objects"],
+    "evidence": [
+      { "quote": "we show that CNNs are not robust to changes in scale.", "location": "Abstract" },
+      { "quote": "most object instances in COCO are smaller than 1% of image area!", "location": "Introduction" },
+      { "quote": "This variation in scale which a detector needs to handle is enormous and presents an extreme challenge to the scale invariance properties of convolutional neural networks.", "location": "Introduction" },
+      { "quote": "Moreover, differences in the scale of object instances between classification and detection datasets also results in a large domain-shift while finetuning from a pre-trained classification network.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The analysis builds on Deformable R-FCN as the baseline detector, and on prior multi-scale solutions (feature pyramids, dilated convolutions, multi-scale training/inference), arguing feature pyramids are insufficient for very small or very large objects.",
+    "relatedWork": [
+      { "name": "Deformable R-FCN", "relation": "baseline detector used for all SNIP experiments", "quote": "D-RFCN obtains the best single model results on COCO and is publicly available, so we use this detector.", "location": "Sec 4" },
+      { "name": "FPN / Mask R-CNN / RetinaNet", "relation": "pyramidal feature combination prior work, criticized as unattractive for very small/large objects", "quote": "Methods like FPN, Mask-RCNN, RetinaNet [23, 13, 24], which use a pyramidal representation and combine features", "location": "Sec 2" },
+      { "name": "Soft-NMS", "relation": "post-processing used to merge detections from pyramid scales", "quote": "After classification and bounding-box regression, we use soft-NMS [2] to combine detections from multiple resolutions to obtain the final detection boxes", "location": "Sec 6.1" },
+      { "name": "multi-scale training", "relation": "standard scale-invariant training practice that SNIP modifies", "quote": "we evaluated the common practice of obtaining scale-invariant detectors by using randomly sampled images at multiple resolutions during training", "location": "Sec 5" }
+    ],
+    "evidence": [
+      { "quote": "The deeper layers of modern CNNs have large strides (32 pixels) that lead to a very coarse representation of the input image, which makes small object detection very challenging.", "location": "Sec 2" },
+      { "quote": "Although feature pyramids efficiently exploit features from all the layers in the network, they are not an attractive alternative to an image pyramid for detecting very small/large objects.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "SNIP (Scale Normalization for Image Pyramids) trains and tests the detector on the same image-pyramid scales while back-propagating gradients only for object instances whose resolution is close to the pre-trained network's resolution, avoiding the sample loss of scale-specific designs.",
+    "approach": "Sample images at multiple pyramid resolutions, mark RoIs/anchors outside a per-scale validity range as invalid, zero their gradients during training, classify each resolution independently at inference, and fuse detections with soft-NMS.",
+    "components": [
+      "image pyramid with three resolutions: (480,800), (800,1200), (1400,2000)",
+      "per-scale validity ranges for RoIs and ground-truth boxes",
+      "anchors overlapping invalid ground truths excluded from RPN training",
+      "independent proposal generation and classification at each resolution",
+      "soft-NMS fusion of detections across scales",
+      "1000x1000 chip sampling of sub-images to fit GPU memory"
+    ],
+    "solutionTags": ["multi-scale", "label-assignment", "post-processing-nms", "sparse-sampling"],
+    "evidence": [
+      { "quote": "we present a novel training scheme called Scale Normalization for Image Pyramids (SNIP) which selectively back-propagates the gradients of object instances of different sizes as a function of the image scale.", "location": "Abstract" },
+      { "quote": "SNIP is a modified version of MST where only the object instances that have a resolution close to the pre-training dataset, which is typically 224x224, are used for training the detector.", "location": "Sec 6.1" },
+      { "quote": "In order to eliminate extreme scale objects, either too large or too small, training is only performed on objects that fall in the desired scale range and the remainder are simply ignored during back-propagation.", "location": "Sec 6.1" }
+    ]
+  },
+  "experiments": {
+    "summary": "The paper first runs controlled ImageNet scale studies, then compares scale-specific, multi-scale and SNIP training protocols on COCO small objects, and finally reports COCO test-dev results for Deformable R-FCN and Faster R-CNN with SNIP against state-of-the-art detectors.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "45.7", "split": "test-dev, D-RFCN + SNIP (DPN-98, flip)", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "48.3", "split": "test-dev, 3-network ensemble", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "AP50", "value": "69.7", "split": "test-dev, ensemble", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "APs", "value": "27.2", "split": "test-dev, D-RFCN + SNIP small objects", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "37.8", "split": "SNIP vs 34.5 single scale, R-FCN ResNet-50", "location": "Table 2" },
+      { "dataset": "MS COCO small objects (<32x32)", "metric": "mAP", "value": "21.4", "split": "SNIP training protocol", "location": "Table 1" }
+    ],
+    "baselines": ["Deformable R-FCN", "Mask R-CNN", "G-RMI", "Faster R-CNN", "multi-scale training (MST)", "single-scale training", "scale-specific detectors"],
+    "evidence": [
+      { "quote": "On the COCO dataset, our single model performance is 45.7% and an ensemble of 3 networks obtains an mAP of 48.3%.", "location": "Abstract" },
+      { "quote": "SNIP improves performance by 1.9% compared to standard multi-scale testing.", "location": "Sec 7.3" },
+      { "quote": "When SNIP is not used for both the proposals and the classifier, mAP drops by 3.5% for the DPN-98 classifier", "location": "Sec 7.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "SNIP requires multi-resolution training and inference, doubles per-epoch training time, depends on hand-chosen validity ranges, and the reported system is far from real-time.",
+    "items": [
+      "Inference runs RPN and classification independently at each pyramid resolution, so detection on 100 images takes 90 seconds on a Titan X.",
+      "SNIP doubles the training time per epoch.",
+      "Per-resolution validity ranges (e.g. [0,80] at 1400x2000) are design decisions chosen during training rather than derived theoretically.",
+      "Alternating RPN/RCN training is not used, for speed of experimentation rather than accuracy."
+    ],
+    "evidence": [
+      { "quote": "SNIP doubles the training time per epoch, so we enable it after 3 epochs for training RCN.", "location": "Sec 7.1" },
+      { "quote": "These ranges were design decisions made during training", "location": "Sec 7.1" },
+      { "quote": "During inference, we generate proposals using RPN for each resolution and classify them independently at each resolution", "location": "Sec 6.1" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Skip back-propagation for large objects in high-resolution images to cut computation, which the authors flag as future work.", "quote": "We would like to explore this direction in future work.", "location": "Conclusion" },
+    { "direction": "Combine features with predictions at multiple layers for a further boost.", "quote": "A more careful combination of features with predictions at multiple layers like [23, 13] should provide a further boost in performance.", "location": "Sec 7.2" },
+    { "direction": "Plug SNIP into other tasks with large scale variation such as instance segmentation, pose estimation and spatio-temporal action detection.", "quote": "The proposed approach is generic and can be plugged into the training pipeline of different problems like instancesegmentation, pose-estimation, spatio-temporal action detection", "location": "Introduction" }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101", "DPN-92", "DPN-98"],
+    "models": ["Deformable R-FCN", "Faster R-CNN", "R-FCN", "SNIP", "CNN-B", "CNN-S"],
+    "algorithms": ["soft-NMS", "RPN", "multi-scale training", "image pyramid inference", "chip sampling", "non-maximum suppression"],
+    "metrics": ["AP", "AP50", "AP75", "APs", "APM", "APL", "AR", "top-1 accuracy"],
+    "equations": [
+      { "name": "RoI validity at scale i", "expr": "valid iff sc_i <= ar(r) <= ec_i, else gradients set to zero", "location": "Sec 6.1" },
+      { "name": "RPN positive anchor", "expr": "overlap with ground truth > 0.7 (0.5 covers only 58% of boxes)", "location": "Sec 7.2" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "90 seconds to detect on 100 images on a Titan X GPU with a ResNet-101 backbone (RPN and RCN run separately).",
+      "SNIP doubles training time per epoch.",
+      "Speed can be improved with end-to-end training."
+    ],
+    "evidence": [
+      { "quote": "On 100 images, it takes 90 seconds for to perform detection on a Titan X GPU using a ResNet-101 backbone.", "location": "Sec 7.3" },
+      { "quote": "Our submission won the Best Student Entry in the COCO 2017 challenge.", "location": "Abstract" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2018.00377",
+    "arxivUrl": "https://arxiv.org/abs/1711.08189",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+    "pdfUrl": "https://arxiv.org/pdf/1711.08189"
+  }
+}

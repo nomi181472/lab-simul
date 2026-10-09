@@ -1,0 +1,119 @@
+{
+  "id": "OD091",
+  "arxiv": "2209.02976",
+  "title": "YOLOv6: A Single-Stage Object Detection Framework for Industrial Applications",
+  "year": 2022,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "YOLO-series detectors are the de facto industrial standard, but prior designs under-attend deployment: latencies are compared on expensive GPUs rather than real serving hardware, RepVGG-style single-path blocks do not scale to large models, quantization of reparameterized detectors degrades accuracy without careful treatment, and SimOTA label assignment slows and destabilizes training.",
+    "statements": [
+      "Latency numbers in prior work are measured on high-cost machines like the V100, leaving a hardware gap to real serving environments.",
+      "Simple model scaling of RepVGG blocks becomes impractical for larger models due to explosive parameter and compute growth.",
+      "Quantizing reparameterization-based detectors degrades accuracy unless the network is trained to be quantization-friendly.",
+      "SimOTA label assignment slows the training process and is not rare to fall into unstable training."
+    ],
+    "problemTags": ["speed-latency", "deployability", "training-instability"],
+    "evidence": [
+      { "quote": "Previous works [7, 10, 42, 44] tend to pay less attention to deployment, whose latencies are commonly compared on high-cost machines like V100. There is a hardware gap when it comes to real serving environment.", "location": "Introduction" },
+      { "quote": "Quantization of reparameterization-based detectors also requires meticulous treatment, otherwise it would be intractable to deal with performance degradation due to its heterogeneous configuration during training and inference.", "location": "Introduction" },
+      { "quote": "in practice, we find that introducing SimOTA will slow down the training process. And it is not rare to fall into unstable training.", "location": "Sec 2.2" }
+    ]
+  },
+  "background": {
+    "summary": "The report sits in the YOLO lineage (YOLOv1-7, YOLOX, PP-YOLOE) and re-examines each ingredient of a modern one-stage detector: RepVGG-style reparameterization for backbone and neck, PAN topology, TAL/TOOD task-aligned label assignment, VariFocal and IoU-series losses, self-distillation, and PTQ/QAT quantization pipelines built on RepOptimizer.",
+    "relatedWork": [
+      { "name": "YOLO series", "relation": "lineage the work extends for industrial use", "quote": "YOLO series have been the most popular detection frameworks in industrial applications, for its excellent balance between speed and accuracy.", "location": "Introduction" },
+      { "name": "RepVGG", "relation": "reparameterization technique adopted as the building block of small models", "quote": "Reparameterization from RepVGG [3] is a superior technique that is not yet well exploited in detection.", "location": "Introduction" },
+      { "name": "TOOD (TAL)", "relation": "task-aligned label assignment adopted as default", "quote": "Task Alignment Learning (TAL) was first proposed in TOOD [5], in which a unified metric of classification score and predicted box quality is designed.", "location": "Sec 2.2" },
+      { "name": "SimOTA", "relation": "previous assignment used in early YOLOv6 that was replaced", "quote": "SimOTA was utilized as the label assignment method in the early version of YOLOv6.", "location": "Sec 2.2" }
+    ],
+    "evidence": [
+      { "quote": "At present, YOLOv5 [10], YOLOX [7], PPYOLOE [44] and YOLOv7 [42] are all the competing candidates for efficient detectors to deploy.", "location": "Introduction" },
+      { "quote": "Furthermore, we observed that TAL could bring more performance improvement than SimOTA and stabilize the training.", "location": "Sec 2.2" }
+    ]
+  },
+  "solution": {
+    "summary": "YOLOv6 combines reparameterized backbones (RepBlock for small models, CSPStackRep Block for large ones) with a RepPAN neck and an Efficient Decoupled Head, trained with TAL label assignment, VariFocal classification loss and SIoU/GIoU plus DFL regression loss, self-distillation for M/L models, and a RepOptimizer-based PTQ/QAT scheme with channel-wise distillation for deployment.",
+    "approach": "Rebuild the one-stage YOLO pipeline around hardware-friendly reparameterizable networks and deployment-aware training (TAL assignment, self-distillation, quantization-aware training) so accuracy and real serving latency improve together.",
+    "components": [
+      "EfficientRep backbone built from RepBlock (small models) or CSPStackRep Block (large models)",
+      "RepPAN neck with PAN topology enhanced by the same blocks",
+      "Efficient Decoupled Head with hybrid-channel strategy",
+      "TAL task-aligned label assignment",
+      "VariFocal Loss for classification, SIoU/GIoU with DFL for box regression",
+      "self-distillation on classification and box regression for M/L models",
+      "RepOptimizer-based PTQ and QAT with channel-wise distillation"
+    ],
+    "solutionTags": ["one-stage", "anchor-free", "reparameterization", "distillation", "quantization-pruning", "real-time-backbone"],
+    "evidence": [
+      { "quote": "In this regard, we take RepBlock [3] as the building block of our small networks. For large models, we revise a more efficient CSP [43] block, named CSPStackRep Block.", "location": "Sec 2.1" },
+      { "quote": "We simplify the decoupled head to make it more efficient, called Efficient Decoupled Head.", "location": "Sec 2.1" },
+      { "quote": "Furthermore, we observed that TAL could bring more performance improvement than SimOTA and stabilize the training. Therefore, we adopt TAL as our default label assignment strategy in YOLOv6.", "location": "Sec 2.2" },
+      { "quote": "finally select VariFocal Loss [50] as our classification loss and SIoU [8]/GIoU [35] Loss as our regression loss.", "location": "Sec 2.1" },
+      { "quote": "we train YOLOv6 with RepOptimizer [2] to obtain PTQ-friendly weights. We further adopt QAT with channel-wise distillation [36]", "location": "Sec 2.5" }
+    ]
+  },
+  "experiments": {
+    "summary": "Models are trained for 300 epochs on COCO 2017 with 8 NVIDIA A100 GPUs and compared with YOLOv5, YOLOX, PP-YOLOE and YOLOv7 using FP16 latency and throughput measured on a Tesla T4 with TensorRT; ablations cover backbone/neck block styles, neck width/depth, label assignment, loss functions, self-distillation, and PTQ/QAT quantization, plus device-level latency tables for T4, V100 and CPU.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "35.9", "split": "val 2017, YOLOv6-N, 640 input", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "40.3", "split": "val 2017, YOLOv6-T, 640 input", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "43.5", "split": "val 2017, YOLOv6-S, 640 input", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "49.5", "split": "val 2017, YOLOv6-M with self-distillation", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "52.5", "split": "val 2017, YOLOv6-L with self-distillation", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "43.3", "split": "val 2017, quantized YOLOv6-S (QAT), 869 FPS at bs=32", "location": "Table 17" }
+    ],
+    "baselines": ["YOLOv5", "YOLOX", "PP-YOLOE", "YOLOv7"],
+    "evidence": [
+      { "quote": "our YOLOv6-N hits 35.9% AP on COCO dataset at a throughput of 1234 FPS on an NVIDIA Tesla T4 GPU.", "location": "Abstract" },
+      { "quote": "Compared with YOLOX-S/PPYOLOE-S, YOLOv6-S can improve AP by 3.0%/0.4% with higher speed.", "location": "Sec 3.2" },
+      { "quote": "It achieves 51.7% AP with a latency of 8.8 ms, outperforming YOLOX-L/PPYOLOE-L/YOLOv7 in both accuracy and speed.", "location": "Sec 3.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors frame the open difficulties as design constraints: RepVGG single-path scaling explodes for large models, quantization of reparameterized detectors can badly degrade accuracy without specialized training, and borrowed head designs such as the ET-head slowed inference without accuracy gains.",
+    "items": [
+      "Simple scaling of RepVGG blocks is impractical for large models, forcing a separate CSPStackRep design.",
+      "Quantization of reparameterization-based detectors suffers performance degradation without meticulous treatment.",
+      "The ET-head from PP-YOLOE deteriorated inference speed in YOLOv6 with no accuracy gain."
+    ],
+    "evidence": [
+      { "quote": "We also notice that simple model scaling for RepVGG blocks becomes impractical, for which we consider that the elegant consistency of the network design between small and large networks is unnecessary.", "location": "Introduction" },
+      { "quote": "Quantization of reparameterization-based detectors also requires meticulous treatment, otherwise it would be intractable to deal with performance degradation due to its heterogeneous configuration during training and inference.", "location": "Introduction" },
+      { "quote": "However, we find that the ET-head will deteriorate the inference speed in our models and it comes with no accuracy gain.", "location": "Sec 2.1.3" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Keep expanding the YOLOv6 project toward higher standards and more demanding deployment scenarios.", "quote": "In the future, we will continue expanding this project to meet higher standards and more demanding scenarios.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["MS COCO 2017"],
+    "backbones": ["EfficientRep (RepBlock)", "CSPStackRep Block", "CSP-Darknet"],
+    "models": ["YOLOv6-N", "YOLOv6-T", "YOLOv6-S", "YOLOv6-M", "YOLOv6-L", "YOLOv5", "YOLOX", "PP-YOLOE", "YOLOv7"],
+    "algorithms": ["TAL", "VariFocal Loss", "SIoU", "GIoU", "Distribution Focal Loss", "self-distillation", "RepOptimizer", "PTQ", "QAT", "channel-wise distillation", "Mosaic", "Mixup"],
+    "metrics": ["AP", "AP50", "FPS", "latency", "FLOPs", "params"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [
+      { "domain": "industrial real-time detection", "detail": "A suite of deployment-ready networks at different scales for industry applications, evaluated by post-deployment throughput and GPU latency rather than FLOPs.", "quote": "For years, YOLO series have been de facto industry-level standard for efficient object detection.", "location": "Abstract" },
+      { "domain": "edge and serving deployments", "detail": "Speed is measured after deployment with TensorRT on Tesla T4; low-power GPUs like the T4 are the target serving hardware.", "quote": "Typically, lowpower GPUs like Tesla T4 are less costly and provide rather good inference performance.", "location": "Introduction" }
+    ],
+    "deploymentClaims": [
+      "YOLOv6-N: 35.9% AP at 1234 FPS (bs=32) on Tesla T4, TensorRT FP16",
+      "YOLOv6-S: 43.5% AP at 495 FPS (bs=32) on Tesla T4",
+      "Quantized YOLOv6-S: 43.3% AP at 869 FPS (bs=32) with TensorRT 8",
+      "YOLOv6-L: 52.5% AP at 10.2 ms latency (bs=1) on Tesla T4"
+    ],
+    "evidence": [
+      { "quote": "we primarily focus on the speed performance of all models after deployment, including throughput (FPS at a batch size of 1 or 32) and the GPU latency, rather than FLOPs or the number of parameters.", "location": "Sec 3.2" },
+      { "quote": "Our code is made available at https://github.com/meituan/YOLOv6.", "location": "Abstract" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2209.02976",
+    "arxivUrl": "https://arxiv.org/abs/2209.02976",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/2209.02976"
+  }
+}

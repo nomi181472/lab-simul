@@ -1,0 +1,132 @@
+{
+  "id": "OD104",
+  "arxiv": "2405.14458",
+  "title": "YOLOv10: Real-Time End-to-End Object Detection",
+  "year": 2024,
+  "venue": "NeurIPS 2024",
+  "problem": {
+    "summary": "YOLOs depend on NMS post-processing, which blocks true end-to-end deployment and hurts inference latency, while the many components of YOLO architectures have never been comprehensively inspected, leaving noticeable computational redundancy and suboptimal efficiency-accuracy trade-offs.",
+    "statements": [
+      "Reliance on NMS for post-processing hampers end-to-end deployment of YOLOs and adversely impacts inference latency.",
+      "One-to-many label assignment during training necessitates NMS at inference, slowing it down and making performance sensitive to NMS hyperparameters.",
+      "YOLO component design lacks comprehensive inspection from efficiency and accuracy perspectives, leaving considerable computational redundancy and constrained model capability."
+    ],
+    "problemTags": ["nms", "speed-latency", "deployability"],
+    "evidence": [
+      { "quote": "the reliance on the non-maximum suppression (NMS) for post-processing hampers the end-to-end deployment of YOLOs and adversely impacts the inference latency.", "location": "Abstract" },
+      { "quote": "the design of various components in YOLOs lacks the comprehensive and thorough inspection, resulting in noticeable computational redundancy and limiting the model’s capability.", "location": "Abstract" },
+      { "quote": "Specifically, YOLOs usually employ one-to-many label assignment strategy during training, whereby one ground-truth object corresponds to multiple positive samples.", "location": "Introduction" },
+      { "quote": "this approach necessitates NMS to select the best positive prediction during inference. This slows down the inference speed and renders the performance sensitive to the hyperparameters of NMS", "location": "Introduction" },
+      { "quote": "As a result, there still exists considerable computational redundancy within YOLOs, leading to inefficient parameter utilization and suboptimal efficiency.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on the YOLO lineage (YOLOv1-v9, Gold-YOLO, YOLO-MS) with backbone/neck/head designs and TAL assignment, and on the end-to-end DETR line (DETR, Deformable-DETR, DINO, RT-DETR) plus one-to-one CNN detectors, claiming DETRs still lag YOLOs in forward-pass efficiency and prior one-to-one CNN approaches add overhead or lose performance.",
+    "relatedWork": [
+      { "name": "DETR", "relation": "prior end-to-end transformer detector with one-to-one Hungarian matching", "quote": "DETR [4] introduces the transformer architecture and adopts Hungarian loss to achieve one-to-one matching prediction, thereby eliminating hand-crafted components and post-processing.", "location": "Sec 2" },
+      { "name": "RT-DETR", "relation": "prior real-time DETR and main end-to-end baseline", "quote": "RT-DETR [78] further designs the efficient hybrid encoder and proposes the uncertainty-minimal query selection to improve both the accuracy and latency.", "location": "Sec 2" },
+      { "name": "YOLOv8", "relation": "baseline model for YOLOv10", "quote": "YOLOv8 [21] presents C2f building block for effective feature extraction and fusion.", "location": "Sec 2" },
+      { "name": "Gold-YOLO", "relation": "prior YOLO with GD feature-fusion mechanism, used as comparison", "quote": "Gold-YOLO [60] provides the advanced GD mechanism to boost the multi-scale feature fusion capability.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "when considering only the forward process of model during deployment, the efficiency of the DETRs still has room for improvements compared with YOLOs.", "location": "Introduction" },
+      { "quote": "However, they usually introduce additional inference overhead or achieve suboptimal performance for YOLOs.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "The paper presents consistent dual assignments for NMS-free training (an extra one-to-one head jointly trained with the one-to-many head under a consistent matching metric, keeping only the one-to-one head at inference) plus a holistic efficiency-accuracy driven model design (lightweight classification head, spatial-channel decoupled downsampling, rank-guided CIB blocks, large-kernel convolution and partial self-attention), yielding the YOLOv10 family.",
+    "approach": "Eliminate NMS via dual one-to-many/one-to-one label assignments with a consistent matching metric, and holistically redesign YOLO components for efficiency and accuracy.",
+    "components": [
+      "consistent dual label assignments (one-to-many + one-to-one heads)",
+      "consistent matching metric shared by both heads",
+      "lightweight classification head with depthwise separable convolutions",
+      "spatial-channel decoupled downsampling",
+      "rank-guided block design with the compact inverted block (CIB)",
+      "large-kernel depthwise convolution in deep stages",
+      "partial self-attention (PSA) module"
+    ],
+    "solutionTags": ["nms-free", "attention", "self-attention", "reparameterization", "multi-scale"],
+    "evidence": [
+      { "quote": "we first present the consistent dual assignments for NMS-free training of YOLOs, which brings the competitive performance and low inference latency simultaneously.", "location": "Abstract" },
+      { "quote": "we introduce the holistic efficiency-accuracy driven model design strategy for YOLOs.", "location": "Abstract" },
+      { "quote": "During inference, we discard the one-to-many head and utilize the one-to-one head to make predictions. This enables YOLOs for the end-to-end deployment without incurring any additional inference cost.", "location": "Sec 3.1" },
+      { "quote": "To achieve prediction aware matching for both branches, we employ a uniform matching metric", "location": "Sec 3.1" },
+      { "quote": "For efficiency, we propose the lightweight classification head, spatial-channel decoupled downsampling, and rank-guided block design, to reduce the manifested computational redundancy and achieve more efficient architecture.", "location": "Introduction" },
+      { "quote": "For accuracy, we explore the large-kernel convolution and present the effective partial self-attention module to enhance the model capability, harnessing the potential for performance improvements under low cost.", "location": "Introduction" }
+    ]
+  },
+  "experiments": {
+    "summary": "YOLOv10 (N/S/M/B/L/X) is trained from scratch for 500 epochs on COCO and compared with YOLOv6/8/9, Gold-YOLO, YOLO-MS, RT-DETR and others in accuracy and T4 TensorRT FP16 end-to-end latency, with ablations for dual assignments, matching metric, and each efficiency/accuracy design element, plus training-cost, CPU/OpenVINO and 300-epoch comparisons in the appendix.",
+    "benchmarks": [
+      { "dataset": "COCO val2017", "metric": "AP", "value": "38.5", "split": "YOLOv10-N", "location": "Table 1 / Table 17" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "46.3", "split": "YOLOv10-S", "location": "Table 1 / Table 17" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "51.1", "split": "YOLOv10-M", "location": "Table 1 / Table 17" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "52.5", "split": "YOLOv10-B", "location": "Table 1 / Table 17" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "53.2", "split": "YOLOv10-L", "location": "Table 1 / Table 17" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "54.4", "split": "YOLOv10-X", "location": "Table 1 / Table 17" },
+      { "dataset": "COCO val2017", "metric": "latency", "value": "2.49", "split": "YOLOv10-S end-to-end ms, T4 TensorRT FP16", "location": "Table 18" },
+      { "dataset": "COCO val2017", "metric": "latency", "value": "10.70", "split": "YOLOv10-X end-to-end ms, T4 TensorRT FP16", "location": "Table 18" }
+    ],
+    "baselines": ["YOLOv8", "YOLOv9", "YOLOv6-3.0", "Gold-YOLO", "YOLO-MS", "YOLOv7", "RT-DETR", "DAMO-YOLO", "DEYO"],
+    "evidence": [
+      { "quote": "our YOLOv10-S is 1.8× faster than RT-DETR-R18 under the similar AP on COCO, meanwhile enjoying 2.8× smaller number of parameters and FLOPs.", "location": "Abstract" },
+      { "quote": "Compared with YOLOv9-C, YOLOv10-B has 46% less latency and 25% fewer parameters for the same performance.", "location": "Abstract" },
+      { "quote": "our NMS-free training with consistent dual assignments significantly reduces the end-to-end latency of YOLOv10-S by 4.63ms, while maintaining competitive performance of 44.3% AP.", "location": "Sec 4.3" },
+      { "quote": "our YOLOv10 achieves 1.2% / 1.4% / 0.5% / 0.3% / 0.5% AP improvements, with 28% / 36% / 41% / 44% / 57% fewer parameters", "location": "Sec 4.2" },
+      { "quote": "YOLOv10-N / S outperforms YOLOv6-3.0-N / S by 1.5 AP and 2.0 AP, with 51% / 61% fewer parameters and 41% / 52% less computations, respectively.", "location": "Sec 4.2" },
+      { "quote": "the adoption of large-kernel convolution and PSA module leads to the considerable performance improvements of 0.4% AP and 1.4% AP for YOLOv10-S under minimal latency increase of 0.03ms and 0.15ms,", "location": "Sec 4.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors admit they could not study large-scale pre-training (e.g. Objects365) due to limited compute, and that NMS-free training still underperforms one-to-many training with NMS on small models, with the gap attributed to limited model capacity.",
+    "items": [
+      "No pre-training on large-scale datasets such as Objects365 due to limited computational resources.",
+      "Performance gap between NMS-free and one-to-many+NMS training remains for small models (1.0 AP on YOLOv10-N, 0.5 AP on YOLOv10-S).",
+      "Large-kernel convolution brings no improvement for the medium scale (YOLOv10-M) due to its inherently extensive receptive field."
+    ],
+    "evidence": [
+      { "quote": "Due to the limited computational resources, we do not investigate the pretraining of YOLOv10 on large-scale datasets, e.g., Objects365 [52].", "location": "Appendix A.9 (Limitation)" },
+      { "quote": "there still exists a performance gap compared with the original one-to-many training using NMS, especially noticeable in small models.", "location": "Appendix A.9 (Limitation)" },
+      { "quote": "For example, in YOLOv10-N and YOLOv10-S, the performance of one-to-many training with NMS outperforms that of NMS-free training by 1.0% AP and 0.5% AP, respectively.", "location": "Appendix A.9 (Limitation)" },
+      { "quote": "it brings no improvements for large models, i.e., YOLOv10-M, due to its inherent extensive receptive field.", "location": "Sec 4.3" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Reduce the remaining NMS-free vs one-to-many+NMS performance gap to reach higher end-to-end performance.", "quote": "Based on this insight, we will explore approaches to further reduce the gap and achieve higher end-to-end performance in the future work.", "location": "Sec 4.3" }
+  ],
+  "technical": {
+    "datasets": ["COCO"],
+    "backbones": [],
+    "models": ["YOLOv10-N", "YOLOv10-S", "YOLOv10-M", "YOLOv10-B", "YOLOv10-L", "YOLOv10-X", "YOLOv8", "RT-DETR", "Gold-YOLO", "YOLO-MS"],
+    "algorithms": ["consistent dual assignments", "consistent matching metric", "rank-guided block design", "structural reparameterization", "partial self-attention (PSA)", "Mosaic", "Mixup", "copy-paste", "TensorRT", "OpenVINO"],
+    "metrics": ["AP", "AP50", "AP75", "APsmall", "APmedium", "APlarge", "latency", "FLOPs", "params"],
+    "equations": [
+      { "name": "consistent matching metric", "expr": "m(α, β) = s · p^α · IoU(b̂, b)^β", "location": "Eq 1, Sec 3.1" },
+      { "name": "supervision gap (1-Wasserstein)", "expr": "A = t_o2o,i − I(i ∈ Ω)·t_o2m,i + Σ_{k∈Ω\\{i}} t_o2m,k", "location": "Eq 2, Sec 3.1" },
+      { "name": "consistent metric relation", "expr": "α_o2o = r · α_o2m, β_o2o = r · β_o2m (r = 1 by default)", "location": "Sec 3.1" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "general real-world applications", "detail": "Autonomous driving, robot navigation, object tracking", "quote": "It is widely adopted in various practical applications, including autonomous driving [3], robot navigation [12], and object tracking [72], etc.", "location": "Introduction" },
+      { "domain": "medical imaging and autonomous driving", "detail": "Authors highlight YOLO applicability to medical image analysis and autonomous driving", "quote": "The YOLOs can be widely applied in various real-world applications, including medical image analyses and autonomous driving, etc.", "location": "Appendix A.9 (Broader impact)" }
+    ],
+    "deploymentClaims": [
+      "Latencies of all models tested on T4 GPU with TensorRT FP16, following RT-DETR's benchmark",
+      "End-to-end latency measured on COCO val, batch size 1, with TensorRT efficientNMSPlugin post-processing",
+      "CPU inference benchmark on Intel Xeon Skylake using OpenVINO"
+    ],
+    "evidence": [
+      { "quote": "the latencies of all models are tested on T4 GPU with TensorRT FP16, following [78].", "location": "Sec 4.1" },
+      { "quote": "The TensorRT efficientNMSPlugin is appended for post-processing and the I/O overhead is omitted.", "location": "Appendix A.1" },
+      { "quote": "We present the speed comparison results of YOLOv10 and others on CPU (Intel Xeon Skylake, IBRS) using OpenVINO in Fig. 5.", "location": "Appendix A.6" },
+      { "quote": "We observe that YOLOv10 also shows state-of-the-art trade-offs in terms of performance and efficiency.", "location": "Appendix A.6" }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2405.14458",
+    "venue": "NeurIPS 2024",
+    "pdfUrl": "https://arxiv.org/pdf/2405.14458"
+  }
+}

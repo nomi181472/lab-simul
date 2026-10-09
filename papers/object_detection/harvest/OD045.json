@@ -1,0 +1,139 @@
+{
+  "id": "OD045",
+  "arxiv": "1903.11752",
+  "title": "ThunderNet: Towards Real-time Generic Object Detection",
+  "year": 2019,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "Real-time detection on mobile devices is hard: modern detectors are resource-hungry, lightweight one-stage detectors are the default route to speed but leave a large accuracy gap and still are not real time on mobile, while naively pairing a small backbone with a heavy two-stage detection part creates imbalance, redundancy and overfitting.",
+    "statements": [
+      "Mobile devices are computation-constrained while modern CNN detectors are resource-hungry and require massive computation for ideal accuracy.",
+      "Lightweight one-stage detectors have a huge accuracy gap to large detectors and fail to run in real time on mobile devices.",
+      "One-stage detectors skip RoI-wise feature extraction, so their results are coarser than two-stage detectors, and the problem is worse for lightweight models.",
+      "Classification backbones transferred to detection lack the receptive field and low-level features detection needs, obstructing further compression.",
+      "A light detection head coupled with a small backbone induces imbalance between backbone and detection part, causing redundancy and overfitting."
+    ],
+    "problemTags": ["real-time-edge", "speed-latency", "one-stage-accuracy", "deployability"],
+    "evidence": [
+      { "quote": "However, modern CNN-based detectors are resource-hungry and require massive computation to achieve ideal detection accuracy, which hinders them from real-time inference in mobile scenarios.", "location": "Introduction" },
+      { "quote": "Prior lightweight one-stage detectors [11, 28, 31, 13] do not obtain an ideal accuracy/speed trade-off: there is a huge accuracy gap between them and the large detectors [19, 25], while they fail to achieve real-time detection on mobile devices.", "location": "Introduction" },
+      { "quote": "However, as one-stage detectors do not conduct RoI-wise feature extraction and recognition, their results are coarser than two-stage detectors. The problem is aggravated for lightweight detectors.", "location": "Introduction" },
+      { "quote": "The gap between the two tasks restricts the performance of these backbones on object detection and obstructs further compression without harming detection accuracy.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "ThunderNet builds on two-stage detection (Faster R-CNN RPN, R-FCN, Light-Head R-CNN), on FPN feature pyramids, and on lightweight classification backbones (ShuffleNetV2, MobileNet, Xception); the claimed gaps are that transferred classification backbones are suboptimal for detection, specialized detection backbones are still under-studied, and no prior work had shown two-stage detectors effective for real-time detection.",
+    "relatedWork": [
+      { "name": "Light-Head R-CNN", "relation": "detection-head design ThunderNet compresses further", "quote": "LightHead R-CNN [14] adopts a lightweight detection head and achieves real-time detection on GPU.", "location": "Introduction" },
+      { "name": "DetNet", "relation": "prior example of a backbone designed specifically for detection", "quote": "DetNet [15] designs a backbone specifically for object detection.", "location": "Sec 2" },
+      { "name": "FPN", "relation": "prior multi-scale context mechanism that is too costly here", "quote": "FPN [16] exploits the inherent multi-scale, pyramidal hierarchy of CNNs to construct feature pyramids.", "location": "Sec 2" },
+      { "name": "MobileNet-SSD / Pelee / Tiny-DSOD", "relation": "prior lightweight one-stage detectors used as baselines", "quote": "lightweight one-stage detectors, such as MobileNet-SSD [11], MobileNetV2-SSDLite [28], Pelee [31] and Tiny-DSOD [13], achieve inference on mobile devices at low frame rates.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "However, image classification and object detection require different properties of networks. Therefore, simply transferring classification networks to object detection is not optimal.", "location": "Sec 2" },
+      { "quote": "Commonly, one-stage detectors are regarded as the key to real-time detection.", "location": "Sec 2" },
+      { "quote": "This imbalance not only induces great redundancy but makes the network prone to overfitting.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "ThunderNet is a lightweight two-stage detector built from an SNet backbone (ShuffleNetV2 with 5x5 depthwise convolutions and strengthened early stages), a compressed RPN and a narrowed Light-Head R-CNN head with PSRoI align, plus two cheap blocks: a Context Enhancement Module fusing C4/C5/global context and a Spatial Attention Module that reweights features using RPN knowledge, all at 320x320 input.",
+    "approach": "Pair a detection-specific lightweight SNet backbone with a compressed two-stage head, and restore context and foreground/background feature separation with the cheap CEM and SAM blocks.",
+    "components": [
+      "SNet49 / SNet146 / SNet535 backbones based on ShuffleNetV2 with 5x5 depthwise convolutions and expanded early-stage channels",
+      "compressed RPN: 5x5 depthwise convolution followed by a 256-channel 1x1 convolution",
+      "narrowed thin feature map (alpha halved to 5) with PSRoI align and a 1024-d fc R-CNN subnet",
+      "Context Enhancement Module merging C4, C5 and globally pooled context at 245 channels",
+      "Spatial Attention Module: F_SAM = F_CEM * sigmoid(theta(F_RPN))",
+      "320x320 input resolution matched to backbone capacity",
+      "multi-scale training over {240, 320, 480} pixels with heavy augmentation, OHEM, Soft-NMS and Cross-GPU Batch Normalization"
+    ],
+    "solutionTags": ["two-stage", "real-time-backbone", "feature-fusion", "attention", "multi-scale"],
+    "evidence": [
+      { "quote": "we propose a lightweight two-stage generic object detector named ThunderNet.", "location": "Introduction" },
+      { "quote": "We present three SNet backbones: SNet49 for faster inference, SNet535 for better accuracy, and SNet146 for a better speed/accuracy trade-off.", "location": "Sec 3.1" },
+      { "quote": "The key idea of CEM is to aggregate multi-scale local context information and global context information to generate more discriminative features.", "location": "Sec 3.2" },
+      { "quote": "The key idea of SAM is to use the knowledge from RPN to refine the feature distribution of the feature map.", "location": "Sec 3.2" },
+      { "quote": "F SAM = F CEM · sigmoid(θ(F RPN )).", "location": "Eq 1" }
+    ]
+  },
+  "experiments": {
+    "summary": "ThunderNet is trained end-to-end with synchronized SGD and evaluated on PASCAL VOC 2007 test and COCO test-dev against lightweight one-stage detectors and larger detectors, with ablations over input resolution, backbone design, RPN/head compression, CEM and SAM, and separate ARM/CPU/GPU speed measurements.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC", "metric": "mAP", "value": "78.6", "split": "VOC 2007 test, ThunderNet SNet535", "location": "Table 2" },
+      { "dataset": "PASCAL VOC", "metric": "mAP", "value": "75.1", "split": "VOC 2007 test, ThunderNet SNet146", "location": "Table 2" },
+      { "dataset": "PASCAL VOC", "metric": "mAP", "value": "72.1", "split": "VOC 2007 test, Tiny-DSOD baseline", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "28.1", "split": "test-dev, ThunderNet SNet535", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "23.7", "split": "test-dev, ThunderNet SNet146", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "19.2", "split": "test-dev, ThunderNet SNet49 (MobileNet-SSD level, 22% FLOPs)", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP75", "value": "24.6", "split": "test-dev, ThunderNet SNet535", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "FPS", "value": "24.1", "split": "Snapdragon 845 ARM, single thread, SNet49", "location": "Table 9" },
+      { "dataset": "MS COCO", "metric": "FPS", "value": "47.3", "split": "Xeon E5-2682v4 CPU, single thread, SNet49", "location": "Table 9" }
+    ],
+    "baselines": ["MobileNet-SSD", "MobileNetV2-SSDLite", "Pelee", "Tiny-DSOD", "YOLOv2", "SSD300*", "SSD321", "DSSD321", "R-FCN", "Light-Head R-CNN"],
+    "evidence": [
+      { "quote": "ThunderNet surpasses previous lightweight one-stage detectors with only 40% of the computational cost on PASCAL VOC and COCO benchmarks.", "location": "Abstract" },
+      { "quote": "Without bells and whistles, ThunderNet runs at 24.1 fps on an ARM-based device with 19.2 AP on COCO.", "location": "Abstract" },
+      { "quote": "ThunderNet with SNet146 surpasses MobileNet-SSD [11], MobileNet-SSDLite [28], and Pelee [31] with less than 40% of the computational cost.", "location": "Sec 4.3" },
+      { "quote": "ThunderNet with SNet49 outperforms MobileNet-SSD with merely 21% of the FLOPs, while the SNet146-based model surpasses Tiny-DSOD by 2.9 mAP with about 43% of the FLOPs.", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "Absolute accuracy is still far below large detectors (best 28.1 AP on COCO), AP50 trails Tiny-DSOD because of its deep supervision and feature pyramid, the small 320x320 input loses detail, and SNet's ImageNet classification accuracy is lower than the ShuffleNetV2 baselines it starts from.",
+    "items": [
+      "Best COCO result is 28.1 AP (SNet535, 1300 MFLOPs), and the cheapest variant SNet49 only reaches MobileNet-SSD level accuracy (19.2 AP).",
+      "Compared with Tiny-DSOD, ThunderNet has better AP but worse AP50; the authors attribute the classification gap to Tiny-DSOD's deep supervision and feature pyramid.",
+      "Small input resolution causes low-resolution feature maps and loss of detail features that backbone capacity alone cannot fix.",
+      "SNet146 has lower ImageNet top-1 accuracy than ShuffleNetV2 (32.5 vs 31.4 top-1 error) even though detection is better."
+    ],
+    "evidence": [
+      { "quote": "Compared with Tiny-DSOD [13], ThunderNet achieves better AP but worse AP50 with 42% of the FLOPs.", "location": "Sec 4.3" },
+      { "quote": "SNet146 achieves better detection results though the classification accuracy is lower.", "location": "Table 6" },
+      { "quote": "It is hard to be remedied by simply increasing the capacity of the backbones.", "location": "Sec 4.4.1" }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["PASCAL VOC", "MS COCO", "ImageNet"],
+    "backbones": ["SNet49", "SNet146", "SNet535", "ShuffleNetV2", "MobileNet", "MobileNetV2", "PeleeNet", "Xception", "Tiny-DSOD DDB-Net"],
+    "models": ["ThunderNet", "Light-Head R-CNN", "MobileNet-SSD", "MobileNetV2-SSDLite", "Pelee", "Tiny-DSOD", "YOLOv2", "SSD300", "DSSD321", "R-FCN"],
+    "algorithms": ["depthwise convolution", "PSRoI align", "online hard example mining", "Soft-NMS", "Cross-GPU Batch Normalization", "multi-scale training", "global average pooling"],
+    "metrics": ["AP", "AP50", "AP75", "mAP", "FPS", "MFLOPs", "Top-1 error"],
+    "equations": [
+      { "name": "Spatial Attention Module", "expr": "F_SAM = F_CEM * sigmoid(theta(F_RPN))", "location": "Eq 1" },
+      { "name": "SAM gradient flow to RPN", "expr": "dL/dF_RPN = dL_RPN/dF_RPN + sum_j (dL_R-CNN/dF_SAM_j)(dF_SAM_j/dF_RPN)", "location": "Eq 2" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "mobile and edge devices",
+        "detail": "The method targets real-time generic detection on mobile platforms and is benchmarked on a Snapdragon 845 ARM CPU, x86 CPU and a GeForce 1080Ti GPU.",
+        "quote": "Real-time generic object detection on mobile platforms is a crucial but challenging computer vision task.",
+        "location": "Abstract"
+      },
+      {
+        "domain": "industry research lab (Megvii Face++)",
+        "detail": "The work was done in collaboration with Megvii Inc., with one author interning there.",
+        "quote": "This work was done when Zheng Qin was an intern at Megvii Inc.",
+        "location": "Footnotes"
+      }
+    ],
+    "deploymentClaims": [
+      "24.1 fps single-thread on Snapdragon 845 (ARM) and 47.3 fps on Xeon E5-2682v4 CPU with SNet49",
+      "All three model variants run at over 200 fps on a GeForce 1080Ti GPU",
+      "Batch normalization layers are merged with preceding convolutions for faster inference",
+      "Code and models released at github.com/qinzheng93/ThunderNet"
+    ],
+    "evidence": [
+      { "quote": "ThunderNet with SNet49 achieves real-time detection on both ARM and CPU at 24.1 and 47.3 fps, respectively.", "location": "Sec 4.5" },
+      { "quote": "These results suggest that ThunderNet is highly efficient in real-world applications.", "location": "Sec 4.5" },
+      { "quote": "To the best of our knowledge, this is the first real-time detector and the fastest single-thread speed on ARM platforms ever reported.", "location": "Sec 4.5" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1903.11752",
+    "arxivUrl": "https://arxiv.org/abs/1903.11752",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/1903.11752"
+  }
+}

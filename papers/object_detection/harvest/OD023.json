@@ -1,0 +1,141 @@
+{
+  "id": "OD023",
+  "arxiv": "1711.07264",
+  "title": "Light-Head R-CNN: In Defense of Two-Stage Object Detector",
+  "year": 2017,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "Typical two-stage detectors are slower than fast single-stage detectors because their heads are heavy: Faster R-CNN runs two large fully connected layers per RoI and R-FCN must generate huge score maps around RoI warping, so shrinking the backbone does not proportionally reduce computation and no fast two-stage detector with competitive accuracy exists.",
+    "statements": [
+      "Faster R-CNN and R-FCN perform intensive computation before or after RoI warping due to their heavy-head design.",
+      "Per-region prediction is time-consuming and worsens as the number of proposals grows.",
+      "The large channel count after ROI pooling makes the first fully connected layer memory-hungry and slows the network.",
+      "Reducing the base model alone does not largely decrease computation cost.",
+      "Object detection lacks a competitive fast two-stage detector with near single-stage speed."
+    ],
+    "problemTags": ["two-stage-speed", "speed-latency"],
+    "evidence": [
+      { "quote": "We find that Faster RCNN [28] and R-FCN [17] perform an intensive computation after or before RoI warping.", "location": "Abstract" },
+      { "quote": "Faster R-CNN involves two fully connected layers for RoI recognition, while RFCN produces a large score maps. Thus, the speed of these networks is slow due to the heavy-head design in the architecture.", "location": "Abstract" },
+      { "quote": "Even if we significantly reduce the base model, the computation cost cannot be largely decreased accordingly.", "location": "Abstract" },
+      { "quote": "It is time-consuming in terms of per-region prediction and even gets worse when a large number of proposals are utilized.", "location": "Introduction" },
+      { "quote": "In addition, the number of feature channels after ROI pooling is large, which makes the first fully connected consume a large memory and potentially influence the computational speed.", "location": "Introduction" },
+      { "quote": "object detection literature is lack of competitive fast two-stage detector compared single-stage approaches with nearly accuracy.", "location": "Related Work" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on the R-CNN lineage (Selective Search proposals, Fast R-CNN multi-task training, Faster R-CNN's RPN, R-FCN's shared computation) plus FPN/Mask R-CNN/RetinaNet and the fast single-stage line (YOLO, SSD, DSSD, DeNet); the claimed gap is that accuracy-oriented two-stage designs kept making heads heavier while speed-oriented work focused on single-stage detectors.",
+    "relatedWork": [
+      { "name": "R-CNN", "relation": "first to put deep neural network features into a detection system", "quote": "R-CNN [6] is among the first to utilize deep neural network features into detection system.", "location": "Related Work" },
+      { "name": "Fast R-CNN", "relation": "joins classification and box regression into one multi-task trained model", "quote": "Then Fast R-CNN [5] is proposed to join train object classification and bounding box regression, which improves the performance by multi-task training.", "location": "Related Work" },
+      { "name": "Faster R-CNN", "relation": "milestone two-stage detector whose RPN generates proposals from network features", "quote": "Following Fast R-CNN, Faster R-CNN [28] introduces Region Proposal Network (RPN) to generate proposals by using network features.", "location": "Related Work" },
+      { "name": "R-FCN", "relation": "shares computation across RoIs to speed up inference with many proposals", "quote": "R-FCN [17] shares computations between RoI subnetworks, which speed up inference when a large number of proposals are utilized.", "location": "Related Work" },
+      { "name": "FPN", "relation": "multiscale pyramidal feature construction that later designs build on", "quote": "Lin et al. propose Feature Pyramid Networks (FPN) [19], which exploits inherent multiscale, pyramidal hierarchy of deep convolutional networks to construct feature pyramids.", "location": "Related Work" },
+      { "name": "RetinaNet", "relation": "FPN-based single-stage detector addressing foreground-background imbalance with Focal Loss", "quote": "RetinaNet [20] is another FPN based single stage detector, which involves Focal-Loss to address class imbalance issue caused by extreme foreground-background ratio.", "location": "Related Work" },
+      { "name": "YOLO / SSD", "relation": "proposal-free single-stage detectors that treat detection as regression over boxes", "quote": "YOLO and YOLO v2 [26, 27] simplifies object detection as a regression problem, which directly predicts the bounding boxes and associated class probabilities without proposal generation.", "location": "Related Work" }
+    ],
+    "evidence": [
+      { "quote": "We briefly review some of the recent object detection work in two dimensions as follows:", "location": "Related Work" },
+      { "quote": "Hand-engineered methods, such as Selective Search [37], Edge Boxes [40], MCG[1], is involved to generate proposals for R-CNN.", "location": "Related Work" }
+    ]
+  },
+  "solution": {
+    "summary": "Light-Head R-CNN makes the head as light as possible: a large-kernel separable convolution produces thin feature maps (10 x p x p channels) before RoI warping, and a cheap R-CNN subnet with a single fully connected layer does per-RoI recognition, instantiated in a large-backbone Setting L (ResNet-101) and a small-backbone Setting S (Xception-like).",
+    "approach": "Shrink the channels available to the RoI-wise subnetwork with thin feature maps from large separable convolutions and replace the heavy per-region subnetwork with a single cheap fully connected layer.",
+    "components": [
+      "thin feature maps (alpha x p x p channels, alpha <= 10) produced by large separable convolution (k = 15)",
+      "cheap R-CNN subnet: one fully connected layer with 2048 channels (no dropout) after pooling",
+      "Setting L with ResNet-101 backbone and Setting S with a tiny Xception-like backbone",
+      "PSRoI pooling with interpolation (RoIAlign-style) for Setting L; PSPooling with alignment for Setting S",
+      "anchor scheme of 3 aspect ratios and 5 scales with 0.7 IoU NMS and OHEM training",
+      "multi-scale training, relaxed 0.5 NMS threshold, and àtrous stage-5 convolutions"
+    ],
+    "solutionTags": ["two-stage", "multi-scale", "light-head-design"],
+    "evidence": [
+      { "quote": "We propose a new two-stage detector, Light-Head RCNN, to address the shortcoming in current two-stage approaches.", "location": "Abstract" },
+      { "quote": "In our design, we make the head of network as light as possible, by using a thin feature map and a cheap R-CNN subnet (pooling and single fully-connected layer).", "location": "Abstract" },
+      { "quote": "we apply a large-kernel separable convolution to produce “thin” feature maps with small channel number (α × p × p is used in our experiments and α ≤ 10).", "location": "Introduction" },
+      { "quote": "In our experiments, we find that RoI warping on thin feature maps will not only improves the accuracy but also saves memory and computation during training and inference.", "location": "Sec 3.1.2" },
+      { "quote": "A cheap single fully-connected layer is attached to the pooling layer, which well exploits the feature representation for classification and regression.", "location": "Introduction" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluated on COCO (115k train + 5k mini-validation for ablations, test-dev for final numbers) with ResNet-101 ablations over baselines, thin maps, large kernel, and light R-CNN subnet, then compared against FPN, Mask R-CNN, RetinaNet and fast detectors; the fast variant swaps in a tiny Xception-like backbone and reports FPS alongside mAP.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "mAP@[0.5:0.95]", "value": "32.1", "split": "mini-validation, B1 = reproduced R-FCN baseline", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "mAP@[0.5:0.95]", "value": "35.2", "split": "mini-validation, B2 stronger R-FCN baseline", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "mAP@[0.5:0.95]", "value": "37.7", "split": "mini-validation, +Large Kernel and Light-Head R-CNN", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "mAP@[0.5:0.95]", "value": "40.6", "split": "mini-validation, full recipe incl. multiscale train", "location": "Table 6" },
+      { "dataset": "MS COCO", "metric": "mAP@[0.5:0.95]", "value": "40.8", "split": "test-dev, Light head R-CNN ms-train, single-scale test", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "mAP@[0.5:0.95]", "value": "41.5", "split": "test-dev, best Light head R-CNN row", "location": "Table 5" },
+      { "dataset": "MS COCO", "metric": "mAP@[0.5:0.95]", "value": "30.7", "split": "test-dev, fast xception-like backbone at 700/1100", "location": "Table 8" },
+      { "dataset": "MS COCO", "metric": "FPS", "value": "102", "split": "test-dev, fast xception-like backbone at 700/1100", "location": "Table 8" }
+    ],
+    "baselines": ["R-FCN (B1/B2)", "Faster R-CNN", "FPN", "Mask R-CNN", "RetinaNet", "YOLOv2", "SSD", "DSSD", "DeNet"],
+    "evidence": [
+      { "quote": "In this section, we evaluate our approach on COCO [21, 18] dataset, which has 80 object categories.", "location": "Sec 4" },
+      { "quote": "Our detector is end-to-end trained based on 8 Pascal TITAN XP GPUs using synchronized SGD with a weight decay of 0.0001 and momentum of 0.9.", "location": "Sec 4.1" },
+      { "quote": "Our single scale tested model can achieve 40.8% mmAP without bells and whistles, significantly surpassing all the competitors (40.8 vs 39.1).", "location": "Sec 4.3" },
+      { "quote": "Multi-scale training brings nearly 1 points improvement on mmAP.", "location": "Sec 4.3" },
+      { "quote": "our methods get 30.7 mmAP at 102 FPS on MS COCO, significantly outperforming the fast detectors like YOLO and SSD.", "location": "Sec 4.4" }
+    ]
+  },
+  "limitations": {
+    "summary": "Thinning the feature maps alone slightly hurts accuracy until the large kernel and light subnet are added; the fast model relies on a deliberately small backbone and a non-pre-activation design, and the authors note RoI-align would do better than their PSPooling-with-alignment choice.",
+    "items": [
+      "Thin feature maps by themselves reduce mmAP (32.1 to 31.4 and 35.2 to 34.6); gains need the large kernel and light R-CNN subnet.",
+      "The fast Setting S abandons àtrous convolution and uses a non-pre-activation Xception-like backbone because it is shallow.",
+      "The speed headline (30.7 mAP at 102 FPS) comes from a much weaker backbone than the 41.5 mAP ResNet-101 model.",
+      "PSPooling with alignment is used instead of RoI-align, which the authors expect to perform better."
+    ],
+    "evidence": [
+      { "quote": "Although the channel number has been largely decrease, 3969 vs 490, our have comparable performance.", "location": "Sec 4.2.2" },
+      { "quote": "However we do not use the pre-activation design which is proposed in identity mappings [10] because of shallow network.", "location": "Sec 4.4" },
+      { "quote": "Larger backbone like Resnet 101 is slow based on the computational speed.", "location": "Sec 4.4" },
+      { "quote": "Noticing that it will obtain better results if we involve RoI-align.", "location": "Sec 4.4" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Use RoI-align instead of the current pooling scheme for further accuracy gains in the fast setting.",
+      "quote": "Noticing that it will obtain better results if we involve RoI-align.",
+      "location": "Sec 4.4"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "ImageNet"],
+    "backbones": ["ResNet-101", "Xception-like tiny backbone"],
+    "models": ["Light-Head R-CNN", "R-FCN", "Faster R-CNN", "FPN", "Mask R-CNN", "RetinaNet", "YOLOv2", "SSD"],
+    "algorithms": ["large separable convolution", "PSRoI pooling", "PSPooling with alignment", "online hard example mining (OHEM)", "àtrous algorithm", "non-maximum suppression", "multi-scale training", "synchronized SGD"],
+    "metrics": ["mAP@[0.5:0.95]", "APs/APm/APl", "FPS"],
+    "equations": [
+      { "name": "thin feature map channels", "expr": "Cout = alpha x p x p with alpha <= 10 (10 x p x p used in experiments)", "location": "Sec 3.1.2" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "real-time detection systems (Megvii / Face++)",
+        "detail": "Authors from Megvii position Light-Head R-CNN as a two-stage detector that keeps time efficiency, with a tiny-backbone variant reported at 102 FPS and 30.7 mAP on COCO.",
+        "quote": "Our ResNet-101 based light-head R-CNN outperforms state-of-art object detectors on COCO while keeping time efficiency.",
+        "location": "Abstract"
+      }
+    ],
+    "deploymentClaims": [
+      "30.7 mmAP at 102 FPS on COCO test-dev with a small Xception-like backbone (700/1100 test size).",
+      "31.5 mmAP at 95 FPS with the same fast backbone at 800/1200 test size.",
+      "Single-scale 40.8 mmAP on test-dev with ResNet-101, surpassing RetinaNet ms-train (39.1).",
+      "Code to be released publicly."
+    ],
+    "evidence": [
+      { "quote": "Code will be made publicly available.", "location": "Abstract" },
+      { "quote": "our Light Head R-CNN coupled with small Xception-like base model can achieve 30.7 mmAP at the speed of 102 FPS.", "location": "Conclusion" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1711.07264",
+    "arxivUrl": "https://arxiv.org/abs/1711.07264",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/1711.07264"
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "id": "OD093",
+  "arxiv": "2211.12860",
+  "title": "DETRs with Collaborative Hybrid Assignments Training",
+  "year": 2022,
+  "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+  "problem": {
+    "summary": "DETR's one-to-one set matching assigns too few positive queries, which gives the encoder sparse supervision that hurts discriminative feature learning and also weakens attention learning in the decoder; as a result vanilla end-to-end detectors still trail traditional detectors that use one-to-many label assignment.",
+    "statements": [
+      "One-to-one set matching yields too few positive queries, so the encoder receives sparse supervision.",
+      "Sparse supervision reduces feature discriminability in the encoder and attention quality in the decoder.",
+      "Vanilla end-to-end DETR detectors remain inferior to traditional one-to-many detectors."
+    ],
+    "problemTags": ["label-assignment", "sparse-supervision", "convergence"],
+    "evidence": [
+      { "quote": "too few queries assigned as positive samples in DETR with oneto-one set matching leads to sparse supervision on the encoder's output which considerably hurt the discriminative feature learning of the encoder", "location": "Abstract" },
+      { "quote": "However, the performance of the vanilla end-to-end object detector is still inferior to the traditional detectors with one-to-many label assignments.", "location": "Introduction" },
+      { "quote": "we focus on the intuitive drawback of one-to-one set matching that it explores less positive queries. This will lead to severe inefficient training issues.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper contrasts two supervision regimes: one-to-many label assignment in classic detectors (Faster R-CNN, RetinaNet, FCOS, ATSS, PAA) which needs NMS or anchors, and DETR's one-to-one Hungarian matching which is end-to-end but sparse; recent fixes (DN-DETR denoising, DINO contrastive denoising, Group-DETR and H-DETR group or hybrid matching) add positive queries but do not explicitly fix encoder supervision.",
+    "relatedWork": [
+      { "name": "DETR", "relation": "base method whose one-to-one matching causes the sparse supervision", "quote": "DEtection TRansformer (DETR) [1] is proposed to view the object detection as a set prediction problem and introduce the one-to-one set matching scheme", "location": "Introduction" },
+      { "name": "One-to-many detectors (Faster R-CNN, RetinaNet, FCOS)", "relation": "traditional detectors whose dense supervision the encoder lacks", "quote": "One-to-many label assignment is the core scheme of them, where each groundtruth box is assigned to multiple coordinates in the detector's output as the supervised target cooperated with proposals [11, 27], anchors [21] or window centers [32].", "location": "Introduction" },
+      { "name": "DN-DETR", "relation": "prior fix attributing slow convergence to unstable one-to-one matching", "quote": "DNDETR [18] demonstrates the slow convergence results from the instability of one-to-one set matching, thus introducing denoising training to eliminate this issue.", "location": "Sec 2. Related Works" },
+      { "name": "Group-DETR and H-DETR", "relation": "concurrent works adding more positive queries via group or hybrid matching", "quote": "Group-DETR [5] constructs group-wise one-to-many label assignment to exploit multiple positive object queries, which is similar to the hybrid matching scheme in H-DETR [16].", "location": "Sec 2. Related Works" }
+    ],
+    "evidence": [
+      { "quote": "The higher IoF-IoB curve in ATSS indicates that it's easier to distinguish the foreground and background.", "location": "Introduction" },
+      { "quote": "The illustration in Figure 2 shows that too few positive queries also influence attention learning and increasing more positive queries in the decoder can slightly alleviate this.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "Co-DETR attaches K training-only auxiliary heads (ATSS, Faster R-CNN and other one-to-many detectors) to the shared transformer encoder through a multi-scale adapter, enriching encoder supervision; the positive coordinates found by these heads are encoded as customized positive query groups that supervise the original decoder, and all auxiliary heads are discarded at inference, adding no parameters or FLOPs while staying NMS-free.",
+    "approach": "Use versatile one-to-many auxiliary heads supervised by different label assignments to improve encoder representations, and convert their positive samples into extra positive queries for the decoder during training only.",
+    "components": [
+      "multi-scale adapter producing a feature pyramid from encoder features",
+      "K parallel auxiliary heads with different one-to-many assignments (ATSS, Faster R-CNN, FCOS, RetinaNet)",
+      "customized positive queries built from auxiliary-head positive coordinates",
+      "isolated query groups whose self-attention is computed separately",
+      "collaborative loss weighting auxiliary and decoder branches",
+      "heads removed at inference, keeping the original detector cost"
+    ],
+    "solutionTags": ["transformer-query", "set-prediction", "one-to-many-hybrid", "nms-free"],
+    "evidence": [
+      { "quote": "This new training scheme can easily enhance the encoder's learning ability in end-to-end detectors by training the multiple parallel auxiliary heads supervised by one-to-many label assignments such as ATSS and Faster RCNN.", "location": "Abstract" },
+      { "quote": "we conduct extra customized positive queries by extracting the positive coordinates from these auxiliary heads to improve the training efficiency of positive samples in the decoder.", "location": "Abstract" },
+      { "quote": "In inference, these auxiliary heads are discarded and thus our method introduces no additional parameters and computational cost to the original detector while requiring no hand-crafted non-maximum suppression (NMS).", "location": "Abstract" }
+    ]
+  },
+  "experiments": {
+    "summary": "Co-DETR is evaluated plug-and-play on DAB-DETR, Deformable-DETR, Deformable-DETR++ and DINO on COCO 2017 (val and test-dev) with 12/36-epoch schedules, plus LVIS v1.0 and Objects365 scaling; ablations vary the number of collaborative heads K, the auxiliary one-to-many heads, stacked convolutions, loss weights and training schedule, comparing against Group-DETR and H-DETR.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "42.9", "split": "val, Deformable-DETR + K=2, 12 epochs, ResNet-50", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "46.8", "split": "val, Deformable-DETR + K=1, 36 epochs", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "59.5", "split": "val, DINO-Deformable-DETR + Co-DETR, Swin-L, 36 epochs", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "54.8", "split": "val, Co-DINO-Deformable-DETR++, ResNet-50, 36 epochs", "location": "Sec 4.3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "66.0", "split": "test-dev, ViT-L (EVA-02) with TTA", "location": "Table 5" },
+      { "dataset": "LVIS v1.0", "metric": "AP", "value": "67.9", "split": "val, ViT-L (EVA-02)", "location": "Table 6" }
+    ],
+    "baselines": ["Deformable-DETR", "DINO", "DAB-DETR", "Conditional DETR", "Group-DETR", "H-DETR"],
+    "evidence": [
+      { "quote": "we improve the basic Deformable-DETR by 5.8% AP in 12-epoch training and 3.2% AP in 36-epoch training.", "location": "Introduction" },
+      { "quote": "The state-of-theart DINO-Deformable-DETR with Swin-L [25] can still be improved from 58.5% to 59.5% AP on COCO val.", "location": "Introduction" },
+      { "quote": "we achieve 66.0% AP on COCO test-dev and 67.9% AP on LVIS val", "location": "Abstract" },
+      { "quote": "our method (K = 1) achieves 46.2% AP, surpassing Group-DETR (44.6% AP) by a large margin even without the customized positive queries generation.", "location": "Sec 4.4" }
+    ]
+  },
+  "limitations": {
+    "summary": "The collaborative heads add parameters and computation during training even though they are discarded at inference, and the strongest configuration (Co-DINO-Deformable-DETR) additionally adopts quality focal loss and NMS rather than remaining fully NMS-free.",
+    "items": [
+      "The auxiliary heads introduce extra training-time overhead (parameters and computation) beyond the base detector.",
+      "The best-performing Co-DINO-Deformable-DETR variant adopts NMS and quality focal loss in addition to the base scheme."
+    ],
+    "evidence": [
+      { "quote": "Note that, only the original decoder is used during inference, thus the proposed training scheme only introduces extra overheads during training.", "location": "Introduction" },
+      { "quote": "the quality focal loss [19] and NMS are adopted for our Co-DINO-Deformable-DETR.", "location": "Sec 4.3" }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["MS COCO 2017", "LVIS v1.0", "Objects365"],
+    "backbones": ["ResNet-50", "Swin-L", "ViT-L", "EVA-02"],
+    "models": ["Co-DETR", "DAB-DETR", "Deformable-DETR", "Deformable-DETR++", "DINO", "ATSS", "Faster R-CNN", "FCOS", "RetinaNet", "Group-DETR", "H-DETR"],
+    "algorithms": ["one-to-many label assignment", "bipartite matching", "quality focal loss", "NMS", "multi-scale adapter", "GIoU loss", "copy-paste augmentation"],
+    "metrics": ["AP", "AP50", "AP75", "APs", "APm", "APl"],
+    "equations": [
+      { "name": "Head optimization conflict distance", "expr": "S_i,j = (1/|D|) * sum_I KL(C(H_i(I)), C(H_j(I)))", "location": "Sec 4.4, Eq. 11" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "Auxiliary heads are discarded at inference, so no extra parameters or computational cost are added",
+      "Scheme remains free of hand-crafted NMS post-processing",
+      "Code released at github.com/Sense-X/Co-DETR"
+    ],
+    "evidence": [
+      { "quote": "In inference, these auxiliary heads are discarded and thus our method introduces no additional parameters and computational cost to the original detector while requiring no hand-crafted non-maximum suppression (NMS).", "location": "Abstract" },
+      { "quote": "Codes are available at https://github.com/Sense-X/Co-DETR.", "location": "Abstract" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/iccv51070.2023.00621",
+    "arxivUrl": "https://arxiv.org/abs/2211.12860",
+    "venue": "IEEE/CVF International Conference on Computer Vision (ICCV)",
+    "pdfUrl": "https://arxiv.org/pdf/2211.12860"
+  }
+}

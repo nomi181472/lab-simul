@@ -1,0 +1,125 @@
+{
+  "id": "OD016",
+  "arxiv": "1704.04861",
+  "title": "MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications",
+  "year": 2017,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "Accuracy-driven network design has made models deeper and more complicated without improving efficiency in size and speed, while real-world applications on computationally limited platforms need timely recognition; prior small-network work mostly optimizes size and ignores latency.",
+    "statements": [
+      "Improvements in accuracy do not necessarily make networks more efficient in size and speed.",
+      "Recognition tasks in robotics, self-driving cars and augmented reality must run in a timely fashion on computationally limited platforms.",
+      "Many papers on small networks focus only on size but do not consider speed."
+    ],
+    "problemTags": ["speed-latency", "deployability", "real-time-edge"],
+    "evidence": [
+      { "quote": "However, these advances to improve accuracy are not necessarily making networks more efficient with respect to size and speed.", "location": "Introduction" },
+      { "quote": "In many real world applications such as robotics, self-driving car and augmented reality, the recognition tasks need to be carried out in a timely fashion on a computationally limited platform.", "location": "Introduction" },
+      { "quote": "Many papers on small networks focus only on size but do not consider speed.", "location": "Sec 2" }
+    ]
+  },
+  "background": {
+    "summary": "MobileNets builds on depthwise separable convolutions (Sifre, Inception, Xception) and contrasts with compression of pre-trained nets (quantization, hashing, pruning) and distillation; the claimed gap is a model family a developer can size to explicit latency and resource constraints.",
+    "relatedWork": [
+      { "name": "Depthwise separable convolutions", "relation": "core prior operation the architecture is built from", "quote": "MobileNets are built primarily from depthwise separable convolutions initially introduced in [26] and subsequently used in Inception models [13] to reduce the computation in the first few layers.", "location": "Sec 2" },
+      { "name": "Squeezenet", "relation": "prior small network using a bottleneck design", "quote": "Another small network is Squeezenet [12] which uses a bottleneck approach to design a very small network.", "location": "Sec 2" },
+      { "name": "Knowledge distillation", "relation": "complementary technique used in the face-attribute and FaceNet use cases", "quote": "Another method for training small networks is distillation [9] which uses a larger network to teach a smaller network.", "location": "Sec 2" },
+      { "name": "Network compression", "relation": "alternative approach of shrinking or compressing pre-trained networks", "quote": "A different approach for obtaining small networks is shrinking, factorizing or compressing pretrained networks.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "The general trend has been to make deeper and more complicated networks in order to achieve higher accuracy [27, 31, 29, 8].", "location": "Introduction" },
+      { "quote": "This paper proposes a class of network architectures that allows a model developer to specifically choose a small network that matches the resource restrictions (latency, size) for their application.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "MobileNets is a streamlined architecture built almost entirely from depthwise separable convolutions, together with two global hyper-parameters, width multiplier alpha and resolution multiplier rho, that let a model builder trade latency against accuracy for mobile and embedded applications.",
+    "approach": "Factorize standard convolutions into a depthwise filter layer and a 1x1 pointwise combination layer, then thin the network with a width multiplier and shrink inputs with a resolution multiplier.",
+    "components": [
+      "depthwise separable convolutions (depthwise 3x3 + pointwise 1x1) with batchnorm and ReLU",
+      "width multiplier alpha that thins every layer uniformly",
+      "resolution multiplier rho set implicitly via input resolution (224/192/160/128)",
+      "28-layer MobileNet body whose first layer is a full convolution",
+      "dense 1x1 convolutions implementable directly with GEMM"
+    ],
+    "solutionTags": ["real-time-backbone"],
+    "evidence": [
+      { "quote": "MobileNets are based on a streamlined architecture that uses depthwise separable convolutions to build light weight deep neural networks.", "location": "Abstract" },
+      { "quote": "We introduce two simple global hyperparameters that efficiently trade off between latency and accuracy.", "location": "Abstract" },
+      { "quote": "The MobileNet model is based on depthwise separable convolutions which is a form of factorized convolutions which factorize a standard convolution into a depthwise convolution and a 1 \u00d7 1 convolution called a pointwise convolution.", "location": "Sec 3.1" },
+      { "quote": "MobileNet uses 3 \u00d7 3 depthwise separable convolutions which uses between 8 to 9 times less computation than standard convolutions", "location": "Sec 3.1" }
+    ]
+  },
+  "experiments": {
+    "summary": "The paper measures ImageNet accuracy against Mult-Adds and parameter count across width/resolution settings, then transfers MobileNets to fine-grained recognition (Stanford Dogs), geo-localization (PlaNet), face attributes, object detection on COCO (SSD and Faster-RCNN) and face embeddings (FaceNet distillation).",
+    "benchmarks": [
+      { "dataset": "ImageNet", "metric": "accuracy", "value": "70.6%", "split": "MobileNet-224", "location": "Table 8" },
+      { "dataset": "ImageNet", "metric": "accuracy", "value": "60.2%", "split": "0.50 MobileNet-160", "location": "Table 9" },
+      { "dataset": "COCO minival", "metric": "mAP", "value": "19.3%", "split": "SSD 300 with MobileNet", "location": "Table 13" },
+      { "dataset": "COCO minival", "metric": "mAP", "value": "19.8%", "split": "Faster-RCNN 600 with MobileNet", "location": "Table 13" },
+      { "dataset": "Stanford Dogs", "metric": "top-1 accuracy", "value": "83.3%", "split": "test", "location": "Table 10" },
+      { "dataset": "Face attributes", "metric": "mean AP", "value": "88.7%", "split": "MobileNet-224 distilled from baseline", "location": "Table 12" },
+      { "dataset": "Im2GPS", "metric": "street-level localization", "value": "11.4%", "split": "PlaNet with MobileNet", "location": "Table 11" }
+    ],
+    "baselines": ["GoogleNet", "VGG-16", "AlexNet", "Squeezenet", "Inception V3", "Inception V2 (SSD/Faster-RCNN)", "deeplab-VGG", "FaceNet", "PlaNet"],
+    "evidence": [
+      { "quote": "We present extensive experiments on resource and accuracy tradeoffs and show strong performance compared to other popular models on ImageNet classification.", "location": "Abstract" },
+      { "quote": "MobileNet is nearly as accurate as VGG16 while being 32 times smaller and 27 times less compute intensive.", "location": "Sec 4.2" },
+      { "quote": "For both frameworks, MobileNet achieves comparable results to other networks with only a fraction of computational complexity and model size.", "location": "Sec 4.6" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors note accuracy falls off sharply when the model is shrunk too aggressively, that depthwise separable convolutions cost about 1% ImageNet accuracy versus full convolutions, and that depthwise filters need almost no weight decay; detection mAP with a MobileNet backbone also trails larger backbones.",
+    "items": [
+      "Accuracy degrades quickly once the width multiplier reaches 0.25 (50.6% ImageNet accuracy).",
+      "Depthwise separable convolutions reduce ImageNet accuracy by about 1% versus a full-convolution MobileNet.",
+      "Under SSD and Faster-RCNN, MobileNet backbones obtain lower COCO mAP than Inception V2 and VGG backbones.",
+      "Depthwise filters require very little or no weight decay, making training hyper-parameters unusual."
+    ],
+    "evidence": [
+      { "quote": "Accuracy drops off smoothly until the architecture is made too small at \u03b1 = 0.25.", "location": "Sec 4.2" },
+      { "quote": "Depthwise convolution is extremely efficient relative to standard convolution. However it only filters input channels, it does not combine them to create new features.", "location": "Sec 3.1" },
+      { "quote": "we found that it was important to put very little or no weight decay (l2 regularization) on the depthwise filters", "location": "Sec 3.2" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Release pre-trained MobileNet models in TensorFlow to aid adoption and exploration.", "quote": "As a next step to help adoption and exploration of MobileNets, we plan on releasing models in Tensor Flow.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["ImageNet", "COCO", "Stanford Dogs", "YFCC100M", "Im2GPS"],
+    "backbones": ["MobileNet", "Inception V3", "VGG-16", "GoogleNet", "AlexNet", "FaceNet"],
+    "models": ["MobileNet", "SSD 300", "Faster-RCNN", "PlaNet", "deeplab"],
+    "algorithms": ["depthwise separable convolution", "knowledge distillation", "width multiplier", "resolution multiplier", "batch normalization", "RMSprop", "GEMM"],
+    "metrics": ["accuracy", "top-1 accuracy", "mAP", "mean AP", "Mult-Adds"],
+    "equations": [
+      { "name": "standard convolution cost", "expr": "DK * DK * M * N * DF * DF", "location": "Sec 3.1, Eq. 2" },
+      { "name": "depthwise separable convolution cost", "expr": "DK * DK * M * DF * DF + M * N * DF * DF", "location": "Sec 3.1, Eq. 5" },
+      { "name": "cost with width multiplier", "expr": "DK * DK * aM * DF * DF + aM * aN * DF * DF", "location": "Sec 3.3, Eq. 6" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "mobile and embedded vision", "detail": "MobileNets is explicitly designed for mobile and embedded vision applications with latency and size constraints.", "quote": "We present a class of efficient models called MobileNets for mobile and embedded vision applications.", "location": "Abstract" },
+      { "domain": "robotics, self-driving cars and augmented reality", "detail": "Named as real-world applications whose recognition tasks must run timely on computationally limited platforms.", "quote": "In many real world applications such as robotics, self-driving car and augmented reality, the recognition tasks need to be carried out in a timely fashion on a computationally limited platform.", "location": "Introduction" },
+      { "domain": "object detection", "detail": "MobileNet serves as the base network for SSD and Faster-RCNN detectors trained on COCO." },
+      { "domain": "face attributes", "detail": "A distilled MobileNet compresses a 75-million-parameter face attribute classifier while matching its mean AP at 1% of the Mult-Adds." },
+      { "domain": "large scale geo-localization", "detail": "The PlaNet geo-localization model is re-trained with the MobileNet architecture." }
+    ],
+    "deploymentClaims": [
+      "3x3 depthwise separable convolutions use 8 to 9 times less computation than standard convolutions.",
+      "MobileNet is nearly as accurate as VGG16 while being 32 times smaller and 27 times less compute intensive.",
+      "The distilled face attribute classifier matches the in-house baseline mean AP while consuming only 1% of the Mult-Adds.",
+      "95% of MobileNet computation time is in 1x1 convolutions, which map directly to optimized GEMM routines."
+    ],
+    "evidence": [
+      { "quote": "MobileNet can also be deployed as an effective base network in modern object detection systems.", "location": "Sec 4.6" },
+      { "quote": "MobileNet spends 95% of it\u2019s computation time in 1 \u00d7 1 convolutions which also has 75% of the parameters as can be seen in Table 2.", "location": "Sec 3.2" },
+      { "quote": "MobileNet models can be applied to various recognition tasks for efficient on device intelligence.", "location": "Fig 1" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1704.04861",
+    "arxivUrl": "https://arxiv.org/abs/1704.04861",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/1704.04861"
+  }
+}

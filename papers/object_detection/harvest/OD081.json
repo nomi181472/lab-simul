@@ -1,0 +1,232 @@
+{
+  "id": "OD081",
+  "arxiv": "2112.03857",
+  "title": "Grounded Language-Image Pre-training",
+  "year": 2021,
+  "venue": "CVPR 2022",
+  "problem": {
+    "summary": "Standard detectors predict a fixed set of pre-defined categories learned from crowd-labeled data that is costly to scale and covers at most a couple thousand concepts, so models need new labeled data for every new concept or domain and cannot generalize zero-shot.",
+    "statements": [
+      "Detection models trained on a fixed category set require additional labeled data to generalize to new visual concepts and domains.",
+      "Human-annotated detection annotations are expensive to scale, and even the largest detection datasets cover no more than about 2,000 categories.",
+      "Self-training with a fixed-vocabulary detector teacher cannot introduce concepts outside the teacher's label pool.",
+      "Image-level pre-training (CLIP) gives semantic but not fine-grained object-level representations needed for detection-style tasks."
+    ],
+    "problemTags": ["open-vocabulary", "annotation-cost", "long-tail"],
+    "evidence": [
+      {
+        "quote": "Visual recognition models are typically trained to predict a fixed set of pre-determined object categories, which limits their usability in real-world applications since additional labeled data are needed to generalize to new visual concepts and domains.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "However, human annotations have been proven costy and limited [15, 30].",
+        "location": "Sec 3.3"
+      },
+      {
+        "quote": "The largest attempts at scaling up detection vocabulary still cover no more than 2,000 categories [15, 28].",
+        "location": "Sec 3.3"
+      }
+    ]
+  },
+  "background": {
+    "summary": "GLIP builds on CLIP/ALIGN-style image-text contrastive pre-training, on DyHead as the detection backbone/head, on MDETR's grounding formulation, and on prior zero-shot/open-vocabulary detectors (ViLD), claiming the gap is that no prior method unifies detection and grounding to use both detection and grounding data plus web-scale image-text pairs.",
+    "relatedWork": [
+      {
+        "name": "CLIP",
+        "relation": "image-level vision-language pre-training that is semantic but not object-level",
+        "quote": "CLIP [45] shows that image-level visual representations can be learned effectively on large amounts of raw image-text pairs.",
+        "location": "Introduction"
+      },
+      {
+        "name": "DyHead",
+        "relation": "the SoTA detector used as GLIP's image encoder; reformulated to show equivalence",
+        "quote": "Though our current implementation is built upon Dynamic Head (DyHead) [10], our unified formulation can be generalized to any object detection systems",
+        "location": "Sec 2"
+      },
+      {
+        "name": "MDETR",
+        "relation": "prior phrase-grounding model whose fine-grained contrastive loss inspired the grounding loss",
+        "quote": "Our grounding formulation is inspired by MDETR [23], and our grounding loss shares the same spirit of MDETR's fine-grained contrastive loss.",
+        "location": "Sec 3.1"
+      },
+      {
+        "name": "ViLD",
+        "relation": "zero-shot detection by distilling CLIP/ALIGN into a two-stage detector",
+        "quote": "By distilling the knowledge from the CLIP/ALIGN model into a two-stage detector, ViLD [14] is proposed to advance zero-shot object detection.",
+        "location": "Sec 2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Standard object detection systems are trained to localize a fixed set of object classes predefined in crowd-labeled datasets, such as COCO [37], OpenImages (OI) [30], Objects365 [50], and Visual Genome (VG) [28], which contains no more than 2,000 object classes.",
+        "location": "Sec 2"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "GLIP reformulates object detection as phrase grounding by replacing the box-classifier logits with word-region alignment scores computed from a text prompt listing candidate categories, adds cross-modality deep fusion between the DyHead image encoder and BERT text encoder, and pre-trains on detection plus grounding data enlarged by teacher-generated pseudo boxes for 24M web image-text pairs.",
+    "approach": "Ground every region against phrases in a text prompt with a unified loss, fuse vision and language deeply across encoder layers, and self-train on detection, gold grounding, and pseudo-labeled image-text data.",
+    "components": [
+      "text prompt of candidate category phrases for detection",
+      "word-region alignment scores replacing classification logits",
+      "cross-modality multi-head attention deep fusion (DyHead + BERT)",
+      "unified loss for detection and grounding",
+      "teacher-student self-training with NLP-parsed noun-phrase pseudo boxes",
+      "prompt tuning and manual prompt design for transfer"
+    ],
+    "solutionTags": ["open-vocabulary-clip", "self-training", "feature-fusion", "attention"],
+    "evidence": [
+      {
+        "quote": "Instead of classifying each region/box into c classes, we reformulate detection as a grounding task, by grounding/aligning each region to c phrases in a text prompt (see Figure 2).",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "Any object detection model can be converted to a grounding model by replacing the object classification logits in its box classifier with the word-region alignment scores",
+        "location": "Introduction"
+      },
+      {
+        "quote": "we show that deep cross-modality fusion applied by GLIP, as shown in Figure 2 (Middle), is crucial to learn high-quality language-aware visual representations and to achieve superior transfer learning performance.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "We first pre-train a teacher GLIP with gold (human-annotated) detection and grounding data. Then we use this teacher model to predict boxes for web-collected image-text data, with noun phrases detected by an NLP parser [2].",
+        "location": "Sec 3.3"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "GLIP is pre-trained on 27M grounding examples (3M human-annotated + 24M web image-text pairs) and evaluated by direct zero-shot transfer on COCO, LVIS and Flickr30K, by full fine-tuning on COCO, and by the 13-dataset ODinW few-shot benchmark with data-efficiency and prompt-tuning ablations.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "AP", "value": "49.8", "split": "zero-shot, 2017val, GLIP-L", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "60.8", "split": "fine-tune, 2017val, GLIP-L", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "61.5", "split": "fine-tune, test-dev, GLIP-L", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "46.7", "split": "zero-shot, 2017val, GLIP-T", "location": "Table 2" },
+      { "dataset": "LVIS", "metric": "AP", "value": "26.9", "split": "zero-shot, val v1.0, GLIP-L", "location": "Table 3" },
+      { "dataset": "Flickr30K", "metric": "R@1", "value": "87.1", "split": "test, phrase grounding, GLIP-L", "location": "Table 4" },
+      { "dataset": "ODinW (13 datasets)", "metric": "AP (avg)", "value": "52.1", "split": "zero-shot, GLIP-L", "location": "Table 11" }
+    ],
+    "baselines": ["Faster R-CNN", "DyHead", "SoftTeacher", "MDETR", "Supervised-RFS", "MaskRCNN"],
+    "evidence": [
+      {
+        "quote": "GLIP achieves 49.8 AP and 26.9 AP, respectively, surpassing many supervised baselines.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "After fine-tuned on COCO, GLIP achieves 60.8 AP on val and 61.5 AP on test-dev, surpassing prior SoTA.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "GLIP-L surpasses the current SoTA on COCO, reaching 60.8 on 2017val and 61.5 on test-dev, without some bells and whistles in prior SoTA [65] such as model EMA, mixup, label smoothing, or soft-NMS.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "A zero-shot GLIP-T outperforms 5-shot DyHead-T while a one-shot GLIP-L is competitive with a fully supervised DyHead-T.",
+        "location": "Sec 5.1"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper has no dedicated limitations section, but the authors note that long category lists cannot fit in one prompt, that deep fusion can hurt novel-category performance when only detection data is used, that models overfit on LVIS/Flickr30K during pre-training, and that the scaling behaviour with image-text data size is not studied.",
+    "items": [
+      "Text prompts are limited to 256 tokens, so large-vocabulary datasets must be split into multiple prompts (minor performance drop).",
+      "With only detection data, deep fusion can degrade performance on novel categories because the language model overfits to the pre-training vocabulary.",
+      "Models tend to overfit on LVIS and Flickr30K during pre-training, so best checkpoints are selected on validation splits.",
+      "A systematic study of scaling with text-image data size is deferred."
+    ],
+    "evidence": [
+      {
+        "quote": "Thus, for certain datasets with a large vocabulary (e.g., Objects365 [50] has 365 object categories), we cannot fit all category names into one prompt.",
+        "location": "Appendix C"
+      },
+      {
+        "quote": "when grounding data are present, deep fusion degrades common category performance but improves rare category performance",
+        "location": "Appendix D.2"
+      },
+      {
+        "quote": "We find that models tend to overfit on LVIS during the course of pre-training so we monitor the performance on minival for all models and report the results with the best checkpoints.",
+        "location": "Appendix C.2"
+      },
+      {
+        "quote": "We leave a detailed study of how GLIP scales with text-image data size to future work.",
+        "location": "Conclusion"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Study how GLIP scales with the size of text-image pre-training data.",
+      "quote": "We leave a detailed study of how GLIP scales with text-image data size to future work.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Design better prompts using more expressive class descriptions or the preferences of the pre-trained language model.",
+      "quote": "One could design better prompts, by providing more expressive descriptions of these classes and/or by exploiting the preference of a pre-trained language model.",
+      "location": "Sec 3.1"
+    },
+    {
+      "direction": "Scale up grounding data as a promising alternative to scaling up human-annotated detection data.",
+      "quote": "We conclude that grounding data are indeed more semantic-rich and a promising alternative to scaling up detection data.",
+      "location": "Sec 4.4"
+    }
+  ],
+  "technical": {
+    "datasets": ["COCO", "LVIS", "Flickr30K", "Objects365", "OpenImages", "Visual Genome", "ImageNetBoxes", "GoldG", "Conceptual Captions", "SBU", "CC12M", "ODinW"],
+    "backbones": ["Swin-T", "Swin-L", "ResNet-50-FPN", "ResNet-101-FPN", "BERT"],
+    "models": ["GLIP-T (A)", "GLIP-T (B)", "GLIP-T (C)", "GLIP-T", "GLIP-L", "DyHead", "MDETR", "ViLD", "CLIP", "SoftTeacher", "Faster R-CNN"],
+    "algorithms": ["Hungarian matching", "focal binary sigmoid loss", "word-region alignment", "cross-modality multi-head attention", "self-training pseudo-labeling", "prompt tuning", "linear probing", "noun-phrase parsing"],
+    "metrics": ["AP", "AP50", "APr", "APc", "APf", "R@1", "R@5", "R@10", "FPS"],
+    "equations": [
+      { "name": "Detection loss", "expr": "L = L_cls + L_loc", "location": "Sec 3.1 (Eq 1)" },
+      { "name": "Classification logits", "expr": "S_cls = O W^T, O = Enc_I(Img)", "location": "Sec 3.1 (Eq 2)" },
+      { "name": "Grounding alignment scores", "expr": "S_ground = O P^T, P = Enc_L(Prompt)", "location": "Sec 3.1 (Eq 3)" },
+      { "name": "Cross-modality attention", "expr": "Attn = O(q) (P(q))^T / sqrt(d)", "location": "Sec 3.2" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "road infrastructure inspection",
+        "detail": "ODinW includes the Pothole dataset for detecting holes on the road.",
+        "quote": "Pothole concerns detecting holes on the road",
+        "location": "Sec 5"
+      },
+      {
+        "domain": "egocentric vision",
+        "detail": "ODinW includes EgoHands for locating hands in ego-centric images.",
+        "quote": "EgoHands requires locating hands of a person",
+        "location": "Sec 5"
+      },
+      {
+        "domain": "thermal imaging / surveillance",
+        "detail": "ODinW includes ThermalDogsandPeople for identifying dogs and persons in infrared images.",
+        "quote": "ThermalDogsandPeople involves identifying dogs and persons in infrared images.",
+        "location": "Sec 5"
+      }
+    ],
+    "deploymentClaims": [
+      "One centralized GLIP model can serve various downstream tasks, reducing fine-tuning and deployment cost.",
+      "Prompt tuning almost matches full-model tuning without changing any grounding-model parameters.",
+      "Language-aware deep fusion adds less than 1x computational cost (Table 7)."
+    ],
+    "evidence": [
+      {
+        "quote": "This greatly reduces deployment cost because it allows one centralized model to serve various downstream tasks",
+        "location": "Sec 5"
+      },
+      {
+        "quote": "By only tuning the prompt embeddings, GLIP-T and GLIP-L can achieve performance close to full-model tuning, allowing for efficient deployment.",
+        "location": "Fig 7"
+      },
+      {
+        "quote": "Table 7 shows that the language-aware deep fusion brings less than 1x additional computational cost overall.",
+        "location": "Appendix D.1"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr52688.2022.01069",
+    "arxivUrl": "https://arxiv.org/abs/2112.03857",
+    "venue": "CVPR 2022",
+    "pdfUrl": "https://arxiv.org/pdf/2112.03857"
+  }
+}

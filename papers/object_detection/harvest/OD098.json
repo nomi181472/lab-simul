@@ -1,0 +1,121 @@
+{
+  "id": "OD098",
+  "arxiv": "2308.05480",
+  "title": "YOLO-MS: Rethinking Multi-Scale Representation Learning for Real-time Object Detection",
+  "year": 2023,
+  "venue": "IEEE TPAMI",
+  "problem": {
+    "summary": "The paper argues that real-time detectors still handle scale poorly: multi-branch CSP/ELAN blocks produce homogenized inter-branch features, Res2Net-style hierarchy leaks contaminative spatial information, and homogeneous per-stage kernel sizes prevent cheap use of large receptive fields.",
+    "statements": [
+      "Inter-branch features in popular CSP and ELAN blocks are homogenized, so multi-scale information is not truly diverse.",
+      "Hierarchical multi-branch blocks (Res2Net) enrich diversity but inject spatial information unrelated to the target object.",
+      "Prior real-time detectors use the same kernel size in every stage, limiting large-kernel convolutions and effective receptive fields."
+    ],
+    "problemTags": ["scale-variance", "speed-latency"],
+    "evidence": [
+      { "quote": "recognizing objects at different scales remains a fundamental challenge for real-time object detectors.", "location": "Introduction" },
+      { "quote": "their inter-branch features are homogenized, reflecting a potential absence of diverse multi-scale information.", "location": "Introduction" },
+      { "quote": "it introduces contaminative spatial information as shown in Fig. 1, not related to the target object, potentially harming detection performance.", "location": "Introduction" },
+      { "quote": "However, the kernel size only reaches 5 × 5 due to speed limitation. Homogeneous block design in different stages limits the application of largekernel convolutions.", "location": "Sec 2.2" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on FPN/PAFPN necks, the CSP/ELAN real-time line (YOLOv4-v7, RTMDet), the Res2Net hierarchical block, and large-kernel CNN studies, claiming prior work improved neck macro-structures while neglecting multi-scale learning inside the basic building blocks.",
+    "relatedWork": [
+      { "name": "FPN / PAFPN", "relation": "prior multi-scale fusion necks the paper builds its pyramid on", "quote": "Typically, FPN [41], PAFPN [45], and GatherDistribute mechanism [64] modify the model neck to improve the aggregation of different scale features.", "location": "Introduction" },
+      { "name": "RTMDet", "relation": "baseline detector and prior large-kernel adopter", "quote": "RTMDet [48] first introduces large-kernel convolutions (5×5) into networks to boost the feature extraction capability of the CSP block.", "location": "Sec 2.1" },
+      { "name": "Res2Net", "relation": "source of the hierarchical multi-branch structure used in MS-Block", "quote": "This hierarchical multi-branch structure is the key of Res2Net [14] to augment the richness of information at different scales in building blocks.", "location": "Sec 3.1" },
+      { "name": "RT-DETR", "relation": "transformer-based real-time alternative that removes NMS", "quote": "RT-DETR [80] constructs the first transformer-based model to avoid the negative impact of NMS at inference time.", "location": "Sec 2.1" }
+    ],
+    "evidence": [
+      { "quote": "The wider receptive field provided by large-kernel convolutions can be a potent technique for building strong multi-scale feature representations", "location": "Sec 2.2" },
+      { "quote": "However, the mainstream of the basic building block overlooks the importance of multi-scale feature representation learning while focusing on how to facilitate detection efficiency or how to introduce new training techniques", "location": "Sec 2.2" }
+    ]
+  },
+  "solution": {
+    "summary": "The paper replaces CSP/ELAN blocks with an MS-Block that hierarchically splits features across branches re-weighted by a lightweight Global Query Learning module, and applies a Heterogeneous Kernel Size Selection protocol that grows kernel sizes 3, 5, 7, 9 from shallow to deep stages.",
+    "approach": "Hierarchical multi-branch MS-Blocks with a shared global query (GQL) plus a stage-wise increasing kernel-size schedule (HKS) to enrich multi-scale feature representation at real-time cost.",
+    "components": [
+      "MS-Block with hierarchical multi-branch structure",
+      "Global Query Learning (GQL) with a shared lightweight query",
+      "Heterogeneous Kernel Size Selection (HKS) protocol (3, 5, 7, 9)",
+      "inverted bottleneck modules (IBM/SIBM) in branches",
+      "PAFPN neck and head built from MS-Blocks"
+    ],
+    "solutionTags": ["multi-scale", "attention", "feature-fusion", "feature-pyramid"],
+    "evidence": [
+      { "quote": "we propose an efficient strategy named Global Query Learning (GQL), aiming at offering cross-stage guidance for basic blocks.", "location": "Sec 3.2" },
+      { "quote": "we maintain a global query that stores the cross-stage spatial representations of each branch.", "location": "Introduction" },
+      { "quote": "the kernel sizes of convolutions are 3, 5, 7, and 9 from the shallowest to the deepest stage.", "location": "Sec 3.3" },
+      { "quote": "we gradually increase the kernel size from lower stages to higher ones.", "location": "Sec 3.3" }
+    ]
+  },
+  "experiments": {
+    "summary": "The authors train three YOLO-MS scales from scratch on COCO for 300 epochs in MMDetection, ablate GQL, HKS, branch number and query dimension against RTMDet, compare with SOTA real-time detectors, and extend to instance segmentation, DOTA oriented detection, CrowdHuman, underwater, foggy and RAW-image detection.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "mAP", "value": "42.8", "split": "val2017 (YOLO-MS-XS)", "location": "Table 8" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "45.4", "split": "val2017 (YOLO-MS-S)", "location": "Table 8" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "49.7", "split": "val2017 (YOLO-MS)", "location": "Table 8" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "40.3", "split": "val2017 (RTMDet-T baseline ablation)", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "seg mAP", "value": "36.6", "split": "val2017 (YOLO-MS-XS instance segmentation)", "location": "Table 10" },
+      { "dataset": "DOTA-v1.0", "metric": "mAP", "value": "68.6", "split": "val (YOLO-MS-R-L oriented)", "location": "Table 11" },
+      { "dataset": "CrowdHuman", "metric": "mAP", "value": "87.0", "split": "val (YOLO-MS-XS)", "location": "Table 12" }
+    ],
+    "baselines": ["RTMDet", "YOLOv8", "YOLOv7", "YOLOv6", "Gold-YOLO", "YOLOv10", "RT-DETR"],
+    "evidence": [
+      { "quote": "YOLO-MS-XS reaches 42.8% AP, which is 1.8% AP higher than it with the ImageNet [8] pre-trained model.", "location": "Sec 4.5" },
+      { "quote": "our proposed methods bring a significant improvement of +1.8% AP compared to RTMDet.", "location": "Sec 4.4" },
+      { "quote": "our method advances the AP of YOLOv8-N, YOLOv8-S, and YOLOv8-M from 37.2%, 43.9%, and 49.8% to 40.2%, 46.2%, and 50.6%, respectively.", "location": "Sec 4.5" },
+      { "quote": "the segmentation AP of our YOLOMS increases from 40.5% to 42.8% with an improvement of +2.3%.", "location": "Sec 4.6" }
+    ]
+  },
+  "limitations": {
+    "summary": "Branch richness is throttled by speed (the better-scoring 4-branch variant is slower), adding branches does not help monotonically, and the largest model had to be trained with a reduced batch size for hardware reasons.",
+    "items": [
+      "Default Nb = 3 sacrifices accuracy of the Nb = 4 variant for higher FPS (150 vs 137).",
+      "Increasing branch count or query size does not monotonically improve AP.",
+      "Large version trained with batch size 16 per GPU due to hardware limits.",
+      "All results rely on a single from-scratch recipe (300 epochs, MMDetection, 640x640 input)."
+    ],
+    "evidence": [
+      { "quote": "If the speed is not an obstacle, Nb = 4 is also recommended.", "location": "Sec 4.4" },
+      { "quote": "directly increasing the size of branches does not always lead to performance improvement.", "location": "Sec 4.4" },
+      { "quote": "due to the hardware limitation, the batch size for the large version model is 16 per GPU", "location": "Sec 4.1" }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["MS COCO", "DOTA-v1.0", "CrowdHuman", "RUDO", "RTTS", "AODRaw"],
+    "backbones": ["MS-Block encoder (RTMDet-based)"],
+    "models": ["YOLO-MS-XS", "YOLO-MS-S", "YOLO-MS", "RTMDet", "YOLOv8", "YOLOv9", "YOLOv10"],
+    "algorithms": ["GQL", "HKS", "SimOTA", "Focal Loss", "DIoU Loss", "Mosaic", "MixUP", "EMA", "Grad-CAM"],
+    "metrics": ["AP", "AP50", "AP75", "APs", "APm", "APl", "FPS", "latency", "mMR", "JI"],
+    "equations": [
+      { "name": "MS-Block branch recursion", "expr": "Y_i = X_i (i=1); F_I(Y_{i-1} + X_i) (i>1)", "location": "Eq 1, Sec 3.1" },
+      { "name": "GQL key extraction", "expr": "K = Linear(GAP(Y))", "location": "Eq 2, Sec 3.2" },
+      { "name": "GQL feature re-weighting", "expr": "Y' = sigmoid(Q x K^T) * F_ms(Y)", "location": "Eq 3, Sec 3.2" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "drones and robotics (edge devices)", "detail": "Real-time detectors are stated to be deployed in industry on edge devices such as drones and robotics.", "quote": "have found significant applications in industries, particularly for edge devices, such as drones and robotics.", "location": "Introduction" },
+      { "domain": "remote sensing / aerial detection", "detail": "YOLO-MS-R variants are evaluated on DOTA-v1.0 aerial oriented detection, where objects are typically small.", "quote": "objects in remote sensing scenarios are typically small", "location": "Sec 4.6" },
+      { "domain": "crowd analytics", "detail": "YOLO-MS is evaluated on CrowdHuman for detecting people in crowded scenes.", "quote": "Detecting objects in crowded scenarios is also a crucial topic in computer vision.", "location": "Sec 4.6" }
+    ],
+    "deploymentClaims": [
+      "YOLO-MS-XS measured at 7.1 ms latency, 5.1M params and 8.7G MACs at 640x640 in the common benchmark environment (Table 8).",
+      "FPS benchmarked on an NVIDIA 3090 GPU in FP32; the ablation tiny model runs at 150 FPS (Table 3).",
+      "FPS evaluation performed without NMS post-processing, batch size 1."
+    ],
+    "evidence": [
+      { "quote": "we measure all models’ frames per second (FPS) using an NVIDIA 3090 GPU in a full-precision floating-point format (FP32).", "location": "Sec 4.1" },
+      { "quote": "During testing, we perform inference without the NMS postprocessing step", "location": "Sec 4.1" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/tpami.2025.3538473",
+    "arxivUrl": "https://arxiv.org/abs/2308.05480",
+    "venue": "IEEE TPAMI",
+    "pdfUrl": "https://arxiv.org/pdf/2308.05480"
+  }
+}

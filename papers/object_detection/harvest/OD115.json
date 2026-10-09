@@ -1,0 +1,323 @@
+{
+  "id": "OD115",
+  "arxiv": "2509.20787",
+  "title": "Real-Time Object Detection Meets DINOv3",
+  "year": 2025,
+  "venue": null,
+  "problem": {
+    "summary": "Real-time detectors must balance accuracy against compute for edge and mobile use, and it was unclear how to fold DINOv3's strong foundation features into DETR-style real-time models: DINOv3 only emits single-scale features while detection needs multi-scale ones, and deployment scales from GPU down to mobile must all be covered.",
+    "statements": [
+      "Achieving a good balance between detection performance and computational efficiency remains the key challenge, especially for lightweight models meant for edge and mobile devices.",
+      "DINOv3 outputs single-scale (1/16) dense features, while objects vary widely in size and multi-scale features are among the most effective ways to improve detection, so an efficient single-to-multi-scale conversion is required.",
+      "Despite DINOv3's robust feature representations, the feasibility and effectiveness of integrating it into DETR-based real-time models had not been fully investigated.",
+      "Ultra-lightweight variants (Nano, Pico, Femto, Atto) must meet strict parameter budgets while still delivering usable accuracy."
+    ],
+    "problemTags": [
+      "real-time-edge",
+      "deployability",
+      "scale-variance"
+    ],
+    "evidence": [
+      {
+        "quote": "Achieving a good balance between detection performance and computational efficiency remains a key challenge, especially for lightweight models suitable for edge and mobile devices",
+        "location": "Introduction"
+      },
+      {
+        "quote": "DINOv3 is based on a ViT backbone, which naturally produces single-scale (1/16) dense features",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "In object detection, however, objects vary widely in size, and multiscale features are one of the most effective ways to improve performance",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "Despite the robust feature representations offered by DINOv3 [21] in diverse scenarios",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "Builds on the authors' DEIM (Dense O2O) pipeline and the RT-DETR architecture, importing DINOv3 foundation features; prior art includes ViTDet's Feature2Pyramid for deriving multi-scale features from a plain ViT and the HGNetv2 CNN backbones used by D-FINE and the ultra-light variants.",
+    "relatedWork": [
+      {
+        "name": "DEIM",
+        "relation": "the authors' prior method whose Dense O2O training DEIMv2 extends",
+        "quote": "In our previous DEIM [7], we proposed Dense O2O, which increases the number of objects per training image to provide stronger supervision, improving convergence and performance",
+        "location": "Sec 2"
+      },
+      {
+        "name": "DINOv3",
+        "relation": "foundation vision model providing pretrained/distilled backbones and semantics",
+        "quote": "Despite the robust feature representations offered by DINOv3 [21] in diverse scenarios",
+        "location": "Introduction"
+      },
+      {
+        "name": "RT-DETR",
+        "relation": "overall architecture template DEIMv2 follows (backbone, hybrid encoder, decoder)",
+        "quote": "Our overall architecture follows the design of RT-DETR [14]",
+        "location": "Sec 2"
+      },
+      {
+        "name": "HGNetv2",
+        "relation": "efficient CNN backbone family used for the ultra-lightweight variants",
+        "quote": "HGNetv2 [1], developed by the Baidu PaddlePaddle team, is widely used in realtime DETR frameworks for its efficiency",
+        "location": "Sec 2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "ViTDet [10] introduced the Feature2Pyramid module, which generates multi-scale features from the final ViT output using deconvolution",
+        "location": "Sec 2"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "DEIMv2 extends DEIM with DINOv3 features across eight model sizes: a Spatial Tuning Adapter converts DINOv3's single-scale output into multi-scale features and enhances them with a lightweight detail branch, while a simplified decoder (SwiGLU FFN, RMSNorm, shared query position embedding) and object-level CopyBlend augmentation strengthen Dense O2O; ultra-light variants instead use progressively pruned HGNetv2-B0 backbones.",
+    "approach": "Combine DINOv3-pretrained/distilled ViT backbones with a parameter-free Spatial Tuning Adapter for large variants, and pruned HGNetv2 CNN backbones for ultra-light variants, all on an RT-DETR-style architecture with a simplified decoder and upgraded Dense O2O matching.",
+    "components": [
+      "Spatial Tuning Adapter (STA): fully convolutional network that resizes 1/16-scale features from ViT blocks (e.g. 5th, 8th, 11th) into multiple scales via parameter-free bilinear interpolation and adds a Bi-Fusion ultra-lightweight CNN detail branch",
+      "DINOv3-pretrained ViT-Small / ViT-Small+ backbones for X and L, ViT-Tiny / ViT-Tiny+ distilled from DINOv3 for M and S",
+      "Progressively depth- and width-pruned HGNetv2-B0 backbones for Nano, Pico, Femto and Atto",
+      "Simplified decoder: SwiGLU FFN and RMSNorm replacing FFN and LayerNorm, plus one position embedding shared across all decoder layers",
+      "Enhanced Dense O2O with object-level CopyBlend augmentation that blends new objects into images",
+      "Five-term weighted loss (MAL, FGL, DDF, L1 bbox, GIoU), with the local FGL/DDF losses excluded for Pico, Femto and Atto",
+      "Hybrid encoder plus iterative decoder that refines the top-K candidate boxes, following RT-DETR"
+    ],
+    "solutionTags": [
+      "transformer-query",
+      "real-time-backbone",
+      "feature-fusion",
+      "attention",
+      "distillation"
+    ],
+    "evidence": [
+      {
+        "quote": "and introduce a Spatial Tuning Adapter (STA), which efficiently converts DINOv3’s single-scale output into multi-scale features and complements strong semantics with fine-grained details to enhance detection",
+        "location": "Abstract"
+      },
+      {
+        "quote": "we employ HGNetv2 with depth and width pruning to meet strict resource budgets",
+        "location": "Abstract"
+      },
+      {
+        "quote": "In DEIMv2, we further explore Dense O2O at the object level with Copy-Blend, which adds new objects without their backgrounds",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "sharing a single position embedding across all decoder layers, eliminating redundant computation",
+        "location": "Sec 2"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluates all eight DEIMv2 variants on COCO val2017 against real-time detectors (DEIM, D-FINE, RT-DETRv2, YOLOv8/9/10/11/12, Gold-YOLO) and ultra-light detectors (NanoDet-M, PicoDet, YOLOv10-N), reporting AP, parameters, GFLOPs and latency.",
+    "benchmarks": [
+      {
+        "dataset": "COCO val2017",
+        "metric": "AP",
+        "value": "57.8",
+        "split": "DEIMv2-X (50.26M params)",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "COCO val2017",
+        "metric": "AP",
+        "value": "56.0",
+        "split": "DEIMv2-L (32.18M params)",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "COCO val2017",
+        "metric": "AP",
+        "value": "53.0",
+        "split": "DEIMv2-M (18.11M params)",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "COCO val2017",
+        "metric": "AP",
+        "value": "50.9",
+        "split": "DEIMv2-S (9.71M params)",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "COCO val2017",
+        "metric": "AP",
+        "value": "43.0",
+        "split": "DEIMv2-Nano (3.57M params)",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "COCO val2017",
+        "metric": "AP",
+        "value": "38.5",
+        "split": "DEIMv2-Pico (1.51M params)",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "COCO val2017",
+        "metric": "AP",
+        "value": "23.8",
+        "split": "DEIMv2-Atto (0.49M params, 320x320 input)",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "COCO val2017",
+        "metric": "latency (ms)",
+        "value": "13.75",
+        "split": "DEIMv2-X",
+        "location": "Table 1"
+      },
+      {
+        "dataset": "COCO val2017",
+        "metric": "AP",
+        "value": "56.5",
+        "split": "DEIM-X baseline (62M params)",
+        "location": "Table 3"
+      }
+    ],
+    "baselines": [
+      "DEIM",
+      "D-FINE",
+      "RT-DETRv2",
+      "YOLOv11",
+      "YOLOv12",
+      "YOLOv10",
+      "YOLOv9",
+      "YOLOv8",
+      "Gold-YOLO",
+      "NanoDet-M"
+    ],
+    "evidence": [
+      {
+        "quote": "Notably, our largest model, DEIMv2-X, achieves 57.8 AP with only 50.3M parameters, surpassing prior X- scale models that require over 60M parameters for just 56.5 AP",
+        "location": "Abstract"
+      },
+      {
+        "quote": "DEIMv2-S sets a new milestone as the first model with fewer than 10M parameters to exceed the 50 AP threshold on COCO, achieving 50.9 AP with only 11M parameters and 26 GFLOPs",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "Even the ultra-lightweight DEIMv2-Pico, with just 1.5M parameters, delivers 38.5 AP—matching YOLOv10-Nano (2.3M) with ∼50% fewer parameters",
+        "location": "Abstract"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "There is no dedicated limitations section, but the authors state that latency has not been optimized, that DINOv3-driven gains concentrate on medium and large objects while small-object detection stays a challenge, and that local distillation losses hurt ultra-lightweight training.",
+    "items": [
+      "Latency of the proposed models has not been optimized; techniques such as Flash Attention could further accelerate inference.",
+      "Accuracy gains over DEIM come mostly from medium and large objects; small-object detection remains a challenge across scales.",
+      "FGL and DDF local losses degrade performance of ultra-lightweight models, so they are excluded from training Pico, Femto and Atto."
+    ],
+    "evidence": [
+      {
+        "quote": "It is worth noting that the latency of the proposed methods has not been optimized",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "These results indicate that DEIMv2’s main advantage lies in enhancing the representation and detection of medium-to-large objects, whereas small-object detection remains a challenge across scales",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "applying FGL and DDF losses to ultra-lightweight models degrades performance. We attribute this to their limited capacity and inherently weaker baseline accuracy, which reduces the effectiveness of self-distillation",
+        "location": "Sec 2"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Find better ways to integrate DINOv3 features into real-time detectors.",
+      "quote": "Exploring ways to better integrate DINOv3 features into real-time detectors thus represents an interesting direction for future work",
+      "location": "Sec 3"
+    },
+    {
+      "direction": "Use Flash Attention and similar techniques to reduce the not-yet-optimized inference latency.",
+      "quote": "Techniques such as Flash Attention [2], as in Yolov12 [22], could further accelerate inference",
+      "location": "Sec 3"
+    }
+  ],
+  "technical": {
+    "datasets": [
+      "COCO val2017"
+    ],
+    "backbones": [
+      "DINOv3 ViT-Small",
+      "DINOv3 ViT-Small+",
+      "distilled ViT-Tiny",
+      "distilled ViT-Tiny+",
+      "HGNetv2-B0 (pruned)"
+    ],
+    "models": [
+      "DEIMv2-X",
+      "DEIMv2-L",
+      "DEIMv2-M",
+      "DEIMv2-S",
+      "DEIMv2-Nano",
+      "DEIMv2-Pico",
+      "DEIMv2-Femto",
+      "DEIMv2-Atto",
+      "DEIM",
+      "D-FINE",
+      "RT-DETRv2"
+    ],
+    "algorithms": [
+      "Dense O2O",
+      "Spatial Tuning Adapter",
+      "CopyBlend augmentation",
+      "deformable attention",
+      "SwiGLU FFN",
+      "RMSNorm",
+      "Matchability-Aware Loss",
+      "Fine-Grained Localization Loss",
+      "Decoupled Distillation Focal Loss"
+    ],
+    "metrics": [
+      "AP",
+      "AP50",
+      "AP75",
+      "AP small/medium/large",
+      "latency (ms)",
+      "parameters",
+      "GFLOPs"
+    ],
+    "equations": [
+      {
+        "name": "total training loss",
+        "expr": "L_total = 1.0*L_MAL + 0.15*L_FGL + 1.5*L_DDF + 5*L_BBox + 2*L_GIoU",
+        "location": "Sec 2, Eq 1"
+      }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving, robotics, industrial defect detection",
+        "detail": "Named in the introduction as the practical application areas where real-time object detection is a critical component.",
+        "quote": "Real-time object detection [6, 18, 22, 29] is a critical component in many practical applications, including autonomous driving [11], robotics [16], and industrial defect detection [8]",
+        "location": "Introduction"
+      }
+    ],
+    "deploymentClaims": [
+      "Eight model sizes from X to Atto cover GPU, edge and mobile deployment.",
+      "DEIMv2-X reaches 57.8 AP at 13.75 ms latency with 50.3M parameters; DEIMv2-S reaches 50.9 AP with 9.71M parameters.",
+      "DEIMv2-Atto runs at 0.49M parameters and 0.76 GFLOPs; Pico matches YOLOv10-Nano with about 50% fewer parameters."
+    ],
+    "evidence": [
+      {
+        "quote": "DEIMv2 spans eight model sizes from X to Atto, covering GPU, edge, and mobile deployment",
+        "location": "Abstract"
+      },
+      {
+        "quote": "highlight its suitability for deployment on resource-constrained edge devices",
+        "location": "Sec 3"
+      }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2509.20787",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2509.20787"
+  }
+}

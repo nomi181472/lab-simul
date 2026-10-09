@@ -1,0 +1,209 @@
+{
+  "id": "OD112",
+  "arxiv": "2412.04234",
+  "title": "DEIM: DETR with Improved Matching for Fast Convergence",
+  "year": 2024,
+  "venue": null,
+  "problem": {
+    "summary": "DETR-style detectors converge slowly because one-to-one Hungarian matching yields only one positive sample per target (sparse supervision) and randomly initialized queries produce many low-quality matches that existing losses barely optimize.",
+    "statements": [
+      "One-to-one matching assigns only one positive sample per target, far fewer than one-to-many assignment, so supervision is sparse and training is slow.",
+      "DETR's small set of randomly initialized queries lacks spatial alignment with targets, causing matches with low IoU but high confidence scores.",
+      "YOLO-style one-to-many training needs hand-crafted NMS to remove overlapping boxes, which adds latency and instability."
+    ],
+    "problemTags": ["convergence", "label-assignment", "speed-latency"],
+    "evidence": [
+      {
+        "quote": "However, slow convergence remains one of the primary limitations of DETRs, and we hypothesize that the reasons are two-fold.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Sparse supervision: The O2O matching mechanism assigns only one positive sample per target, greatly limiting the number of positive samples.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Unlike traditional methods that rely on dense anchors (usually > 8000), DETR employs a small number (100 or 300) of randomly initialized queries.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "However, it produces multiple overlapping bounding boxes per object, requiring a hand-crafted Non-Maximum Suppression (NMS) to remove redundancies, introducing latency and instability [32, 43].",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on DETR/Hungarian one-to-one matching, on prior O2M-assisted DETR training (Group DETR, Co-DETR, H-DETR) that adds decoders, on query-initialization work (DN-DETR, DINO, RT-DETR), and on Varifocal Loss as used by RT-DETR, plus the real-time DETR lineage RT-DETR and D-FINE.",
+    "relatedWork": [
+      {
+        "name": "Group DETR / Co-DETR",
+        "relation": "prior ways to add positive samples inside O2O training, but with extra decoders/heads",
+        "quote": "Although these approaches successfully increase the number of positive samples, they also require additional decoders, which increases computational overhead and risks generating redundant high-quality predictions as traditional detectors.",
+        "location": "Introduction"
+      },
+      {
+        "name": "Varifocal Loss (VFL)",
+        "relation": "the loss DEIM modifies; designed for dense anchors and high-IoU matches",
+        "quote": "Existing loss functions [19, 40] in DETRs, such as Varifocal Loss (VFL) [40], are tailored to dense anchors where the number of low-quality matches is relatively low.",
+        "location": "Introduction"
+      },
+      {
+        "name": "RT-DETR",
+        "relation": "real-time DETR baseline and host framework for DEIM",
+        "quote": "RT-DETR is the first real-time object detection model within the DETR framework.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "D-FINE",
+        "relation": "the detector that DEIM boosts to its headline numbers",
+        "quote": "This approach enables D-FINE to achieve a more favorable trade-off between latency and performance, slightly surpassing recent YOLO models.",
+        "location": "Sec 2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "adopt a one-to-one (O2O) matching strategy that leverages the Hungarian [16] algorithm to establish a unique correspondence between predicted boxes and the ground-truth objects during training, eliminating the need for NMS.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "DEIM is a training framework combining Dense O2O matching, which multiplies targets per image via mosaic/mixup so one-to-one matching gets dense supervision, with a Matchability-Aware Loss (MAL) that weights positives by IoU-quality to fix low-quality matches, all without extra decoders or added inference cost.",
+    "approach": "Increase the number of targets per training image (Dense O2O) to densify positive samples, and use MAL (a VFL variant whose positive target is q^gamma) so low-quality matches are optimized too.",
+    "components": [
+      "Dense O2O matching: mosaic and mixup augmentations multiply targets per image while keeping Mi = 1",
+      "Matchability-Aware Loss (MAL) combining IoU quality with classification confidence",
+      "DataAug Warmup scheduler that disables advanced augmentation in early epochs",
+      "FlatCosine learning-rate scheduler",
+      "Optionally disable Dense O2O after 50% of training epochs"
+    ],
+    "solutionTags": ["set-prediction", "mosaic-augmentation", "focal-loss-quality", "dynamic-assignment"],
+    "evidence": [
+      {
+        "quote": "We propose Dense O2O as an efficient alternative. This strategy retains the one-to-one matching structure of O2O (with Mi = 1), but increases the number of targets (N ) per image, achieving denser supervision.",
+        "location": "Sec 3.2"
+      },
+      {
+        "quote": "this can be easily achieved using classical techniques such as mosaic [1] and mixup [38] augmentations, which generates additional positive samples per image while preserving the one-to-one matching framework.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "MAL scales the penalty based on matchability by incorporating the IoU between matched queries and targets with classification confidence.",
+        "location": "Sec 3.3"
+      },
+      {
+        "quote": "MAL performs similarly to VFL for high-quality matches but places greater emphasis on low-quality matches, improving the utility of limited positive samples during training.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "DEIM is added on top of RT-DETRv2 and D-FINE and evaluated on COCO val2017 (plus CrowdHuman and Object365 fine-tuning), comparing AP, AP50/75, small/medium/large AP, latency and training cost against YOLOv8/9/10/11 and DETR baselines.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "APval", "value": "56.5", "split": "val2017 (DEIM-D-FINE-X, 50 epochs)", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "APval", "value": "54.7", "split": "val2017 (DEIM-D-FINE-L, 50 epochs)", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "APval", "value": "53.9", "split": "val2017 (DEIM-RT-DETRv2-R50, 36 epochs)", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "APval (small)", "value": "+1.3 over RT-DETRv2-R50", "split": "val2017", "location": "Sec 4.3" },
+      { "dataset": "CrowdHuman", "metric": "AP", "value": "57.5", "split": "val (D-FINE-L + DEIM, 120 epochs)", "location": "Table 3" },
+      { "dataset": "Objects365", "metric": "AP (fine-tuned)", "value": "59.5", "split": "24 epochs from Object365 pre-training", "location": "Table 8" },
+      { "dataset": "COCO", "metric": "latency (ms)", "value": "8.07", "split": "DEIM-D-FINE-L", "location": "Table 1" }
+    ],
+    "baselines": ["YOLOv8", "YOLOv9", "YOLOv10", "YOLO11", "Gold-YOLO", "RT-DETR", "RT-DETRv2", "D-FINE", "DINO-Deformable-DETR", "Group DETR"],
+    "evidence": [
+      {
+        "quote": "When integrated with RT-DETR and D-FINE, it consistently boosts performance while reducing training time by 50%.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "DEIM-D-FINE-X achieving 54.7% and 56.5% AP at 124 and 78 FPS on an NVIDIA T4 GPU, respectively, without the need for additional data.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "When compared directly to YOLOv11-X [13], our DEIM-D-FINE-L outperforms this SoTA model, achieving slightly higher performance (54.7 vs. 54.1 AP) and reducing inference time by 20% (8.07 ms vs. 10.74 ms).",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "DEIM reduces training time by half and increases AP by 0.5 and 0.9 on RT-DETRv2 [24] with ResNet-50 [14] and ResNet-101 [14] backbones, respectively.",
+        "location": "Sec 4.3"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "DEIM's small-object AP still trails some YOLO models within the DETR architecture, and Dense O2O quality degrades if too many objects are packed into each image.",
+    "items": [
+      "Small-object AP remains slightly below YOLO models despite gains over other DETR-based detectors.",
+      "Pushing the average object count per image to ~50 hurts performance, likely from positive/negative imbalance and distribution shift.",
+      "Benefits are demonstrated mainly on COCO-style detection benchmarks, with CrowdHuman and Object365 as the only extra datasets."
+    ],
+    "evidence": [
+      {
+        "quote": "Despite significant improvements in small object detection over other DETR-based models, our approach shows a slight decrease in small object AP compared to YOLO models.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "This gap underscores the ongoing challenges in small object detection within the DETR architecture and suggests potential areas for further improvement.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "This decline is likely due to an imbalance in the positive-to-negative ratio and a data distribution shift caused by too many objects.",
+        "location": "Supplementary, Table 12 analysis"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Explore other techniques beyond mosaic and mixup for raising target counts during training.",
+      "quote": "their effectiveness suggests further potential for exploring other methods to augment target counts during training.",
+      "location": "Sec 4.5"
+    },
+    {
+      "direction": "Refine DEIM and apply it to other high-performance detection tasks.",
+      "quote": "with the potential for further refinement and application across other high-performance detection tasks.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "CrowdHuman", "Objects365", "ImageNet-1k"],
+    "backbones": ["ResNet-50", "ResNet-101"],
+    "models": ["DEIM-D-FINE-L", "DEIM-D-FINE-X", "DEIM-RT-DETRv2", "D-FINE", "RT-DETR", "RT-DETRv2", "YOLOv11"],
+    "algorithms": ["Hungarian matching", "Dense O2O matching", "Matchability-Aware Loss", "Varifocal Loss", "Focal Loss", "mosaic augmentation", "mixup augmentation", "AdamW", "FlatCosine LR scheduler", "DataAug Warmup"],
+    "metrics": ["AP", "AP50", "AP75", "APs", "APm", "APl", "latency (ms)", "FPS", "GPU hours"],
+    "equations": [
+      { "name": "O2M supervision loss", "expr": "loss = sum_i sum_j f(y_hat_ij, y_i), i=0..N, j=0..Mi", "location": "Sec 3.1, Eq. 1" },
+      { "name": "Focal Loss", "expr": "FL(p,y): y=1 -> -alpha(1-p)^gamma log(p); y=0 -> -(1-alpha)p^gamma log(1-p)", "location": "Sec 3.1, Eq. 2" },
+      { "name": "Varifocal Loss", "expr": "VFL(p,q,y): q>0 -> -q(q log p + (1-q) log(1-p)); q=0 -> -alpha p^gamma log(1-p)", "location": "Sec 3.3, Eq. 3" },
+      { "name": "Matchability-Aware Loss (MAL)", "expr": "MAL(p,q,y): y=1 -> -q^gamma log p - (1-q^gamma) log(1-p); y=0 -> -p^gamma log(1-p)", "location": "Sec 3.3, Eq. 4" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving",
+        "detail": "Cited as a standard application area for object detection.",
+        "quote": "widely applied in fields like autonomous driving [5, 6], robot navigation [9], etc.",
+        "location": "Introduction"
+      }
+    ],
+    "deploymentClaims": [
+      "DEIM-D-FINE-L and DEIM-D-FINE-X reach 54.7% and 56.5% AP at 124 and 78 FPS on an NVIDIA T4 GPU.",
+      "DEIM-D-FINE-L cuts inference time 20% vs YOLOv11-X (8.07 ms vs 10.74 ms).",
+      "A ResNet50-based DETR trained with DEIM reaches 53.2% mAP in a single day (~24 epochs) on one NVIDIA 4090 GPU.",
+      "Per-epoch training cost is essentially unchanged (1.183 vs 1.181 GPU-hours) while converging in 71 vs 85 hours."
+    ],
+    "evidence": [
+      {
+        "quote": "paired with RT-DETRv2, DEIM achieves 53.2% AP in a single day of training on an NVIDIA 4090 GPU.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "We believe DEIM sets a new baseline for advancements in real-time object detection.",
+        "location": "Abstract"
+      }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2412.04234",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2412.04234"
+  }
+}

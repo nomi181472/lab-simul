@@ -1,0 +1,137 @@
+{
+  "id": "OD119",
+  "arxiv": "2606.03748",
+  "title": "Ultralytics YOLO26: Unified Real-Time End-to-End Vision Models",
+  "year": 2026,
+  "venue": null,
+  "problem": {
+    "summary": "The YOLO ecosystem continues to evolve with demands for unified, real-time end-to-end vision models that balance accuracy, speed, and deployment flexibility.",
+    "statements": [
+      "Real-time computer vision requires models that are accurate, efficient, and easy to deploy across diverse hardware.",
+      "There is ongoing demand for unified frameworks supporting multiple vision tasks in real time."
+    ],
+    "problemTags": [
+      "real-time-edge",
+      "deployability"
+    ],
+    "evidence": [
+      {
+        "quote": "Abstract\n\naccuracy while reducing cost: MuSGD, a hybrid Muon\u2013\nSGD optimizer adapted from large language model training; Progressive Loss, which shifts supervision toward the\ninference-time head; and STAL, a label assignment strategy that guarantees positive coverage for small objects.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "Builds on the Ultralytics YOLO lineage and recent advances in real-time detectors toward unified end-to-end vision.",
+    "relatedWork": [
+      {
+        "name": "Ultralytics YOLO",
+        "relation": "lineage baseline",
+        "quote": "Abstract\n\naccuracy while reducing cost: MuSGD, a hybrid Muon\u2013\nSGD optimizer adapted from large language model training; Progressive Loss, which shifts supervision toward the\ninference-time head; and STAL, a label assignment strategy that guarantees positive coverage for small objects.",
+        "location": "Introduction"
+      },
+      {
+        "name": "YOLOv8/YOLO11/YOLOv12",
+        "relation": "recent variants",
+        "quote": "Beyond detection, YOLO26 introduces task-specific head and\nloss designs for instance segmentation, pose estimation,\nand oriented detection, producing consistent gains across\ntasks and scales.",
+        "location": "Introduction"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Beyond detection, YOLO26 introduces task-specific head and\nloss designs for instance segmentation, pose estimation,\nand oriented detection, producing consistent gains across\ntasks and scales.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "Presents Ultralytics YOLO26 as unified real-time end-to-end vision models with improvements in architecture, training, and deployment support.",
+    "approach": "Unified real-time architecture supporting multiple vision tasks with optimized efficiency for diverse deployment targets.",
+    "components": [
+      "unified architecture",
+      "end-to-end training/inference",
+      "multi-task support",
+      "deployment optimizations"
+    ],
+    "solutionTags": [
+      "one-stage",
+      "real-time-backbone",
+      "deployability"
+    ],
+    "evidence": [
+      {
+        "quote": "Abstract\n\naccuracy while reducing cost: MuSGD, a hybrid Muon\u2013\nSGD optimizer adapted from large language model training; Progressive Loss, which shifts supervision toward the\ninference-time head; and STAL, a label assignment strategy that guarantees positive coverage for small objects.",
+        "location": "Abstract"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluates across standard benchmarks for detection/vision tasks, comparing to prior YOLO variants and reporting accuracy-latency trade-offs.",
+    "benchmarks": [
+      {
+        "dataset": "COCO",
+        "metric": "mAP",
+        "value": "reported",
+        "split": "val",
+        "location": "Results"
+      },
+      {
+        "dataset": "COCO",
+        "metric": "FPS",
+        "value": "reported",
+        "split": "val",
+        "location": "Results"
+      }
+    ],
+    "baselines": [
+      "YOLO11",
+      "YOLOv8",
+      "YOLOv12"
+    ],
+    "evidence": [
+      {
+        "quote": "Accuracy\u2013latency trade-off on COCO val2017.",
+        "location": "Abstract"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "No explicit verbatim limitations prominently stated.",
+    "items": [],
+    "evidence": []
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": [
+      "COCO"
+    ],
+    "backbones": [
+      "YOLO26 backbones"
+    ],
+    "models": [
+      "YOLO26"
+    ],
+    "algorithms": [
+      "one-stage detection"
+    ],
+    "metrics": [
+      "mAP",
+      "FPS",
+      "latency"
+    ],
+    "equations": []
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "designed for real-time deployment across platforms"
+    ],
+    "evidence": []
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2606.03748",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2606.03748"
+  }
+}

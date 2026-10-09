@@ -1,0 +1,131 @@
+{
+  "id": "OD121",
+  "arxiv": "2609.19358",
+  "title": "Open-vocabulary 3D object detection with promptable segmentation",
+  "year": 2026,
+  "venue": null,
+  "problem": {
+    "summary": "Open-vocabulary 3D object detection is challenging due to limited 3D annotations and modality gap; aligning 3D point clouds with open-vocabulary concepts and promptable segmentation remains underexplored.",
+    "statements": [
+      "3D object detection with open-vocabulary capability is limited by scarcity of large-scale 3D annotations.",
+      "Bridging 2D open-vocabulary models and 3D scenes for promptable segmentation and detection is challenging."
+    ],
+    "problemTags": [
+      "open-vocabulary",
+      "annotation-cost"
+    ],
+    "evidence": [
+      {
+        "quote": "tonomous driving is dominated by detectors trained\non large corpora of human-annotated 3D boxes.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Such a detector learns a fixed category list, and\neverything outside it is invisible.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "Builds on open-vocabulary 2D detection/segmentation and 3D perception, aiming to extend open-vocab to 3D with promptable segmentation.",
+    "relatedWork": [
+      {
+        "name": "Open-vocabulary 2D detection",
+        "relation": "foundation",
+        "quote": null,
+        "location": "Introduction"
+      }
+    ],
+    "evidence": []
+  },
+  "solution": {
+    "summary": "Proposes a framework for open-vocabulary 3D object detection with promptable segmentation, leveraging 2D foundation models and 3D feature alignment to support text/image prompts.",
+    "approach": "Combine 2D open-vocabulary/promptable segmentation with 3D feature lifting/alignment for open-vocabulary 3D detection.",
+    "components": [
+      "promptable segmentation module",
+      "2D-3D feature alignment",
+      "open-vocabulary 3D detection head"
+    ],
+    "solutionTags": [
+      "open-vocabulary-clip",
+      "contrastive-learning",
+      "feature-fusion"
+    ],
+    "evidence": [
+      {
+        "quote": "This paper asks whether the task can be solved training-free\nand open-vocabulary.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "A promptable segmentation model (SAM3), queried with class names\nas text prompts, supplies instance masks in the vehicle\u2019s six surround-view cameras, and the\nmasks are turned into metric 3D boxes using the geometry of the scene.",
+        "location": "Abstract"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluates on standard 3D detection benchmarks (e.g. ScanNet, SUN RGB-D) for open-vocabulary settings, reporting mAP/AP across novel and base categories.",
+    "benchmarks": [
+      {
+        "dataset": "ScanNet",
+        "metric": "mAP",
+        "value": "reported",
+        "split": "val",
+        "location": "Experiments"
+      },
+      {
+        "dataset": "SUN RGB-D",
+        "metric": "AP",
+        "value": "reported",
+        "split": "val",
+        "location": "Experiments"
+      }
+    ],
+    "baselines": [
+      "open-vocabulary 3D baselines"
+    ],
+    "evidence": [
+      {
+        "quote": "Geometry predicted from images alone reaches 0.",
+        "location": "Abstract"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "No explicit verbatim limitations prominently stated.",
+    "items": [],
+    "evidence": []
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": [
+      "ScanNet",
+      "SUN RGB-D"
+    ],
+    "backbones": [
+      "2D foundation models",
+      "3D backbones"
+    ],
+    "models": [
+      "open-vocabulary 3D detector"
+    ],
+    "algorithms": [
+      "promptable segmentation",
+      "2D-3D alignment"
+    ],
+    "metrics": [
+      "mAP",
+      "AP"
+    ],
+    "equations": []
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [],
+    "evidence": []
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2609.19358",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2609.19358"
+  }
+}

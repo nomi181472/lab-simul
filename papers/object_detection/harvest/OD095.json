@@ -1,0 +1,130 @@
+{
+  "id": "OD095",
+  "arxiv": "2303.05499",
+  "title": "Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection",
+  "year": 2023,
+  "venue": "Lecture notes in computer science",
+  "problem": {
+    "summary": "Closed-set detectors only recognize a fixed set of categories, and prior open-set detectors introduce language in only one or two phases of the detector pipeline, which the authors argue leaves cross-modality alignment and novel-class generalization sub-optimal; text prompt encoding is also a poor fit for concatenated category names, and DETR-like open-set models remain weak on rare (long-tail) categories.",
+    "statements": [
+      "Closed-set detectors are limited to pre-defined categories and cannot detect arbitrary objects specified by human language inputs.",
+      "Previous open-set detectors fuse language and vision in only partial phases of the detector (neck, query initialization, head), leading to sub-optimal language generalization.",
+      "Sentence-level text prompts discard fine-grained words while word-level prompts introduce unnecessary dependencies between unrelated category names.",
+      "No existing DETR-like model effectively addresses the LVIS rare-category challenge without extra training data."
+    ],
+    "problemTags": ["open-vocabulary", "long-tail"],
+    "evidence": [
+      { "quote": "The key solution of open-set object detection is introducing language to a closed-set detector for open-set concept generalization.", "location": "Abstract" },
+      { "quote": "However, previous works only fuse multi-modal information in partial phases, which may lead to sub-optimal language generalization ability.", "location": "Sec 2" },
+      { "quote": "such detectors mainly focus on closed-set detection and are difficult to generalize to novel classes because of the limited pre-defined categories.", "location": "Sec 2" },
+      { "quote": "To our knowledge, no existing DETR-like models effectively address the rarity challenge in LVIS without extra training data, which may be a characteristic limitation of the architecture.", "location": "Sec 4.2" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on the DETR-style transformer detector DINO and on GLIP's grounded pre-training that reformulates detection as phrase grounding; the claimed gap is that CLIP-style image-text pre-training is weak for region-text detection and that existing open-set detectors fuse modalities in only some of the three detector phases.",
+    "relatedWork": [
+      { "name": "DINO", "relation": "base closed-set transformer detector that Grounding DINO extends", "quote": "Grounding DINO is built upon the DETR-like model DINO [57], which is an end-to-end Transformer-based detector.", "location": "Sec 2" },
+      { "name": "GLIP", "relation": "prior grounded pre-training formulation the authors adopt and refine", "quote": "GLIP [12] formulates object detection as a grounding problem and leverages additional grounding data to help learn aligned semantics", "location": "Sec 2" },
+      { "name": "ViLD", "relation": "CLIP-distillation open-set baseline", "quote": "ViLD [14] distills knowledge from a CLIP teacher model into a R-CNN-like detector so that the learned region embeddings contain the semantics of language.", "location": "Sec 2" },
+      { "name": "OV-DETR", "relation": "uses language-aware queries at decoder inputs (phase B only)", "quote": "OV-DETR [56] uses image and text embedding encoded by a CLIP model as queries to decode the category-specified boxes in the DETR framework [2].", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "Most existing open-set models [14, 21] rely on pre-trained CLIP models for concept generalization.", "location": "Introduction" },
+      { "quote": "the efficacy of CLIP, specifically pre-trained on image-text pairs, is limited for region-text pair detection tasks, as identified in the RegionCLIP study by RegionCLIP [61].", "location": "Introduction" },
+      { "quote": "We argue that introducing more feature fusion into the pipeline can facilitate better alignment between different modality features, thereby achieving better performance.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "Grounding DINO marries DINO with grounded pre-training in a dual-encoder-single-decoder architecture that fuses image and text features tightly in all three detector phases, selects decoder queries with the input text, and encodes concatenated category names at sub-sentence granularity with attention masks.",
+    "approach": "Inject text at every phase of a DINO-style detector (feature enhancer in the neck, language-guided query selection for initialization, cross-modality decoder in the head) and pre-train with detection, grounding and caption data using sub-sentence level text features.",
+    "components": [
+      "image backbone (Swin Transformer) and text backbone (BERT)",
+      "feature enhancer stacking self-attention with image-to-text and text-to-image cross-attention",
+      "language-guided query selection ranking image tokens by image-text similarity",
+      "cross-modality decoder with an extra text cross-attention layer per decoder layer",
+      "sub-sentence level text representation with attention masks between unrelated categories",
+      "L1 + GIoU box losses and contrastive (focal) classification against language tokens"
+    ],
+    "solutionTags": ["transformer-query", "attention", "set-prediction", "multi-scale", "focal-loss"],
+    "evidence": [
+      { "quote": "we conceptually divide a closed-set detector into three phases and propose a tight fusion solution, which includes a feature enhancer, a language-guided query selection, and a cross-modality decoder for modalities fusion", "location": "Abstract" },
+      { "quote": "Grounding DINO is a dual-encoder-single-decoder architecture.", "location": "Sec 3" },
+      { "quote": "language-guided query selection module to select features that are more relevant to the input text as decoder queries.", "location": "Sec 3.2" },
+      { "quote": "Each decoder layer has an extra text cross-attention layer compared with the DINO decoder layer, as we need to inject text information into queries for better modality alignment.", "location": "Sec 3.3" },
+      { "quote": "To avoid unwanted word interactions, we introduce attention masks to block attentions among unrelated category names, named \u201csub-sentence\u201d level representation.", "location": "Sec 3.4" }
+    ]
+  },
+  "experiments": {
+    "summary": "The authors evaluate three settings: closed-set detection on COCO (12-epoch and fine-tuned), open-set zero-shot transfer on COCO, LVIS and ODinW, and referring expression comprehension on RefCOCO/+/g, comparing against GLIP, GLIPv2, DetCLIPv2, DINO, OV-DETR, MDETR, OWL-ViT and Florence, plus ablations that remove each fusion component.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "AP", "value": "52.5", "split": "zero-shot 2017val, Grounding DINO L", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "62.6", "split": "fine-tune 2017val, Grounding DINO T", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "63.0", "split": "fine-tune test-dev with 1.5x input size", "location": "Table 2" },
+      { "dataset": "LVIS", "metric": "AP", "value": "33.9", "split": "minival zero-shot, Grounding DINO L", "location": "Table 3" },
+      { "dataset": "LVIS", "metric": "AP", "value": "52.1", "split": "minival fine-tune, Grounding DINO T", "location": "Table 3" },
+      { "dataset": "ODinW", "metric": "APaverage", "value": "26.1", "split": "zero-shot, Grounding DINO L", "location": "Table 4" },
+      { "dataset": "RefCOCO", "metric": "top-1 accuracy", "value": "90.56", "split": "val, Grounding DINO L", "location": "Table 5" },
+      { "dataset": "COCO", "metric": "AP", "value": "48.1", "split": "val2017 1x setting, ResNet-50", "location": "Table 11" }
+    ],
+    "baselines": ["DINO", "GLIP", "GLIPv2", "DetCLIPv2", "OV-DETR", "MDETR", "OWL-ViT", "Florence", "DyHead"],
+    "evidence": [
+      { "quote": "Grounding DINO achieves a 52.5 AP on the COCO zeroshot1 detection benchmark.", "location": "Abstract" },
+      { "quote": "Grounding DINO outperforms all previous models on the zero-shot transfer setting, with +0.5AP and +1.8AP compared with DINO and GLIP under the same setting.", "location": "Sec 4.2" },
+      { "quote": "Grounding DINO L set a new record on ODinW zero-shot with a 26.1 AP, even outperforming the giant Florence models [54].", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors acknowledge the model cannot do segmentation, trains on less data than the largest GLIP model, still produces false positives (hallucinations), is weaker than DetCLIPv2 on zero-shot LVIS and worse on rare categories, and performs poorly on referring comprehension without REC training data.",
+    "items": [
+      "No segmentation capability, unlike GLIPv2.",
+      "Training data is smaller than the largest GLIP model, which may limit final performance.",
+      "The model produces false positive detections (hallucinations) in some cases.",
+      "Worse than GLIP on rare LVIS categories; DETR-like architectures tend to have low rare-category AP.",
+      "Referring expression comprehension is poor without RefCOCO/+/g fine-tuning."
+    ],
+    "evidence": [
+      { "quote": "Despite the great performance on open-set object detection settings, Grounding DINO cannot be used for segmentation tasks like GLIPv2.", "location": "Conclusion" },
+      { "quote": "Our training data is less than the largest GLIP model, which may limit our final performance.", "location": "Conclusion" },
+      { "quote": "Moreover, we find that our model will produce false positive results in some cases, which may need more techniques or data to reduce the hallucination.", "location": "Conclusion" },
+      { "quote": "First, Grounding DINO works better than common objects than GLIP, but worse on rare categories.", "location": "Sec 4.2" },
+      { "quote": "Both GLIP and Grounding DINO perform not well without REC data.", "location": "Sec 4.3" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Scale up pre-training to exploit the model's better data scalability over GLIP.", "quote": "A larger-scale training will be left as our future work.", "location": "Sec 4.2" },
+    { "direction": "Vary semantic concept coverage and training data scale to improve zero-shot generalization.", "quote": "In our future work, we will perform more studies, including varying the semantic concept coverage of the training data and increasing the scale of the training data, to further improve the zero-shot generalization performance.", "location": "Sec 4.2" },
+    { "direction": "Study zero-shot referring expression comprehension more carefully.", "quote": "Hence we call extra attention to REC zero-shot performance in future studies.", "location": "Conclusion" },
+    { "direction": "Explore better model training recipes for transferring pre-trained DINO to grounded training.", "quote": "The results show that there might be much room for model training improvement, which will be our future work to explore.", "location": "Sec C.1" }
+  ],
+  "technical": {
+    "datasets": ["COCO", "LVIS", "ODinW", "RefCOCO", "RefCOCO+", "RefCOCOg", "Objects365", "OpenImages", "GoldG (Flickr30k + Visual Genome)", "Conceptual Captions / pseudo-labeled caption data"],
+    "backbones": ["Swin-T", "Swin-L", "BERT-base", "ResNet-50"],
+    "models": ["Grounding DINO T", "Grounding DINO L", "DINO", "GLIP", "GLIPv2", "DetCLIPv2", "OV-DETR", "MDETR", "OWL-ViT", "Florence"],
+    "algorithms": ["Hungarian (bipartite) matching", "deformable attention", "language-guided query selection", "contrastive classification loss", "focal loss", "GIoU loss", "L1 box loss", "sub-sentence attention masking", "mixed query selection"],
+    "metrics": ["AP", "AP50", "AP75", "APr/APc/APf", "top-1 accuracy", "APaverage", "APmedian", "FPS"],
+    "equations": [
+      { "name": "Language-guided query selection", "expr": "I_Nq = Top_Nq( Max^(-1)( X_I X_T^T ) )", "location": "Sec 3.2, Eq. 1" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "image editing with generative models", "detail": "Grounding DINO detections are combined with Stable Diffusion inpainting and GLIGEN grounded generation to edit objects or backgrounds from language prompts.", "quote": "we can cooperate with generative models for image editing (as shown in Fig. 1 (b)).", "location": "Introduction" },
+      { "domain": "general-purpose open-set detection", "detail": "The task is framed as a generic object detector usable for arbitrary human-specified categories across real-world datasets.", "quote": "The task has wide applications for its great potential as a generic object detector.", "location": "Introduction" }
+    ],
+    "deploymentClaims": [
+      "Grounding DINO T: 172M parameters, 464 GFLOPs, 8.37 FPS versus GLIP-T 232M / 488G / 6.11 FPS (Table 20)",
+      "Swin-T model trained on 16 Nvidia V100 GPUs; Swin-L model trained on 64 Nvidia A100 GPUs",
+      "Checkpoints and inference code released at github.com/IDEA-Research/GroundingDINO"
+    ],
+    "evidence": [
+      { "quote": "The results show that our model has a smaller parameter size and better efficiency than GLIP.", "location": "Sec C.4" },
+      { "quote": "We release some checkpoints and inference codes at https://github.com/IDEA-Research/GroundingDINO.", "location": "Abstract" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1007/978-3-031-72970-6_3",
+    "arxivUrl": "https://arxiv.org/abs/2303.05499",
+    "venue": "Lecture notes in computer science",
+    "pdfUrl": "https://arxiv.org/pdf/2303.05499"
+  }
+}

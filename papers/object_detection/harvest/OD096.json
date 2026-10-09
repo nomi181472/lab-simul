@@ -1,0 +1,129 @@
+{
+  "id": "OD096",
+  "arxiv": "2304.08069",
+  "title": "DETRs Beat YOLOs on Real-time Object Detection",
+  "year": 2023,
+  "venue": "CVPR 2024",
+  "problem": {
+    "summary": "YOLO-style real-time detectors depend on NMS post-processing whose two thresholds slow inference and destabilize speed and accuracy, while DETR-family detectors eliminate NMS but are too computationally expensive for real time; existing query selection also picks encoder features by classification score alone, ignoring localization quality.",
+    "statements": [
+      "NMS post-processing slows inference and introduces hyperparameters that make both speed and accuracy unstable across scenarios.",
+      "DETRs have high computational cost and do not achieve real-time inference, so their NMS-free design brings no speed advantage in practice.",
+      "Multi-scale feature interaction makes the Transformer encoder the computational bottleneck of DETR.",
+      "Classification-score query selection admits encoder features with low localization confidence, injecting uncertainty into decoder initialization."
+    ],
+    "problemTags": ["nms", "speed-latency", "real-time-edge", "deployability"],
+    "evidence": [
+      { "quote": "However, we observe that the speed and accuracy of YOLOs are negatively affected by the NMS.", "location": "Abstract" },
+      { "quote": "However, these detectors typically require Non-Maximum Suppression (NMS) for post-processing, which not only slows down the inference speed but also introduces hyperparameters that cause instability in both the speed and accuracy.", "location": "Introduction" },
+      { "quote": "However, their high computational cost prevents them from meeting real-time detection requirements, so the NMS-free architecture does not demonstrate an inference speed advantage.", "location": "Introduction" },
+      { "quote": "This inevitably results in encoder features with low localization confidence being selected as initial queries, thus leading to a considerable level of uncertainty and hurting the performance of DETRs.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "RT-DETR is grounded in the DETR line (DETR, Deformable-DETR, DAB/Conditional/Anchor DETR, DN-DETR, DINO) and in the YOLO real-time lineage; the paper's gap analysis is that DETR encoders dominate FLOPs while contributing little AP, and that no prior DETR was designed for real-time detection.",
+    "relatedWork": [
+      { "name": "DETR", "relation": "origin of the end-to-end one-to-one set prediction pipeline RT-DETR builds on", "quote": "Particularly, DETR eliminates the hand-crafted anchor and NMS components.", "location": "Sec 2.2" },
+      { "name": "Deformable-DETR", "relation": "prior work adding multi-scale features and query selection, whose encoder cost RT-DETR redesigns", "quote": "Deformable-DETR [45] accelerates training convergence with multi-scale features by enhancing the efficiency of the attention mechanism.", "location": "Sec 2.2" },
+      { "name": "Efficient DETR / Sparse DETR", "relation": "prior attempts at reducing DETR computational cost", "quote": "Efficient DETR [42] and Sparse DETR [33] reduce the computational cost by reducing the number of encoder and decoder layers or the number of updated queries.", "location": "Sec 2.2" },
+      { "name": "YOLO series", "relation": "real-time baselines RT-DETR aims to outperform in both speed and accuracy", "quote": "YOLOv1 [31] is the first CNN-based one-stage object detector to achieve true real-time object detection.", "location": "Sec 2.1" },
+      { "name": "DINO", "relation": "source of mixed query selection and of RT-DETR's decoder training recipe", "quote": "DINO [44] suggests the mixed query selection to help better initialize queries.", "location": "Sec 2.2" }
+    ],
+    "evidence": [
+      { "quote": "the encoder accounts for 49% of the GFLOPs but contributes only 11% of the AP in Deformable-DETR", "location": "Sec 4.2" },
+      { "quote": "Current DETRs are still computationally intensive and are not designed to detect in real time.", "location": "Sec 2.2" }
+    ]
+  },
+  "solution": {
+    "summary": "RT-DETR is a real-time end-to-end detector with an efficient hybrid encoder that decouples intra-scale interaction (AIFI, self-attention on the highest-level feature only) from cross-scale fusion (CCFF, CNN/RepConv blocks), plus uncertainty-minimal query selection that explicitly minimizes the discrepancy between localization and classification predictions of selected encoder features.",
+    "approach": "Replace the multi-scale Transformer encoder with a hybrid AIFI+CCFF encoder and select decoder queries by explicitly minimizing epistemic uncertainty between localization and classification heads.",
+    "components": [
+      "efficient hybrid encoder: AIFI (attention-based intra-scale interaction on S5) and CCFF (CNN-based cross-scale fusion with RepConv fusion blocks)",
+      "uncertainty-minimal query selection over the top-300 encoder features",
+      "Transformer decoder with auxiliary prediction heads and bipartite matching",
+      "flexible speed tuning by changing the number of decoder layers without retraining",
+      "scaled RT-DETR variants using ResNet-18/34/50/101 backbones"
+    ],
+    "solutionTags": ["transformer-query", "attention", "nms-free", "set-prediction", "multi-scale", "feature-fusion"],
+    "evidence": [
+      { "quote": "we design an efficient hybrid encoder to replace the vanilla Transformer encoder, which significantly improves inference speed by decoupling the intra-scale interaction and cross-scale fusion of features with different scales.", "location": "Introduction" },
+      { "quote": "RT-DETR consists of a backbone, an efficient hybrid encoder, and a Transformer decoder with auxiliary prediction heads.", "location": "Sec 4.1" },
+      { "quote": "AIFI and CCFF are the two modules designed into our hybrid encoder.", "location": "Fig 3" },
+      { "quote": "we propose the uncertainty minimal query selection scheme, which explicitly constructs and optimizes the epistemic uncertainty to model the joint latent variable of encoder features, thereby providing high-quality queries for the decoder.", "location": "Sec 4.3" },
+      { "quote": "the speed of RT-DETR supports flexible adjustment by adjusting the number of decoder layers", "location": "Sec 4.4" }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation is on COCO val2017 with TensorRT FP16 speed on a T4 GPU under a new end-to-end speed benchmark that includes NMS time, comparing against YOLOv5/6/7/8, PP-YOLOE and DETR variants; ablations cover encoder variants, query selection schemes and decoder layer counts, plus Objects365 pre-training.",
+    "benchmarks": [
+      { "dataset": "COCO val2017", "metric": "AP", "value": "53.1", "split": "RT-DETR-R50, 108 FPS on T4 GPU", "location": "Table 2" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "54.3", "split": "RT-DETR-R101, 74 FPS on T4 GPU", "location": "Table 2" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "55.3", "split": "RT-DETR-R50 after Objects365 pre-training", "location": "Table C" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "56.2", "split": "RT-DETR-R101 after Objects365 pre-training", "location": "Table C" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "45.5", "split": "scaled RT-DETR-R18-Dec2, 238 FPS", "location": "Table B" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "48.7", "split": "1x config, uncertainty-minimal query selection", "location": "Table 4" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "47.9", "split": "1x config, hybrid encoder variant E", "location": "Table 3" }
+    ],
+    "baselines": ["YOLOv5", "YOLOv6", "YOLOv7", "YOLOv8", "PP-YOLOE", "DINO-Deformable-DETR", "Deformable-DETR", "DN-Deformable-DETR", "Efficient-DETR", "Anchor-DETR", "Conditional-DETR"],
+    "evidence": [
+      { "quote": "Our RT-DETR-R50 / R101 achieves 53.1% / 54.3% AP on COCO and 108 / 74 FPS on T4 GPU, outperforming previously advanced YOLOs in both speed and accuracy.", "location": "Abstract" },
+      { "quote": "Compared to DINO-Deformable-DETR-R50, RT-DETR-R50 improves the accuracy by 2.2% AP and the speed by 21 times (108 FPS vs 5 FPS), both of which are significantly improved.", "location": "Sec 5.1" },
+      { "quote": "the uncertaintyminimal query selection achieves an improvement of 0.8% AP (48.7% AP vs 47.9% AP).", "location": "Sec 5.3" },
+      { "quote": "variant E delivers 1.5% AP improvement over D.", "location": "Sec 5.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "RT-DETR still shares the small-object weakness of DETR-family detectors: it trails the strongest YOLO models on AP_S, and the authors state this remains to be addressed.",
+    "items": [
+      "Small-object accuracy remains inferior to strong real-time YOLO detectors (RT-DETR-R50 is 0.5% AP lower on AP_S than YOLOv8-L; R101 is 0.9% lower than YOLOv7-X on AP_S).",
+      "Speed still depends on TensorRT FP16 deployment and on choosing how many decoder layers to run.",
+      "NMS-free post-processing replaces two NMS thresholds with a score threshold that still needs scenario-specific tuning."
+    ],
+    "evidence": [
+      { "quote": "it shares the same limitation as the other DETRs, i.e., the performance on small objects is still inferior than the strong real-time detectors.", "location": "Sec 6" },
+      { "quote": "We hope that this problem will be addressed in future work.", "location": "Sec 6" },
+      { "quote": "The results show that inappropriate confidence thresholds lead to significant false positives or false negatives by the detector.", "location": "Sec 3.1" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Improve small-object detection performance relative to strong YOLO detectors.", "quote": "We hope that this problem will be addressed in future work.", "location": "Sec 6" },
+    { "direction": "Distill large high-accuracy pre-trained DETR models into the lightweight RT-DETR decoder-homogeneous architecture.", "quote": "which makes it possible to distill our lightweight detector with high accuracy pre-trained large DETR models.", "location": "Sec 6" },
+    { "direction": "Explore decoder distillation from large DETR models as an advantage over other real-time detectors.", "quote": "could be an interesting direction for future exploration.", "location": "Sec 6" },
+    { "direction": "Put RT-DETR into practical deployment.", "quote": "We hope that RT-DETR can be put into practice.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["COCO train2017", "COCO val2017", "Objects365", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNet-34", "ResNet-18"],
+    "models": ["RT-DETR-R50", "RT-DETR-R101", "RT-DETR-R18", "YOLOv5", "YOLOv6", "YOLOv7", "YOLOv8", "PP-YOLOE", "DINO-Deformable-DETR", "Deformable-DETR", "DN-Deformable-DETR", "Efficient-DETR", "Anchor-DETR", "Conditional-DETR", "SMCA-DETR"],
+    "algorithms": ["efficient hybrid encoder (AIFI + CCFF)", "uncertainty-minimal query selection", "RepConv/RepBlock", "bipartite matching", "denoising training", "NMS / TensorRT EfficientNMSPlugin", "TensorRT FP16", "exponential moving average", "AdamW"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "FPS", "latency (ms)", "GFLOPs", "params"],
+    "equations": [
+      { "name": "Hybrid encoder computation", "expr": "Q = K = V = Flatten(S5); F5 = Reshape(AIFI(Q,K,V)); O = CCFF({S3, S4, F5})", "location": "Sec 4.2, Eq. 1" },
+      { "name": "Feature uncertainty", "expr": "U(X_hat) = || P(X_hat) - C(X_hat) ||", "location": "Sec 4.3, Eq. 2" },
+      { "name": "Training loss with uncertainty", "expr": "L(X_hat, Y_hat, Y) = L_box(b_hat, b) + L_cls(U(X_hat), c_hat, c)", "location": "Sec 4.3, Eq. 3" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "surveillance, tracking and autonomous driving", "detail": "Real-time detection is motivated by applications such as object tracking, video surveillance and autonomous driving, where NMS thresholds must be tuned per scenario.", "quote": "such as object tracking [43], video surveillance [28], and autonomous driving [2], etc.", "location": "Introduction" },
+      { "domain": "industrial real-time deployment", "detail": "Objects365-pre-trained RT-DETR models are presented as the strongest real-time detectors for industry scenarios.", "quote": "provides the strongest real-time object detector for various real-time scenarios in the industry.", "location": "Appendix 3" }
+    ],
+    "deploymentClaims": [
+      "53.1/54.3 AP at 108/74 FPS on a T4 GPU with TensorRT FP16 (batch size 1)",
+      "Flexible speed tuning at inference time by removing decoder layers without retraining (e.g. RT-DETR-R50-Dec5: 52.1 AP at 132 FPS)",
+      "Objects365 pre-training lifts RT-DETR-R50/R101 to 55.3/56.2 AP on COCO val2017",
+      "Trained with AdamW on four NVIDIA Tesla V100 GPUs with batch size 16 and EMA"
+    ],
+    "evidence": [
+      { "quote": "Our RT-DETR-R50 / R101 achieves 53.1% / 54.3% AP on COCO and 108 / 74 FPS on T4 GPU, outperforming previously advanced YOLOs in both speed and accuracy.", "location": "Abstract" },
+      { "quote": "The FPS is reported on T4 GPU with TensorRT FP16", "location": "Sec 5.1" },
+      { "quote": "setting the post-processing threshold in RT-DETR is straightforward and does not affect the inference speed", "location": "Appendix 4" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr52733.2024.01605",
+    "arxivUrl": "https://arxiv.org/abs/2304.08069",
+    "venue": "CVPR 2024",
+    "pdfUrl": "https://arxiv.org/pdf/2304.08069"
+  }
+}

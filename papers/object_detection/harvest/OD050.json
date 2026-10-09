@@ -1,0 +1,204 @@
+{
+  "id": "OD050",
+  "arxiv": "1904.08189",
+  "title": "CenterNet: Keypoint Triplets for Object Detection",
+  "year": 2019,
+  "venue": null,
+  "problem": {
+    "summary": "The paper shows that keypoint-based one-stage detectors such as CornerNet produce a large number of incorrect bounding boxes because they never look inside the predicted regions, and that anchor-based detectors rely on many manually designed, poorly aligned anchors.",
+    "statements": [
+      "Keypoint-based detectors emit many incorrect boxes: CornerNet reaches a 32.7% false discovery rate even at IoU 0.05, and 60.3% for small objects.",
+      "CornerNet cannot look into the regions inside its bounding boxes because it removes the RoI extraction process.",
+      "Anchor-based detectors need many anchors to reach a high IoU with ground truth, and each anchor's size and aspect ratio must be manually designed while anchors are usually not aligned with ground-truth boxes."
+    ],
+    "problemTags": ["background-false-positives", "localization", "anchor-design", "small-objects"],
+    "evidence": [
+      {
+        "quote": "In object detection, keypoint-based approaches often suffer a large number of incorrect object bounding boxes, arguably due to the lack of an additional look into the cropped regions.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "One of the possible reasons lies in that CornerNet cannot look into the regions inside the bounding boxes.",
+        "location": "Sec 3.1"
+      },
+      {
+        "quote": "These approaches often need a large number of anchors to ensure a sufficiently high IoU (intersection over union) rate with the ground-truth objects, and the size and aspect ratio of each anchor box need to be manually designed.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "CornerNet obtains 32.7% FD rate at IoU = 0.05.",
+        "location": "Sec 3.1"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The work builds directly on CornerNet's corner-keypoint one-stage detector and on the two-stage vs one-stage taxonomy of deep detection; the gap claimed is that CornerNet has no mechanism to inspect the content of its own predicted boxes, while a two-stage RoI-pooling fix would be too expensive.",
+    "relatedWork": [
+      {
+        "name": "CornerNet",
+        "relation": "direct baseline that predicts a pair of corner keypoints",
+        "quote": "This paper uses CornerNet [20] as the baseline.",
+        "location": "Sec 3.1"
+      },
+      {
+        "name": "Cascade R-CNN",
+        "relation": "prior two-stage work on quality mismatch and IoU thresholds",
+        "quote": "Cascade R-CNN [4] addresses the problem of overfitting at training and quality mismatch at inference by training a sequence of detectors with increasing IoU thresholds.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "RoI pooling two-stage variant",
+        "relation": "rejected alternative for inspecting box contents due to cost",
+        "quote": "However, it is known that such a paradigm is computationally expensive.",
+        "location": "Sec 3.1"
+      },
+      {
+        "name": "RetinaNet",
+        "relation": "one-stage anchor baseline outperformed in Table 2",
+        "quote": "This achievement is already better than those using deeper models (e.g., RetinaNet800 [24] and RefineDet [45]).",
+        "location": "Sec 4.2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "object detection approaches can be roughly categorized into two main types of pipelines, namely, two-stage approaches and one-stage approaches.",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "The keypoint-based object detection approaches [40, 28] are proposed to avoid the disadvantages of using anchor boxes and bounding boxes regression.",
+        "location": "Sec 2"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "CenterNet represents each object as a triplet of keypoints (top-left corner, bottom-right corner, center), keeps a candidate box only if a same-class center keypoint falls inside a scale-aware central region, and enriches the center and corner features with center pooling and cascade corner pooling.",
+    "approach": "Add a center-keypoint branch to CornerNet and validate each predicted box by checking whether a center keypoint of the same class lies in its scale-aware central region, rescoring the box with the three keypoint scores.",
+    "components": [
+      "center keypoint heatmap branch alongside the two corner heatmaps",
+      "scale-aware central region (n = 3 or 5 depending on box scale)",
+      "center pooling: max summed response in horizontal and vertical directions",
+      "cascade corner pooling: boundary maximum plus internal maximum",
+      "triplet score = average of top-left, bottom-right and center scores",
+      "Soft-NMS and top-100 box selection at inference"
+    ],
+    "solutionTags": ["keypoint-based", "center-based", "one-stage", "gaussian-heatmap", "post-processing-nms"],
+    "evidence": [
+      {
+        "quote": "Our approach, named CenterNet, detects each object as a triplet, rather than a pair, of keypoints, which improves both precision and recall.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "The idea, as shown in Figure 1, is to use a triplet, instead of a pair, of keypoints to represent each object.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "if a center keypoint is detected in the central region, we will preserve the bounding box.",
+        "location": "Sec 3.2"
+      },
+      {
+        "quote": "The second strategy is named cascade corner pooling, which equips the original corner pooling module [20] with the ability of perceiving internal information.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "To address this issue, we propose center pooling to capture richer and more recognizable visual patterns.",
+        "location": "Sec 3.3"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "The method is trained on MS-COCO trainval35k and evaluated on test-dev with AP/AR, then analysed with a false-discovery metric, component ablations (central region, center pooling, cascade corner pooling), an error analysis using ground-truth centers, and an inference-speed test on a Tesla P100.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "47.0", "split": "test-dev multi-scale, Hourglass-104", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "44.9", "split": "test-dev single-scale, Hourglass-104", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "43.5", "split": "test-dev multi-scale, Hourglass-52", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "41.6", "split": "test-dev single-scale, Hourglass-52", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP (small)", "value": "28.9", "split": "test-dev multi-scale, Hourglass-104", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "FD rate", "value": "32.4", "split": "val, CenterNet511-104", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "41.3", "split": "val, full CenterNet511-52 ablation", "location": "Table 4" }
+    ],
+    "baselines": ["CornerNet", "RetinaNet", "RefineDet", "SSD", "DSSD", "YOLOv2", "PANet", "Mask R-CNN", "Cascade R-CNN"],
+    "evidence": [
+      {
+        "quote": "On the MS-COCO dataset, CenterNet achieves an AP of 47.0%, which outperforms all existing one-stage detectors by at least 4.9%.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "reports a single-scale testing AP of 41.6%, an improvement of 3.8% over 37.8%, and a multi-scale testing AP of 43.5%,",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "Table 3 shows the FD rates for CornerNet and CenterNet.",
+        "location": "Sec 4.3"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "Detection quality hinges on predicting the center keypoint: a missed center keypoint disables the whole region-inspection mechanism, and substituting ground-truth centers lifts AP by roughly 15 points, showing center keypoint detection is far from solved.",
+    "items": [
+      "If the center keypoint is not detected, the visual patterns inside the box are never examined and the box is dropped.",
+      "Replacing predicted center keypoints with ground truth raises AP from 41.3% to 56.5% (Hourglass-52), indicating large remaining headroom in center keypoint detection.",
+      "Two-stage competitors typically feed higher-resolution inputs, which helps them especially on small objects."
+    ],
+    "evidence": [
+      {
+        "quote": "In other words, once a center keypoint is missed, the proposed CenterNet would miss the visual patterns within the bounding box.",
+        "location": "Sec 4.6"
+      },
+      {
+        "quote": "the results suggest there is still room for improvement in detecting center keypoints.",
+        "location": "Table 5"
+      },
+      {
+        "quote": "The exploration of visual patterns within each bounding box depends on the center keypoints.",
+        "location": "Sec 4.6"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Generalize the extra center-keypoint branch to other one-stage detectors such as SSD.",
+      "quote": "We believe that our idea of adding an extra branch for the center keypoint can be potentially generalized to other existing one-stage approaches (e.g., SSD [27]).",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Adopt advanced training strategies to improve performance.",
+      "quote": "Meanwhile, some advanced training strategies [46] can be used for better performance. We leave as our future work.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO"],
+    "backbones": ["Hourglass-52", "Hourglass-104"],
+    "models": ["CenterNet", "CornerNet"],
+    "algorithms": ["center pooling", "cascade corner pooling", "corner pooling", "soft-NMS", "focal loss", "scale-aware central region"],
+    "metrics": ["AP", "AP50", "AP75", "AR", "FD rate"],
+    "equations": [
+      { "name": "scale-aware central region", "expr": "ctlx = ((n+1)*tlx + (n-1)*brx)/(2n); cbrx = ((n-1)*tlx + (n+1)*brx)/(2n); analogous for ctly, cbry", "location": "Eq 1, Sec 3.2" },
+      { "name": "total training loss", "expr": "L = L_co_det + L_det + alpha*L_pull + beta*L_push + gamma*(L_co_off + L_off)", "location": "Eq 2, Sec 3.4" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "Average inference of 270ms per image with the Hourglass-52 backbone and 340ms with Hourglass-104, measured on an NVIDIA Tesla P100 GPU",
+      "Implemented in PyTorch and trained from scratch on 8 Tesla V100 (32GB) GPUs with batch size 48",
+      "Code released at https://github.com/Duankaiwen/CenterNet"
+    ],
+    "evidence": [
+      {
+        "quote": "To ensure a fair comparison, we test the inference speed of both CornerNet [20] and CenterNet on a NVIDIA Tesla P100 GPU.",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "Our CenterNet511-52 takes an average of 270ms to process per image, which is faster and more accurate than CornerNet511-104.",
+        "location": "Sec 4.4"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/iccv.2019.00667",
+    "arxivUrl": "https://arxiv.org/abs/1904.08189",
+    "venue": "ICCV 2019",
+    "pdfUrl": "https://arxiv.org/pdf/1904.08189"
+  }
+}

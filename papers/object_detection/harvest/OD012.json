@@ -1,0 +1,132 @@
+{
+  "id": "OD012",
+  "arxiv": "1701.06659",
+  "title": "DSSD : Deconvolutional Single Shot Detector",
+  "year": 2017,
+  "venue": null,
+  "problem": {
+    "summary": "Single-shot detectors put all detection on the deepest ConvNet layer (or on multi-scale maps that add cost), so one layer must cover all object scales and shallow maps lack semantics for small objects; naively combining a deep Residual-101 classifier with SSD, or appending deconvolution layers, does not work out of the box.",
+    "statements": [
+      "A single top-most ConvNet layer carries a great burden to model all possible object scales and shapes.",
+      "Shallow layers have less semantic information about objects, so relying on them for small objects can cause low performance on small objects.",
+      "Combining multi-scale feature maps increases the memory footprint of a model significantly and decreases the speed of the model.",
+      "Neither using the much deeper Residual-101 nor appending deconvolution layers to SSD works out of the box."
+    ],
+    "problemTags": ["small-objects", "one-stage-accuracy", "scale-variance", "speed-latency"],
+    "evidence": [
+      { "quote": "an approach for introducing additional context into state-of-the-art general object detection", "location": "Abstract" },
+      { "quote": "it imposes a great burden for a single layer to model all possible object scales and shapes.", "location": "Sec 2" },
+      { "quote": "which may cause low performance on small objects because shallow layers have less semantic information about objects.", "location": "Sec 2" },
+      { "quote": "the combined feature map not only increases the memory footprint of a model significantly but also decreases the speed of the model.", "location": "Sec 2" },
+      { "quote": "Unfortunately neither of these modifications, using the much deeper Residual-101, or adding deconvolution layers to the end of SSD feature layers, work \"out of the box\".", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on SSD's multi-scale default boxes, Residual-101 as a state-of-the-art classifier, prior use of deconvolution for dense prediction (MS-CNN), multi-layer feature combination (ION, HyperNet), skip connections, and the stacked hourglass structure; the claimed gap is injecting large-scale context into a fast single-shot detector without extra hand-crafted context regions.",
+    "relatedWork": [
+      { "name": "SSD", "relation": "the single-shot framework that DSSD augments", "quote": "SSD [18] spreads out default boxes of different scales to multiple layers within a ConvNet and enforces each layer to focus on predicting objects of certain scale.", "location": "Sec 2" },
+      { "name": "MS-CNN", "relation": "prior work using deconvolution to increase feature-map resolution before detection", "quote": "MS-CNN [2] applies deconvolution on multiple layers of a ConvNet to increase feature map resolution before using the layers to learn region proposals and pool features.", "location": "Sec 2" },
+      { "name": "R-FCN", "relation": "state-of-the-art two-stage baseline and source of the stride-reduction trick", "quote": "Following R-FCN [3], we change the conv5 stage’s effective stride from 32 pixels to 16 pixels to increase feature map resolution.", "location": "Sec 4" },
+      { "name": "Stacked hourglass networks", "relation": "structural inspiration for the encoder-decoder side branch", "quote": "we propose to use an encoder-decoder hourglass structure to pass context information before doing prediction.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "The majority of object detection methods, including SPPnet [13], Fast R-CNN [11], Faster R-CNN [24], RFCN [3] and YOLO [23], use the top-most layer of a ConvNet to learn to detect objects at different scales.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "DSSD first swaps SSD's VGG backbone for Residual-101 with an output stride of 16, adds a prediction module (a residual block) before each prediction layer, then adds an asymmetric hourglass deconvolution side branch with feed-forward skip connections and batch normalization, fusing decoder and encoder features by element-wise product before prediction.",
+    "approach": "Augment a Residual-101-based SSD with a deconvolution hourglass that passes large-scale context down through feed-forward connections and element-wise feature combination before each prediction layer.",
+    "components": [
+      "Residual-101 base network with output stride reduced from 32 to 16 (atrous convolution in conv5)",
+      "Prediction module with a residual block before each prediction layer",
+      "Asymmetric encoder-decoder hourglass of learned deconvolution layers with skip connections",
+      "Batch normalization after each convolution in the deconvolution module",
+      "Element-wise product (with element-wise sum as alternative) feature combination",
+      "One extra prior-box aspect ratio (1.6) added to (2.0, 3.0)",
+      "Two-stage training that freezes the pre-trained SSD weights while training the deconvolution side",
+      "Batch-normalization folding into convolution weights at test time"
+    ],
+    "solutionTags": ["one-stage", "feature-fusion", "multi-scale", "anchors", "dense-prediction"],
+    "evidence": [
+      { "quote": "We then augment SSD+Residual-101 with deconvolution layers to introduce additional large-scale context in object detection and improve accuracy, especially for small objects", "location": "Introduction" },
+      { "quote": "The experimental results show that the element-wise product provides the best accuracy", "location": "Sec 3.2" },
+      { "quote": "we decide to add one more aspect ratio, 1.6, and use (1.6, 2.0, 3.0) at every prediction layer.", "location": "Sec 3.3" }
+    ]
+  },
+  "experiments": {
+    "summary": "DSSD is evaluated on PASCAL VOC 2007 test, VOC 2012 test (trained on 07++12), and COCO test-dev2015 against SSD, Faster R-CNN, R-FCN, ION and MR-CNN, with an ablation over prediction modules and deconvolution combination functions; speed is compared on a Titan X with and without batch-normalization layers.",
+    "benchmarks": [
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "81.5", "split": "test, DSSD 513 (Residual-101)", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "78.6", "split": "test, DSSD 321 (Residual-101)", "location": "Table 3" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP", "value": "76.4", "split": "test, SSD 321 (Residual-101) baseline in ablation", "location": "Table 4" },
+      { "dataset": "PASCAL VOC 2012", "metric": "mAP", "value": "80.0", "split": "test, DSSD 513 (07++12 training)", "location": "Table 5" },
+      { "dataset": "COCO", "metric": "mAP@[.5:.95]", "value": "33.2", "split": "test-dev2015, trainval35k, DSSD513", "location": "Table 6" },
+      { "dataset": "COCO", "metric": "mAP@.5", "value": "53.3", "split": "test-dev2015, trainval35k, DSSD513", "location": "Table 6" },
+      { "dataset": "COCO", "metric": "mAP (small objects)", "value": "13.0", "split": "test-dev2015, trainval35k, DSSD513", "location": "Table 6" }
+    ],
+    "baselines": ["SSD300* (VGG)", "SSD512* (VGG)", "SSD321", "SSD513", "R-FCN", "Faster R-CNN", "Faster R-CNN (Residual-101)", "ION", "MR-CNN"],
+    "evidence": [
+      { "quote": "Our DSSD with 513 × 513 input achieves 81.5% mAP on VOC2007 test, 80.0% mAP on VOC2012 test, and 33.2% mAP on COCO, outperforming a state-of-the-art method R-FCN [3] on each dataset.", "location": "Abstract" },
+      { "quote": "SSD513-Residual-101 is already 1.3%(31.2% vs. 29.9%) better than the state-of-the-art method R-FCN [3].", "location": "Sec 4, COCO" },
+      { "quote": "achieves 33.2 % mAP which is 3.3% better than R-FCN [3].", "location": "Sec 4, COCO" },
+      { "quote": "By adding the deconvolution layers on top of SSD321-Residual-101, we can see that it performs better on small objects (7.4% vs. 6.2%)", "location": "Sec 4, COCO" }
+    ]
+  },
+  "limitations": {
+    "summary": "DSSD is slower than plain SSD because of the deeper backbone, extra modules and 2.6x more default boxes; the decoder must be trained from scratch, stage-2 fine-tuning hurt performance, deconvolution gave no gain on large objects, and the first prediction layer of Residual-101 predicts weakly.",
+    "items": [
+      "DSSD is not as fast as the original SSD due to Residual-101, extra modules, and more default boxes.",
+      "2.6 times more default boxes than SSD slow both prediction and non-maximum suppression.",
+      "No pre-trained model exists for the decoder, so its layers start from random initialization.",
+      "Adding deconvolution layers improved small-object AP on COCO but gave no improvement on large objects.",
+      "Fine-tuning the whole network after the deconvolution module decreased performance."
+    ],
+    "evidence": [
+      { "quote": "The model we proposed is not as fast as the original SSD for multiple reasons.", "location": "Sec 4, Inference Time" },
+      { "quote": "Table 7 shows that we use 2.6 times more default boxes than a previous version of SSD (43688 vs. 17080).", "location": "Sec 4, Inference Time" },
+      { "quote": "Since there is no pre-trained model for our decoder, we cannot take the advantage of transfer learning for the decoder layers which must be trained starting from random initialization.", "location": "Sec 3.4" },
+      { "quote": "unfortunately we don’t see improvements on large objects.", "location": "Sec 4, COCO" },
+      { "quote": "we did not see any improvements but instead decreased performance.", "location": "Sec 4, Ablation Study" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Find better functions for combining encoder and decoder features beyond the element-wise product.", "quote": "The better feature combination can be considered as further work to improve the accuracy of the DSSD model.", "location": "Sec 4, Ablation Study" },
+    { "direction": "Speed up DSSD by replacing the learned deconvolution layer with simple bilinear up-sampling.", "quote": "A potential way to speed up DSSD is to replace the deconvolution layer by a simple bilinear up-sampling.", "location": "Sec 4, Inference Time" },
+    { "direction": "Extend the encoder-decoder hourglass approach beyond SSD to region-based detectors.", "quote": "this approach can be applied to other detection methods, such as the R-CNN series methods [12, 11, 24], as well.", "location": "Conclusion" },
+    { "direction": "Improve the efficiency and effectiveness of encoder-decoder feature combination.", "quote": "we expect many improvements in finding more efficient and effective ways to combine the features from the encoder and decoder", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["PASCAL VOC 2007", "PASCAL VOC 2012", "COCO", "ImageNet", "ILSVRC CLS-LOC"],
+    "backbones": ["Residual-101", "VGG-16"],
+    "models": ["DSSD 321", "DSSD 513", "SSD300*", "SSD512*", "SSD321", "SSD513", "R-FCN", "Faster R-CNN", "ION", "MR-CNN", "MS-CNN"],
+    "algorithms": ["deconvolution", "batch normalization", "non-maximum suppression", "atrous convolution", "k-means clustering", "Smooth L1 loss", "softmax confidence loss", "random expansion augmentation", "BN folding at test time"],
+    "metrics": ["mAP", "mAP@.5", "mAP@[.5:.95]", "AP small/medium/large", "FPS"],
+    "equations": [
+      { "name": "batch norm folding weight", "expr": "ŵ = scale * w / sqrt(var + ε)", "location": "Sec 4, Inference Time, Eq. 2" },
+      { "name": "batch norm folding bias", "expr": "b̂ = scale * (b - µ) / sqrt(var + ε) + shift", "location": "Sec 4, Inference Time, Eq. 3" },
+      { "name": "folded convolution", "expr": "y = ŵx + b̂", "location": "Sec 4, Inference Time, Eq. 4" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "small and dense object detection", "detail": "DSSD improves over SSD in scenes containing small or dense objects, where SSD's small input size fails.", "quote": "The first case is in scenes containing small objects or dense objects as shown in Figure 4a.", "location": "Sec 4, Visualization" },
+      { "domain": "context-dependent recognition (sports and people interactions)", "detail": "Classes with distinctive context such as tie/man, baseball bat/player, and tennis racket/player are detected more cleanly.", "quote": "classes with specific relationships can be improved: tie and man in suit, baseball bat and baseball player, soccer ball and soccer player", "location": "Sec 4, Visualization" }
+    ],
+    "deploymentClaims": [
+      "Folding batch-normalization layers into convolution weights improves speed by 1.2x-1.5x and reduces memory footprint up to three times at test time.",
+      "DSSD 513 has better accuracy than R-FCN while being only slightly slower; DSSD 321 keeps a speed advantage over R-FCN with a small accuracy drop.",
+      "Code and models will be open sourced upon publication."
+    ],
+    "evidence": [
+      { "quote": "We found that this trick improves the speed by 1.2× - 1.5× in general and reduces the memory footprint up to three times.", "location": "Sec 4, Inference Time" },
+      { "quote": "Compared to R-FCN [3], the SSD 513 model has similar speed and accuracy.", "location": "Sec 4, Inference Time" },
+      { "quote": "The code will be open sourced with models upon publication.", "location": "Abstract" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1701.06659",
+    "arxivUrl": "https://arxiv.org/abs/1701.06659",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/1701.06659"
+  }
+}

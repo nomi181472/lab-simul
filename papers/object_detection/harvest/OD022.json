@@ -1,0 +1,141 @@
+{
+  "id": "OD022",
+  "arxiv": "1711.07240",
+  "title": "MegDet: A Large Mini-Batch Object Detector",
+  "year": 2017,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition",
+  "problem": {
+    "summary": "Object detectors train with tiny mini-batches (2-16 images), unlike classification where batches of thousands are routine, which makes training slow, gives BN no accurate per-batch statistics, and yields imbalanced positive/negative samples; simply scaling the batch fails because a large learning rate breaks convergence while a small one loses accuracy.",
+    "statements": [
+      "Mini-batch size has not been well studied for object detection, even though it is a key training factor.",
+      "Small mini-batches make detector training notoriously lengthy (ResNet-152 on COCO takes 3 days with batch 16 on 8 GPUs).",
+      "Small mini-batches cannot re-train batch normalization, so detectors keep fixed ImageNet BN statistics that mismatch COCO.",
+      "Positive/negative sample ratios are more imbalanced within small mini-batches, which may hurt final accuracy.",
+      "The large-batch dilemma: the equivalent learning rate rule demands a large learning rate, but large learning rates in detection often fail to converge, while small ones give inferior results."
+    ],
+    "problemTags": ["training-instability", "class-imbalance", "speed-latency", "convergence"],
+    "evidence": [
+      { "quote": "However, mini-batch size, a key factor for the training of deep neural networks, has not been well studied for object detection.", "location": "Abstract" },
+      { "quote": "In contract, the mini-batch size remains very small (e.g., 2-16) in object detection literatures.", "location": "Introduction" },
+      { "quote": "Last but not the least, the number of positive and negative training examples within a small mini-batch are more likely imbalanced, which might hurt the final accuracy.", "location": "Introduction" },
+      { "quote": "But a large learning rate in object detection could be very likely leading to the failure of convergence", "location": "Introduction" },
+      { "quote": "Second, in the training of detector, we usually fix the statistics of Batch Normalization and use the pre-computed values on ImageNet dataset, since the small mini-batch size is not applicable to re-train the BN layers.", "location": "Sec 3.1" }
+    ]
+  },
+  "background": {
+    "summary": "The paper sits on top of the FPN detection framework with a ResNet-50 backbone (the paper's default detector) and on large-mini-batch SGD research from image classification (linear scaling rule, warmup, generalization-gap work). The claimed gap is that large mini-batch training had been studied for classification but essentially not for detection.",
+    "relatedWork": [
+      { "name": "FPN", "relation": "chosen as the default detection framework for its accuracy/implementation trade-off", "quote": "As FPN provides a good trade-off between accuracy and implementation, we use it as the default detection framework.", "location": "Related Work" },
+      { "name": "Mask R-CNN", "relation": "state-of-the-art two-stage detector with ROIAlign, one of the large-accuracy references", "quote": "Mask R-CNN [14] introduces the ROIAlign and achieves state-of-the-art results for both object detection and instance segmentation.", "location": "Related Work" },
+      { "name": "Goyal et al. (1-hour ImageNet)", "relation": "prior large-batch classification training with warmup that MegDet borrows its warmup policy from", "quote": "In [13], imagenet training based on ResNet50 can be finished in one hour.", "location": "Related Work" },
+      { "name": "Batch Normalization", "relation": "the technique MegDet is the first to re-train inside an object detection framework", "quote": "Batch Normalization [20] is an important technique for training a very deep convolutional neural network.", "location": "Sec 3.3" }
+    ],
+    "evidence": [
+      { "quote": "However, the topic of large mini-batch training for object detection is rarely discussed so far.", "location": "Related Work" },
+      { "quote": "A recent trend on CNN-based image classification uses very large min-batch size to significantly speed up the training.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "MegDet trains a detector with mini-batches up to 256 on up to 128 GPUs by (a) re-deriving the linear scaling rule from a variance-equivalence assumption and applying a linear warmup schedule, and (b) introducing Cross-GPU Batch Normalization, which aggregates BN mean/variance across GPUs with an AllReduce so BN statistics come from enough images.",
+    "approach": "Scale the learning rate linearly with a gradual warmup and compute batch-normalization statistics across all GPUs instead of per device, making large-mini-batch detector training converge quickly and accurately.",
+    "components": [
+      "linear scaling rule re-derived under a variance equivalence assumption",
+      "linear gradual warmup of the learning rate at the start of training",
+      "Cross-GPU Batch Normalization (CGBN) computing aggregated mean/variance via AllReduce with NCCL",
+      "sub-linear memory to fit larger BN batches (32/64 images) into GPU memory",
+      "FPN detection framework on a ResNet-50 backbone",
+      "normal and long learning-rate decay policies (epoch-based halvings)"
+    ],
+    "solutionTags": ["large-mini-batch-training", "cross-gpu-batch-norm", "warmup-learning-rate", "feature-fusion"],
+    "evidence": [
+      { "quote": "we propose a Large Mini-Batch Object Detector (MegDet) to enable the training with a large minibatch size up to 256, so that we can effectively utilize at most 128 GPUs", "location": "Abstract" },
+      { "quote": "we present a new explanation of linear scaling rule and borrow the “warmup” learning rate policy [13] to gradually increase the learning rate at the very early stage.", "location": "Introduction" },
+      { "quote": "we introduce Cross-GPU Batch Normalization (CGBN) for better BN statistics.", "location": "Introduction" },
+      { "quote": "In this work, we make an attempt to perform batch normalization for object detection.", "location": "Sec 3.3" }
+    ]
+  },
+  "experiments": {
+    "summary": "All studies use COCO with a ResNet-50 + FPN detector, sweeping mini-batch size (2-256), BN batch size (2-64 images), GPU count (2-128), warmup/CGBN on or off, and normal vs. long decay policies, reporting mmAP on the 5k validation set together with wall-clock training time; the enhanced system is then submitted to COCO 2017.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "mmAP", "value": "36.2", "split": "validation, batch 16 baseline, no BN", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "mmAP", "value": "37.7", "split": "validation, batch 16 with BN (long policy)", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "mmAP", "value": "37.1", "split": "validation, batch 256, 128 GPUs, BN size 16", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "mmAP", "value": "37.8", "split": "validation, batch 32 long policy (best single)", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "training time", "value": "4.1", "split": "hours, batch 256 on 128 GPUs vs 33.2h baseline", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "mmAP", "value": "52.5", "split": "test-dev, MegDet ensemble, COCO 2017 Challenge", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "mmAR", "value": "69.0", "split": "test-dev, MegDet ensemble", "location": "Table 4" }
+    ],
+    "baselines": ["FPN detector with batch 16", "RetinaNet", "Mask R-CNN"],
+    "evidence": [
+      { "quote": "Our MegDet (ResNet-50 as backbone) can finish COCO training in 4 hours on 128 GPUs, reaching even higher accuracy.", "location": "Introduction" },
+      { "quote": "the 256 mini-batch experiment with 128 GPUs finishes the COCO training only in 4.1 hours", "location": "Sec 4.2" },
+      { "quote": "all trainings easily converge, no matter of the mini-batch size, when we combine the warmup strategy and CGBN.", "location": "Sec 4.2" }
+    ]
+  },
+  "limitations": {
+    "summary": "Without CGBN, large batches simply fail to converge and even warmup cannot save batch 128; BN statistics are only computed across GPUs on a single machine, an overly large BN batch hurts accuracy, and the observed epoch-wise learning dynamics differ from classification and are left unexplained.",
+    "items": [
+      "Without batch normalization, batch-64 and batch-128 trainings fail to converge even with warmup; batch-128 fails with both warmup and half learning rate.",
+      "Larger BN statistics batches hurt: raising BN size from 32 to 64 drops accuracy, showing a mismatch between classification and detection.",
+      "Cross-GPU BN is restricted to GPUs on the same machine, limiting how many images enter the statistics.",
+      "Sub-linear memory used for larger BN batches slightly compromises training speed.",
+      "Large-batch epoch-by-epoch accuracy behaves differently from image classification, and the cause is not understood."
+    ],
+    "evidence": [
+      { "quote": "For mini-batch size 128, the training failed with both warmup and half learning rate.", "location": "Sec 4.1" },
+      { "quote": "when we increase the size to 64, the accuracy drops.", "location": "Sec 4.2" },
+      { "quote": "Note that we only perform BN across GPUs on the same machine.", "location": "Sec 3.3" },
+      { "quote": "We leave the understanding of this phenomenon as the future work.", "location": "Sec 4.2" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Understand why large-mini-batch epoch-wise accuracy curves differ from those in image classification.",
+      "quote": "We leave the understanding of this phenomenon as the future work.",
+      "location": "Sec 4.2"
+    },
+    {
+      "direction": "Extend the variance-based interpretation of the learning rate to wider applications beyond detection.",
+      "quote": "We hope the variance analysis here can shed light on deeper understanding of learning rate in wider applications.",
+      "location": "Sec 3.2"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "ImageNet"],
+    "backbones": ["ResNet-50"],
+    "models": ["MegDet", "FPN", "Mask R-CNN", "RetinaNet", "Faster R-CNN"],
+    "algorithms": ["Cross-GPU Batch Normalization", "linear scaling rule", "warmup learning rate", "AllReduce with NCCL", "sub-linear memory", "SGD with momentum"],
+    "metrics": ["mmAP", "mmAR", "training time (hours)"],
+    "equations": [
+      { "name": "detector loss", "expr": "L(x,w) = (1/N) sum_i l(xi,w) + (lambda/2)||w||_2^2 = l(x,w) + l(w)", "location": "Eq. (1), Sec 3.2" },
+      { "name": "linear scaling rule", "expr": "r_hat = k * r when N_hat = k * N", "location": "Sec 3.2" },
+      { "name": "gradient variance", "expr": "Var(grad l(x,wt)) = (1/N^2) * N * sigma_l^2 = sigma_l^2 / N", "location": "Eq. (2)-(3), Sec 3.2" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "industry-wide CNN detection systems",
+        "detail": "The paper positions CNN-based detectors as the mainstream in both academia and industry, and frames large-batch training as a way to exploit rapidly increasing industry compute.",
+        "quote": "CNN-based detectors have been the mainstream in current academia and industry.",
+        "location": "Related Work"
+      }
+    ],
+    "deploymentClaims": [
+      "COCO training in 4.1 hours on 128 GPUs (8x acceleration over the 33.2-hour batch-16 baseline).",
+      "Training time reduced from 33 hours to 4 hours while achieving better accuracy.",
+      "Won 1st place in the COCO 2017 Detection Challenge with 52.5 mmAP (ensemble of four detectors).",
+      "Enhanced MegDet reached 50.6 mmAP on COCO test-dev as a single submission entry."
+    ],
+    "evidence": [
+      { "quote": "Technically, we suggest a warmup learning rate policy and Cross-GPU Batch Normalization, which together allow us to successfully train a large mini-batch detector in much less time (e.g., from 33 hours to 4 hours), and achieve even better accuracy.", "location": "Abstract" },
+      { "quote": "Based on MegDet, we secured 1st place of COCO 2017 Detection Challenge.", "location": "Introduction" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2018.00647",
+    "arxivUrl": "https://arxiv.org/abs/1711.07240",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition",
+    "pdfUrl": "https://arxiv.org/pdf/1711.07240"
+  }
+}

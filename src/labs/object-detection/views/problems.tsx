@@ -1,151 +1,264 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PROBLEM_LIFECYCLES, PROBLEM_BY_ID, buildProblemMatrix } from "@/labs/object-detection/data/problems";
-import { PAPER_BY_ID } from "@/labs/object-detection/data/papers";
-import { Card, Badge, SectionTitle, StatusBadge } from "@/labs/object-detection/ui";
+import type { Evidence, ProblemEvidence, ProblemLifecycle } from "@/labs/object-detection/data/types";
+import { PROBLEM_LIFECYCLES } from "@/labs/object-detection/data/problems";
+import { Badge, Card, EvidenceLine, PaperLink, StatusBadge } from "@/labs/object-detection/ui";
+import { Segmented } from "@/labs/object-detection/sims/shared";
 
-const STATUS_COLOR: Record<string, string> = {
-  resolved: "bg-emerald-500",
-  reduced: "bg-sky-500",
-  persistent: "bg-amber-500",
-  transformed: "bg-violet-500",
-  uncertain: "bg-rose-500",
-};
+type SortKey = "paperCount" | "firstObservedYear" | "id";
+
+const SORTS: { value: SortKey; label: string }[] = [
+  { value: "paperCount", label: "papers" },
+  { value: "firstObservedYear", label: "first year" },
+  { value: "id", label: "id" },
+];
+
+const TOP_N = 15;
+const STATEMENT_N = 6;
+
+function clip(s: string, n: number) {
+  return s.length > n ? s.slice(0, n - 1) + "…" : s;
+}
+
+function occurrenceEvidence(e: ProblemEvidence): Evidence {
+  return { paperIds: [e.paperId], kind: "paperSays", confidence: "MEDIUM", quote: e.quote, location: e.location };
+}
+
+function LifecycleDetail({ p }: { p: ProblemLifecycle }) {
+  const [allStatements, setAllStatements] = useState(false);
+  const shown = allStatements ? p.statements : p.statements.slice(0, STATEMENT_N);
+  const hidden = p.statements.length - shown.length;
+
+  return (
+    <div className="space-y-4 border-t border-zinc-800 px-3 py-4 sm:px-4">
+      <div>
+        <div className="font-mono text-[9px] uppercase tracking-wide text-zinc-600">
+          consolidated problem
+        </div>
+        <p className="mt-1 text-[13px] leading-5 text-zinc-200">{p.problem}</p>
+      </div>
+
+      <div>
+        <div className="font-mono text-[9px] uppercase tracking-wide text-zinc-600">
+          statements from the corpus ({p.statements.length})
+        </div>
+        <ul className="mt-1.5 space-y-1">
+          {shown.map((s, i) => (
+            <li key={i} className="flex gap-2 text-[12px] leading-5 text-zinc-400">
+              <span className="text-emerald-700">·</span>
+              <span>{s}</span>
+            </li>
+          ))}
+        </ul>
+        {p.statements.length > STATEMENT_N && (
+          <button
+            onClick={() => setAllStatements((v) => !v)}
+            className="mt-1.5 rounded-md border border-zinc-800 px-2 py-0.5 font-mono text-[10px] text-zinc-400 hover:text-zinc-200"
+          >
+            {allStatements ? "show less" : `+${hidden} more`}
+          </button>
+        )}
+      </div>
+
+      <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge tone="emerald">status evidence</Badge>
+          <StatusBadge status={p.currentStatus} />
+        </div>
+        <p className="mt-2 text-[12px] leading-5 text-zinc-400">{p.statusEvidence}</p>
+        {p.statusPapers.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {p.statusPapers.map((pid) => (
+              <PaperLink key={pid} id={pid} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <div className="font-mono text-[9px] uppercase tracking-wide text-zinc-600">
+          occurrences ({p.occurrences.length})
+        </div>
+        <div className="mt-2 space-y-3">
+          {p.occurrences
+            .slice()
+            .sort((a, b) => a.year - b.year)
+            .map((o) => (
+              <div key={o.year} className="border-l-2 border-zinc-800 pl-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge tone="emerald">{o.year}</Badge>
+                  {o.papers.map((pid) => (
+                    <PaperLink key={pid} id={pid} />
+                  ))}
+                </div>
+
+                {o.attemptedSolutions.length > 0 && (
+                  <div className="mt-2 space-y-2">
+                    <div className="font-mono text-[9px] uppercase tracking-wide text-zinc-600">
+                      attempted solutions
+                    </div>
+                    {o.attemptedSolutions.map((s, i) => (
+                      <div
+                        key={`${s.paperId}-${i}`}
+                        className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-2.5"
+                      >
+                        <div className="flex flex-wrap items-center gap-2">
+                          <PaperLink id={s.paperId} />
+                          <Badge tone="zinc">{s.year}</Badge>
+                          {s.solutionTags.map((t) => (
+                            <Badge key={t} tone="sky">
+                              {t}
+                            </Badge>
+                          ))}
+                        </div>
+                        <p className="mt-1.5 text-[12px] leading-5 text-zinc-400">
+                          {clip(s.approach, 220)}
+                        </p>
+                        {s.quote && (
+                          <blockquote className="mt-1.5 border-l-2 border-zinc-700 pl-2 text-[11px] italic leading-4 text-zinc-500">
+                            “{clip(s.quote, 220)}”
+                          </blockquote>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {o.evidence.length > 0 && (
+                  <div className="mt-2 space-y-2">
+                    <div className="font-mono text-[9px] uppercase tracking-wide text-zinc-600">
+                      evidence
+                    </div>
+                    {o.evidence.map((e, i) => (
+                      <EvidenceLine key={i} evidence={occurrenceEvidence(e)} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function ProblemsView() {
-  const matrix = useMemo(() => buildProblemMatrix(), []);
-  const [selId, setSelId] = useState<string>(matrix[0]?.id ?? "");
+  const [sort, setSort] = useState<SortKey>("paperCount");
+  const [showAll, setShowAll] = useState(false);
+  const [q, setQ] = useState("");
+  const [openId, setOpenId] = useState<string | null>(null);
 
-  const years = Array.from({ length: 2026 - 2015 + 1 }, (_, i) => 2015 + i);
-  const selected = PROBLEM_BY_ID[selId];
+  const maxCount = useMemo(
+    () => Math.max(...PROBLEM_LIFECYCLES.map((p) => p.paperCount)),
+    [],
+  );
+
+  const rows = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    const list = PROBLEM_LIFECYCLES.filter((p) => {
+      if (!needle) return true;
+      const hay = `${p.id} ${p.shortLabel} ${p.problem} ${p.statements.join(" ")}`.toLowerCase();
+      return needle.split(/\s+/).filter(Boolean).every((t) => hay.includes(t));
+    });
+    return list.sort((a, b) => {
+      if (sort === "paperCount") return b.paperCount - a.paperCount || a.id.localeCompare(b.id);
+      if (sort === "firstObservedYear")
+        return a.firstObservedYear - b.firstObservedYear || a.id.localeCompare(b.id);
+      return a.id.localeCompare(b.id);
+    });
+  }, [sort, q]);
+
+  const visible = showAll ? rows : rows.slice(0, TOP_N);
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">Problem matrix</h1>
         <p className="mt-1 max-w-3xl text-sm leading-6 text-zinc-400">
-          12 problem lifecycles traced across 2015–2026. Each cell is a year where a
-          corpus paper explicitly evidences the problem. Click a row to open the lifecycle.
+          {PROBLEM_LIFECYCLES.length} problem lifecycles traced across the corpus. Each row
+          shows how many papers evidence the problem and the years it was observed. Click a
+          row to open the consolidated statement, status judgment and occurrence timeline.
         </p>
       </div>
 
-      {/* matrix */}
-      <Card>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-[11px]">
-            <thead>
-              <tr>
-                <th className="sticky left-0 bg-zinc-900 p-1.5 text-left font-mono text-[10px] uppercase text-zinc-500">
-                  problem
-                </th>
-                {years.map((y) => (
-                  <th key={y} className="p-1 text-center font-mono text-[9px] text-zinc-600">
-                    {String(y).slice(2)}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {matrix.map((row) => (
-                <tr
-                  key={row.id}
-                  onClick={() => setSelId(row.id)}
-                  className={`cursor-pointer border-t border-zinc-900 ${selId === row.id ? "bg-emerald-950/30" : "hover:bg-zinc-900/50"}`}
-                >
-                  <td className="sticky left-0 bg-zinc-900 p-1.5">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`h-2 w-2 rounded-full ${STATUS_COLOR[row.status]}`} />
-                      <span className="font-mono text-zinc-400">{row.label}</span>
-                    </div>
-                  </td>
-                  {years.map((y) => (
-                    <td key={y} className="p-0 text-center">
-                      {row.present[y] ? (
-                        <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
-                          <span className="h-2 w-2 rounded-sm bg-emerald-500/70" />
-                        </span>
-                      ) : (
-                        <span className="text-zinc-800">·</span>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+      {/* ---------- controls ---------- */}
 
-      {/* lifecycle explorer */}
-      {selected && (
-        <Card tone="accent">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <SectionTitle>{selected.problem}</SectionTitle>
-            <div className="flex items-center gap-2">
-              <StatusBadge status={selected.currentStatus} />
-              <Badge tone="zinc">first observed {selected.firstObservedYear}</Badge>
+      <Card>
+        <div className="flex flex-wrap items-end gap-4">
+          <Segmented label="sort by" value={sort} options={SORTS} onChange={setSort} />
+          <label className="flex min-w-52 flex-col gap-1">
+            <span className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">
+              filter
+            </span>
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="e.g. small objects, NMS, end-to-end…"
+              className="rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-[12px] text-zinc-200 placeholder:text-zinc-600 focus:border-emerald-600 focus:outline-none"
+            />
+          </label>
+          <button
+            onClick={() => setShowAll((v) => !v)}
+            className="rounded-md border border-zinc-800 px-2 py-1.5 font-mono text-[10px] uppercase tracking-wide text-zinc-400 hover:text-zinc-200"
+          >
+            {showAll ? `top ${TOP_N}` : "show all"}
+          </button>
+          <div className="ml-auto font-mono text-[10px] text-zinc-500">
+            {visible.length} / {rows.length} problems
+          </div>
+        </div>
+
+        {/* ---------- matrix ---------- */}
+
+        <div className="mt-4 overflow-x-auto">
+          <div className="min-w-[560px]">
+            <div className="grid grid-cols-[minmax(0,1fr)_7rem_3rem_7rem] items-center gap-3 border-b border-zinc-800 pb-1.5 font-mono text-[9px] uppercase tracking-wide text-zinc-600">
+              <span>problem</span>
+              <span>papers</span>
+              <span className="text-right">count</span>
+              <span className="text-right">years</span>
+            </div>
+
+            <div className="divide-y divide-zinc-900">
+              {visible.map((p) => {
+                const open = openId === p.id;
+                return (
+                  <div key={p.id} className={open ? "bg-emerald-950/20" : ""}>
+                    <button
+                      onClick={() => setOpenId(open ? null : p.id)}
+                      className="grid w-full grid-cols-[minmax(0,1fr)_7rem_3rem_7rem] items-center gap-3 px-1 py-2 text-left transition-colors hover:bg-zinc-900/60"
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="truncate text-[12px] text-zinc-200">{p.shortLabel}</span>
+                        <StatusBadge status={p.currentStatus} />
+                      </span>
+                      <span className="h-2.5 w-full overflow-hidden rounded-sm bg-zinc-800">
+                        <span
+                          className="block h-full bg-emerald-500"
+                          style={{ width: `${(p.paperCount / maxCount) * 100}%` }}
+                        />
+                      </span>
+                      <span className="text-right font-mono text-[10px] text-zinc-400">
+                        {p.paperCount}
+                      </span>
+                      <span className="text-right font-mono text-[10px] text-zinc-500">
+                        {p.firstObservedYear}–{p.lastObservedYear}
+                      </span>
+                    </button>
+                    {open && <LifecycleDetail p={p} />}
+                  </div>
+                );
+              })}
+              {visible.length === 0 && (
+                <div className="rounded-lg border border-rose-900/60 bg-rose-950/20 p-3 text-[12px] text-zinc-400">
+                  No problems match the current filter.
+                </div>
+              )}
             </div>
           </div>
-
-          <div className="mt-4 space-y-4">
-            {selected.occurrences
-              .slice()
-              .sort((a, b) => a.year - b.year)
-              .map((o) => (
-                <div key={o.year} className="border-l-2 border-zinc-800 pl-4">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-sm text-emerald-300">{o.year}</span>
-                    {o.papers.map((pid) => {
-                      const p = PAPER_BY_ID[pid];
-                      return p ? (
-                        <span key={pid} className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-300">
-                          {p.id} {p.shortTitle}
-                        </span>
-                      ) : (
-                        <span key={pid} className="rounded bg-rose-900/50 px-1.5 py-0.5 text-[10px] text-rose-300">
-                          ?{pid}
-                        </span>
-                      );
-                    })}
-                  </div>
-                  {o.attemptedSolutions.length > 0 && (
-                    <ul className="mt-2 space-y-1">
-                      {o.attemptedSolutions.map((s, i) => (
-                        <li key={i} className="flex gap-2 text-[12px] leading-5 text-zinc-400">
-                          <span className="text-emerald-600">↳</span>
-                          {s}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-          </div>
-
-          <div className="mt-4 flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
-            <Badge tone="emerald">status evidence</Badge>
-            <p className="text-[11px] leading-5 text-zinc-400">{selected.statusEvidence}</p>
-          </div>
-        </Card>
-      )}
-
-      {/* problem selector chips */}
-      <div className="flex flex-wrap gap-1.5">
-        {PROBLEM_LIFECYCLES.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => setSelId(p.id)}
-            className={`rounded-md border px-2 py-1 font-mono text-[10px] ${
-              selId === p.id
-                ? "border-emerald-600 bg-emerald-600/20 text-emerald-200"
-                : "border-zinc-800 text-zinc-500 hover:text-zinc-300"
-            }`}
-          >
-            {p.shortLabel}
-          </button>
-        ))}
-      </div>
+        </div>
+      </Card>
     </div>
   );
 }

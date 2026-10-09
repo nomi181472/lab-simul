@@ -1,0 +1,119 @@
+{
+  "id": "OD031",
+  "arxiv": "1801.04381",
+  "title": "MobileNetV2: Inverted Residuals and Linear Bottlenecks",
+  "year": 2018,
+  "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+  "problem": {
+    "summary": "State-of-the-art neural networks demand computational resources beyond what mobile and embedded devices can provide, and the usual way of shrinking them (lower-dimensional bottlenecks plus ReLU non-linearities) destroys information in the narrow layers.",
+    "statements": [
+      "Modern state-of-the-art networks require high computational resources beyond the capabilities of mobile and embedded applications.",
+      "Reducing dimensionality to trade computation for accuracy breaks down because non-linear activations such as ReLU lose information in low-dimensional layers.",
+      "Standard convolutions and residual blocks carry a large memory footprint during inference, which hurts embedded hardware with small fast caches."
+    ],
+    "problemTags": ["real-time-edge", "deployability", "speed-latency"],
+    "evidence": [
+      { "quote": "However, the drive to improve accuracy often comes at a cost: modern state of the art networks require high computational resources beyond the capabilities of many mobile and embedded applications.", "location": "Introduction" },
+      { "quote": "However, this intuition breaks down when we recall that deep convolutional neural networks actually have non-linear per coordinate transformations, such as ReLU.", "location": "Sec 3.2" },
+      { "quote": "when ReLU collapses the channel, it inevitably loses information in that channel", "location": "Sec 3.2" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on MobileNetV1's depthwise separable convolutions and on residual learning (ResNet), noting that recent automated architecture search and efficient designs (ShuffleNet, NasNet) improve accuracy but produce complex networks; MobileNetV2 keeps the simple MobileNetV1 design while closing its accuracy gap.",
+    "relatedWork": [
+      { "name": "MobileNetV1", "relation": "direct base design that MobileNetV2 retains and improves", "quote": "Our network design is based on MobileNetV1 [27]. It retains its simplicity and does not require any special operators while significantly improves its accuracy, achieving state of the art on multiple image classification and detection tasks for mobile applications.", "location": "Introduction" },
+      { "name": "ResNet", "relation": "prior residual-block design whose expanded-layer shortcuts the inverted residual reverses", "quote": "Both manual architecture search and improvements in training algorithms, carried out by numerous teams has lead to dramatic improvements over early designs such as AlexNet [5], VGGNet [6], GoogLeNet [7]. , and ResNet [8].", "location": "Introduction" },
+      { "name": "ShuffleNet", "relation": "alternative efficient block changing internal connectivity structure", "quote": "A substantial amount of work has also been dedicated to changing the connectivity structure of the internal convolutional blocks such as in ShuffleNet [20] or introducing sparsity [21] and others [22].", "location": "Introduction" },
+      { "name": "Depthwise separable convolutions", "relation": "core building block reused from MobileNetV1/Xception/ShuffleNet", "quote": "Depthwise Separable Convolutions are a key building block for many efficient neural network architectures [27, 28, 20] and we use them in the present work as well.", "location": "Sec 3.1" }
+    ],
+    "evidence": [
+      { "quote": "However one drawback is that the resulting networks end up very complex.", "location": "Introduction" },
+      { "quote": "This has been successfully exploited by MobileNetV1 [27] to effectively trade off between computation and accuracy via a width multiplier parameter, and has been incorporated into efficient model designs of other networks as well [20].", "location": "Sec 3.2" }
+    ]
+  },
+  "solution": {
+    "summary": "MobileNetV2 introduces the inverted residual with linear bottleneck: a thin bottleneck is expanded, filtered with a lightweight depthwise convolution, and linearly projected back down, with skip connections between the thin bottlenecks and no non-linearity in the narrow layers. The design is instantiated as a mobile backbone and paired with SSDLite for detection and a reduced DeepLabv3 for segmentation.",
+    "approach": "Expand a low-dimensional input to high dimension, apply a 3x3 depthwise convolution, then linearly project back to a low-dimensional output, connecting residual shortcuts directly between the bottlenecks.",
+    "components": [
+      "inverted residual block with expansion factor t (t = 6 by default)",
+      "linear bottleneck (no non-linearity in narrow layers)",
+      "depthwise separable 3x3 convolutions",
+      "ReLU6 non-linearity for low-precision robustness",
+      "SSDLite detection head with separable convolutions in prediction layers",
+      "width multiplier and input-resolution hyper-parameters"
+    ],
+    "solutionTags": ["one-stage", "real-time-backbone", "dense-prediction"],
+    "evidence": [
+      { "quote": "Our main contribution is a novel layer module: the inverted residual with linear bottleneck.", "location": "Introduction" },
+      { "quote": "Additionally, we find that it is important to remove non-linearities in the narrow layers in order to maintain representational power.", "location": "Abstract" },
+      { "quote": "we use shortcuts directly between the bottlenecks.", "location": "Sec 3.3" },
+      { "quote": "We replace all the regular convolutions with separable convolutions (depthwise followed by 1 × 1 projection) in SSD prediction layers.", "location": "Sec 6.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "The paper evaluates ImageNet classification against MobileNetV1, ShuffleNet and NASNet-A, COCO object detection with SSDLite against SSD and YOLOv2, PASCAL VOC 2012 semantic segmentation with DeepLabv3, and ablates the effect of non-linearities and shortcut placement.",
+    "benchmarks": [
+      { "dataset": "ImageNet", "metric": "Top-1 accuracy", "value": "72.0", "split": "MobileNetV2, 224x224", "location": "Table 4" },
+      { "dataset": "ImageNet", "metric": "Top-1 accuracy", "value": "74.7", "split": "MobileNetV2 1.4, 224x224", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "22.1", "split": "test-dev, MobileNetV2 + SSDLite, 320x320 input", "location": "Table 6" },
+      { "dataset": "MS COCO", "metric": "mAP", "value": "23.2", "split": "test-dev, SSD300 baseline", "location": "Table 6" },
+      { "dataset": "PASCAL VOC 2012", "metric": "mIOU", "value": "75.32", "split": "val, MobileNetV2 DeepLabv3, output stride 16", "location": "Table 7" }
+    ],
+    "baselines": ["MobileNetV1", "ShuffleNet", "NASNet-A", "SSD300", "SSD512", "YOLOv2", "ResNet-101"],
+    "evidence": [
+      { "quote": "Notably, MobileNetV2 SSDLite is 20× more efficient and 10× smaller while still outperforms YOLOv2 on COCO dataset.", "location": "Sec 6.2" },
+      { "quote": "We measure our performance on ImageNet [1] classification, COCO object detection [2], VOC image segmentation [3].", "location": "Abstract" }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper offers no dedicated limitations section; it restricts its detection comparison to mobile/real-time models, concedes that linear bottlenecks are theoretically less expressive than non-linear ones, and that the memory-saving trick still needs framework-level work to pay off in runtime.",
+    "items": [
+      "Detection comparisons exclude two-stage models such as Faster R-CNN and R-FCN because the focus is on mobile/real-time models.",
+      "Linear bottleneck models are strictly less powerful than models with non-linearities in principle.",
+      "The t-way memory split does not reduce runtime by itself; smaller matrix multiplications can hurt runtime due to cache misses.",
+      "MobileNetV2 + SSDLite reaches 22.1 mAP on COCO test-dev, below SSD300's 23.2 mAP."
+    ],
+    "evidence": [
+      { "quote": "We do not compare performance with other architectures such as Faster-RCNN [36] and RFCN [37] since our focus is on mobile/real-time models.", "location": "Sec 6.2" },
+      { "quote": "The linear bottleneck models are strictly less powerful than models with non-linearities, because the activations can always operate in linear regime with appropriate changes to biases and scaling.", "location": "Sec 6.4" },
+      { "quote": "It remains to be seen if special framework level optimization may lead to further runtime improvements.", "location": "Sec 5.1" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Study the separation of network expressiveness (encoded by expansion layers) from capacity (encoded by bottleneck inputs) as a design axis.", "quote": "Exploring this is an important direction for future research.", "location": "Conclusion" },
+    { "direction": "Investigate ReLU invertibility conditions further to gain insights useful for network design.", "quote": "We believe further study of this is warranted and might lead to helpful insights on network design.", "location": "Appendix A" }
+  ],
+  "technical": {
+    "datasets": ["ImageNet", "MS COCO", "PASCAL VOC 2012"],
+    "backbones": ["MobileNetV2", "MobileNetV1", "VGG-16"],
+    "models": ["MobileNetV2", "MobileNetV2 1.4", "SSDLite", "Mobile DeepLabv3", "SSD", "YOLOv2"],
+    "algorithms": ["depthwise separable convolution", "inverted residual bottleneck", "ReLU6", "width multiplier", "batch normalization", "TF-Lite"],
+    "metrics": ["Top-1 accuracy", "mAP", "mIOU", "MAdds", "parameters", "latency (ms)"],
+    "equations": [
+      { "name": "Standard convolution cost", "expr": "hi * wi * di * dj * k * k", "location": "Sec 3.1" },
+      { "name": "Depthwise separable cost", "expr": "hi * wi * di * (k^2 + dj)", "location": "Sec 3.1" },
+      { "name": "Bottleneck block MAdds", "expr": "h * w * d' * t(d' + k^2 + d'')", "location": "Sec 3.3" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "mobile and embedded vision", "detail": "The architecture is explicitly tailored for mobile and resource-constrained environments, reducing operations and memory while retaining accuracy.", "quote": "This paper introduces a new neural network architecture that is specifically tailored for mobile and resource constrained environments.", "location": "Introduction" },
+      { "domain": "on-device object detection", "detail": "Detection latency is measured on a Google Pixel 1 phone using the TF-Lite engine, i.e. on real consumer hardware rather than only datacenter GPUs.", "quote": "we report running time in milliseconds (ms) for a single large core of the Google Pixel 1 phone (using TF-Lite)", "location": "Table 4" }
+    ],
+    "deploymentClaims": [
+      "MobileNetV2 runs in 75 ms on a single large core of the Google Pixel 1 phone using TF-Lite (Table 4).",
+      "MobileNetV2 + SSDLite reports 200 ms latency on the Pixel 1 large core with 4.3M parameters (Table 6).",
+      "SSDLite reduces SSD's parameters from 14.8M to 2.1M and MAdds from 1.25B to 0.35B for 80-class predictions (Table 5)."
+    ],
+    "evidence": [
+      { "quote": "The inverted residual bottleneck layers allow a particularly memory efficient implementation which is very important for mobile applications.", "location": "Sec 5.1" },
+      { "quote": "We use ReLU6 as the non-linearity because of its robustness when used with low-precision computation [27].", "location": "Sec 4" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2018.00474",
+    "arxivUrl": "https://arxiv.org/abs/1801.04381",
+    "venue": "IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings - IEEE Computer Society Conference on Computer Vision and Pattern Recognition/Proceedings",
+    "pdfUrl": "https://arxiv.org/pdf/1801.04381"
+  }
+}

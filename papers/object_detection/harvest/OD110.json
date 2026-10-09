@@ -1,0 +1,113 @@
+{
+  "id": "OD110",
+  "arxiv": "2410.17725",
+  "title": "YOLOv11: An Overview of the Key Architectural Enhancements",
+  "year": 2024,
+  "venue": null,
+  "problem": {
+    "summary": "This is an architectural analysis rather than a method paper: it frames its study around the accuracy-versus-parameter trade-off in real-time detection and around understanding what YOLOv11 changes relative to earlier YOLO generations, whose designs lacked mechanisms such as spatial attention.",
+    "statements": [
+      "Object detection requires precise identification and localization of objects within images or video streams.",
+      "Improving mean Average Precision while lowering parameter count is the central trade-off examined across YOLO versions.",
+      "Predecessor YOLOv8 lacks the C2PSA spatial attention mechanism used to focus on important image regions."
+    ],
+    "problemTags": ["speed-latency", "deployability", "small-objects"],
+    "evidence": [
+      { "quote": "A crucial aspect of this domain is object detection[2], which involves the precise identification and localization of objects within images or video streams[3].", "location": "Introduction" },
+      { "quote": "We review the model’s performance improvements in terms of mean Average Precision (mAP) and computational efficiency compared to its predecessors, with a focus on the trade-off between parameter count and accuracy.", "location": "Abstract" },
+      { "quote": "The inclusion of C2PSA sets YOLO11 apart from its predecessor, YOLOv8, which lacks this specific attention mechanism [18].", "location": "Sec 4.2.2" }
+    ]
+  },
+  "background": {
+    "summary": "The paper surveys the YOLO lineage from Redmon et al.'s 2015 single-stage regressor through YOLOv10's NMS-free dual assignments, and positions YOLOv11 as an incremental advance on the YOLOv8 foundation with contributions from YOLOv9 and YOLOv10.",
+    "relatedWork": [
+      { "name": "YOLO (Redmon et al.)", "relation": "original single-stage detector the series descends from", "quote": "A pivotal breakthrough in object detection came with the introduction of the You Only Look Once (YOLO) algorithm by Redmon et al. in 2015 [5].", "location": "Introduction" },
+      { "name": "YOLOv8", "relation": "direct architectural foundation extended by YOLOv11", "quote": "YOLO11 extends and enhances the foundation laid by YOLOv8, introducing architectural innovations and parameter optimizations to achieve superior detection performance", "location": "Sec 4" },
+      { "name": "YOLOv9 / YOLOv10", "relation": "immediate 2024 predecessors YOLOv11 builds on", "quote": "YOLOv11 represents a significant advancement in object detection technology, building upon the foundations laid by its predecessors, YOLOv9 and YOLOv10, which were introduced earlier in 2024.", "location": "Sec 6" }
+    ],
+    "evidence": [
+      { "quote": "From the original YOLO’s groundbreaking single-stage detection to YOLOv10’s NMS-free training, the series has consistently pushed the boundaries of real-time object detection.", "location": "Sec 2" },
+      { "quote": "YOLO’s methodology diverges from traditional two-stage detection processes by framing object detection as a regression problem [5].", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "The paper describes YOLOv11's architecture as a YOLOv8-style backbone/neck/head design in which the C2f block is replaced by the more efficient C3k2 block throughout, SPPF is retained, a C2PSA spatial-attention block is added after SPPF, and CBS layers and C3k blocks refine features in the head.",
+    "approach": "Swap the C2f block for the two-small-convolution C3k2 block across backbone, neck and head, and add the C2PSA spatial attention block after SPPF to improve feature extraction at lower parameter cost.",
+    "components": [
+      "C3k2 block (Cross Stage Partial with kernel size 2) replacing C2f in backbone, neck and head",
+      "SPPF (Spatial Pyramid Pooling - Fast) retained from previous versions",
+      "C2PSA (Convolutional block with Parallel Spatial Attention) after SPPF",
+      "C3k block with customizable kernel sizes in the head",
+      "CBS (Convolution-BatchNorm-SiLU) refinement layers in the head",
+      "Detect layer outputting box coordinates, objectness and class scores",
+      "model family spanning nano to extra-large for five task variants"
+    ],
+    "solutionTags": ["one-stage", "feature-fusion", "attention"],
+    "evidence": [
+      { "quote": "A significant improvement in YOLO11 is the introduction of the C3k2 block, which replaces the C2f block used in previous versions [18].", "location": "Sec 4.1.1" },
+      { "quote": "YOLO11 retains the Spatial Pyramid Pooling - Fast (SPPF) block from previous versions but introduces a new Cross Stage Partial with Spatial Attention (C2PSA) block after it [18].", "location": "Sec 4.1.2" },
+      { "quote": "The C3k2 block is a more computationally efficient implementation of the Cross Stage Partial (CSP) Bottleneck.", "location": "Sec 4.1.1" },
+      { "quote": "At its core, the YOLO architecture consists of three fundamental components.", "location": "Sec 4" }
+    ]
+  },
+  "experiments": {
+    "summary": "The study reports no original experiments; it compiles benchmark figures from cited sources (Figure 2, Ultralytics documentation) showing YOLOv11 variants ahead of predecessors on COCO mAP versus latency, plus a 22% parameter reduction for YOLOv11m versus YOLOv8m.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "mAP50-95", "value": "54.5", "split": "YOLOv11x at 13 ms latency (approximate)", "location": "Sec 6" },
+      { "dataset": "COCO", "metric": "mAP50-95", "value": "47", "split": "YOLOv11s in the 2-6 ms low-latency regime (approximate)", "location": "Sec 6" },
+      { "dataset": "COCO", "metric": "parameter reduction vs YOLOv8m", "value": "22%", "split": "YOLOv11m", "location": "Sec 6" }
+    ],
+    "baselines": ["YOLOv5", "YOLOv6", "YOLOv7", "YOLOv8", "YOLOv9", "YOLOv10"],
+    "evidence": [
+      { "quote": "The YOLOv11m variant achieves superior mean Average Precision (mAP) scores on the COCO dataset while utilizing 22% fewer parameters than its YOLOv8m counterpart, demonstrating improved computational efficiency without compromising accuracy [23].", "location": "Sec 6" },
+      { "quote": "YOLOv11 consistently outperforms these models, achieving superior mAP on the COCO dataset while maintaining a faster inference rate [25].", "location": "Sec 6" }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper states no limitations of YOLOv11 and has no limitations section; evident constraints are that it is a review drawing benchmark numbers from third-party sources, that attention benefits are described only as potential, and that the nano variant slightly increases parameters.",
+    "items": [
+      "Review article with no original training or evaluation experiments; benchmark values are sourced from external references.",
+      "Claimed detection gains from C2PSA are phrased as potential rather than measured in this work.",
+      "The nano model slightly increases parameter count relative to its predecessor.",
+      "No error analysis, failure cases or ablations of the discussed blocks are provided."
+    ],
+    "evidence": [
+      { "quote": "As presented in Figure 2, YOLOv11 consistently outperforms these models, achieving superior mAP on the COCO dataset while maintaining a faster inference rate [25].", "location": "Sec 6" },
+      { "quote": "This attention mechanism enables the model to concentrate on key regions within the image, potentially leading to more accurate detection, especially for smaller or partially occluded objects.", "location": "Sec 4.2.2" },
+      { "quote": "The nano model, despite a slight increase in parameters, demonstrates enhanced inference speed and frames per second (FPS) compared to its predecessor.", "location": "Sec 7" }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["COCO"],
+    "backbones": ["Darknet", "Darknet-53", "CSPDarknet-53", "YOLOv11 backbone (PyTorch)"],
+    "models": ["YOLOv11-nano", "YOLOv11-small", "YOLOv11-medium", "YOLOv11-large", "YOLOv11-xlarge", "YOLOv11-seg", "YOLOv11-pose", "YOLOv11-obb", "YOLOv11-cls", "YOLOv8", "YOLOv10"],
+    "algorithms": ["C3k2 block", "SPPF", "C2PSA", "CBS (Conv-BatchNorm-SiLU)", "CSP bottleneck", "single-stage regression detection", "NMS"],
+    "metrics": ["mAP", "mAP50-95", "parameter count", "latency (ms)", "FPS"],
+    "equations": []
+  },
+  "industry": {
+    "applications": [
+      { "domain": "surveillance, autonomous vehicles, retail analytics", "detail": "Object detection capability is mapped to surveillance systems, autonomous vehicles and retail analytics where precise identification matters.", "quote": "This capability finds applications in surveillance systems, autonomous vehicles, and retail analytics, where precise object identification is crucial [21].", "location": "Sec 5" },
+      { "domain": "medical imaging and manufacturing", "detail": "Instance segmentation is described as valuable for organ or tumor delineation and for defect detection on production lines.", "quote": "This fine-grained segmentation is particularly valuable in medical imaging for precise organ or tumor delineation, and in manufacturing for detailed defect detection [21].", "location": "Sec 5" },
+      { "domain": "aerial imagery, robotics, warehouse automation", "detail": "Oriented object detection supports rotated-object localization in aerial imagery, robotics and warehouse automation.", "quote": "This feature is especially valuable in aerial imagery analysis, robotics, and warehouse automation tasks where object orientation is crucial [21].", "location": "Sec 5" },
+      { "domain": "industrial automation and healthcare", "detail": "The conclusion names emotion detection, healthcare and other industries as target sectors.", "quote": "positions it as a valuable tool for diverse industries such as emotion detection [26], healthcare [27] and various other industries [17].", "location": "Conclusion" }
+    ],
+    "deploymentClaims": [
+      "Model sizes from nano to extra-large target resource-constrained edge devices up to high-performance computing environments.",
+      "Deployment scenarios include cloud platforms, edge devices and NVIDIA GPU-optimized systems.",
+      "YOLOv11 achieves higher COCO mAP at lower latency than YOLOv5 through YOLOv10 according to the compiled benchmarks."
+    ],
+    "evidence": [
+      { "quote": "YOLOv11 demonstrates versatility across various deployment scenarios, including cloud platforms, edge devices, and systems optimized for NVIDIA GPUs [23].", "location": "Sec 6" },
+      { "quote": "This scalability allows for deployment in scenarios ranging from resourceconstrained edge devices to high-performance computing environments.", "location": "Sec 7" },
+      { "quote": "Its improved efficiency and multi-task capabilities make it particularly suitable for applications in autonomous vehicles, surveillance systems, and industrial automation.", "location": "Sec 7" }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2410.17725",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2410.17725"
+  }
+}

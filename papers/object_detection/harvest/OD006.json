@@ -1,0 +1,291 @@
+{
+  "id": "OD006",
+  "arxiv": "1605.06409",
+  "title": "R-FCN: Object Detection via Region-based Fully Convolutional Networks",
+  "year": 2016,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "Region-based detectors split into a shared convolutional subnetwork and an unshared RoI-wise subnetwork, so a deep per-region classifier is evaluated hundreds of times; naively making the whole network fully convolutional (RoI pooling after conv5) loses accuracy because classification wants translation invariance while detection needs translation variance.",
+    "statements": [
+      "Per-RoI subnetworks repeat expensive computation for every region, hurting training and testing efficiency.",
+      "A fully convolutional detector with RoI pooling only after the last conv layer has considerably inferior accuracy.",
+      "Deepening the RoI-wise subnetwork (as in the ResNet detection pipeline) restores accuracy but reintroduces unshared per-region cost."
+    ],
+    "problemTags": [
+      "two-stage-speed",
+      "speed-latency",
+      "localization"
+    ],
+    "evidence": [
+      {
+        "quote": "However, as empirically investigated in this work, this naïve solution turns out to have considerably inferior detection accuracy that does not match the network’s superior classification accuracy.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "We argue that the aforementioned unnatural design is caused by a dilemma of increasing translation invariance for image classification vs. respecting translation variance for object detection.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "However, this design sacrifices training and testing efficiency since it introduces a considerable number of region-wise layers (Table 1).",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "R-FCN follows the R-CNN/Fast/Faster R-CNN two-stage lineage, sharing computation with a semi-convolutional design, and converts fully convolutional classification backbones (ResNets) into detectors while borrowing position-sensitive ideas from instance-level FCNs.",
+    "relatedWork": [
+      {
+        "name": "R-CNN",
+        "relation": "pioneered region proposals with deep networks but crops/warps each region without shared computation",
+        "quote": "R-CNN [7] has demonstrated the effectiveness of using region proposals [27, 28] with deep networks.",
+        "location": "Sec 3 Related Work"
+      },
+      {
+        "name": "SPPnet / Fast R-CNN / Faster R-CNN",
+        "relation": "semi-convolutional predecessors: shared conv subnetwork plus per-region subnetwork",
+        "quote": "SPPnet [8], Fast R-CNN [6], and Faster R-CNN [18] are “semiconvolutional”, in which a convolutional subnetwork performs shared computation on the entire image and another subnetwork evaluates individual regions.",
+        "location": "Sec 3 Related Work"
+      },
+      {
+        "name": "Faster R-CNN (ResNet pipeline)",
+        "relation": "inserts RoI pooling between conv4 and conv5, deepening the RoI-wise subnetwork at a speed cost",
+        "quote": "To remedy this issue, in the ResNet paper [9] the RoI pooling layer of the Faster R-CNN detector [18] is unnaturally inserted between two sets of convolutional layers",
+        "location": "Introduction"
+      },
+      {
+        "name": "RPN",
+        "relation": "fully convolutional proposal generator whose features are shared with R-FCN",
+        "quote": "The RPN component in Faster R-CNN [18] is a fully convolutional detector that predicts bounding boxes with respect to reference boxes (anchors) of multiple sizes.",
+        "location": "Sec 3 Related Work"
+      },
+      {
+        "name": "Instance-sensitive FCN",
+        "relation": "prior work that inspired position-sensitive score maps",
+        "quote": "The concept of position-sensitive score maps is partially inspired by [3] that develops FCNs for instance-level semantic segmentation.",
+        "location": "Sec 2 Our approach"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "We hypothesize that deeper convolutional layers in an image classification network are less sensitive to translation.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "All learnable layers are convolutional and shared on the entire image, yet encode spatial information required for object detection.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "R-FCN is a region-based detector in which every learnable layer is convolutional and computed on the whole image: the last conv layer emits k*k position-sensitive score maps per class, and a position-sensitive RoI pooling layer selectively pools each RoI bin from one map and votes, with no learnable layers after RoI pooling.",
+    "approach": "Position-sensitive score maps plus position-sensitive RoI pooling encode relative position so a fully convolutional network can both classify and localize regions.",
+    "components": [
+      "ResNet-101 backbone using only convolutional layers (ImageNet pre-trained)",
+      "1x1 1024-d convolution for dimension reduction before the score-map layer",
+      "k*k position-sensitive score maps (k=7) with k*k*(C+1) channels",
+      "sibling 4k*k-d box regression bank with class-agnostic regression",
+      "position-sensitive RoI pooling with average voting and softmax scoring",
+      "RPN proposals with shared features via 4-step alternating training",
+      "à trous trick reducing effective stride from 32 to 16",
+      "online hard example mining at negligible per-RoI cost",
+      "non-maximum suppression at 0.3 IoU on 300 test RoIs"
+    ],
+    "solutionTags": [
+      "two-stage",
+      "dense-prediction"
+    ],
+    "evidence": [
+      {
+        "quote": "To incorporate translation variance into FCN, we construct a set of position-sensitive score maps by using a bank of specialized convolutional layers as the FCN output.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "R-FCN ends with a position-sensitive RoI pooling layer. This layer aggregates the outputs of the last convolutional layer and generates scores for each RoI.",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "Unlike [8, 6], our position-sensitive RoI layer conducts selective pooling, and each of the k × k bin aggregates responses from only one score map out of the bank of k × k score maps.",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "There is no learnable layer after the RoI layer, enabling nearly cost-free region-wise computation and speeding up both training and inference.",
+        "location": "Sec 2"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "R-FCN is compared with Faster R-CNN and alternative fully convolutional strategies on PASCAL VOC 2007/2012 and MS COCO using ResNet backbones, with ablations on position-sensitivity, stride/à trous, depth, proposal type, OHEM and multi-scale training, plus timing on a K40 GPU.",
+    "benchmarks": [
+      {
+        "dataset": "PASCAL VOC 2007",
+        "metric": "mAP",
+        "value": "83.6",
+        "split": "test, train 07+12+COCO, multi-scale train",
+        "location": "Table 4"
+      },
+      {
+        "dataset": "PASCAL VOC 2007",
+        "metric": "mAP",
+        "value": "79.5",
+        "split": "test, train 07+12, ResNet-101",
+        "location": "Table 4"
+      },
+      {
+        "dataset": "PASCAL VOC 2012",
+        "metric": "mAP",
+        "value": "82.0",
+        "split": "test, train 07++12+COCO",
+        "location": "Table 5"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "mAP@[.5:.95]",
+        "value": "31.5",
+        "split": "test-dev, trainval, multi-scale train and test",
+        "location": "Table 6"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP@0.5",
+        "value": "53.2",
+        "split": "test-dev, trainval, multi-scale train and test",
+        "location": "Table 6"
+      },
+      {
+        "dataset": "PASCAL VOC 2007",
+        "metric": "test time (sec/img)",
+        "value": "0.17",
+        "split": "test, ResNet-101, single K40 GPU",
+        "location": "Table 4"
+      }
+    ],
+    "baselines": [
+      "Faster R-CNN",
+      "Faster R-CNN+++",
+      "class-specific RPN",
+      "Selective Search",
+      "Edge Boxes"
+    ],
+    "evidence": [
+      {
+        "quote": "We show competitive results on the PASCAL VOC datasets (e.g., 83.6% mAP on the 2007 set) with the 101-layer ResNet.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Its mAP (76.6%) is on par with the standard Faster R-CNN’s (76.4%, Table 3).",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "The à trous trick improves mAP by 2.6 points.",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "We note that our competitive result is obtained at a test speed of 0.17 seconds per image, 20× faster than Faster R-CNN +++ that takes 3.36 seconds as it further incorporates iterative box regression, context, and multi-scale testing [9].",
+        "location": "Sec 4.1"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "Gains saturate beyond ResNet-101 depth, position-sensitivity is mandatory (k=1 fails to converge), COCO results still trail Faster R-CNN +++, and mining more proposals gives no benefit.",
+    "items": [
+      "Accuracy saturates: ResNet-152 gives no gain over ResNet-101.",
+      "The method depends on a k*k position-sensitive grid; with k=1 training does not converge.",
+      "On MS COCO the multi-scale model (31.5 AP) trails Faster R-CNN +++ (34.9 AP).",
+      "Mining from 2000 proposals adds cost with no benefit, so proposals are limited to 300.",
+      "Box regression is class-agnostic by default (class-specific variant only described as applicable)."
+    ],
+    "evidence": [
+      {
+        "quote": "Our detection accuracy increases when the depth is increased from 50 to 101, but gets saturated with a depth of 152.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "The importance of position-sensitivity is further demonstrated by setting k = 1, for which R-FCN is unable to converge.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "This result is close to the 1st-place result (Faster R-CNN +++ with ResNet-101, 55.7%/34.9%) in the MS COCO 2015 competition.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "But experiments show that mining from a larger set of candidates (e.g., 2000) has no benefit (Table 3).",
+        "location": "Sec 4.1"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Adopt orthogonal FCN extensions developed for semantic segmentation and further region-based detection extensions, which the simple R-FCN system should absorb without difficulty.",
+      "quote": "There have been a series of orthogonal extensions of FCNs that were developed for semantic segmentation (e.g., see [2]), as well as extensions of region-based methods for object detection (e.g., see [9, 1, 22]).",
+      "location": "Conclusion and Future Work"
+    }
+  ],
+  "technical": {
+    "datasets": [
+      "PASCAL VOC 2007",
+      "PASCAL VOC 2012",
+      "MS COCO",
+      "ImageNet (pretraining)"
+    ],
+    "backbones": [
+      "ResNet-101",
+      "ResNet-50",
+      "ResNet-152"
+    ],
+    "models": [
+      "R-FCN",
+      "Faster R-CNN",
+      "RPN"
+    ],
+    "algorithms": [
+      "position-sensitive RoI pooling",
+      "non-maximum suppression",
+      "online hard example mining",
+      "à trous (hole) algorithm",
+      "alternating 4-step training",
+      "multi-scale training"
+    ],
+    "metrics": [
+      "mAP",
+      "AP",
+      "AP@0.5",
+      "AP by object size",
+      "test time (sec/img)"
+    ],
+    "equations": [
+      {
+        "name": "position-sensitive RoI pooling",
+        "expr": "rc(i,j|Θ) = Σ_{(x,y)∈bin(i,j)} zi,j,c(x+x0, y+y0|Θ) / n",
+        "location": "Eqn. (1), Sec 2"
+      },
+      {
+        "name": "multi-task loss",
+        "expr": "L(s, tx,y,w,h) = Lcls(sc*) + λ[c*>0] Lreg(t, t*)",
+        "location": "Sec 2, Training"
+      }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "0.17 s per image test time on a K40 GPU (0.11 s on a Titan X), 2.5x faster than Faster R-CNN.",
+      "Code released at github.com/daijifeng001/r-fcn."
+    ],
+    "evidence": [
+      {
+        "quote": "With 300 RoIs at test time, Faster R-CNN takes 0.42s per image, 2.5× slower than our R-FCN that takes 0.17s per image (on a K40 GPU; this number is 0.11s on a Titan X GPU).",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "Code is made publicly available at: https://github.com/daijifeng001/r-fcn.",
+        "location": "Abstract"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.1605.06409",
+    "arxivUrl": "https://arxiv.org/abs/1605.06409",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/1605.06409"
+  }
+}

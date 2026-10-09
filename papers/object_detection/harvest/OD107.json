@@ -1,0 +1,119 @@
+{
+  "id": "OD107",
+  "arxiv": "2407.17140",
+  "title": "RT-DETRv2: Improved Baseline with Bag-of-Freebies for Real-Time Detection Transformer",
+  "year": 2024,
+  "venue": null,
+  "problem": {
+    "summary": "RT-DETRv2 targets three weaknesses of RT-DETR: deformable attention forces the same sampling-point budget on every feature scale, the RT-DETR-specific grid_sample operator constrains deployment, and all scaled detector variants share optimizer hyperparameters that fit them sub-optimally.",
+    "statements": [
+      "The RT-DETR decoder defines the same number of sampling points at each scale, ignoring intrinsic differences between feature scales.",
+      "The grid_sample operator specific to RT-DETR limits deployment on hardware where other operators are supported.",
+      "Scaled RT-DETR models of different sizes are trained with the same optimizer hyperparameters, resulting in sub-optimal performance.",
+      "Strong data augmentation applied throughout training hurts early-stage generalization of the detector."
+    ],
+    "problemTags": ["deployability", "scale-variance", "speed-latency"],
+    "evidence": [
+      { "quote": "We argue that this constraint ignores the intrinsic differences in features at different scales and limits the feature extraction capability of the deformable attention module.", "location": "Sec 2.1" },
+      { "quote": "where the RT-DETR-specific grid_sample operator limits its broad applicability.", "location": "Sec 2.1" },
+      { "quote": "We also observe that the scaled RT-DETRs of different sizes are trained with the same optimizer hyperparameters, resulting in their sub-optimal performance.", "location": "Sec 2.2" }
+    ]
+  },
+  "background": {
+    "summary": "The report extends the authors' RT-DETR, which broke real-time detection's dependence on YOLO with an efficient hybrid encoder and uncertainty-minimal query selection, and it builds on DETR and Deformable DETR's sampling-based attention.",
+    "relatedWork": [
+      { "name": "RT-DETR", "relation": "baseline that RT-DETRv2 improves", "quote": "The advent of RT-DETR (Zhao et al. [2024]) opens up a new technological avenue for real-time object detection, breaking the dependency on the YOLO in this field.", "location": "Introduction" },
+      { "name": "YOLO family", "relation": "dominant prior real-time framework", "quote": "are without doubt the most prestigious framework in this field.", "location": "Introduction" },
+      { "name": "DETR", "relation": "original end-to-end transformer detector the family builds on", "quote": "RT-DETR proposes an efficient hybrid encoder to replace the vanilla Transformer encoder in DETR (Carion et al. [2020]), which significantly improves the inference speed by decoupling the intra-scale interaction and cross-scale fusion of multi-scale features.", "location": "Introduction" },
+      { "name": "Deformable DETR", "relation": "source of the deformable attention module used by the decoder", "quote": "Current DETRs utilize the deformable attention module (Zhu et al. [2020]) to alleviate the high computational overhead caused by the long sequence of inputs composed of multi-scale features.", "location": "Sec 2.1" }
+    ],
+    "evidence": [
+      { "quote": "The framework of RT-DETRv2 remains the same as RT-DETR, with only modifications to the deformable attention module of the decoder.", "location": "Sec 2" },
+      { "quote": "Moreover, RT-DETR provides a wide range of detector sizes and supports flexible speed tuning to accommodate various real-time scenarios without retraining.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "Keeping the RT-DETR framework intact, the paper adds bag-of-freebies: per-scale sampling-point counts in deformable attention, an optional rounding-based discrete sampling operator that replaces grid_sample for deployment, dynamic data augmentation that is annealed off near the end of training, and scale-adaptive learning rates for different detector sizes.",
+    "approach": "Relax RT-DETR's uniform per-scale sampling budget, replace grid_sample with a non-differentiable discrete sampling operator for deployment, and tune augmentation and learning rates per model scale.",
+    "components": [
+      "distinct number of sampling points for each feature scale in deformable attention",
+      "optional discrete_sample operator (rounding of predicted sampling offsets) instead of grid_sample",
+      "dynamic data augmentation turned off in the last two epochs",
+      "scale-adaptive hyperparameter customization (higher lr backbone for small models, lower for large)",
+      "AdamW optimizer with EMA (decay 0.9999)"
+    ],
+    "solutionTags": ["transformer-query", "deformable-attention", "multi-scale"],
+    "evidence": [
+      { "quote": "Therefore, we propose to set distinct numbers of sampling points for different scales to achieve more flexible and efficient feature extraction.", "location": "Sec 2.1" },
+      { "quote": "Therefore, we propose an optional discrete_sample operator to replace the grid_sample, thus removing the deployment constraints of RT-DETR.", "location": "Sec 2.1" },
+      { "quote": "we propose dynamic data augmentation and scale-adaptive hyperparameters customization to improve performance without loss of speed.", "location": "Abstract" },
+      { "quote": "we maintain the RT-DETR data augmentation in the early period, while turning off RandomPhotometricDistort, RandomZoomOut, RandomIoUCrop, and MultiScaleInput in the last two epochs.", "location": "Sec 2.2" }
+    ]
+  },
+  "experiments": {
+    "summary": "RT-DETRv2-S/M/L/X (ResNet18/34/50/101) are trained on COCO train2017 and validated on COCO val2017, compared with RT-DETR at matching scales in AP, AP50 and T4 FPS, with ablations on sampling-point count and on discrete versus grid sampling.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "AP", "value": "47.9", "split": "val2017, RT-DETRv2-S (ResNet18)", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "49.9", "split": "val2017, RT-DETRv2-M (ResNet34)", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "51.9", "split": "val2017, RT-DETRv2-M* (ResNet50)", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "53.4", "split": "val2017, RT-DETRv2-L (ResNet50)", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP", "value": "54.3", "split": "val2017, RT-DETRv2-X (ResNet101)", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP50", "value": "64.9", "split": "val2017, RT-DETRv2-S", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "FPS (batch size 1)", "value": "217", "split": "T4 GPU, TensorRT FP16, 640x640 input", "location": "Table 2" }
+    ],
+    "baselines": ["RT-DETR"],
+    "evidence": [
+      { "quote": "RT-DETRv2 outperforms RT-DETR at different scales of detectors without loss of speed.", "location": "Sec 3.3" },
+      { "quote": "The results show that reducing the number of sampling points does not cause a significant degradation in the performance,", "location": "Sec 3.4" }
+    ]
+  },
+  "limitations": {
+    "summary": "No limitations section is given; evident constraints are that evaluation covers only COCO with ResNet backbones, discrete sampling needs a non-differentiable workaround plus a separate fine-tuning stage, and it costs a small amount of AP while the largest variant gains nothing over RT-DETR.",
+    "items": [
+      "Experiments are restricted to COCO with ResNet backbones.",
+      "The rounding operation used by discrete sampling is non-differentiable, so gradients of the offset predictor must be turned off and a separate fine-tuning stage is required.",
+      "Discrete sampling slightly reduces accuracy (47.4 vs 47.9 AP for the S model with grid_sample).",
+      "The largest variant shows no improvement over RT-DETR (54.3 AP, +0.0)."
+    ],
+    "evidence": [
+      { "quote": "However, the rounding operation is non-differentiable, so we turn off the gradient of the parameters used to predict the sampling offsets.", "location": "Sec 2.1" },
+      { "quote": "RT-DETRv2 is trained on COCO (Lin et al. [2014]) train2017 and validated on COCO val2017 dataset.", "location": "Sec 3.2" },
+      { "quote": "54.3 (↑ 0.0)", "location": "Table 2" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Provide insights for the DETR family and broaden the range of applications of RT-DETR.", "quote": "We hope that this report will provide insights for the DETR family and broaden the scope of RT-DETR applications.", "location": "Conclusion" }
+  ],
+  "technical": {
+    "datasets": ["COCO"],
+    "backbones": ["ResNet18", "ResNet34", "ResNet50", "ResNet101"],
+    "models": ["RT-DETRv2-S", "RT-DETRv2-M", "RT-DETRv2-L", "RT-DETRv2-X", "RT-DETR"],
+    "algorithms": ["deformable attention", "grid_sample", "discrete_sample", "dynamic data augmentation", "scale-adaptive hyperparameters", "EMA", "AdamW"],
+    "metrics": ["AP", "AP50", "FPS", "params (M)"],
+    "equations": [
+      { "name": "total number of sampling points", "expr": "num_head x num_point x num_query x num_decoder", "location": "Sec 3.4" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "autonomous driving", "detail": "Real-time object detection is introduced as a field with a wide range of applications, with autonomous driving given as the example.", "quote": "real-time object detection is an important field and has a wide range of applications, such as autonomous driving (Atakishiyev et al. [2024])", "location": "Introduction" },
+      { "domain": "industrial deployment scenarios", "detail": "The sampling-point ablation is argued not to hurt practical application in most industrial scenarios.", "quote": "This means that practical application is unlikely to be affected in most industrial scenarios.", "location": "Sec 3.4" }
+    ],
+    "deploymentClaims": [
+      "Discrete sampling removes the deployment constraints typically associated with DETRs by dropping the grid_sample operator.",
+      "FPS is reported on a T4 GPU with TensorRT FP16 at fixed 640 x 640 input.",
+      "RT-DETR-family detectors support flexible speed tuning across detector sizes without retraining."
+    ],
+    "evidence": [
+      { "quote": "This removes the deployment constraints typically associated with DETRs.", "location": "Abstract" },
+      { "quote": "To improve the practicality of the RT-DETR and to make it available everywhere.", "location": "Sec 2.1" },
+      { "quote": "The FPS is reported on T4 GPU with TensorRT FP16. For evaluation, all input sizes are fixed on 640 × 640.", "location": "Table 2" }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2407.17140",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2407.17140"
+  }
+}

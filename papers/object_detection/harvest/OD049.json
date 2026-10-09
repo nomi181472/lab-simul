@@ -1,0 +1,217 @@
+{
+  "id": "OD049",
+  "arxiv": "1904.07850",
+  "title": "Objects as Points",
+  "year": 2019,
+  "venue": null,
+  "problem": {
+    "summary": "The paper argues that mainstream detectors enumerate a nearly exhaustive set of candidate boxes and classify each, then clean up duplicates with IoU-based NMS: this is wasteful, inefficient, hard to train end-to-end, and depends on hand-tuned anchor assignment.",
+    "statements": [
+      "Detectors must slide or enumerate a dense set of candidate boxes/anchors over the image and classify each one, wasting computation on background locations.",
+      "NMS post-processing is hard to differentiate and train, so most current detectors are not end-to-end trainable.",
+      "Anchor-based assignment needs manual foreground/background IoU thresholds and misses objects that no anchor covers sufficiently."
+    ],
+    "problemTags": ["nms", "anchor-design", "speed-latency", "label-assignment"],
+    "evidence": [
+      {
+        "quote": "Most successful object detectors enumerate a nearly exhaustive list of potential object locations and classify each. This is wasteful, inefficient, and requires additional post-processing.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "This post-processing is hard to differentiate and train [23], hence most current detectors are not end-to-end trainable.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Sliding window based object detectors are however a bit wasteful, as they need to enumerate all possible object locations and dimensions.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "CenterNet builds on fully convolutional keypoint estimation (CornerNet, ExtremeNet, stacked hourglass) and on one-stage anchor detectors; the claimed gap is that prior keypoint detectors need a slow combinatorial grouping stage while anchor detectors need anchors, IoU thresholds and NMS.",
+    "relatedWork": [
+      {
+        "name": "CornerNet",
+        "relation": "prior keypoint-based detector that detects box corners and needs grouping",
+        "quote": "CornerNet [30] detects two bounding box corners as keypoints",
+        "location": "Sec 2"
+      },
+      {
+        "name": "Faster R-CNN",
+        "relation": "anchor/proposal based prior stage the paper contrasts with",
+        "quote": "Faster RCNN [46] generates region proposal within the detection network.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "CornerNet/ExtremeNet grouping stage",
+        "relation": "identified efficiency gap in related keypoint methods",
+        "quote": "However, they require a combinatorial grouping stage after keypoint detection, which significantly slows down each algorithm.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "RetinaNet",
+        "relation": "one-stage anchor baseline compared against with the same backbone",
+        "quote": "Using ResNet-101, we outperform RetinaNet [33] with the same network backbone.",
+        "location": "Sec 6.1"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "A center point can be seen as a single shape-agnostic anchor",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "Object detection is then a standard keypoint estimation problem [3,39,60].",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "CenterNet models each object as the center point of its bounding box, predicts a keypoint heatmap plus size/offset (and optional depth, orientation, pose) heads in one fully convolutional pass, and decodes boxes by extracting local heatmap peaks instead of NMS.",
+    "approach": "Detect objects as center points on a keypoint heatmap and regress their size and other attributes from image features at those points, with peak extraction replacing NMS.",
+    "components": [
+      "Gaussian-rendered center keypoint heatmap trained with focal loss",
+      "local offset head to recover output-stride discretization error",
+      "object size regression head with L1 loss",
+      "peak extraction (8-connected neighbors, top-100) via 3x3 max pooling instead of NMS",
+      "output stride 4 with deformable-convolution upsampling",
+      "optional 3D (depth, dimensions, orientation) and human pose heads"
+    ],
+    "solutionTags": ["center-based", "anchor-free", "gaussian-heatmap", "keypoint-based", "nms-free", "focal-loss"],
+    "evidence": [
+      {
+        "quote": "We model an object as a single point — the center point of its bounding box.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Inference is a single network forward-pass, without non-maximal suppression for post-processing.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "First, our CenterNet assigns the “anchor” based solely on location, not box overlap [18].",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "The peak keypoint extraction serves as a sufficient NMS alternative and can be implemented efficiently on device using a 3 × 3 max pooling operation.",
+        "location": "Sec 4"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "The authors evaluate on MS COCO (train2017/val2017/test-dev) with AP, AP50 and AP75 across four backbones and three test-augmentation levels, compare speed/accuracy against one- and two-stage detectors on a fixed machine, and additionally report KITTI 3D detection, COCO keypoint pose, Pascal VOC, plus ablations on resolution, loss weights and training schedule.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "45.1", "split": "test-dev multi-scale, Hourglass-104", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "40.3", "split": "val2017 no augmentation, Hourglass-104", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "37.4", "split": "val2017 no augmentation, DLA-34 (52 FPS)", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "28.1", "split": "val2017 no augmentation, ResNet-18 (142 FPS)", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "keypoint AP", "value": "63.0", "split": "test-dev, Hourglass-104 joint detection", "location": "Table 5" },
+      { "dataset": "KITTI", "metric": "BEV AP", "value": "23.8", "split": "validation hard split", "location": "Table 4" },
+      { "dataset": "PASCAL VOC 2007", "metric": "mAP@0.5", "value": "80.7", "split": "test, CenterNet-DLA 512x512", "location": "Table 6" }
+    ],
+    "baselines": ["RetinaNet", "YOLOv3", "CornerNet", "ExtremeNet", "Faster R-CNN", "Mask R-CNN", "SNIPER", "TridentNet"],
+    "evidence": [
+      {
+        "quote": "CenterNet achieves the best speed-accuracy trade-off on the MS COCO dataset, with 28.1% AP at 142 FPS, 37.4% AP at 52 FPS, and 45.1% AP with multi-scale testing at 1.4 FPS.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "Hourglass-104 achieves the best accuracy at a relatively good speed, with a 42.2% AP in 7.8 FPS.",
+        "location": "Sec 6.1"
+      },
+      {
+        "quote": "DLA-34 gives the best speed/accuracy trade-off. It runs at 52FPS with 37.4%AP.",
+        "location": "Sec 6.1"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The center representation can only fire once per shared center, direct keypoint regression for pose is not state-of-the-art without joint-detection matching, and an attempted multi-anchor extension of CenterNet failed.",
+    "items": [
+      "Two perfectly aligned objects that share a center point yield only one detection (the authors measure this at under 0.1% of COCO objects).",
+      "Direct regression of human keypoints struggles particularly in high IoU regimes and trails state-of-the-art pose estimators.",
+      "A multiple-anchor version of CenterNet regressing to more than one object size did not succeed."
+    ],
+    "evidence": [
+      {
+        "quote": "In unlucky circumstances, two different objects might share the same center, if they perfectly align. In this scenario, CenterNet would only detect one of them.",
+        "location": "Sec 6.1.1"
+      },
+      {
+        "quote": "Direct regression to keypoints performs reasonably, but not at state-of-the-art. It struggles particularly in high IoU regimes.",
+        "location": "Sec 6.3"
+      },
+      {
+        "quote": "Finally, we tried a multiple “anchor” version of CenterNet by regressing to more than one object size. The experiments did not yield any success.",
+        "location": "Sec 6.1"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Generalize the point-based representation beyond 2D detection to other recognition tasks.",
+      "quote": "The idea is general and has broad applications beyond simple two-dimensional detection.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Develop real-time object recognition and related tasks along this line of work.",
+      "quote": "Our initial experiments are encouraging and open up a new direction for real-time object recognition and related tasks.",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["MS COCO", "KITTI", "PASCAL VOC"],
+    "backbones": ["ResNet-18", "ResNet-101", "DLA-34", "Hourglass-104"],
+    "models": ["CenterNet"],
+    "algorithms": ["focal loss", "keypoint heatmap estimation", "NMS", "deformable convolution", "3x3 max-pooling peak extraction"],
+    "metrics": ["AP", "AP50", "AP75", "FPS", "mAP@0.5", "AOS", "BEV AP", "keypoint AP"],
+    "equations": [
+      { "name": "penalty-reduced focal heatmap loss", "expr": "L_k = -(1/N) * sum over xyc of alpha*(1-Y_hat)*log(Y_hat) if Y=1 else (1-Y)^beta*Y_hat^alpha*log(1-Y_hat)", "location": "Eq 1, Sec 3" },
+      { "name": "size regression loss", "expr": "L_size = (1/N) * sum_k |S_hat(pk) - s_k|", "location": "Eq 3, Sec 4" },
+      { "name": "overall detection objective", "expr": "L_det = L_k + lambda_size*L_size + lambda_off*L_off", "location": "Eq 4, Sec 4" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "surveillance",
+        "detail": "listed as a downstream application area of object detection that this detector targets",
+        "quote": "It has down-stream applications in surveillance [57], autonomous driving [53], and visual question answering [1].",
+        "location": "Introduction"
+      },
+      {
+        "domain": "autonomous driving",
+        "detail": "3D bounding box estimation branch evaluated on the KITTI driving benchmark for depth, dimensions and orientation",
+        "quote": "3D bounding box estimation powers autonomous driving [17].",
+        "location": "Sec 2"
+      },
+      {
+        "domain": "human pose estimation",
+        "detail": "the same center-point network is adapted to multi-person COCO keypoint estimation",
+        "quote": "We use the same approach to estimate 3D bounding box in the KITTI benchmark and human pose on the COCO keypoint dataset.",
+        "location": "Abstract"
+      }
+    ],
+    "deploymentClaims": [
+      "28.1% COCO AP at 142 FPS with a ResNet-18 backbone (Abstract)",
+      "37.4% COCO AP at 52 FPS with DLA-34 (Abstract)",
+      "NMS-free decoding implemented on device as a 3x3 max pooling operation",
+      "Runtime measured on an Intel Core i7-8086K CPU with a Titan Xp GPU"
+    ],
+    "evidence": [
+      {
+        "quote": "Our method performs competitively with sophisticated multi-stage methods and runs in real-time.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "The running time is tested on our local machine, with Intel Core i7-8086K CPU, Titan Xp GPU, Pytorch 0.4.1, CUDA 9.0, and CUDNN 7.1.",
+        "location": "Sec 6.1"
+      }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/1904.07850",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/1904.07850"
+  }
+}

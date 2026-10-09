@@ -1,0 +1,205 @@
+{
+  "id": "OD102",
+  "arxiv": "2402.13616",
+  "title": "YOLOv9: Learning What You Want to Learn Using Programmable Gradient Information",
+  "year": 2024,
+  "venue": null,
+  "problem": {
+    "summary": "Deep networks lose a large amount of input information as data passes layer by layer (information bottleneck), producing biased/unreliable gradients and poor convergence; existing remedies (reversible architectures, masked modeling, deep supervision) each have drawbacks and deep supervision in particular only works for very deep models and degrades lightweight ones.",
+    "statements": [
+      "Large amounts of information are lost when input data undergoes layer-by-layer feature extraction and spatial transformation in deep networks.",
+      "Lost information leads to biased gradient flows that update the model toward incorrect associations between inputs and targets.",
+      "Deep neural networks still suffer slow convergence or poor convergence results even after normalization/activation fixes.",
+      "The auxiliary supervision (deep supervision) mechanism is usually only applicable to large models and causes under-parameterization when applied to lightweight models.",
+      "Reversible architectures add inference cost; masked modeling losses can conflict with the target loss; deep supervision produces error accumulation."
+    ],
+    "problemTags": ["convergence", "training-instability", "class-confusion"],
+    "evidence": [
+      {
+        "quote": "Existing methods ignore a fact that when input data undergoes layer-by-layer feature extraction and spatial transformation, large amount of information will be lost.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "This loss of information can lead to biased gradient flows, which are subsequently used to update the model.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Nevertheless, deep neural networks still have the problem of slow convergence or poor convergence results.",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "However, the auxiliary supervision mechanism is usually only applicable to large models, so when it is applied to lightweight models, it is easy to cause an under parameterization phenomenon",
+        "location": "Sec 2.3"
+      }
+    ]
+  },
+  "background": {
+    "summary": "Analyzes prior remedies for information loss (reversible architectures such as RevCol/CBNet, masked modeling, deep supervision) and builds on YOLOv7/DynamicDet with CSPNet and ELAN blocks; the claimed gap is that no existing scheme gives lightweight models reliable gradients without inference overhead or conflicting losses.",
+    "relatedWork": [
+      {
+        "name": "Reversible architectures (RevCol, CBNet)",
+        "relation": "explicitly preserve input information but extra composite layers slow inference",
+        "quote": "These network architectures generally have excellent parameter utilization, but the extra composite layers cause slow inference speeds.",
+        "location": "Sec 2.2"
+      },
+      {
+        "name": "Deep supervision",
+        "relation": "most common auxiliary supervision, but produces error accumulation",
+        "quote": "For the deep supervision mechanism, it will produce error accumulation",
+        "location": "Introduction"
+      },
+      {
+        "name": "YOLOv7",
+        "relation": "base detector that YOLOv9 builds on",
+        "quote": "This paper chooses YOLOv7 [63], which has been proven effective in a variety of computer vision tasks and various scenarios, as a base to develop the proposed method.",
+        "location": "Sec 2.1"
+      },
+      {
+        "name": "Information bottleneck (Tishby)",
+        "relation": "theoretical framework used to explain the convergence problem",
+        "quote": "For this issue, we will explore it using the concept of information bottleneck [59].",
+        "location": "Sec 3.1"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "The use of reversible architectures [3, 16, 19]: this method mainly uses repeated input data and maintains the information of the input data in an explicit way",
+        "location": "Introduction"
+      },
+      {
+        "quote": "As for masked modeling, its reconstruction loss sometimes conflicts with the target loss.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "Proposes Programmable Gradient Information (PGI), an auxiliary supervision framework with a main inference branch, an auxiliary reversible branch that supplies reliable gradients, and multi-level auxiliary information that aggregates gradients from all prediction heads; together with GELAN, a generalized ELAN/CSPNet architecture that supports arbitrary computational blocks, combined into YOLOv9.",
+    "approach": "Generate reliable gradients through an auxiliary reversible branch (used only during training) plus multi-level auxiliary information, and plan gradient paths with the GELAN backbone so both lightweight and deep models learn complete information.",
+    "components": [
+      "main branch (used at inference only)",
+      "auxiliary reversible branch (e.g., ICN with DHLC linkage)",
+      "multi-level auxiliary information integrating gradients from different prediction heads",
+      "GELAN (CSP-ELAN) block aggregating ELAN with CSPNet",
+      "lead-head guided assignment from YOLOv7 applied to PGI's auxiliary supervision",
+      "anchor-free decoupled prediction head"
+    ],
+    "solutionTags": ["real-time-backbone", "auxiliary-supervision", "reversible-branch", "feature-fusion"],
+    "evidence": [
+      {
+        "quote": "we propose a new concept, which is programmable gradient information (PGI). The concept is to generate reliable gradients through auxiliary reversible branch, so that the deep features can still maintain key characteristics for executing target task.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "the inference process of PGI only uses main branch and therefore does not require any additional inference cost.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "By combining two neural network architectures, CSPNet [64] and ELAN [65], which are designed with gradient path planning, we designed generalized efficient layer aggregation network (GELAN)",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "We generalized the capability of ELAN [65], which originally only used stacking of convolutional layers, to a new architecture that can use any computational blocks.",
+        "location": "Sec 4.2"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "All models are trained from scratch for 500 epochs on MS COCO 2017 following YOLOv7 AF settings, compared against real-time detectors under train-from-scratch, ImageNet-pretrained, distillation, and complex settings, with ablations over GELAN computational blocks/depths, PGI components, and a stage-by-stage build-up from YOLOv7 to YOLOv9-E.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP50:95", "value": "55.6", "split": "val, YOLOv9-E, 57.3M params, 189.0 GFLOPs", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP50:95", "value": "53.0", "split": "val, YOLOv9-C, 25.3M params, 102.1 GFLOPs", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP50:95", "value": "51.4", "split": "val, YOLOv9-M, 20.0M params", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP50:95", "value": "46.8", "split": "val, YOLOv9-S, 7.1M params", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP50:95", "value": "55.0", "split": "val, GELAN-E, 57.3M params", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP50:95", "value": "52.5", "split": "val, GELAN-C, 25.3M params", "location": "Table 1" }
+    ],
+    "baselines": ["YOLOv5", "YOLOv6", "YOLOv7", "YOLOv7 AF", "YOLOv8", "YOLO-MS", "DAMO-YOLO", "Gold-YOLO", "RT-DETR", "RTMDet", "PP-YOLOE", "YOLOR", "DynamicDet"],
+    "evidence": [
+      {
+        "quote": "Compared with YOLOv8-X, YOLOv9-E has 16% less parameters, 27% less calculations, and has significant improvement of 1.7% AP.",
+        "location": "Sec 5.3"
+      },
+      {
+        "quote": "Compared with YOLOv7 AF, YOLOv9-C has 42% less parameters and 22% less calculations, but achieves the same AP (53%).",
+        "location": "Sec 5.3"
+      },
+      {
+        "quote": "The GELAN and PGI we proposed have brought allround improvement to the model.",
+        "location": "Sec 5.4"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors state no explicit limitations; evident ones are that evaluation is confined to MS COCO with a 500-epoch from-scratch recipe, no latency/FPS numbers are reported alongside parameters and FLOPs, GELAN alone diverges without PGI, and conventional deep supervision remains ineffective outside very deep models.",
+    "items": [
+      "GELAN without PGI shows divergence when detecting object boundaries and spurious background responses.",
+      "Conventional deep supervision (PFH) is only effective in deep models and hurts shallow/general models.",
+      "Evaluation limited to MS COCO 2017 with a single 500-epoch training recipe; no inference latency (FPS) measurements are reported in the main comparison tables.",
+      "Training requires extra auxiliary branches (reversible branch and multi-level heads), even though inference is unaffected."
+    ],
+    "evidence": [
+      {
+        "quote": "GELAN originally had some divergence",
+        "location": "Fig 7"
+      },
+      {
+        "quote": "From Table 4, we can see that PFH is only effective in deep models",
+        "location": "Sec 5.4.2"
+      },
+      {
+        "quote": "As for general models, introducing deep supervision will cause unstable performance, and the design concept of deep supervision can only bring gains in extremely deep models.",
+        "location": "Sec 5.4.2"
+      }
+    ]
+  },
+  "futureDirections": [],
+  "technical": {
+    "datasets": ["MS COCO"],
+    "backbones": ["GELAN (CSP-ELAN)", "CSPNet", "ELAN", "YOLOv7", "DynamicDet"],
+    "models": ["YOLOv9-S", "YOLOv9-M", "YOLOv9-C", "YOLOv9-E", "GELAN-S", "GELAN-M", "GELAN-C", "GELAN-E", "PGI"],
+    "algorithms": [
+      "programmable gradient information",
+      "auxiliary reversible branch",
+      "multi-level auxiliary information",
+      "deep supervision (baseline)",
+      "lead-head guided assignment",
+      "SGD with linear learning-rate decay",
+      "mosaic augmentation"
+    ],
+    "metrics": ["AP50:95", "AP50", "AP75", "APS", "APM", "APL", "#Params", "FLOPs"],
+    "equations": [
+      { "name": "information loss through layers", "expr": "I(X, X) ≥ I(X, fθ(X)) ≥ I(X, gϕ(fθ(X)))", "location": "Eq (1), Sec 3.1" },
+      { "name": "reversible function", "expr": "X = vζ(rψ(X))", "location": "Eq (4), Sec 3.2" },
+      { "name": "task-relevant information decay", "expr": "I(X, X) ≥ I(Y, X) ≥ I(Y, fθ(X)) ≥ ... ≥ I(Y, Ŷ)", "location": "Eq (6), Sec 3.1" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "PGI's auxiliary branches are removed at inference, so the main branch retains the original network's inference capability with no additional inference cost.",
+      "GELAN lets users arbitrarily choose computational blocks for different inference devices, targeting light, fast and accurate deployment.",
+      "YOLOv9-E reduces parameters by 49% and computations by 43% versus YOLOv8 while improving 0.6% AP on MS COCO.",
+      "PGI is claimed to let train-from-scratch models outperform large-dataset pre-trained state-of-the-art models."
+    ],
+    "evidence": [
+      {
+        "quote": "the inference process of PGI only uses main branch and therefore does not require any additional inference cost.",
+        "location": "Sec 4.1"
+      },
+      {
+        "quote": "This design allows users to arbitrarily choose appropriate computational blocks for different inference devices.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "therefore allows new lightweight architectures to be truly applied in daily life.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2402.13616",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2402.13616"
+  }
+}

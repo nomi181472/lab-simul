@@ -1,0 +1,132 @@
+{
+  "id": "OD058",
+  "arxiv": "2006.04388",
+  "title": "Generalized Focal Loss: Learning Qualified and Distributed Bounding Boxes for Dense Object Detection",
+  "year": 2020,
+  "venue": null,
+  "problem": {
+    "summary": "Dense one-stage detectors estimate localization quality (IoU/centerness) in a separate branch that is trained independently but multiplied with the classification score only at inference, and is supervised on positives only, so unreliable negatives can outrank true positives in NMS. Separately, boxes are modeled as rigid Dirac delta (or Gaussian) distributions that cannot express annotation ambiguity and uncertainty.",
+    "statements": [
+      "Localization quality and classification score are trained independently but combined only during inference, creating a train/test gap.",
+      "Quality supervision is assigned to positive samples only, so negatives can produce uncontrollably high quality predictions that rank above true positives during NMS.",
+      "The Dirac delta box representation fails to capture the ambiguity and uncertainty of box boundaries in complex scenes.",
+      "Gaussian box distributions are too simple to model the arbitrary, possibly asymmetric real distribution of box locations."
+    ],
+    "problemTags": ["localization", "background-false-positives", "class-imbalance"],
+    "evidence": [
+      { "quote": "Inconsistent usage of localization quality estimation and classification score between training and inference", "location": "Introduction" },
+      { "quote": "The supervision of the localization quality estimation is currently assigned for positive samples only [12, 11, 26, 29, 35], which is unreliable as negatives may get chances to have uncontrollably higher quality predictions (Fig. 2(a)).", "location": "Introduction" },
+      { "quote": "negative instances with randomly high-quality scores could rank in front of positive examples with lower quality prediction during NMS.", "location": "Introduction" },
+      { "quote": "However, it fails to consider the ambiguity and uncertainty in datasets", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on Focal Loss for dense classification, FCOS-style centerness and IoU-aware/IoU-Net quality branches, PISA/IoU-balance implicit weighting, and Gaussian uncertainty box regression, claiming separate quality formulations cause train/test inconsistency and that existing box priors are too rigid or too simplified.",
+    "relatedWork": [
+      { "name": "Focal Loss", "relation": "prior loss for extreme foreground/background imbalance that only supports discrete {1,0} labels", "quote": "where an extreme imbalance between foreground and background classes often exists during training.", "location": "Sec 3" },
+      { "name": "Fitness NMS / IoU-Net / MS R-CNN / FCOS / IoU-aware", "relation": "separate localization-quality branch methods whose train/test inconsistency the paper targets", "quote": "Existing practices like Fitness NMS [27], IoU-Net [12], MS R-CNN [11], FCOS [26] and IoU-aware [29] utilize a separate branch to perform localization quality estimation in a form of IoU or centerness score.", "location": "Related Work" },
+      { "name": "PISA / IoU-balance", "relation": "implicit quality weighting of the classification loss; claimed to be limited because it does not change the loss optimum", "quote": "However, the weight strategy is of implicit and limited benefits since it does not change the optimum of the loss objectives for classification.", "location": "Related Work" },
+      { "name": "Gaussian box uncertainty (He et al., Choi et al.)", "relation": "prior probabilistic box modeling with a predicted variance, considered too simplified", "quote": "Recently, Gaussian assumption [10, 4] is adopted to learn the uncertainty by introducing a predicted variance.", "location": "Related Work" }
+    ],
+    "evidence": [
+      { "quote": "Dirac delta distribution [7, 23, 8, 1, 18, 26, 13, 31] governs the representation of bounding boxes over past years.", "location": "Related Work" },
+      { "quote": "Unfortunately, existing representations are either too rigid or too simplified, which can not reflect the complex underlying distribution in real data.", "location": "Related Work" }
+    ]
+  },
+  "solution": {
+    "summary": "GFL replaces the separate quality branch with a joint classification-IoU representation (soft target y in [0,1] at the ground-truth class index) optimized by Quality Focal Loss, and models each box coordinate as a discretized General distribution over n+1 bins sharpened by Distribution Focal Loss; both are special cases of one continuous-label Generalized Focal Loss.",
+    "approach": "Merge localization quality into the class-score vector and learn a discretized probability distribution over box coordinates, optimizing both with a continuous-label generalization of Focal Loss.",
+    "components": [
+      "classification-IoU joint representation with continuous quality targets (negatives supervised at 0)",
+      "Quality Focal Loss (QFL) extending Focal Loss to continuous labels with modulating factor |y - sigma|^beta",
+      "General distribution over discretized box-coordinate range implemented with an (n+1)-unit softmax",
+      "Distribution Focal Loss (DFL) enlarging the probabilities of the two bins nearest the target coordinate",
+      "regression branch last layer outputs n+1 logits per box direction instead of 1 (negligible extra cost)",
+      "quality scores additionally weight the GIoU and DFL box losses during training"
+    ],
+    "solutionTags": ["focal-loss-quality", "distribution-fl", "dense-prediction", "one-stage"],
+    "evidence": [
+      { "quote": "we propose to merge it with the classification score into a single and unified representation: a classification vector where its value at the ground-truth category index refers to its corresponding localization quality", "location": "Introduction" },
+      { "quote": "we propose to represent the arbitrary distribution (denoted as “General distribution” in this paper) of box locations by directly learning the discretized probability distribution over its continuous space", "location": "Introduction" },
+      { "quote": "GFL can be specialized into Quality Focal Loss (QFL) and Distribution Focal Loss (DFL), for optimizing the improved two representations respectively", "location": "Introduction" },
+      { "quote": "we directly feed the classification score (joint representation with quality estimation) as NMS scores without the need of multiplying any individual quality prediction", "location": "Sec 3" }
+    ]
+  },
+  "experiments": {
+    "summary": "All experiments run in mmdetection on COCO (trainval35k training, minival ablations, test-dev main results), defaulting to a ResNet-50 backbone with a 1x schedule and no multi-scale training for ablations; studies isolate QFL, DFL, discretization hyper-parameters and combined gains on FCOS/ATSS, then compare single-model single-scale speed/accuracy on test-dev.",
+    "benchmarks": [
+      { "dataset": "MS COCO", "metric": "AP", "value": "45.0", "split": "test-dev, GFL ResNet-101, single-scale, 14.6 FPS", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "48.2", "split": "test-dev, GFL ResNeXt-101-32x4d-DCN, single-scale, 10 FPS", "location": "Table 4" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "40.2", "split": "minival ablation, ATSS ResNet-50 + QFL + DFL (vs 39.2 baseline)", "location": "Table 3" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.9", "split": "minival ablation, ATSS + joint representation with QFL", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.0", "split": "minival ablation, FCOS + joint representation with QFL", "location": "Table 1" },
+      { "dataset": "MS COCO", "metric": "AP", "value": "39.5", "split": "minival ablation, ATSS with General distribution + DFL", "location": "Table 2" },
+      { "dataset": "MS COCO", "metric": "FPS", "value": "14.6", "split": "test-dev timing, GFL ResNet-101 on one RTX 2080Ti, batch 1", "location": "Table 4" }
+    ],
+    "baselines": ["FCOS", "ATSS", "SAPD", "RetinaNet", "FoveaBox", "SSD512", "FreeAnchor", "FSAF", "RepPoints", "Cascade R-CNN", "TSD"],
+    "evidence": [
+      { "quote": "GFL with ResNet-101 [9] achieves 45.0% AP at 14.6 FPS, which is superior than all the existing detectors with the same backbone, including SAPD [33] (43.5%) and ATSS [31] (43.6%).", "location": "Sec 4" },
+      { "quote": "GFL with ResNeXt-101-32x4d-DCN obtains state-of-the-art 48.2% AP at 10 FPS.", "location": "Sec 4" },
+      { "quote": "We observe that the improvement of DFL is orthogonal to QFL, and joint usage of both (i.e., GFL) improves the strong ATSS baseline by absolute 1% AP score.", "location": "Sec 4" }
+    ]
+  },
+  "limitations": {
+    "summary": "The paper has no limitations section, but it still relies on conventional NMS at inference, its gains over strong dense baselines are about 1 AP, and the method needs several tuned hyper-parameters (beta, n, delta, loss weights) validated only on COCO with one-stage detectors.",
+    "items": [
+      "Post-processing is unchanged: threshold filtering plus class-wise NMS at IoU 0.6 still produce the final detections.",
+      "Absolute gains are incremental (about 0.6-1 AP) over already strong one-stage baselines such as ATSS.",
+      "The approach requires tuning several hyper-parameters: QFL beta, distribution bins n and interval delta, and loss balance weights.",
+      "Validation is limited to COCO and dense one-stage detectors; other datasets and detector families are not evaluated."
+    ],
+    "evidence": [
+      { "quote": "Finally, NMS is applied under the IoU threshold 0.6 per class to produce the final top 100 detections per image as results.", "location": "Appendix D" },
+      { "quote": "The improved representations then pose challenges for optimization.", "location": "Introduction" },
+      { "quote": "Our experiments are conducted on COCO benchmark [19], where trainval35k (115K images) is utilized for training", "location": "Sec 4" },
+      { "quote": "The results demonstrate that the selection of n is not sensitive and ∆ is suggested to be small (e.g., 1) in practice.", "location": "Sec 4" }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Position GFL as a simple, strong baseline that other dense detectors can adopt.",
+      "quote": "We hope GFL can serve as a simple yet effective baseline for the community.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Use the unified GFL formulation to promote and generalize Focal Loss beyond its discrete form.",
+      "quote": "a flexible extension of FL, to facilitate further promotion and general understanding in the future.",
+      "location": "Sec 3"
+    }
+  ],
+  "technical": {
+    "datasets": ["COCO trainval35k", "COCO minival", "COCO test-dev"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNeXt-101-32x4d", "ResNeXt-101-64x4d", "DCN", "FPN"],
+    "models": ["GFL (on ATSS)", "GFL (on FCOS)", "FCOS", "ATSS", "SAPD", "RetinaNet", "FoveaBox", "SSD512", "FreeAnchor", "FSAF", "RepPoints", "Cascade R-CNN", "TSD", "CentripetalNet"],
+    "algorithms": ["Quality Focal Loss", "Distribution Focal Loss", "Generalized Focal Loss", "GIoU loss", "NMS", "softmax discretized regression distribution", "multi-scale training", "mmdetection"],
+    "metrics": ["AP", "AP50", "AP75", "APs/APm/APl", "FPS"],
+    "equations": [
+      { "name": "Quality Focal Loss", "expr": "QFL(sigma) = -|y - sigma|^beta * [(1 - y) log(1 - sigma) + y log(sigma)]", "location": "Eqn. (2), Sec 3" },
+      { "name": "Distribution Focal Loss", "expr": "DFL(S_i, S_{i+1}) = -[(y_{i+1} - y) log(S_i) + (y - y_i) log(S_{i+1})]", "location": "Eqn. (6), Sec 3" },
+      { "name": "Generalized Focal Loss", "expr": "GFL(p_yl, p_yr) = -|y - (y_l p_yl + y_r p_yr)|^beta * [(y_r - y) log(p_yl) + (y - y_l) log(p_yr)]", "location": "Eqn. (7), Sec 3" },
+      { "name": "training loss", "expr": "L = (1/Npos) sum_z LQ + (1/Npos) sum_z 1{c*>0} (lambda0 LB + lambda1 LD)", "location": "Eqn. (8), Sec 3" }
+    ]
+  },
+  "industry": {
+    "applications": [],
+    "deploymentClaims": [
+      "48.2% AP at 10 FPS on a single 2080Ti GPU for the best model (Abstract).",
+      "14.6 FPS for the ResNet-101 model, measured on one RTX 2080Ti with batch size 1 in mmdetection (Table 4).",
+      "Negligible extra inference cost: only the regression branch output width changes from 1 to n+1 logits per direction."
+    ],
+    "evidence": [
+      { "quote": "a single-model single-scale AP of 48.2%, at 10 FPS on a single 2080Ti GPU", "location": "Abstract" },
+      { "quote": "GFL brings negligible additional overhead and is considered very practical.", "location": "Sec 4" },
+      { "quote": "which brings negligible extra computing cost as later shown in Table 3.", "location": "Sec 3" }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2006.04388",
+    "arxivUrl": "https://arxiv.org/abs/2006.04388",
+    "venue": null,
+    "pdfUrl": "https://arxiv.org/pdf/2006.04388"
+  }
+}

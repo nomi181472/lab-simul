@@ -1,0 +1,205 @@
+{
+  "id": "OD079",
+  "arxiv": "2109.10852",
+  "title": "Pix2seq: A Language Modeling Framework for Object Detection",
+  "year": 2021,
+  "venue": "ICLR 2022",
+  "problem": {
+    "summary": "Existing object detectors are heavily hand-engineered: architectures and loss functions embed a large amount of task-specific prior knowledge about bounding boxes, anchors and matching, which makes detectors hard to integrate into larger systems or generalize to other tasks.",
+    "statements": [
+      "Modern detectors bake task-specific priors (region proposals, anchors, object queries, box-regression and set-matching losses) into architecture and loss design.",
+      "The resulting specialization and complexity makes detectors difficult to compose into a bigger perceptual system or to reuse across tasks.",
+      "Non-maximum suppression and separate box/class sub-networks add further post-processing and architectural overhead."
+    ],
+    "problemTags": ["deployability", "detector-specialization"],
+    "evidence": [
+      {
+        "quote": "most existing methods, such as (Girshick, 2015; Ren et al., 2015; He et al., 2017; Lin et al., 2017b; Carion et al., 2020), are carefully designed and highly customized, with a significant amount of prior knowledge in the choice of architecture and loss function.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "the specialization and complexity make them difficult to integrate into a larger system, or generalize to a much broader array of tasks associated with general intelligence.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "These detectors all require sub-networks (or extra layers) separately for regressing bounding boxes and class labels.",
+        "location": "Sec 4"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on the two dominant detector families (Faster R-CNN-style two-stage detectors and DETR's transformer detector) and on modern language modeling, claiming the gap is that detection-specific architectures and losses are unnecessary if detection is phrased as sequence generation.",
+    "relatedWork": [
+      {
+        "name": "Faster R-CNN",
+        "relation": "well-established two-stage baseline with FPN-optimized architecture",
+        "quote": "Faster R-CNN is a well established method, with optimized architectures such as feature-pyramid networks (FPN) (Lin et al., 2017a).",
+        "location": "Sec 3.2"
+      },
+      {
+        "name": "DETR",
+        "relation": "prior transformer detector that removes NMS but still needs learned object queries and detection heads",
+        "quote": "While DETR (Carion et al., 2020) avoids sophisticated bounding box proposals and non-maximum suppression, it still requires a set of learned \"object queries\", specially for object binding.",
+        "location": "Sec 4"
+      },
+      {
+        "name": "Modern language modeling",
+        "relation": "methodological inspiration for autoregressive token generation",
+        "quote": "Our work is inspired by recent success of modern language modeling (Radford et al., 2019; Raffel et al., 2019; Brown et al., 2020).",
+        "location": "Sec 4"
+      },
+      {
+        "name": "Recurrent object detectors",
+        "relation": "earlier one-object-at-a-time predictors, but with task-tailored architectures and losses",
+        "quote": "Our work is also related to recurrent models in object detection (Stewart et al., 2016; Park & Berg, 2015; Romera-Paredes & Torr, 2016; Salvador et al., 2017; Ren & Zemel, 2017), in which the system learns to predict one object at a time.",
+        "location": "Sec 4"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "Non-maximum suppression (Bodla et al., 2017) is often required to prevent duplicate predictions.",
+        "location": "Sec 4"
+      },
+      {
+        "quote": "Pix2Seq avoids specialized losses, showing that a straightforward maximum likelihood objective with softmax cross entropy can work well.",
+        "location": "Sec 4"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "Pix2Seq casts object detection as conditional language modeling: bounding boxes and class labels are quantized and serialized into discrete token sequences that an encoder-decoder transformer generates autoregressively with a plain maximum-likelihood (cross-entropy) objective.",
+    "approach": "Quantize each box into coordinate tokens plus a class token, serialize all objects of an image (with synthetic noise objects), and train an image-encoder/sequence-decoder transformer to emit the token sequence one token at a time.",
+    "components": [
+      "coordinate quantization into shared-vocabulary discrete tokens",
+      "random serialization of object descriptions with an EOS token",
+      "generic image encoder + Transformer decoder",
+      "maximum-likelihood next-token prediction loss",
+      "sequence augmentation with synthetic noise objects to control the precision/recall trade-off",
+      "nucleus sampling at inference with delayed EOS"
+    ],
+    "solutionTags": ["autoregressive-generation", "language-modeling", "sequence-augmentation", "transformer-decoder"],
+    "evidence": [
+      {
+        "quote": "In essence, we cast object detection as a language modeling task conditioned on pixel inputs, for which the model architecture and loss function are generic and relatively simple, without being engineered specifically for the detection task.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "an object is represented as a sequence of five discrete tokens, i.e. [ymin , xmin , ymax , xmax , c], where each of the continuous corner coordinates is uniformly discretized into an integer between [1, nbins ], and c is the class index.",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "The model is trained to maximize the log likelihood of tokens conditioned on the image and the preceding tokens (with a softmax cross-entropy loss).",
+        "location": "Sec 2"
+      },
+      {
+        "quote": "With sequence augmentation, we are able to substantially delay the EOS token, improving recall without increasing the frequency of noisy and duplicated predictions.",
+        "location": "Sec 2.3"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "The method is evaluated on MS-COCO 2017 validation AP, training both from scratch (to compare fairly with Faster R-CNN and DETR) and with Objects365 pretraining followed by COCO finetuning, plus ablations on quantization, object ordering and sequence augmentation.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "AP", "value": "43.0", "split": "val 2017 (train from scratch, R50)", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "AP", "value": "44.5", "split": "val 2017 (train from scratch, R101)", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "AP", "value": "45.0", "split": "val 2017 (train from scratch, R101-DC5)", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "AP", "value": "50.0", "split": "val 2017 (Objects365 pretrain + finetune, ViT-L, 1333)", "location": "Table 2" },
+      { "dataset": "COCO", "metric": "AP-small", "value": "25.1", "split": "val 2017 (train from scratch, R50)", "location": "Table 1" }
+    ],
+    "baselines": ["Faster R-CNN", "Faster R-CNN+", "DETR"],
+    "evidence": [
+      {
+        "quote": "Overall, Pix2Seq achieves competitive results to both baselines.",
+        "location": "Sec 3.2"
+      },
+      {
+        "quote": "the best performance (with 1333 image size) is 50 AP which is 5% higher than the best model trained from scratch",
+        "location": "Sec 3.2"
+      },
+      {
+        "quote": "our model performs comparably or slightly worse on large and medium objects, but substantially better (4-5 AP) on small objects.",
+        "location": "Sec 3.2"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors admit that autoregressive decoding is expensive for long sequences (mainly at inference) and that training depends entirely on human annotation; the model also tends to terminate before predicting all objects.",
+    "items": [
+      "Autoregressive inference cost grows with sequence length, making real-time detection hard.",
+      "Training uses only human-annotated data, so unlabeled data cannot be exploited.",
+      "Without sequence augmentation the model often stops before predicting all objects (recall loss)."
+    ],
+    "evidence": [
+      {
+        "quote": "A major limitation of our approach is that autoregressive modeling is expensive for long sequences (mainly during model inference).",
+        "location": "Conclusion"
+      },
+      {
+        "quote": "Another limitation is that the current approach for training Pix2Seq is entirely based on human annotation, and by reducing such dependence, it can enable the model to benefit from more unlabeled data.",
+        "location": "Conclusion"
+      },
+      {
+        "quote": "The EOS token allows the model to decide when to terminate generation, but in practice we find that the model tends to finish without predicting all objects.",
+        "location": "Sec 2.3"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Speed up autoregressive decoding so the framework can be used for real-time object detection.",
+      "quote": "future work is needed to make it faster for real-time object detection applications",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Extend Pix2Seq beyond detection into a unified interface for other vision tasks expressible as short token sequences (keypoints, captioning, VQA).",
+      "quote": "we hope to extend Pix2Seq as a generic and unified interface for solving a large variety of vision tasks.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Reduce reliance on human annotation so the model can benefit from unlabeled data.",
+      "quote": "by reducing such dependence, it can enable the model to benefit from more unlabeled data.",
+      "location": "Conclusion"
+    },
+    {
+      "direction": "Apply the framework to other vision tasks whose outputs are concise discrete token sequences.",
+      "quote": "but can also be applied to other vision tasks where the output can be represented by a relatively concise sequence of discrete tokens (e.g., keypoint detection, image captioning, visual question answering)",
+      "location": "Conclusion"
+    }
+  ],
+  "technical": {
+    "datasets": ["COCO", "Objects365"],
+    "backbones": ["ResNet-50", "ResNet-101", "ResNet-50-DC5", "ResNet-101-DC5", "ViT-B", "ViT-L", "FPN"],
+    "models": ["Pix2Seq", "Faster R-CNN", "Faster R-CNN+", "DETR"],
+    "algorithms": ["next-token prediction", "coordinate quantization/dequantization", "nucleus sampling", "sequence augmentation", "random object ordering"],
+    "metrics": ["AP", "AP50", "AP75", "APS", "APM", "APL", "AR@100"],
+    "equations": [
+      { "name": "Maximum likelihood objective", "expr": "maximize sum_{j=1..L} w_j * log P(y_tilde_j | x, y_{1:j-1})", "location": "Sec 2.2 (Eq 1)" },
+      { "name": "Coordinate quantization", "expr": "int(x * (bins - 1)) for x in [0,1]", "location": "Appendix A (Algorithm 1)" },
+      { "name": "Nucleus sampling top-p vocabulary", "expr": "sum_{y_j in V(p)} P(y_j | x, y_{1:j-1}) >= p", "location": "Appendix C (Eq 2)" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "autonomous driving", "detail": "Cited as an established application area of existing detection systems (Waymo open dataset).", "quote": "from self-driving cars (Sun et al., 2020)", "location": "Introduction" },
+      { "domain": "medical image analysis", "detail": "Cited as an application area where detection systems are already deployed.", "quote": "to medical image analysis (Jaeger et al., 2020)", "location": "Introduction" },
+      { "domain": "agriculture", "detail": "Cited as an application area of existing detection systems (fruit detection).", "quote": "to agriculture (Sa et al., 2016)", "location": "Introduction" },
+      { "domain": "language-directed detection", "detail": "Authors suggest online use where objects of interest are sparse, e.g. locating a specific object given a language description.", "quote": "online scenarios where the objects of interest are relatively sparse (e.g. locate a specific object with language description)", "location": "Conclusion" }
+    ],
+    "deploymentClaims": [
+      "Positioned mainly for offline inference, or for online scenarios with sparse objects, since autoregressive decoding is slow.",
+      "Code and checkpoints are publicly released at github.com/google-research/pix2seq."
+    ],
+    "evidence": [
+      {
+        "quote": "2) applying it to offline inference, or online scenarios where the objects of interest are relatively sparse (e.g. locate a specific object with language description)",
+        "location": "Conclusion"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2109.10852",
+    "arxivUrl": "https://arxiv.org/abs/2109.10852",
+    "venue": "ICLR 2022",
+    "pdfUrl": "https://arxiv.org/pdf/2109.10852"
+  }
+}

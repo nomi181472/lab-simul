@@ -1,0 +1,311 @@
+{
+ "id": "OD108",
+ "arxiv": "2409.08475",
+ "title": "RT-DETRv3: Real-time End-to-End Object Detection with Hierarchical Dense Positive Supervision",
+ "year": 2024,
+ "venue": null,
+ "problem": {
+  "summary": "RT-DETR's one-to-one Hungarian matching provides much sparser supervision than the one-to-many assignment of dense detectors like the YOLO series, leaving both encoder and decoder under-trained and the model short of its optimal accuracy.",
+  "statements": [
+   "Hungarian one-to-one matching yields sparse supervision that causes insufficient training of encoder and decoder.",
+   "Dense-supervision CNN detectors (YOLO series) train more fully under one-to-many label assignment while keeping a speed/accuracy trade-off.",
+   "Standard DETR's high computational complexity limits its practical application, so real-time variants must keep its lightweight framework."
+  ],
+  "problemTags": [
+   "label-assignment",
+   "convergence",
+   "one-stage-accuracy"
+  ],
+  "evidence": [
+   {
+    "quote": "However, compared to dense supervision detectors like the YOLO series, the Hungarian matching provides much sparser supervision, leading to insufficient model training and difficult to achieve optimal results.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "However, the Hungarian matching strategy provides sparse supervision during training, leading to insufficient training of both the encoder and decoder, which limits the optimal performance of the approach.",
+    "location": "Introduction"
+   },
+   {
+    "quote": "However, its high computational complexity significantly limits its practical applications.",
+    "location": "Introduction"
+   }
+  ]
+ },
+ "background": {
+  "summary": "The method builds on RT-DETR/RT-DETRv2 (real-time end-to-end DETR with hybrid encoder and IoU-aware query selection) and on auxiliary one-to-many training strategies from Co-DETR, DAC-DETR, MS-DETR and Group DETR; the gap claimed is that those dense-supervision works are not real-time detectors.",
+  "relatedWork": [
+   {
+    "name": "RT-DETR",
+    "relation": "framework that RT-DETRv3 keeps and extends",
+    "quote": "RT-DETR [32] is the first real-time end-to-end transformer-based object detection algorithm.",
+    "location": "Introduction"
+   },
+   {
+    "name": "RT-DETRv2",
+    "relation": "immediate predecessor optimizing training strategy",
+    "quote": "RT-DETRv2 [19] further enhances the flexibility and practicality of RT-DETR [32] by optimizing the training strategy to improve performance without sacrificing speed, although requires longer training time.",
+    "location": "Introduction"
+   },
+   {
+    "name": "Co-DETR",
+    "relation": "prior one-to-many auxiliary head training strategy",
+    "quote": "Co-DETR [33] proposed multiple parallel one-to-many label assignment auxiliary head training strategies (e.g., ATSS [30] and Faster RCNN [20]), which can easily enhance the learning ability of the encoder in end-to-end detectors.",
+    "location": "Sec 2.3"
+   },
+   {
+    "name": "YOLO series",
+    "relation": "dominant CNN-based real-time baselines",
+    "quote": "The current CNN-based real-time object detectors are mainly the YOLO series.",
+    "location": "Sec 2.1"
+   }
+  ],
+  "evidence": [
+   {
+    "quote": "DAC-DETR [9], MSDETR [31], and GroupDETR [4] mainly accelerate the convergence of the model by adding one-to-many supervised information to the decoder of the model.",
+    "location": "Sec 2.3"
+   },
+   {
+    "quote": "However, due to their one-to-one sparse supervision, the convergence speed and final effect are limited.",
+    "location": "Sec 2.2"
+   }
+  ]
+ },
+ "solution": {
+  "summary": "RT-DETRv3 keeps RT-DETR's architecture and adds three training-only hierarchical dense positive supervision branches: a CNN one-to-many auxiliary head (PP-YOLOE) on encoder features, multi-group mask self-attention perturbation that diversifies positive query assignment across query groups, and a shared-weight one-to-many decoder matching branch.",
+  "approach": "Densify positive supervision for both encoder and decoder with one-to-many auxiliary branches and perturbed multi-group self-attention, all discarded at inference so latency is unchanged.",
+  "components": [
+   "CNN-based one-to-many auxiliary branch using the PP-YOLOE head on encoder features C3/C4/C5",
+   "ATSS matching early in training switched to TaskAlign matching",
+   "mask generator producing random perturbation masks for multiple query sets",
+   "mask self-attention module perturbing attention weights of each query group",
+   "shared-weight one-to-many decoder branch matching each ground truth with 4 queries",
+   "total loss L = alpha*L_aux + beta*L_o2o + gamma*L_o2m with all weights 1"
+  ],
+  "solutionTags": [
+   "dynamic-assignment",
+   "attention",
+   "set-prediction"
+  ],
+  "evidence": [
+   {
+    "quote": "we introduce a CNN-based auxiliary branch that provides dense supervision that collaborates with the original decoder to enhance the encoder’s feature representation.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "This strategy diversifies label assignment for positive samples across multiple query groups, thereby enriching positive supervisions.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "Notably, all aforementioned modules are training-only.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "To alleviate the problem of sparse supervision in encoder output caused by the decoder’s one-to-one set matching scheme, we introduce an auxiliary detection head with one-to-many assignment, such as PP-YOLOE [28].",
+    "location": "Sec 3.3"
+   }
+  ]
+ },
+ "experiments": {
+  "summary": "RT-DETRv3 (R18/R34/R50/R101) is evaluated on COCO val2017 against the RT-DETR series and CNN real-time detectors in AP, latency and convergence, with ablations on each supervision branch and on the number of perturbation branches; latency is measured on a T4 GPU with TensorRT FP16.",
+  "benchmarks": [
+   {
+    "dataset": "COCO",
+    "metric": "AP",
+    "value": "48.1",
+    "split": "val2017, RT-DETRv3-R18 (6x)",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "AP",
+    "value": "50.1",
+    "split": "val2017, RT-DETRv3-R34",
+    "location": "Table 2"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "AP",
+    "value": "53.4",
+    "split": "val2017, RT-DETRv3-R50",
+    "location": "Table 2"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "AP",
+    "value": "54.6",
+    "split": "val2017, RT-DETRv3-R101",
+    "location": "Table 2"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "latency (ms)",
+    "value": "4.6",
+    "split": "T4 GPU FP16, RT-DETRv3-R18",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "AP (ablation, all modules)",
+    "value": "48.1",
+    "split": "val2017, ResNet18 baseline RT-DETR at 46.5",
+    "location": "Table 4"
+   }
+  ],
+  "baselines": [
+   "RT-DETR",
+   "RT-DETRv2",
+   "YOLOv6",
+   "YOLOv8",
+   "YOLOv9",
+   "YOLOv10",
+   "Gold-YOLO",
+   "YOLO-MS"
+  ],
+  "evidence": [
+   {
+    "quote": "RT-DETRv3-R18 achieves 48.1% AP (+1.6%/+1.4%) compared to RT-DETR-R18/RT-DETRv2-R18, while maintaining the same latency.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "RT-DETRv3-R101 can attain an impressive 54.6% AP outperforming YOLOv10-X.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "our approach maintains the same inference speed as both RT-DETR [32] and RT-DETRv2 [19].",
+    "location": "Sec 4.3"
+   }
+  ]
+ },
+ "limitations": {
+  "summary": "The authors acknowledge that the framework is not yet optimized for lightweight deployment and that larger RT-DETRv3 models tend to overfit COCO; strong results also rely on long 72/120-epoch schedules.",
+  "items": [
+   "The overall framework has not been optimized for lightweight deployment, leaving inference efficiency on the table.",
+   "As model size grows, RT-DETRv3 tends to overfit, attributed to a mismatch between dataset size and model size.",
+   "Long training schedules are used: 72 epochs for R50/R101 and 120 epochs for R18/R34.",
+   "Experiments cover only COCO val2017."
+  ],
+  "evidence": [
+   {
+    "quote": "As illustrated in Figure 4, we noticed that as the model size increases, RT-DETRv3 tends to exhibit overfitting.",
+    "location": "Sec 4.3"
+   },
+   {
+    "quote": "We used a 10x (120 epochs) training schedule for smaller backbones (R18, R34) and a 6x (72 epochs) training schedule for larger backbones (R50, R101).",
+    "location": "Sec 4.2"
+   }
+  ]
+ },
+ "futureDirections": [
+  {
+   "direction": "Optimize the whole RT-DETRv3 detector framework for lightweight deployment to further improve inference efficiency.",
+   "quote": "However, since we have not yet optimized the overall framework of the RT-DETRv3 detector for lightweight deployment, there is still room for further improving the inference efficiency of RT-DETRv3.",
+   "location": "Sec 4.4"
+  },
+  {
+   "direction": "Counter overfitting of larger models with additional training data such as Objects365.",
+   "quote": "when we added additional training data, the performance of RT-DETRv3 continues to improve as the training epochs increase, and it performs better than the model without the additional data at the same epochs.",
+   "location": "Sec 4.3"
+  }
+ ],
+ "technical": {
+  "datasets": [
+   "MS COCO 2017",
+   "Objects365"
+  ],
+  "backbones": [
+   "ResNet-18",
+   "ResNet-34",
+   "ResNet-50",
+   "ResNet-101"
+  ],
+  "models": [
+   "RT-DETRv3",
+   "RT-DETR",
+   "RT-DETRv2",
+   "PP-YOLOE",
+   "YOLOv8",
+   "YOLOv10"
+  ],
+  "algorithms": [
+   "Hungarian matching",
+   "ATSS matching",
+   "TaskAlign matching",
+   "varifocal loss (VFL)",
+   "distributed focus loss (DFL)",
+   "GIoU loss",
+   "mask self-attention",
+   "efficient hybrid encoder",
+   "AdamW"
+  ],
+  "metrics": [
+   "AP",
+   "AP50",
+   "latency (ms)",
+   "GFLOPs",
+   "params (M)"
+  ],
+  "equations": [
+   {
+    "name": "perturbed attention weight",
+    "expr": "W_i = Softmax(M_i (Q_i K_i^T))",
+    "location": "Eq 2"
+   },
+   {
+    "name": "fused perturbed feature",
+    "expr": "V~_i = W_i V_i",
+    "location": "Eq 3"
+   },
+   {
+    "name": "one-to-many perturbation loss",
+    "expr": "L_o2o = (1/N) sum_i L^i_o2o",
+    "location": "Eq 4"
+   },
+   {
+    "name": "total loss",
+    "expr": "L = alpha*L_aux + beta*L_o2o + gamma*L_o2m",
+    "location": "Eq 5"
+   }
+  ]
+ },
+ "industry": {
+  "applications": [
+   {
+    "domain": "autonomous driving, video surveillance, object tracking",
+    "detail": "Real-time detection is said to have enormous practical value in these applications, and the field demands inference speeds above 30 FPS.",
+    "quote": "It has enormous value in practical applications such as autonomous driving, video surveillance, and object tracking.",
+    "location": "Introduction"
+   },
+   {
+    "domain": "industrial/real-world deployment requirements",
+    "detail": "Real-time detection is framed as having higher requirements on algorithm performance, such as inference speed greater than 30 FPS.",
+    "quote": "Real-time object detection has higher requirements for algorithm performance, such as inference speed greater than 30 FPS.",
+    "location": "Introduction"
+   }
+  ],
+  "deploymentClaims": [
+   "All added supervision modules are training-only and are discarded during evaluation, so inference latency is unchanged.",
+   "Latencies of all models are tested on a T4 GPU with TensorRT FP16, following RT-DETR.",
+   "RT-DETRv3 needs only 72 epochs to reach superior accuracy versus detectors training for 300-500 epochs."
+  ],
+  "evidence": [
+   {
+    "quote": "Since these modules are only involved during the training phase, they don’t affect the inference latency of RT-DETR [32].",
+    "location": "Sec 2.3"
+   },
+   {
+    "quote": "Moreover, the latencies of all models are tested on T4 GPU with TensorRT FP16, following [32].",
+    "location": "Sec 4.2"
+   },
+   {
+    "quote": "We have observed that, in comparison to most detectors employing longer training epochs, RT-DETRv3 only needs 72 epochs to achieve superior accuracy.",
+    "location": "Sec 4.2"
+   }
+  ]
+ },
+ "citations": {
+  "doi": null,
+  "arxivUrl": "https://arxiv.org/abs/2409.08475",
+  "venue": null,
+  "pdfUrl": "https://arxiv.org/pdf/2409.08475"
+ }
+}

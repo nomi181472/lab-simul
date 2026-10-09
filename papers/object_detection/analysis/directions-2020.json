@@ -1,0 +1,1336 @@
+[
+  {
+    "id": "OD056-f0",
+    "sourcePaperId": "OD056",
+    "sourceYear": 2020,
+    "direction": "Substantially expand the bag of freebies for the detector and check the influence of each added feature experimentally.",
+    "quote": "In the future we plan to expand significantly the content of Bag of Freebies (BoF) for the detector, which theoretically can address some problems and increase the detector accuracy",
+    "location": "Sec 3.1",
+    "status": "realized",
+    "followUps": [
+      "OD071",
+      "OD087",
+      "OD089",
+      "OD107"
+    ],
+    "realizationNote": "Later detectors explicitly expand the verified freebies: YOLOv7 (OD089) and RT-DETRv2 (OD107) are built as bag-of-freebies baselines that ablate each added feature.",
+    "realizingPaperId": "OD089"
+  },
+  {
+    "id": "OD056-f1",
+    "sourcePaperId": "OD056",
+    "sourceYear": 2020,
+    "direction": "Use the verified feature inventory as best-practice guidance for later detector studies.",
+    "quote": "These features can be used as best-practice for future studies and developments.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD071",
+      "OD089",
+      "OD107"
+    ],
+    "realizationNote": "The BoF/BoS inventory became best-practice guidance: PP-YOLOv2 (OD071), YOLOv7 (OD089) and RT-DETRv2 (OD107) reuse the verified recipe and add their own validated features.",
+    "realizingPaperId": "OD107"
+  },
+  {
+    "id": "OD057-f0",
+    "sourcePaperId": "OD057",
+    "sourceYear": 2020,
+    "direction": "Improve small-object accuracy, following the trajectory FPN provided for Faster R-CNN.",
+    "quote": "We expect that future work will improve this aspect in the same way the development of FPN [22] did for Faster R-CNN.",
+    "location": "Introduction",
+    "status": "partial",
+    "followUps": [
+      "OD082",
+      "OD096"
+    ],
+    "realizationNote": "Deformable DETR (OD063) began fixing small objects the same year and later multi-scale DETRs (DAB-DETR OD082, RT-DETR OD096) keep at it, yet RT-DETR still lists the small-object gap as open in 2023.",
+    "realizingPaperId": "OD096"
+  },
+  {
+    "id": "OD057-f1",
+    "sourcePaperId": "OD057",
+    "sourceYear": 2020,
+    "direction": "Address the new training, optimization and small-object challenges introduced by the design.",
+    "quote": "we expect future work to successfully address them for DETR.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD076",
+      "OD082",
+      "OD084",
+      "OD085"
+    ],
+    "realizationNote": "The slow-convergence and optimization challenges were decisively addressed by Conditional DETR (OD076), DAB-DETR (OD082), DN-DETR (OD084) and above all DINO (OD085).",
+    "realizingPaperId": "OD085"
+  },
+  {
+    "id": "OD057-f2",
+    "sourcePaperId": "OD057",
+    "sourceYear": 2020,
+    "direction": "Pursue fully unified models for panoptic segmentation.",
+    "quote": "We hope that our approach will inspire the exploration of fully unified models for panoptic segmentation in future work.",
+    "location": "Sec 4.4",
+    "status": "partial",
+    "followUps": [
+      "OD072",
+      "OD111"
+    ],
+    "realizationNote": "QueryInst (OD072) extends query-based detection to instance segmentation and DINO-X (OD111) unifies detection with masks/keypoints/language, but no corpus paper builds a fully unified panoptic model.",
+    "realizingPaperId": "OD111"
+  },
+  {
+    "id": "OD058-f0",
+    "sourcePaperId": "OD058",
+    "sourceYear": 2020,
+    "direction": "Position GFL as a simple, strong baseline that other dense detectors can adopt.",
+    "quote": "We hope GFL can serve as a simple yet effective baseline for the community.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD087",
+      "OD109"
+    ],
+    "realizationNote": "PP-YOLOE (OD087) adopts quality-aware focal-type scoring heads and D-FINE (OD109) generalizes distribution regression, but no later dense detector adopts the GFL formulation wholesale as its baseline.",
+    "realizingPaperId": "OD087"
+  },
+  {
+    "id": "OD058-f1",
+    "sourcePaperId": "OD058",
+    "sourceYear": 2020,
+    "direction": "Use the unified GFL formulation to promote and generalize Focal Loss beyond its discrete form.",
+    "quote": "a flexible extension of FL, to facilitate further promotion and general understanding in the future.",
+    "location": "Sec 3",
+    "status": "realized",
+    "followUps": [
+      "OD109"
+    ],
+    "realizationNote": "D-FINE (OD109) directly generalizes GFL's distributed-box formulation into fine-grained, non-uniformly weighted distribution refinement.",
+    "realizingPaperId": "OD109"
+  },
+  {
+    "id": "OD059-f0",
+    "sourcePaperId": "OD059",
+    "sourceYear": 2020,
+    "direction": "Extend score voting as a generic post-processing improvement for other dense detectors.",
+    "quote": "we also provided the score voting method which is a simple yet effective post-processing scheme that is applicable to most dense object detectors.",
+    "location": "Conclusion",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper adopts PAA's score voting as a generic post-processing step; the field instead moves to NMS-free designs (corpus ends 2026)."
+  },
+  {
+    "id": "OD060-f0",
+    "sourcePaperId": "OD060",
+    "sourceYear": 2020,
+    "direction": "Deploy the border module as a plug-and-play add-on inside other dense detectors.",
+    "quote": "the proposed method can be integrated into other object detectors in a plug-and-play manner, including RetinaNet [16], FCOS [21] and so forth.",
+    "location": "Sec 3.3",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper deploys a BorderDet-style border module as a plug-and-play add-on in other dense detectors (corpus ends 2026)."
+  },
+  {
+    "id": "OD060-f1",
+    "sourcePaperId": "OD060",
+    "sourceYear": 2020,
+    "direction": "Use border alignment to improve proposal generation for two-stage detectors.",
+    "quote": "Our method can also be served as a better proposal generator for the typical two-stage detectors.",
+    "location": "Sec 3.3",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper uses border alignment to improve proposal generation in two-stage detectors (corpus ends 2026)."
+  },
+  {
+    "id": "OD061-f0",
+    "sourcePaperId": "OD061",
+    "sourceYear": 2020,
+    "direction": "Try better backbones, stronger data augmentation and NAS-based hyperparameter search to further improve PP-YOLO.",
+    "quote": "We believe that using a better backbone network, using more effective data augmentation method and using NAS to search for hyperparameters can further improve the performance of PP-YOLO.",
+    "location": "Introduction",
+    "status": "realized",
+    "followUps": [
+      "OD071",
+      "OD087",
+      "OD094"
+    ],
+    "realizationNote": "PP-YOLOv2 (OD071) and PP-YOLOE (OD087) advance the line with stronger backbones and training, and DAMO-YOLO (OD094) applies MAE-NAS architecture search.",
+    "realizingPaperId": "OD087"
+  },
+  {
+    "id": "OD061-f1",
+    "sourcePaperId": "OD061",
+    "sourceYear": 2020,
+    "direction": "Pre-train the model on other detection datasets.",
+    "quote": "In fact, using other detection datasets for pre-training can greatly improve the performance of the model, but this is beyond the scope of this paper.",
+    "location": "Sec 4.2",
+    "status": "realized",
+    "followUps": [
+      "OD097",
+      "OD103",
+      "OD111"
+    ],
+    "realizationNote": "Pre-training detectors on other detection datasets became standard, from self-training on Objects365 (OD097) to the 20M/100M-image grounding corpora of Grounding DINO 1.5 (OD103) and DINO-X (OD111).",
+    "realizingPaperId": "OD097"
+  },
+  {
+    "id": "OD061-f2",
+    "sourcePaperId": "OD061",
+    "sourceYear": 2020,
+    "direction": "Merge the IoU Aware and Grid Sensitive operations into a single PaddlePaddle OP to remove their post-processing overhead.",
+    "quote": "which can be greatly reduced by merging them as a single OP in PaddlePaddle in the future",
+    "location": "Sec 4.2",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper fuses the IoU-aware and Grid Sensitive ops into a single PaddlePaddle operator (corpus ends 2026)."
+  },
+  {
+    "id": "OD063-f0",
+    "sourcePaperId": "OD063",
+    "sourceYear": 2020,
+    "direction": "Explore further interesting and practical variants of end-to-end object detectors built on Deformable DETR.",
+    "quote": "It enables us to explore more interesting and practical variants of end-to-end object detectors.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD082",
+      "OD084",
+      "OD085",
+      "OD093"
+    ],
+    "realizationNote": "Deformable DETR became the base of a large family: DAB-DETR (OD082), DN-DETR/DINO (OD084/OD085) and Co-DETR (OD093) are all direct successors.",
+    "realizingPaperId": "OD085"
+  },
+  {
+    "id": "OD063-f1",
+    "sourcePaperId": "OD063",
+    "sourceYear": 2020,
+    "direction": "Use the fast-converging, efficient design as a basis for new end-to-end detection research.",
+    "quote": "We hope our work opens up new possibilities in exploring end-to-end object detection.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD082",
+      "OD085",
+      "OD096"
+    ],
+    "realizationNote": "The fast-converging deformable design underpins most later end-to-end detectors, including RT-DETR (OD096) and DINO (OD085).",
+    "realizingPaperId": "OD085"
+  },
+  {
+    "id": "OD064-f0",
+    "sourcePaperId": "OD064",
+    "sourceYear": 2020,
+    "direction": "Use FPN-like sub-nets and compound scale-down of architecture plus input size to pick the best model per resolution.",
+    "quote": "This means that we can use sub-nets of FPN-like models to execute the object detection task well. Moreover, we can perform compound scale-down the model architectures and input size of an object detector to get the best performance.",
+    "location": "Sec 5.5",
+    "status": "partial",
+    "followUps": [
+      "OD089",
+      "OD110"
+    ],
+    "realizationNote": "YOLOv7 (OD089) carries compound depth/width + input-size scaling into the YOLO line, but the FPN-subnet-per-resolution selection trick is not reproduced.",
+    "realizingPaperId": "OD089"
+  },
+  {
+    "id": "OD065-f0",
+    "sourcePaperId": "OD065",
+    "sourceYear": 2020,
+    "direction": "Combine random query patch detection with contrastive learning to pre-train the whole DETR model from scratch.",
+    "quote": "Therefore, we believe that it is a promising direction to further investigate UP-DETR with random query patch detection and contrastive learning together to pre-train the whole DETR model from scratch.",
+    "location": "Sec 4.5.2",
+    "status": "partial",
+    "followUps": [
+      "OD097"
+    ],
+    "realizationNote": "Later DETR pre-training (OD097) learns from weakly labeled/unlabeled data via self-training, but no later paper combines random-query-patch detection with contrastive pre-training from scratch.",
+    "realizingPaperId": "OD097"
+  },
+  {
+    "id": "OD065-f1",
+    "sourcePaperId": "OD065",
+    "sourceYear": 2020,
+    "direction": "Integrate CNN and transformer pre-training into one end-to-end framework and extend UP-DETR to few-shot detection and object tracking.",
+    "quote": "We hope an advanced method can integrate the CNN and transformer pretraining into a unified end-to-end framework and apply UP-DETR to more downstream tasks (e.g. few-shot object detection and object tracking).",
+    "location": "Conclusion",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper integrates CNN+transformer pre-training in one framework or extends UP-DETR to few-shot detection and object tracking (corpus ends 2026)."
+  },
+  {
+    "id": "OD066-f0",
+    "sourcePaperId": "OD066",
+    "sourceYear": 2020,
+    "direction": "Rethink the necessity of dense priors in detectors and explore next-generation detector designs.",
+    "quote": "We hope our work could inspire rethinking the necessary of dense prior in object detection and exploring next generation of object detector.",
+    "location": "Introduction",
+    "status": "partial",
+    "followUps": [
+      "OD093",
+      "OD100"
+    ],
+    "realizationNote": "Later end-to-end detectors keep re-examining sparse priors with hybrid supervision (Co-DETR OD093, MS-DETR OD100), but the agenda is a broad research direction rather than a single fulfilled result.",
+    "realizingPaperId": "OD100"
+  },
+  {
+    "id": "OD066-f1",
+    "sourcePaperId": "OD066",
+    "sourceYear": 2020,
+    "direction": "Establish sparse detectors as a solid baseline to ease future research in the detection community.",
+    "quote": "We hope sparse methods could serve as solid baseline and help ease future research in object detection community.",
+    "location": "Sec 2.3",
+    "status": "realized",
+    "followUps": [
+      "OD072"
+    ],
+    "realizationNote": "Sparse R-CNN became a usable baseline: QueryInst (OD072) directly adopts its learnable-proposal query framework.",
+    "realizingPaperId": "OD072"
+  },
+  {
+    "id": "OD068-f0",
+    "sourcePaperId": "OD068",
+    "sourceYear": 2021,
+    "direction": "Introduce an anchor-free mechanism into YOLOF to reduce missing errors caused by sparse, non-flexible pre-defined anchors.",
+    "quote": "free mechanism into YOLOF may help alleviate this problem, and we leave it for future work.",
+    "location": "Sec 5.3",
+    "status": "partial",
+    "followUps": [
+      "OD087",
+      "OD091"
+    ],
+    "realizationNote": "The YOLO line itself went anchor-free (PP-YOLOE OD087, YOLOv6 OD091), but no paper introduces an anchor-free mechanism into YOLOF as proposed.",
+    "realizingPaperId": "OD087"
+  },
+  {
+    "id": "OD068-f1",
+    "sourcePaperId": "OD068",
+    "sourceYear": 2021,
+    "direction": "Use YOLOF as a baseline to guide the design of single-level feature detectors.",
+    "quote": "We hope our YOLOF can serve as a solid baseline and provide insight for designing single-level feature detectors in future research.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD105"
+    ],
+    "realizationNote": "LW-DETR (OD105) revives the single-level-feature detection idea in the transformer era, but YOLOF is not used as the explicit design baseline.",
+    "realizingPaperId": "OD105"
+  },
+  {
+    "id": "OD070-f0",
+    "sourcePaperId": "OD070",
+    "sourceYear": 2021,
+    "direction": "Use the dense-prior design as inspiration for simpler, more efficient end-to-end object detectors.",
+    "quote": "We hope our work could inspire designs of more simple and efficient object detectors.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD085",
+      "OD096"
+    ],
+    "realizationNote": "DINO (OD085) inherits the dense-prior idea by initializing queries from top-K encoder features, and RT-DETR (OD096) delivers the simpler efficient end-to-end detector called for.",
+    "realizingPaperId": "OD085"
+  },
+  {
+    "id": "OD071-f0",
+    "sourcePaperId": "OD071",
+    "sourceYear": 2021,
+    "direction": "Help developers and researchers obtain better detector performance in practical scenes.",
+    "quote": "We hope this paper can help developers and researchers get better performance in practical scenes.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD087",
+      "OD091"
+    ],
+    "realizationNote": "The practical real-time YOLO line continues in PP-YOLOE (OD087) and YOLOv6 (OD091), but the goal of helping practitioners is open-ended rather than a single fulfilled result.",
+    "realizingPaperId": "OD087"
+  },
+  {
+    "id": "OD072-f0",
+    "sourcePaperId": "OD072",
+    "sourceYear": 2021,
+    "direction": "Further study why QueryInst benefits from stronger data augmentation even under the 3x schedule, unlike the Mask R-CNN family.",
+    "quote": "We will conduct further study of these properties in the future.",
+    "location": "Appendix",
+    "status": "partial",
+    "followUps": [
+      "OD112"
+    ],
+    "realizationNote": "DEIM (OD112) studies how mosaic/mixup raise target density for query-based detectors, but no paper explains QueryInst's augmentation benefit specifically.",
+    "realizingPaperId": "OD112"
+  },
+  {
+    "id": "OD073-f0",
+    "sourcePaperId": "OD073",
+    "sourceYear": 2021,
+    "direction": "Extend the unified training beyond vision tasks to multi-modal and multi-task learning.",
+    "quote": "In the future, we shall extend the training to multi-modal and multi-task, as shown in Figure 12.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD095",
+      "OD101",
+      "OD111"
+    ],
+    "realizationNote": "The unified model idea spread to multi-modal grounding (Grounding DINO OD095, YOLO-World OD101) and multi-task understanding (DINO-X OD111).",
+    "realizingPaperId": "OD111"
+  },
+  {
+    "id": "OD073-f1",
+    "sourcePaperId": "OD073",
+    "sourceYear": 2021,
+    "direction": "Further explore the potential of implicit representation for downstream tasks.",
+    "quote": "Meanwhile, we confirmed the potential of implicit representation in the future.",
+    "location": "Sec 5.6",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper explores implicit-representation learning for downstream detection tasks (corpus ends 2026)."
+  },
+  {
+    "id": "OD074-f0",
+    "sourcePaperId": "OD074",
+    "sourceYear": 2021,
+    "direction": "Extend the end-to-end framework to single-stage detectors as well as two-stage ones (claimed applicable but only Faster R-CNN/HTC++ are evaluated).",
+    "quote": "In theory, our framework is applicable to mainstream object detectors, including single-stage object detectors [15, 17, 21, 30] and two-stage object detectors [22, 9, 5, 35, 34].",
+    "location": "Sec 3.1",
+    "status": "partial",
+    "followUps": [
+      "OD097"
+    ],
+    "realizationNote": "Self-training on weakly labeled data was extended to DETR pre-training (OD097), but the end-to-end Soft Teacher recipe is not applied to single-stage detectors.",
+    "realizingPaperId": "OD097"
+  },
+  {
+    "id": "OD075-f0",
+    "sourcePaperId": "OD075",
+    "sourceYear": 2021,
+    "direction": "Explore large-size YOLO variants (Scaled-YOLOv4, YOLOv5-P6) and transformer-based detectors that push accuracy toward 60 AP.",
+    "quote": "Due to the time and resource limitation, we did not explore those important features in this report. However, they are already in our scope.",
+    "location": "Sec 3",
+    "status": "realized",
+    "followUps": [
+      "OD089",
+      "OD090"
+    ],
+    "realizationNote": "Large YOLO variants (YOLOv7 OD089) and transformer detectors (Group DETR OD090) both push past the 60-64 AP mark as proposed.",
+    "realizingPaperId": "OD089"
+  },
+  {
+    "id": "OD075-f1",
+    "sourcePaperId": "OD075",
+    "sourceYear": 2021,
+    "direction": "Keep developing the NMS-free end-to-end YOLO variant as an optional module.",
+    "quote": "We thus leave it as an optional module which is not involved in our final models.",
+    "location": "Sec 2.1",
+    "status": "realized",
+    "followUps": [
+      "OD104",
+      "OD119"
+    ],
+    "realizationNote": "YOLOv10 (OD104) delivers the NMS-free end-to-end YOLO via consistent dual assignment, and YOLO26 (OD119) continues the unified end-to-end YOLO line.",
+    "realizingPaperId": "OD104"
+  },
+  {
+    "id": "OD076-f0",
+    "sourcePaperId": "OD076",
+    "sourceYear": 2021,
+    "direction": "Apply the conditional cross-attention mechanism to human pose estimation and line segment detection.",
+    "quote": "In the future, we will study the proposed conditional cross-attention mechanism for human pose estimation [8, 41, 36] and line segment detection [43].",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD111"
+    ],
+    "realizationNote": "DINO-X (OD111) adds keypoint/pose heads to a query-based detector, but the conditional cross-attention mechanism itself is not transferred to pose or line-segment tasks.",
+    "realizingPaperId": "OD111"
+  },
+  {
+    "id": "OD076-f1",
+    "sourcePaperId": "OD076",
+    "sourceYear": 2021,
+    "direction": "Combine the approach with multi-scale and higher-resolution encoders to reduce encoder computation and raise performance.",
+    "quote": "which is currently not our focus and left as our future work.",
+    "location": "Sec 4.2",
+    "status": "realized",
+    "followUps": [
+      "OD082",
+      "OD085",
+      "OD096"
+    ],
+    "realizationNote": "Multi-scale features were combined with the improved queries in DAB-DETR (OD082) and DINO (OD085), and RT-DETR (OD096) explicitly trims encoder computation.",
+    "realizingPaperId": "OD096"
+  },
+  {
+    "id": "OD077-f0",
+    "sourcePaperId": "OD077",
+    "sourceYear": 2021,
+    "direction": "Improve inference speed of DDSSD through model compression: pruning, quantization and knowledge distillation.",
+    "quote": "Our future work will focus on the improve the inference speed of DDSSD through model compression with techniques like pruning, quantization and knowledge distillation.",
+    "location": "Conclusion and Future Work",
+    "status": "realized",
+    "followUps": [
+      "OD091",
+      "OD107"
+    ],
+    "realizationNote": "Compression recipes for detectors were validated by YOLOv6 (OD091, pruning/quantization/distillation) and RT-DETRv2 (OD107, deployable sampling), though DDSSD itself was not the target.",
+    "realizingPaperId": "OD091"
+  },
+  {
+    "id": "OD077-f1",
+    "sourcePaperId": "OD077",
+    "sourceYear": 2021,
+    "direction": "Test compression techniques in object detection networks, where they have not yet been validated.",
+    "quote": "However, they have not been tested in an object detection network.",
+    "location": "Conclusion and Future Work",
+    "status": "realized",
+    "followUps": [
+      "OD091"
+    ],
+    "realizationNote": "YOLOv6 (OD091) explicitly develops and validates quantization, pruning and distillation recipes inside object detection networks.",
+    "realizingPaperId": "OD091"
+  },
+  {
+    "id": "OD078-f0",
+    "sourcePaperId": "OD078",
+    "sourceYear": 2021,
+    "direction": "Serve as a strong simple baseline for research and be useful in practice.",
+    "quote": "We hope the proposed detector can be useful in practice and be a strong simple baseline for research.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD082"
+    ],
+    "realizationNote": "The anchor/query idea feeds into DAB-DETR (OD082), but Anchor DETR itself is never used as the explicit research baseline.",
+    "realizingPaperId": "OD082"
+  },
+  {
+    "id": "OD079-f0",
+    "sourcePaperId": "OD079",
+    "sourceYear": 2021,
+    "direction": "Speed up autoregressive decoding so the framework can be used for real-time object detection.",
+    "quote": "future work is needed to make it faster for real-time object detection applications",
+    "location": "Conclusion",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper speeds up autoregressive decoding for real-time detection; the Pix2Seq line has no corpus successor (corpus ends 2026)."
+  },
+  {
+    "id": "OD079-f1",
+    "sourcePaperId": "OD079",
+    "sourceYear": 2021,
+    "direction": "Extend Pix2Seq beyond detection into a unified interface for other vision tasks expressible as short token sequences (keypoints, captioning, VQA).",
+    "quote": "we hope to extend Pix2Seq as a generic and unified interface for solving a large variety of vision tasks.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD111"
+    ],
+    "realizationNote": "DINO-X (OD111) unifies detection with keypoints and language outputs, but not through Pix2Seq's token-sequence interface.",
+    "realizingPaperId": "OD111"
+  },
+  {
+    "id": "OD079-f2",
+    "sourcePaperId": "OD079",
+    "sourceYear": 2021,
+    "direction": "Reduce reliance on human annotation so the model can benefit from unlabeled data.",
+    "quote": "by reducing such dependence, it can enable the model to benefit from more unlabeled data.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD097",
+      "OD111"
+    ],
+    "realizationNote": "Annotation reliance was cut by grounding data (GLIP OD081) and, later, by self-training on unlabeled images (OD097) and 100M-scale grounding pre-training (OD111).",
+    "realizingPaperId": "OD097"
+  },
+  {
+    "id": "OD079-f3",
+    "sourcePaperId": "OD079",
+    "sourceYear": 2021,
+    "direction": "Apply the framework to other vision tasks whose outputs are concise discrete token sequences.",
+    "quote": "but can also be applied to other vision tasks where the output can be represented by a relatively concise sequence of discrete tokens (e.g., keypoint detection, image captioning, visual question answering)",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD111"
+    ],
+    "realizationNote": "DINO-X (OD111) covers auxiliary tasks around detection, but no corpus paper applies a Pix2Seq-style discrete-token-sequence interface to other vision tasks.",
+    "realizingPaperId": "OD111"
+  },
+  {
+    "id": "OD080-f0",
+    "sourcePaperId": "OD080",
+    "sourceYear": 2021,
+    "direction": "Combine encoder token sparsification with transformer-backbone token sparsification methods such as DynamicViT.",
+    "quote": "Our work is orthogonal to the backbone sparsification approaches, e.g. DynamicViT (Rao et al., 2021), and we leave the integration with those works as future work.",
+    "location": "Appendix A.8",
+    "status": "partial",
+    "followUps": [
+      "OD105",
+      "OD113"
+    ],
+    "realizationNote": "LW-DETR (OD105) and YOLOv12 (OD113) adopt efficient sparse/window attention, but no corpus paper combines detection-encoder sparsification with DynamicViT-style backbone pruning.",
+    "realizingPaperId": "OD105"
+  },
+  {
+    "id": "OD080-f1",
+    "sourcePaperId": "OD080",
+    "sourceYear": 2021,
+    "direction": "Add dynamic-ratio training to make the single model more robust across inference sparsity levels.",
+    "quote": "Note that any technique such as dynamic ratio training is orthogonal to our method and introducing it may bring even more robustness.",
+    "location": "Sec 4.4",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper introduces dynamic-ratio sparsity training for robustness across inference sparsity levels (corpus ends 2026)."
+  },
+  {
+    "id": "OD080-f2",
+    "sourcePaperId": "OD080",
+    "sourceYear": 2021,
+    "direction": "Further research on effective object detection inside transformer architectures.",
+    "quote": "We hope that our proposed method will provide insights to effectively detect objects in the transformer structure in the future.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD096",
+      "OD105",
+      "OD109"
+    ],
+    "realizationNote": "The transformer-detector research line advances strongly (RT-DETR OD096, D-FINE OD109), but the statement is a general research call rather than a discrete task.",
+    "realizingPaperId": "OD096"
+  },
+  {
+    "id": "OD081-f0",
+    "sourcePaperId": "OD081",
+    "sourceYear": 2021,
+    "direction": "Study how GLIP scales with the size of text-image pre-training data.",
+    "quote": "We leave a detailed study of how GLIP scales with text-image data size to future work.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD103",
+      "OD111"
+    ],
+    "realizationNote": "Scaling of text-image pre-training data was shown by Grounding DINO 1.5 (OD103, 20M images) and DINO-X (OD111, 100M images).",
+    "realizingPaperId": "OD103"
+  },
+  {
+    "id": "OD081-f1",
+    "sourcePaperId": "OD081",
+    "sourceYear": 2021,
+    "direction": "Design better prompts using more expressive class descriptions or the preferences of the pre-trained language model.",
+    "quote": "One could design better prompts, by providing more expressive descriptions of these classes and/or by exploiting the preference of a pre-trained language model.",
+    "location": "Sec 3.1",
+    "status": "partial",
+    "followUps": [
+      "OD114"
+    ],
+    "realizationNote": "YOLOE (OD114) refines cached CLIP text embeddings with its RepRTA block, but systematic prompt design via richer class descriptions or LM preferences is not studied.",
+    "realizingPaperId": "OD114"
+  },
+  {
+    "id": "OD081-f2",
+    "sourcePaperId": "OD081",
+    "sourceYear": 2021,
+    "direction": "Scale up grounding data as a promising alternative to scaling up human-annotated detection data.",
+    "quote": "We conclude that grounding data are indeed more semantic-rich and a promising alternative to scaling up detection data.",
+    "location": "Sec 4.4",
+    "status": "realized",
+    "followUps": [
+      "OD103",
+      "OD111"
+    ],
+    "realizationNote": "Grounding corpora replaced detection labels at scale in Grounding DINO 1.5 (OD103) and DINO-X (OD111), exactly the scaling-data alternative proposed.",
+    "realizingPaperId": "OD103"
+  },
+  {
+    "id": "OD082-f0",
+    "sourcePaperId": "OD082",
+    "sourceYear": 2022,
+    "direction": "Introduce a multi-scale technique to improve detection of small and large objects.",
+    "quote": "we will introduce a multi-scale technique into our model to improve the detection performance on small and large objects.",
+    "location": "Appendix I",
+    "status": "partial",
+    "followUps": [
+      "OD096",
+      "OD107"
+    ],
+    "realizationNote": "RT-DETR (OD096) and RT-DETRv2 (OD107) strengthen multi-scale/cross-scale feature handling, but a dedicated small- and large-object improvement for DAB-DETR itself is not delivered.",
+    "realizingPaperId": "OD096"
+  },
+  {
+    "id": "OD083-f0",
+    "sourcePaperId": "OD083",
+    "sourceYear": 2022,
+    "direction": "Benchmark instance segmentation models with the slicing approach and evaluate alternative post-processing techniques.",
+    "quote": "In the future, instance segmentation models will be benchmarked utilizing the proposed slicing approach and different post-processing techniques will be evaluated.",
+    "location": "Conclusion",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper benchmarks instance segmentation under the SAHI slicing approach or studies alternative post-processing (corpus ends 2026)."
+  },
+  {
+    "id": "OD084-f0",
+    "sourcePaperId": "OD084",
+    "sourceYear": 2022,
+    "direction": "Explore more complex noising schemes beyond uniform noise for the denoising task.",
+    "quote": "We have not explored more complex noising schemes and leave these for future work.",
+    "location": "Conclusion",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "DINO (OD085) realized contrastive/hard-negative noising in the same calendar year, but no corpus paper later than DN-DETR explores further noising schemes (corpus ends 2026)."
+  },
+  {
+    "id": "OD084-f1",
+    "sourcePaperId": "OD084",
+    "sourceYear": 2022,
+    "direction": "Pre-train detectors on weakly labeled data with unsupervised learning techniques and apply other denoising schemes in detection.",
+    "quote": "In the future, we will explore how to pre-train detectors on weakly labeled data with unsupervised learning techniques and explore applying other denoising training schemes in detection models.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD097",
+      "OD111"
+    ],
+    "realizationNote": "Pre-training detectors on weakly labeled data was realized by self-training on pseudo-labels (OD097) and large-scale grounding pre-training (OD111).",
+    "realizingPaperId": "OD097"
+  },
+  {
+    "id": "OD084-f2",
+    "sourcePaperId": "OD084",
+    "sourceYear": 2022,
+    "direction": "Zero-shot / open-set detection by feeding pre-trained class label embeddings into the decoder queries.",
+    "quote": "In inference time, class label embeddings from unseen classes can be fed into the decoder to achieve zeroshot detection.",
+    "location": "Sec 5.7.2",
+    "status": "realized",
+    "followUps": [
+      "OD095",
+      "OD106",
+      "OD111"
+    ],
+    "realizationNote": "Text-embedding-in-queries open-set detection was realized by Grounding DINO (OD095, text-selected queries), OVLW-DETR (OD106) and DINO-X (OD111).",
+    "realizingPaperId": "OD095"
+  },
+  {
+    "id": "OD084-f3",
+    "sourcePaperId": "OD084",
+    "sourceYear": 2022,
+    "direction": "Progressive inference that iteratively treats high-scoring predictions as known objects.",
+    "quote": "Based on known object detection, a progressive inference method can be designed.",
+    "location": "Sec 5.7.2",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper implements progressive inference that iteratively treats high-scoring predictions as known objects (corpus ends 2026)."
+  },
+  {
+    "id": "OD084-f4",
+    "sourcePaperId": "OD084",
+    "sourceYear": 2022,
+    "direction": "Add a multi-label classification network that supplies labels to DN-DETR before detection.",
+    "quote": "Therefore, one potential future work is to add a muli-label classification network to provide labels and feed them to DN-DETR, which may help improve detection performance.",
+    "location": "Sec 5.7.2",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper adds a multi-label classification network to supply labels to a DN-DETR-style detector before detection (corpus ends 2026)."
+  },
+  {
+    "id": "OD085-f0",
+    "sourcePaperId": "OD085",
+    "sourceYear": 2022,
+    "direction": "Further study of test-time augmentation for DETR-like models, where the authors' one-to-one ensembling exploration gave limited gains.",
+    "quote": "Our TTA does not obtain an inspiring gain compared with traditional detectors, but we hope our exploration may provide some insights for future studies.",
+    "location": "Appendix A",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper further studies test-time augmentation for DETR-like models (corpus ends 2026)."
+  },
+  {
+    "id": "OD086-f0",
+    "sourcePaperId": "OD086",
+    "sourceYear": 2022,
+    "direction": "Motivate further work on streaming perception as a practical, challenging task.",
+    "quote": "We hope that our simple and effective design will motivate future efforts in this practical and challenging perception task.",
+    "location": "Conclusion",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper advances streaming perception as a practical task (corpus ends 2026)."
+  },
+  {
+    "id": "OD086-f1",
+    "sourcePaperId": "OD086",
+    "sourceYear": 2022,
+    "direction": "Close the remaining gap between offline and online streaming perception.",
+    "quote": "there is still unexplored room for streaming perception.",
+    "location": "Conclusion (Limitations)",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper closes the offline-vs-online streaming perception gap (corpus ends 2026)."
+  },
+  {
+    "id": "OD087-f0",
+    "sourcePaperId": "OD087",
+    "sourceYear": 2022,
+    "direction": "Offer the released s/m/l/x models, PaddleDetection code and TensorRT/ONNX support as a starting point for developers and researchers.",
+    "quote": "We hope these designs with encouraging results can provide inspirations for developers and researchers.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD107"
+    ],
+    "realizationNote": "Deployment-focused successors such as RT-DETRv2 (OD107) keep the release-and-tooling pattern, but the direction mostly describes the source paper's own contributions.",
+    "realizingPaperId": "OD107"
+  },
+  {
+    "id": "OD087-f1",
+    "sourcePaperId": "OD087",
+    "sourceYear": 2022,
+    "direction": "Extend PP-YOLOE to wider practical scenarios and deployment stacks through smooth transition to PaddlePaddle.",
+    "quote": "Moreover, these models can smoothly transition to deployment, with PaddlePaddle official support.",
+    "location": "Conclusion",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper extends PP-YOLOE to wider scenarios through PaddlePaddle deployment stacks (corpus ends 2026)."
+  },
+  {
+    "id": "OD088-f0",
+    "sourcePaperId": "OD088",
+    "sourceYear": 2022,
+    "direction": "Pursue detection heads with fewer inductive biases, building on the plain-backbone approach.",
+    "quote": "Exploring even fewer inductive biases in the detection heads is an open and interesting direction for future work.",
+    "location": "Sec 3 (Discussion)",
+    "status": "partial",
+    "followUps": [
+      "OD105",
+      "OD118"
+    ],
+    "realizationNote": "LW-DETR (OD105) and RF-DETR (OD118) simplify transformer heads on light/plain encoders, but the plain-backbone-with-fewer-inductive-biases agenda is only partially continued.",
+    "realizingPaperId": "OD105"
+  },
+  {
+    "id": "OD088-f1",
+    "sourcePaperId": "OD088",
+    "sourceYear": 2022,
+    "direction": "Improve hierarchical backbones with MAE pre-training as a future research topic.",
+    "quote": "While it is an interesting future topic on improving hierarchical backbones with MAE pre-training, our plain-backbone detector enables us to use the readily available ViT backbones from MAE to achieve strong results.",
+    "location": "Sec 4.2",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "DAMO-YOLO (OD094) applied MAE-based NAS the same year, but no later corpus paper improves hierarchical backbones with MAE pre-training (corpus ends 2026)."
+  },
+  {
+    "id": "OD088-f2",
+    "sourcePaperId": "OD088",
+    "sourceYear": 2022,
+    "direction": "Spread the decoupling of pre-training from fine-tuning as a general methodology, drawing NLP parallels (GPT, BERT).",
+    "quote": "We hope decoupling pre-training from fine-tuning is a methodology that will generally benefit the community.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD115",
+      "OD117"
+    ],
+    "realizationNote": "Frozen foundation-model features embody the decoupled pre-train/fine-tune methodology in detection, as in DEIMv2+DINOv3 (OD115) and RT-DETRv4 (OD117).",
+    "realizingPaperId": "OD117"
+  },
+  {
+    "id": "OD090-f0",
+    "sourcePaperId": "OD090",
+    "sourceYear": 2022,
+    "direction": "Push the 64.5 AP test-dev result further by scaling up pre-training data and model size.",
+    "quote": "We expect that our results will be further improved with more pre-training data and larger models.",
+    "location": "Appendix B",
+    "status": "realized",
+    "followUps": [
+      "OD103",
+      "OD111"
+    ],
+    "realizationNote": "Scaling data and model size pushed results well past 64 AP in Grounding DINO 1.5 (OD103, ViT-L/20M) and DINO-X (OD111, 100M).",
+    "realizingPaperId": "OD103"
+  },
+  {
+    "id": "OD091-f0",
+    "sourcePaperId": "OD091",
+    "sourceYear": 2022,
+    "direction": "Keep expanding the YOLOv6 project toward higher standards and more demanding deployment scenarios.",
+    "quote": "In the future, we will continue expanding this project to meet higher standards and more demanding scenarios.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD102",
+      "OD104"
+    ],
+    "realizationNote": "The industrial YOLO line continues in YOLOv9 (OD102) and YOLOv10 (OD104), but YOLOv6 itself has no successor in the corpus.",
+    "realizingPaperId": "OD104"
+  },
+  {
+    "id": "OD092-f0",
+    "sourcePaperId": "OD092",
+    "sourceYear": 2022,
+    "direction": "Explore more advanced, faster diffusion sampling strategies to remove the speed penalty of iterative refinement.",
+    "quote": "We believe that a more advanced diffusion strategy could potentially address the issue of decreased speed performance of DiffusionDet, which we plan to explore in future work.",
+    "location": "Sec 4.4",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper explores faster diffusion sampling for detection; the DiffusionDet line has no corpus successor (corpus ends 2026)."
+  },
+  {
+    "id": "OD095-f0",
+    "sourcePaperId": "OD095",
+    "sourceYear": 2023,
+    "direction": "Scale up pre-training to exploit the model's better data scalability over GLIP.",
+    "quote": "A larger-scale training will be left as our future work.",
+    "location": "Sec 4.2",
+    "status": "realized",
+    "followUps": [
+      "OD103",
+      "OD111"
+    ],
+    "realizationNote": "Grounding DINO 1.5 (OD103) scales grounding pre-training to 20M images and DINO-X (OD111) to 100M, demonstrating exactly the data scalability called for.",
+    "realizingPaperId": "OD103"
+  },
+  {
+    "id": "OD095-f1",
+    "sourcePaperId": "OD095",
+    "sourceYear": 2023,
+    "direction": "Vary semantic concept coverage and training data scale to improve zero-shot generalization.",
+    "quote": "In our future work, we will perform more studies, including varying the semantic concept coverage of the training data and increasing the scale of the training data, to further improve the zero-shot generalization performance.",
+    "location": "Sec 4.2",
+    "status": "realized",
+    "followUps": [
+      "OD103",
+      "OD111",
+      "OD114"
+    ],
+    "realizationNote": "Semantic-concept coverage and data scale were varied in Grounding DINO 1.5 (OD103), DINO-X (OD111) and YOLOE (OD114) to improve zero-shot generalization.",
+    "realizingPaperId": "OD103"
+  },
+  {
+    "id": "OD095-f2",
+    "sourcePaperId": "OD095",
+    "sourceYear": 2023,
+    "direction": "Study zero-shot referring expression comprehension more carefully.",
+    "quote": "Hence we call extra attention to REC zero-shot performance in future studies.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD111"
+    ],
+    "realizationNote": "DINO-X (OD111) extends grounded language understanding toward region captioning, but a careful study of zero-shot referring expression comprehension is absent.",
+    "realizingPaperId": "OD111"
+  },
+  {
+    "id": "OD095-f3",
+    "sourcePaperId": "OD095",
+    "sourceYear": 2023,
+    "direction": "Explore better model training recipes for transferring pre-trained DINO to grounded training.",
+    "quote": "The results show that there might be much room for model training improvement, which will be our future work to explore.",
+    "location": "Sec C.1",
+    "status": "partial",
+    "followUps": [
+      "OD103"
+    ],
+    "realizationNote": "Grounding DINO 1.5 (OD103) advances grounded training recipes (early fusion, scaled data), but the specific recipe for transferring pre-trained DINO to grounding is only partially addressed.",
+    "realizingPaperId": "OD103"
+  },
+  {
+    "id": "OD096-f0",
+    "sourcePaperId": "OD096",
+    "sourceYear": 2023,
+    "direction": "Improve small-object detection performance relative to strong YOLO detectors.",
+    "quote": "We hope that this problem will be addressed in future work.",
+    "location": "Sec 6",
+    "status": "partial",
+    "followUps": [
+      "OD108"
+    ],
+    "realizationNote": "RT-DETRv3 (OD108) raises accuracy via dense hierarchical supervision, but the small-object gap versus strong YOLO detectors is not closed in the corpus.",
+    "realizingPaperId": "OD108"
+  },
+  {
+    "id": "OD096-f1",
+    "sourcePaperId": "OD096",
+    "sourceYear": 2023,
+    "direction": "Distill large high-accuracy pre-trained DETR models into the lightweight RT-DETR decoder-homogeneous architecture.",
+    "quote": "which makes it possible to distill our lightweight detector with high accuracy pre-trained large DETR models.",
+    "location": "Sec 6",
+    "status": "realized",
+    "followUps": [
+      "OD117"
+    ],
+    "realizationNote": "RT-DETRv4 (OD117) distills a frozen DINOv3 teacher into the RT-DETR decoder features, exactly the decoder-homogeneous distillation proposed.",
+    "realizingPaperId": "OD117"
+  },
+  {
+    "id": "OD096-f2",
+    "sourcePaperId": "OD096",
+    "sourceYear": 2023,
+    "direction": "Explore decoder distillation from large DETR models as an advantage over other real-time detectors.",
+    "quote": "could be an interesting direction for future exploration.",
+    "location": "Sec 6",
+    "status": "realized",
+    "followUps": [
+      "OD109",
+      "OD117"
+    ],
+    "realizationNote": "Decoder-oriented distillation into real-time DETRs was demonstrated by RT-DETRv4 (OD117) and D-FINE (OD109) as a real-time-detector advantage.",
+    "realizingPaperId": "OD117"
+  },
+  {
+    "id": "OD096-f3",
+    "sourcePaperId": "OD096",
+    "sourceYear": 2023,
+    "direction": "Put RT-DETR into practical deployment.",
+    "quote": "We hope that RT-DETR can be put into practice.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD107",
+      "OD108"
+    ],
+    "realizationNote": "RT-DETRv2 (OD107) directly targets deployable, export-friendly optimization of the RT-DETR framework.",
+    "realizingPaperId": "OD107"
+  },
+  {
+    "id": "OD097-f0",
+    "sourcePaperId": "OD097",
+    "sourceYear": 2023,
+    "direction": "Extend DETR pre-training beyond detection to a broader set of vision tasks such as instance segmentation and pose estimation.",
+    "quote": "Moving forward, we plan to extend DETR pre-training to encompass a broader spectrum of vision tasks, such as instance segmentation and pose estimation.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD111"
+    ],
+    "realizationNote": "DINO-X (OD111) extends one pre-trained object-centric detector to boxes, masks, keypoints and language outputs, covering the segmentation/pose vision beyond detection.",
+    "realizingPaperId": "OD111"
+  },
+  {
+    "id": "OD097-f1",
+    "sourcePaperId": "OD097",
+    "sourceYear": 2023,
+    "direction": "Prompt the community to re-evaluate how well existing self-supervised pre-training methods really work with strong DETR models.",
+    "quote": "We hope our work can stimulate the research community to reassess the actual capacity of existing selfsupervised pre-training methods when employed in the context of strong DETR models",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD115",
+      "OD117"
+    ],
+    "realizationNote": "DEIMv2 (OD115) and RT-DETRv4 (OD117) show self-supervised DINOv3 features benefit strong real-time DETRs, partially answering the re-evaluation call.",
+    "realizingPaperId": "OD117"
+  },
+  {
+    "id": "OD099-f0",
+    "sourcePaperId": "OD099",
+    "sourceYear": 2023,
+    "direction": "Further performance improvements while keeping the network built from simple, deployment-friendly, well-validated operators.",
+    "quote": "Moreover, this decision also creates opportunities for future performance enhancements.",
+    "location": "Appendix E.2",
+    "status": "partial",
+    "followUps": [
+      "OD102",
+      "OD104"
+    ],
+    "realizationNote": "Later YOLO models (YOLOv9 OD102, YOLOv10 OD104) keep deployment-friendly operators while raising accuracy, but the performance goal is open-ended.",
+    "realizingPaperId": "OD104"
+  },
+  {
+    "id": "OD101-f0",
+    "sourcePaperId": "OD101",
+    "sourceYear": 2024,
+    "direction": "Study what data is needed to pre-train small models / YOLO detectors at scale.",
+    "quote": "We will explore more about the data for pre-training small models or YOLO detectors in future work.",
+    "location": "Appendix C",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper studies what data is needed to pre-train small models or YOLO-style detectors at scale (corpus ends 2026)."
+  },
+  {
+    "id": "OD101-f1",
+    "sourcePaperId": "OD101",
+    "sourceYear": 2024,
+    "direction": "Position YOLO-World as a benchmark for real-world open-vocabulary detection and release code/weights for practical applications.",
+    "quote": "We hope YOLO-World can serve as a new benchmark for addressing real-world open-vocabulary detection.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD114"
+    ],
+    "realizationNote": "YOLOE (OD114) continues real-time prompted detection on the YOLO base, but YOLO-World is not established as an explicit benchmark.",
+    "realizingPaperId": "OD114"
+  },
+  {
+    "id": "OD104-f0",
+    "sourcePaperId": "OD104",
+    "sourceYear": 2024,
+    "direction": "Reduce the remaining NMS-free vs one-to-many+NMS performance gap to reach higher end-to-end performance.",
+    "quote": "Based on this insight, we will explore approaches to further reduce the gap and achieve higher end-to-end performance in the future work.",
+    "location": "Sec 4.3",
+    "status": "partial",
+    "followUps": [
+      "OD119"
+    ],
+    "realizationNote": "YOLO26 (OD119) continues unified end-to-end YOLO, but no corpus paper demonstrates NMS-free parity with one-to-many+NMS across the YOLO family.",
+    "realizingPaperId": "OD119"
+  },
+  {
+    "id": "OD105-f0",
+    "sourcePaperId": "OD105",
+    "sourceYear": 2024,
+    "direction": "Extend LW-DETR from real-time detection to open-world detection and other vision tasks such as multi-person pose estimation and multi-view 3D object detection.",
+    "quote": "Extending LW-DETR for open-world detection and applying LW-DETR to more vision tasks, such as multi-person pose estimation and multi-view 3D object detection, needs more investigation.",
+    "location": "Sec 5",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "OVLW-DETR (OD106) extended LW-DETR to open-vocabulary detection in the same calendar year, but no later corpus paper covers the pose or multi-view 3D extensions (corpus ends 2026)."
+  },
+  {
+    "id": "OD105-f1",
+    "sourcePaperId": "OD105",
+    "sourceYear": 2024,
+    "direction": "Add efficient multi-scale feature fusion, token sparsification and distillation on top of the simple baseline.",
+    "quote": "We believe that our approach potentially benefits from other designs, such as efficient multi-scale feature fusion [34], token sparsification [36,72], distillation [5,5,9,64],",
+    "location": "Introduction",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper adds multi-scale fusion, token sparsification or distillation on top of the LW-DETR baseline (corpus ends 2026)."
+  },
+  {
+    "id": "OD105-f2",
+    "sourcePaperId": "OD105",
+    "sourceYear": 2024,
+    "direction": "Adopt NAS, stronger data augmentation, pseudo-labeled data and knowledge distillation as exploited by previous real-time detectors.",
+    "quote": "We expect that our approach potentially benefits from other improvements, such as neural architecture search (NAS), data augmentation, pseudo-labeled data, and knowledge distillation that are exploited by previous real-time detectors [1, 29, 46].",
+    "location": "Sec 4.2",
+    "status": "partial",
+    "followUps": [
+      "OD117",
+      "OD118"
+    ],
+    "realizationNote": "NAS (RF-DETR OD118) and training-only distillation (RT-DETRv4 OD117) reach real-time DETRs, but the full toolkit is not applied to LW-DETR.",
+    "realizingPaperId": "OD118"
+  },
+  {
+    "id": "OD107-f0",
+    "sourcePaperId": "OD107",
+    "sourceYear": 2024,
+    "direction": "Provide insights for the DETR family and broaden the range of applications of RT-DETR.",
+    "quote": "We hope that this report will provide insights for the DETR family and broaden the scope of RT-DETR applications.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD117"
+    ],
+    "realizationNote": "RT-DETRv4 (OD117) advances the RT-DETR line with VFM distillation, but no corpus paper demonstrably broadens RT-DETR to new application domains.",
+    "realizingPaperId": "OD117"
+  },
+  {
+    "id": "OD108-f0",
+    "sourcePaperId": "OD108",
+    "sourceYear": 2024,
+    "direction": "Optimize the whole RT-DETRv3 detector framework for lightweight deployment to further improve inference efficiency.",
+    "quote": "However, since we have not yet optimized the overall framework of the RT-DETRv3 detector for lightweight deployment, there is still room for further improving the inference efficiency of RT-DETRv3.",
+    "location": "Sec 4.4",
+    "status": "partial",
+    "followUps": [
+      "OD117",
+      "OD118"
+    ],
+    "realizationNote": "RT-DETRv4 (OD117) retains the lightweight framework and RF-DETR (OD118) NAS-optimizes real-time DETR forks for latency, but a full RT-DETRv3 lightweight deployment is not shown.",
+    "realizingPaperId": "OD117"
+  },
+  {
+    "id": "OD108-f1",
+    "sourcePaperId": "OD108",
+    "sourceYear": 2024,
+    "direction": "Counter overfitting of larger models with additional training data such as Objects365.",
+    "quote": "when we added additional training data, the performance of RT-DETRv3 continues to improve as the training epochs increase, and it performs better than the model without the additional data at the same epochs.",
+    "location": "Sec 4.3",
+    "status": "partial",
+    "followUps": [
+      "OD117"
+    ],
+    "realizationNote": "RT-DETRv4 (OD117) counters overfitting with a frozen DINOv3 teacher, but no corpus paper uses additional data such as Objects365 for this purpose.",
+    "realizingPaperId": "OD117"
+  },
+  {
+    "id": "OD109-f0",
+    "sourcePaperId": "OD109",
+    "sourceYear": 2024,
+    "direction": "Explore architectures or training paradigms that add sophisticated decoder layers during training but discard them at test time for lightweight inference.",
+    "quote": "Future research could investigate advanced architectural designs or novel training paradigms that allow for the inclusion of additional sophisticated decoder layers during training while maintaining lightweight inference by simply discarding them at test time.",
+    "location": "Conclusion",
+    "status": "realized",
+    "followUps": [
+      "OD117"
+    ],
+    "realizationNote": "RT-DETRv4 (OD117) is a training-only distillation framework whose auxiliary modules are discarded at inference, matching the training-heavy/inference-light paradigm.",
+    "realizingPaperId": "OD117"
+  },
+  {
+    "id": "OD111-f0",
+    "sourcePaperId": "OD111",
+    "sourceYear": 2024,
+    "direction": "Further optimize the mask head to close the instance-segmentation gap.",
+    "quote": "We will further optimize the performance of the mask head in our future work.",
+    "location": "Sec 4.1.1",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper optimizes a DINO-X-style mask head to close the instance-segmentation gap (corpus ends 2026)."
+  },
+  {
+    "id": "OD111-f1",
+    "sourcePaperId": "OD111",
+    "sourceYear": 2024,
+    "direction": "Ship the dense region caption / region-based QA capability in the next model version.",
+    "quote": "Currently, this feature is still in the development stage and will be released in our next version.",
+    "location": "Sec 5.5",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper ships dense region-caption or region-based QA capability in a unified model version (corpus ends 2026)."
+  },
+  {
+    "id": "OD112-f0",
+    "sourcePaperId": "OD112",
+    "sourceYear": 2024,
+    "direction": "Explore other techniques beyond mosaic and mixup for raising target counts during training.",
+    "quote": "their effectiveness suggests further potential for exploring other methods to augment target counts during training.",
+    "location": "Sec 4.5",
+    "status": "partial",
+    "followUps": [
+      "OD115"
+    ],
+    "realizationNote": "DEIMv2 (OD115) continues DEIM's dense-O2O training, but it still relies on mosaic-style augmentation to raise target counts; no paper has moved beyond it.",
+    "realizingPaperId": "OD115"
+  },
+  {
+    "id": "OD112-f1",
+    "sourcePaperId": "OD112",
+    "sourceYear": 2024,
+    "direction": "Refine DEIM and apply it to other high-performance detection tasks.",
+    "quote": "with the potential for further refinement and application across other high-performance detection tasks.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD115"
+    ],
+    "realizationNote": "DEIMv2 (OD115) refines DEIM's matching and scales it across eight model sizes, but does not port it to other high-performance detection tasks.",
+    "realizingPaperId": "OD115"
+  },
+  {
+    "id": "OD113-f0",
+    "sourcePaperId": "OD113",
+    "sourceYear": 2025,
+    "direction": "Continue integrating attention into YOLO for a more efficient and powerful YOLO system.",
+    "quote": "advances the integration of attention mechanisms for real-time object detection, paving the way for a more efficient and powerful YOLO system.",
+    "location": "Conclusion",
+    "status": "partial",
+    "followUps": [
+      "OD119"
+    ],
+    "realizationNote": "YOLO26 (OD119) continues the Ultralytics YOLO evolution toward unified end-to-end models, but no later paper specifically advances attention-centric YOLO architecture.",
+    "realizingPaperId": "OD119"
+  },
+  {
+    "id": "OD114-f0",
+    "sourcePaperId": "OD114",
+    "sourceYear": 2025,
+    "direction": "Serve as a strong baseline that spurs further work on real-time, open prompt-driven vision tasks beyond detection.",
+    "quote": "We hope that YOLOE can establish a strong baseline and inspire further advancements in real-time open prompt-driven vision tasks",
+    "location": "Introduction",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper builds a strong baseline that spurs prompt-driven vision work beyond detection (corpus ends 2026)."
+  },
+  {
+    "id": "OD115-f0",
+    "sourcePaperId": "OD115",
+    "sourceYear": 2025,
+    "direction": "Find better ways to integrate DINOv3 features into real-time detectors.",
+    "quote": "Exploring ways to better integrate DINOv3 features into real-time detectors thus represents an interesting direction for future work",
+    "location": "Sec 3",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "RT-DETRv4 (OD117) also integrates DINOv3 features in the same calendar year, but no later corpus paper finds better DINOv3 integration schemes (corpus ends 2026)."
+  },
+  {
+    "id": "OD115-f1",
+    "sourcePaperId": "OD115",
+    "sourceYear": 2025,
+    "direction": "Use Flash Attention and similar techniques to reduce the not-yet-optimized inference latency.",
+    "quote": "Techniques such as Flash Attention [2], as in Yolov12 [22], could further accelerate inference",
+    "location": "Sec 3",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper applies Flash Attention or similar techniques to cut inference latency in this detector line (corpus ends 2026)."
+  },
+  {
+    "id": "OD116-f0",
+    "sourcePaperId": "OD116",
+    "sourceYear": 2025,
+    "direction": "Dynamic architecture routing that selects CNN, attention or query pathways according to scene complexity rather than fixed model scaling",
+    "quote": "future detectors could select computational pathways according to scene complexity",
+    "location": "Sec 5.2",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper implements dynamic architecture routing that picks CNN/attention/query pathways by scene complexity (corpus ends 2026)."
+  },
+  {
+    "id": "OD116-f1",
+    "sourcePaperId": "OD116",
+    "sourceYear": 2025,
+    "direction": "A multimodal YOLO that augments the fixed classification vocabulary with a text encoder for natural-language prompted detection",
+    "quote": "A multimodal YOLO could replace or augment the fixed classification vocabulary with a text encoder, allowing users to specify target concepts using natural-language prompts.",
+    "location": "Sec 5.3",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "YOLOE (OD114) already provides prompted detection the same year, but no later corpus paper extends the multimodal YOLO idea (corpus ends 2026)."
+  },
+  {
+    "id": "OD116-f2",
+    "sourcePaperId": "OD116",
+    "sourceYear": 2025,
+    "direction": "Explicit temporal memory across frames to move from frame-level detection to stateful video perception",
+    "quote": "Future YOLO systems could therefore incorporate explicit temporal memory.",
+    "location": "Sec 5.4",
+    "status": "partial",
+    "followUps": [
+      "OD120"
+    ],
+    "realizationNote": "OD120 (2026) tackles occlusion-robust target tracking with temporal reasoning and re-localization, but it is a tracker rather than the stateful detector envisioned.",
+    "realizingPaperId": "OD120"
+  },
+  {
+    "id": "OD116-f3",
+    "sourcePaperId": "OD116",
+    "sourceYear": 2025,
+    "direction": "Uncertainty estimation, out-of-distribution detection and selective prediction for failure-aware inference",
+    "quote": "Future YOLO architectures could therefore integrate uncertainty estimation, out-of-distribution detection, and selective prediction.",
+    "location": "Sec 5.5",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper adds uncertainty estimation, OOD detection or selective prediction to detectors (corpus ends 2026)."
+  },
+  {
+    "id": "OD117-f0",
+    "sourcePaperId": "OD117",
+    "sourceYear": 2025,
+    "direction": "Multi-VFM semantic integration combining several foundation models as teachers",
+    "quote": "This flexibility also opens up promising directions for multi-VFM semantic integration",
+    "location": "Sec 5",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper combines several foundation models as multiple distillation teachers (corpus ends 2026)."
+  },
+  {
+    "id": "OD117-f1",
+    "sourcePaperId": "OD117",
+    "sourceYear": 2025,
+    "direction": "Extending the framework to other or arbitrarily large foundation models such as MAE and CLIP",
+    "quote": "It can flexibly incorporate different foundation models, such as DINOv3 [31], MAE [13], or CLIP [27], and even benefit from arbitrarily large models for distilling semantics into real-time detectors.",
+    "location": "Sec 5",
+    "status": "unresolved",
+    "followUps": [],
+    "realizationNote": "No later corpus paper extends the distillation framework to other or arbitrarily large foundation models such as MAE and CLIP (corpus ends 2026)."
+  }
+]

@@ -1,0 +1,348 @@
+{
+ "id": "OD109",
+ "arxiv": "2410.13842",
+ "title": "D-FINE: Redefine Regression Task in DETRs as Fine-grained Distribution Refinement",
+ "year": 2024,
+ "venue": null,
+ "problem": {
+  "summary": "Most detectors regress box edges as fixed coordinates (Dirac deltas), which cannot express localization uncertainty, gives weak gradient guidance from L1/IoU losses, and makes optimization sensitive to small coordinate shifts; meanwhile localization distillation is costly and tied to anchor-based detectors.",
+  "statements": [
+   "Fixed-coordinate regression models edges as precise values and fails to capture localization uncertainty.",
+   "L1 and IoU losses do not guide each edge independently, making optimization sensitive to small coordinate changes and slowing convergence.",
+   "Distribution-based methods such as GFocal depend on anchors, lack iterative refinement, and produce coarse localization.",
+   "Localization distillation has substantial training overhead and is incompatible with anchor-free detectors."
+  ],
+  "problemTags": [
+   "localization",
+   "convergence",
+   "anchor-design",
+   "speed-latency"
+  ],
+  "evidence": [
+   {
+    "quote": "Most detectors predict bounding boxes by regressing fixed coordinates, treating edges as precise values modeled by Dirac delta distributions",
+    "location": "Introduction"
+   },
+   {
+    "quote": "This makes the optimization process sensitive to small coordinate changes, leading to slow convergence and suboptimal performance.",
+    "location": "Introduction"
+   },
+   {
+    "quote": "Nevertheless, integrating LD remains challenging due to its substantial training overhead and incompatibility with anchor-free detectors.",
+    "location": "Introduction"
+   }
+  ]
+ },
+ "background": {
+  "summary": "The paper builds on real-time DETR detectors (RT-DETR, LW-DETR), on YOLO as the efficiency benchmark, on GFocal's distribution-based regression, and on localization/self-distillation; the gaps claimed are GFocal's anchor dependency and coarse one-shot distributions, and the cost of existing distillation.",
+  "relatedWork": [
+   {
+    "name": "YOLO series",
+    "relation": "dominant real-time baselines with strong efficiency and community",
+    "quote": "The YOLO series has led the way in real-time object detection, evolving through innovations in architecture, data augmentation, and training techniques",
+    "location": "Sec 2"
+   },
+   {
+    "name": "RT-DETR",
+    "relation": "real-time end-to-end DETR variant that D-FINE builds on",
+    "quote": "RT-DETR (Zhao et al., 2024) addresses these limitations by developing a real-time variant, offering an end-to-end alternative to YOLO detectors.",
+    "location": "Introduction"
+   },
+   {
+    "name": "LW-DETR",
+    "relation": "evidence that DETR surpasses YOLO ceilings with large-scale pretraining",
+    "quote": "Moreover, LW-DETR (Chen et al., 2024) has shown that DETR can achieve higher performance ceilings than YOLO, especially when trained on large-scale datasets like Objects365 (Shao et al., 2019).",
+    "location": "Introduction"
+   },
+   {
+    "name": "GFocal",
+    "relation": "prior distribution-based regression method with anchor dependency",
+    "quote": "GFocal (Li et al., 2020; 2021) regresses the distances from anchor points to the four edges using discretized probability distributions, offering a more flexible modeling of the bounding box.",
+    "location": "Sec 3"
+   },
+   {
+    "name": "Localization Distillation",
+    "relation": "prior distillation technique that requires anchor-based architectures",
+    "quote": "Despite its advantages, the method still relies on anchor-based architectures and incurs additional training costs.",
+    "location": "Sec 3"
+   }
+  ],
+  "evidence": [
+   {
+    "quote": "While efficient, YOLOs typically rely on Non-Maximum Suppression (NMS), which introduces latency and instability between speed and accuracy.",
+    "location": "Sec 2"
+   },
+   {
+    "quote": "However, these methods all rely on anchor-based frameworks, which limits their compatibility with modern anchor-free detectors like YOLOX (Ge et al., 2021) and DETR (Carion et al., 2020).",
+    "location": "Sec 2"
+   }
+  ]
+ },
+ "solution": {
+  "summary": "D-FINE replaces fixed-coordinate regression with Fine-grained Distribution Refinement, where decoder layers iteratively refine four per-edge probability distributions in a residual way under a non-uniform weighting function, and adds GO-LSD, which self-distills the final layer's refined distributions into shallower layers through a decoupled focal KL loss, plus lightweight architecture streamlining.",
+  "approach": "Regress boxes as iteratively refined per-edge probability distributions (FDR) and self-distill the deepest layer's distributions into shallower layers (GO-LSD), while trimming the RT-DETR-style architecture for speed.",
+  "components": [
+   "D-FINE head predicting four per-edge distributions alongside the regression head",
+   "residual distribution updates across decoder layers via softmax over added logits",
+   "non-uniform weighting function W(n) enabling finer adjustments near accurate boxes",
+   "Fine-Grained Localization (FGL) loss with IoU-weighted cross-entropy between bins",
+   "GO-LSD distilling the final layer's distributions using the union of Hungarian matches across layers",
+   "Decoupled Distillation Focal (DDF) loss with matched/unmatched and confidence weighting",
+   "lightweight modifications: removed decoder projections, target gating layers, GELAN encoder, uneven sampling points"
+  ],
+  "solutionTags": [
+   "distribution-fl",
+   "distillation",
+   "anchor-free",
+   "transformer-query"
+  ],
+  "evidence": [
+   {
+    "quote": "D-FINE comprises two key components: Fine-grained Distribution Refinement (FDR) and Global Optimal Localization Self-Distillation (GO-LSD).",
+    "location": "Abstract"
+   },
+   {
+    "quote": "FDR transforms the regression process from predicting fixed coordinates to iteratively refining probability distributions, providing a fine-grained intermediate representation that significantly enhances localization accuracy.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "GOLSD is a bidirectional optimization strategy that transfers localization knowledge from refined distributions to shallower layers through self-distillation, while also simplifying the residual prediction tasks for deeper layers.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "FDR operates within an anchor-free, end-toend framework, enabling a more flexible and robust optimization process.",
+    "location": "Sec 4"
+   }
+  ]
+ },
+ "experiments": {
+  "summary": "D-FINE-S/M/L/X are compared with real-time YOLO, RT-DETR, RT-DETRv2/v3 and LW-DETR detectors on COCO val2017 in AP, latency (TensorRT FP16 on T4), parameters and GFLOPs, with Objects365 pretraining, plug-in tests on four DETR models, and ablations of the roadmap, hyperparameters and distillation methods.",
+  "benchmarks": [
+   {
+    "dataset": "COCO",
+    "metric": "AP",
+    "value": "48.5",
+    "split": "val2017, D-FINE-S",
+    "location": "Table 7"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "AP",
+    "value": "52.3",
+    "split": "val2017, D-FINE-M",
+    "location": "Table 7"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "AP",
+    "value": "54.0",
+    "split": "val2017, D-FINE-L",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "AP",
+    "value": "55.8",
+    "split": "val2017, D-FINE-X",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "AP",
+    "value": "57.1",
+    "split": "val2017, D-FINE-L pretrained on Objects365",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "AP",
+    "value": "59.3",
+    "split": "val2017, D-FINE-X pretrained on Objects365",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "latency (ms)",
+    "value": "8.07",
+    "split": "T4 GPU TensorRT FP16, D-FINE-L",
+    "location": "Table 1"
+   },
+   {
+    "dataset": "COCO",
+    "metric": "AP (plug-in gain on DAB-DETR)",
+    "value": "+5.3",
+    "split": "val2017, DAB-DETR with FDR & GO-LSD",
+    "location": "Table 2"
+   }
+  ],
+  "baselines": [
+   "YOLOv6",
+   "YOLOv7",
+   "YOLOv8",
+   "YOLOv9",
+   "YOLOv10",
+   "YOLO11",
+   "RT-DETR",
+   "RT-DETRv2",
+   "RT-DETRv3",
+   "LW-DETR",
+   "Gold-YOLO",
+   "RTMDet"
+  ],
+  "evidence": [
+   {
+    "quote": "D-FINE-L / X achieves 54.0% / 55.8% AP on the COCO dataset at 124 / 78 FPS on an NVIDIA T4 GPU.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "When pretrained on Objects365, D-FINE-L / X attains 57.1% / 59.3% AP, surpassing all existing real-time detectors.",
+    "location": "Abstract"
+   },
+   {
+    "quote": "Furthermore, our method significantly enhances the performance of a wide range of DETR models by up to 5.3% AP with negligible extra parameters and training costs.",
+    "location": "Abstract"
+   }
+  ]
+ },
+ "limitations": {
+  "summary": "The authors state that the advantage of lighter D-FINE models over other compact detectors is small, plausibly because shallow decoder layers make weaker predictions and therefore benefit less from distilling localization knowledge into early layers.",
+  "items": [
+   "Performance gap between lighter D-FINE models and other compact models remains small.",
+   "Shallow decoder layers may produce less accurate predictions, limiting how much GO-LSD helps early layers.",
+   "Improving light models must not come at the cost of extra inference latency."
+  ],
+  "evidence": [
+   {
+    "quote": "However, the performance gap between lighter D-FINE models and other compact models remains small.",
+    "location": "Conclusion"
+   },
+   {
+    "quote": "One possible reason is that shallow decoder layers may yield less accurate final-layer predictions, limiting the effectiveness of distilling localization knowledge into earlier layers.",
+    "location": "Conclusion"
+   },
+   {
+    "quote": "Addressing this challenge necessitates enhancing the localization capabilities of lighter models without increasing inference latency.",
+    "location": "Conclusion"
+   }
+  ]
+ },
+ "futureDirections": [
+  {
+   "direction": "Explore architectures or training paradigms that add sophisticated decoder layers during training but discard them at test time for lightweight inference.",
+   "quote": "Future research could investigate advanced architectural designs or novel training paradigms that allow for the inclusion of additional sophisticated decoder layers during training while maintaining lightweight inference by simply discarding them at test time.",
+   "location": "Conclusion"
+  }
+ ],
+ "technical": {
+  "datasets": [
+   "COCO",
+   "Objects365"
+  ],
+  "backbones": [
+   "HGNetv2-B0",
+   "HGNetv2-B2",
+   "HGNetv2-B4",
+   "HGNetv2-B5"
+  ],
+  "models": [
+   "D-FINE-S",
+   "D-FINE-M",
+   "D-FINE-L",
+   "D-FINE-X",
+   "RT-DETR",
+   "RT-DETRv2",
+   "LW-DETR",
+   "YOLOv10",
+   "DINO",
+   "DAB-DETR",
+   "DN-DETR",
+   "Deformable-DETR"
+  ],
+  "algorithms": [
+   "Hungarian matching",
+   "KL divergence distillation",
+   "distribution focal loss",
+   "varifocal loss",
+   "GIoU loss",
+   "GELAN",
+   "target gating layer",
+   "AdamW",
+   "TensorRT FP16"
+  ],
+  "metrics": [
+   "AP",
+   "AP50",
+   "AP75",
+   "APS",
+   "APM",
+   "APL",
+   "FPS",
+   "latency (ms)",
+   "GFLOPs"
+  ],
+  "equations": [
+   {
+    "name": "FDR refined edge distances",
+    "expr": "d_l = d_0 + {H,H,W,W} * sum_n W(n) Pr_l(n)",
+    "location": "Eq 2"
+   },
+   {
+    "name": "residual distribution refinement",
+    "expr": "Pr_l(n) = Softmax(Delta logits_l(n) + logits_{l-1}(n))",
+    "location": "Eq 3"
+   },
+   {
+    "name": "Fine-Grained Localization loss",
+    "expr": "L_FGL = sum_{l,k} IoU_k * (w_left * CE(Pr_l(n)_k, n_left) + w_right * CE(Pr_l(n)_k, n_right))",
+    "location": "Eq 5"
+   },
+   {
+    "name": "Decoupled Distillation Focal loss",
+    "expr": "L_DDF = (1/T) * sum_{l,k} [alpha_k * KL(Pr^L || Pr^l) + beta_k * KL(Pr^L || Pr^l)]",
+    "location": "Eq 6"
+   },
+   {
+    "name": "target gating layer",
+    "expr": "x = sigma([x1,x2]W1+b1) * x1 + sigma([x1,x2]W2+b2) * x2",
+    "location": "Eq 7"
+   }
+  ]
+ },
+ "industry": {
+  "applications": [
+   {
+    "domain": "general real-time applications",
+    "detail": "The paper opens by noting rising demand for real-time object detection across applications.",
+    "quote": "The demand for real-time object detection has been increasing across various applications (Arani et al., 2022).",
+    "location": "Introduction"
+   },
+   {
+    "domain": "challenging real-world imaging conditions",
+    "detail": "Qualitative results show D-FINE handling occlusion, low light, motion blur, depth of field, rotation and densely populated scenes.",
+    "quote": "This visualization highlights the model’s ability to handle complex real-world conditions while maintaining robust detection performance.",
+    "location": "Appendix A.2"
+   }
+  ],
+  "deploymentClaims": [
+   "D-FINE-L/X run at 124/78 FPS on an NVIDIA T4 GPU.",
+   "End-to-end latency is measured with TensorRT FP16 on an NVIDIA T4 GPU.",
+   "Objects365 pretraining needs only 21 epochs for D-FINE-L/X versus 300 epochs for YOLOv10."
+  ],
+  "evidence": [
+   {
+    "quote": "The latency is measured using TensorRT FP16 on an NVIDIA T4 GPU.",
+    "location": "Sec 5.1"
+   },
+   {
+    "quote": "In contrast, D-FINE requires only 21 epochs to achieve its substantial performance gains.",
+    "location": "Sec 5.2"
+   }
+  ]
+ },
+ "citations": {
+  "doi": null,
+  "arxivUrl": "https://arxiv.org/abs/2410.13842",
+  "venue": null,
+  "pdfUrl": "https://arxiv.org/pdf/2410.13842"
+ }
+}

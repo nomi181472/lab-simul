@@ -1,0 +1,125 @@
+{
+  "id": "OD015",
+  "arxiv": "1704.04503",
+  "title": "Soft-NMS -- Improving Object Detection With One Line of Code",
+  "year": 2017,
+  "venue": "IEEE International Conference on Computer Vision (ICCV)",
+  "problem": {
+    "summary": "Greedy non-maximum suppression is a hard-threshold post-processing step that zeroes the scores of neighboring detections, so any object that overlaps the kept box above the threshold is missed, while a fixed threshold tuned for one evaluation overlap degrades average precision at other thresholds.",
+    "statements": [
+      "NMS eliminates any detection overlapping the selected box beyond a fixed threshold, so an object actually present in that overlap region is missed.",
+      "NMS applies a hard threshold when deciding what to keep or remove from the neighborhood of the top-scoring box.",
+      "Using a low NMS threshold drops average precision when evaluation uses a high overlap criterion, and using a high threshold increases false positives at lower evaluation thresholds.",
+      "The NMS component of the detection pipeline has remained untouched for more than a decade."
+    ],
+    "problemTags": ["nms", "localization", "background-false-positives"],
+    "evidence": [
+      { "quote": "As per the design of the algorithm, if an object lies within the predefined overlap threshold, it leads to a miss.", "location": "Abstract" },
+      { "quote": "Hence, NMS sets a hard threshold while deciding what should be kept or removed from the neighborhood of M.", "location": "Sec 4" },
+      { "quote": "Therefore, applying NMS with a low threshold like 0.3 could lead to a drop in average precision when the overlap criterion during evaluation for a true positive is 0.7", "location": "Sec 4" },
+      { "quote": "Also, using a high Nt like 0.7 would increase false positives when Ot is lower and would hence drop precision averaged over multiple thresholds.", "location": "Sec 4" }
+    ]
+  },
+  "background": {
+    "summary": "The paper situates NMS as a 50-year-old post-processing component of sliding-window and region-proposal detectors, notes prior learning-based and optimization-based alternatives (affinity clustering, proposal subset optimization, QUBO), and argues greedy NMS remains the strongest generic baseline that any replacement must beat without retraining.",
+    "relatedWork": [
+      { "name": "Traditional NMS", "relation": "de-facto post-processing algorithm the paper modifies", "quote": "greedy NMS performs favourably when performance on object detection metrics is measured.", "location": "Sec 2" },
+      { "name": "Proposal subset optimization", "relation": "prior optimization-based alternative to greedy NMS for salient object detection", "quote": "a proposal subset optimization algorithm was proposed [30] as an alternative to greedy NMS.", "location": "Sec 2" },
+      { "name": "QUBO pedestrian detection", "relation": "prior method that, like NMS, hard-thresholds detections", "quote": "Like greedy NMS, QUBO also applies a hard threshold to suppress detection boxes, which is different from Soft-NMS.", "location": "Sec 2" },
+      { "name": "Faster-RCNN / R-FCN / Deformable-RFCN", "relation": "state-of-the-art detectors used to evaluate Soft-NMS", "quote": "state-of-the-art detectors, namely, Faster-RCNN [24], RFCN [16] and Deformable-RFCN.", "location": "Sec 5" }
+    ],
+    "evidence": [
+      { "quote": "Non-maximum suppression is an integral part of the object detection pipeline.", "location": "Abstract" },
+      { "quote": "However, neighboring windows often have correlated scores (which increases false positives), so non-maximum suppression is used as a post-processing step to obtain final detections.", "location": "Introduction" },
+      { "quote": "Since there is no constraint in the network which forces it to generate a unique RoI for an object, multiple proposals may correspond to the same object.", "location": "Sec 3" }
+    ]
+  },
+  "solution": {
+    "summary": "Soft-NMS replaces NMS's hard zeroing step with a continuous re-scoring rule: the scores of boxes overlapping the selected box M are decayed by a linear or Gaussian function of their IoU with M, implemented as a one-line change to greedy NMS with no retraining and the same complexity.",
+    "approach": "Decay the classification scores of overlapping detections as a continuous (linear or Gaussian) function of their IoU with the current top box instead of setting them to zero.",
+    "components": [
+      "linear re-scoring: si = si * (1 - iou(M, bi)) for iou >= Nt",
+      "Gaussian re-scoring: si = si * exp(-iou(M, bi)^2 / sigma) for boxes not yet selected",
+      "one-line modification of the greedy NMS pseudo-code",
+      "no extra training and no change to the detector"
+    ],
+    "solutionTags": ["post-processing-nms"],
+    "evidence": [
+      { "quote": "we propose Soft-NMS, an algorithm which decays the detection scores of all other objects as a continuous function of their overlap with M. Hence, no object is eliminated in this process.", "location": "Abstract" },
+      { "quote": "Suppose, instead, we decay the classification score of a box bi which has a high overlap with M, rather than suppressing it altogether.", "location": "Sec 4" },
+      { "quote": "Soft-NMS is a generalized version of non-maximum suppression and traditional NMS is a special case of it with a discontinuous binary weighting function.", "location": "Sec 4" },
+      { "quote": "Since Soft-NMS does not require any extra training and is simple to implement, it can be easily integrated into any object detection pipeline.", "location": "Abstract" }
+    ]
+  },
+  "experiments": {
+    "summary": "Soft-NMS is plugged into three off-the-shelf detectors (Faster-RCNN, R-FCN, Deformable-RFCN) and evaluated on PASCAL VOC 2007 test and MS-COCO minival/test-dev with COCO-style AP, plus sensitivity analysis over the NMS threshold and the Gaussian sigma and per-class gain analysis.",
+    "benchmarks": [
+      { "dataset": "MS-COCO test-dev", "metric": "AP@[0.5:0.95]", "value": "40.9", "split": "test-dev (Deformable R-FCN + multi-scale testing + Soft-NMS)", "location": "Table 1" },
+      { "dataset": "MS-COCO test-dev", "metric": "AP@[0.5:0.95]", "value": "32.4", "split": "test-dev (R-FCN + Soft-NMS Gaussian)", "location": "Table 1" },
+      { "dataset": "MS-COCO test-dev", "metric": "AP@[0.5:0.95]", "value": "31.1", "split": "test-dev (R-FCN + NMS baseline)", "location": "Table 1" },
+      { "dataset": "MS-COCO test-dev", "metric": "AP@[0.5:0.95]", "value": "25.5", "split": "test-dev (Faster R-CNN + Soft-NMS)", "location": "Table 1" },
+      { "dataset": "PASCAL VOC 2007", "metric": "AP (COCO-style)", "value": "51.4", "split": "test 2007 (R-FCN + Soft-NMS Gaussian)", "location": "Table 2" },
+      { "dataset": "PASCAL VOC 2007", "metric": "AP (COCO-style)", "value": "39.4", "split": "test 2007 (Faster R-CNN + Soft-NMS)", "location": "Table 2" },
+      { "dataset": "MS-COCO minival", "metric": "AP@0.7", "value": "0.4001", "split": "minival (Soft-NMS, sigma=0.7)", "location": "Table 3" }
+    ],
+    "baselines": ["greedy NMS", "R-FCN", "Faster-RCNN", "Deformable-RFCN", "SSD", "YOLOv2"],
+    "evidence": [
+      { "quote": "Using Deformable-RFCN, Soft-NMS improves state-of-the-art in object detection from 39.8% to 40.9% with a single model.", "location": "Abstract" },
+      { "quote": "Even on PASCAL VOC 2007, Soft-NMS obtains an improvement of 1.7% for both Faster-RCNN and R-FCN.", "location": "Sec 6.1" },
+      { "quote": "It is clear that Soft-NMS (using both Gaussian and linear weighting function) improves performance in all cases", "location": "Sec 6.1" }
+    ]
+  },
+  "limitations": {
+    "summary": "Soft-NMS is still a greedy algorithm that does not reach the globally optimal re-scoring, it introduces a sigma parameter to tune, and its gains are much smaller on non proposal-based detectors such as SSD and YOLOv2; evaluation is limited to PASCAL VOC 2007 and MS-COCO.",
+    "items": [
+      "Soft-NMS remains greedy and does not find the globally optimal re-scoring of detection boxes.",
+      "Adds a sigma hyper-parameter that needs tuning (performance varies across sigma values).",
+      "Gains shrink to 0.5% for non proposal-based detectors like SSD and YOLOv2.",
+      "Only PASCAL VOC 2007 and MS-COCO are evaluated."
+    ],
+    "evidence": [
+      { "quote": "Note that Soft-NMS is also a greedy algorithm and does not find the globally optimal re-scoring of detection boxes.", "location": "Sec 4" },
+      { "quote": "For detectors like SSD [18] and YOLOv2 [23] which are not proposal based, with the linear function, Soft-NMS only obtains an improvement of 0.5%.", "location": "Sec 6.1" },
+      { "quote": "In all our experiments, we set \u03c3 to 0.5, even though a \u03c3 value of 0.6 seems to give better performance on the coco minival set.", "location": "Sec 6.2" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Explore other re-scoring functions beyond linear and Gaussian, such as generalized logistic functions like Gompertz, accepting more hyper-parameters.", "quote": "Apart from the two proposed functions, other functions with more parameters can also be explored with Soft-NMS which take overlap and detection scores into account.", "location": "Sec 4" },
+    { "direction": "Try generalized logistic (e.g. Gompertz) weighting functions for Soft-NMS.", "quote": "For example, instances of the generalized logistic function like the Gompertz function can be used, but such functions would increase the number of hyper-parameters.", "location": "Sec 4" }
+  ],
+  "technical": {
+    "datasets": ["PASCAL VOC", "MS-COCO"],
+    "backbones": ["ResNet-101"],
+    "models": ["R-FCN", "Faster R-CNN", "Deformable R-FCN", "SSD", "YOLOv2"],
+    "algorithms": ["greedy non-maximum suppression", "Soft-NMS", "multi-scale testing", "region proposal network"],
+    "metrics": ["AP", "AP@0.5", "AP@[0.5:0.95]", "recall@10", "recall@100"],
+    "equations": [
+      { "name": "NMS pruning (re-scoring form)", "expr": "si = si if iou(M,bi) < Nt else 0", "location": "Sec 4" },
+      { "name": "Soft-NMS linear", "expr": "si = si if iou(M,bi) < Nt else si * (1 - iou(M,bi))", "location": "Sec 4" },
+      { "name": "Soft-NMS Gaussian", "expr": "si = si * exp(-iou(M,bi)^2 / sigma), for all bi not in D", "location": "Sec 4" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "autonomous driving", "detail": "Named as a practical application area of object detection for which new pipeline components must not add computational cost." },
+      { "domain": "video/image indexing", "detail": "Named as a practical application area of object detection." },
+      { "domain": "surveillance", "detail": "Named as a practical application area of object detection." }
+    ],
+    "deploymentClaims": [
+      "Computational complexity is the same as traditional NMS (O(N^2) over N detection boxes), so it does not affect detector running time.",
+      "At a threshold of 1e-4 with 4 CPU threads it takes 0.01 s per image for 80 classes; at 1e-2, 0.005 s on a single core.",
+      "Requires no retraining and can be integrated into any object detection pipeline."
+    ],
+    "evidence": [
+      { "quote": "It has many practical applications in autonomous driving [6, 9], video/image indexing [28, 22], surveillance [2, 11] etc.", "location": "Introduction" },
+      { "quote": "Further, the computational complexity of Soft-NMS is the same as traditional NMS and hence it can be efficiently implemented.", "location": "Abstract" },
+      { "quote": "At a threshold of 10e-4, using 4 CPU threads, it takes 0.01s per image for 80 classes.", "location": "Sec 5" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/iccv.2017.593",
+    "arxivUrl": "https://arxiv.org/abs/1704.04503",
+    "venue": "IEEE International Conference on Computer Vision (ICCV)",
+    "pdfUrl": "https://arxiv.org/pdf/1704.04503"
+  }
+}

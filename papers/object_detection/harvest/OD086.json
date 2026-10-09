@@ -1,0 +1,222 @@
+{
+  "id": "OD086",
+  "arxiv": "2203.12338",
+  "title": "Real-time Object Detection for Streaming Perception",
+  "year": 2022,
+  "venue": "CVPR 2022",
+  "problem": {
+    "summary": "In streaming perception the environment changes while a detector processes a frame, so predictions are evaluated against a later frame and suffer a large accuracy drop; prior work only searched for speed/accuracy trade-off policies instead of designing a detector that predicts the future state.",
+    "statements": [
+      "No matter how fast a model runs, the surrounding environment has changed once it finishes processing the latest frame, so perceptive results are inconsistent with the current state and may trigger unsafe driving decisions.",
+      "Non-real-time detectors miss frames and produce long-time shifted results under the streaming AP (sAP) metric.",
+      "Existing approaches (Streamer, Adaptive Streamer) search for better speed/accuracy trade-off policies rather than a streaming-native model design, which is not well studied.",
+      "Fast enough detectors leave little trade-off room; the remaining gap is the fixed mismatch between the processed frame and the evaluated frame."
+    ],
+    "problemTags": ["speed-latency", "real-time-edge", "deployability"],
+    "evidence": [
+      {
+        "quote": "Autonomous driving requires the model to perceive the environment and (re)act within a low latency for safety.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "In a real-world vision-for-online scenario, no matter how fast the model becomes, the surrounding environment has changed once the model finishes processing the latest frame.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "These works focus on searching for a better trade-off policy between speed and accuracy for some existing detectors, while a novel streaming perception model design is not well studied.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on streaming perception (Li et al.'s sAP metric and Streamer meta-detector, Adaptive Streamer's RL scheduling, Fovea), on real-time one-stage detectors (YOLOX/YOLOv5, used by the top Streaming Perception Challenge entries), and on video detection/prediction work, claiming the gap is that none of these predicts the next frame end-to-end.",
+    "relatedWork": [
+      {
+        "name": "Streaming perception (sAP / Streamer)",
+        "relation": "task and metric definition plus a meta-detector that schedules existing detectors",
+        "quote": "To tackle this issue, [26] firstly proposes a new metric named streaming accuracy, which integrates latency and accuracy into a single metric for real-time online perception.",
+        "location": "Introduction"
+      },
+      {
+        "name": "Adaptive Streamer",
+        "relation": "reinforcement-learning trade-off policy between speed and accuracy",
+        "quote": "Adaptive streamer [16] adopts numerous approximate executions based on deep reinforcement learning to learn a better trade-off online.",
+        "location": "Introduction"
+      },
+      {
+        "name": "YOLOX",
+        "relation": "base real-time anchor-free detector of the proposed model",
+        "quote": "Our work is based on the recent real-time detector YOLOX [13] which achieves strong performance among real-time detectors.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "Video object detection",
+        "relation": "offline-only aggregation methods that ignore streaming latency",
+        "quote": "However, they all focus on the offline setting, while streaming perception considers the online processing latency and needs to predict the future results.",
+        "location": "Sec 2"
+      },
+      {
+        "name": "Video prediction",
+        "relation": "prior forecasting work that ignores latency-induced misalignment",
+        "quote": "The above prediction methods do not consider the misalignment of prediction and environment change caused by processing latency, leaving a gap to real-world application.",
+        "location": "Sec 2"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "the key solution for streaming perception is to predict the results of the next frame at the current state.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Thus for online perception, detectors are imposed to have the ability of future forecasting.",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "The method trains a real-time YOLOX detector on triplets of the last frame, current frame and next-frame ground truth so it directly predicts next-frame detections, aided by a Dual-Flow Perception module (dynamic flow fusing two frames' FPN features plus a static residual flow) and a Trend-Aware Loss that re-weights objects by their matching IoU; at inference a feature buffer avoids re-extracting the previous frame.",
+    "approach": "Directly forecast the next frame's boxes from the last and current frames with a dual-flow FPN feature fusion and an IoU-based trend-aware regression weighting, while keeping single-frame inference cost via a cached feature buffer.",
+    "components": [
+      "triplet training data (Ft-1, Ft, Gt+1) with next-frame ground-truth supervision",
+      "Dual-Flow Perception (DFP): dynamic flow (concatenation of channel-reduced FPN features of two frames) plus static flow (residual of current-frame features)",
+      "Trend-Aware Loss (TAL): trend factor from cross-frame matching IoU re-weights per-object regression loss, normalized to preserve total loss scale",
+      "feature buffer at inference so only the current frame is encoded",
+      "YOLOX base detector (anchor-free, decoupled heads) at 600x960 input without extra pre-training datasets or TensorRT"
+    ],
+    "solutionTags": ["one-stage", "anchor-free", "feature-fusion", "trend-aware-loss"],
+    "evidence": [
+      {
+        "quote": "we construct triplets of the last, current, and next frame for training, where the model gets the last and current frames as input and learns to predict the detection results of the next frame.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Dynamic flow pays attention to the moving trend of objects for forecasting while static flow provides basic information and features of detection through a residual connection.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "we introduce a Trend Aware Loss (TAL) to dynamically assign different weights for localizing and forecasting each object, as we find that objects within one frame may have different moving speeds.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "At inference, our model only extracts the feature of the current image frame and then aggregates the historical features from the buffer. With this strategy, our model runs almost at the same speed as the base detector.",
+        "location": "Sec 3.2"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Evaluation uses the Argoverse-HD driving dataset with the streaming AP (sAP) metric, comparing against the YOLOX baselines, Streamer/Adaptive Streamer, Kalman-filter forecasting and the Streaming Perception Challenge winners, plus ablations on prediction task, fusion feature level, fusion operator, DFP/TAL and moving-speed settings.",
+    "benchmarks": [
+      { "dataset": "Argoverse-HD", "metric": "sAP", "value": "36.1", "split": "val (Ours-L, 600x960)", "location": "Table 6" },
+      { "dataset": "Argoverse-HD", "metric": "sAP", "value": "42.3", "split": "val (Ours-L, 1200)", "location": "Table 6" },
+      { "dataset": "Argoverse-HD", "metric": "sAP", "value": "32.9", "split": "val (Ours-M, 600x960)", "location": "Table 6" },
+      { "dataset": "Argoverse-HD", "metric": "sAP", "value": "28.8", "split": "val (Ours-S, 600x960)", "location": "Table 6" },
+      { "dataset": "Argoverse-HD", "metric": "sAP", "value": "31.2", "split": "val (YOLOX-L streaming baseline)", "location": "Table 2" },
+      { "dataset": "Argoverse-HD", "metric": "AP", "value": "38.3", "split": "offline (YOLOX-L)", "location": "Table 2" },
+      { "dataset": "Argoverse-HD", "metric": "sAP", "value": "40.2", "split": "val (1st place challenge solution, 1440)", "location": "Table 6" }
+    ],
+    "baselines": ["YOLOX-L", "YOLOX-S", "YOLOX-M", "Mask R-CNN", "Streamer", "Adaptive Streamer", "Kalman filter forecasting"],
+    "evidence": [
+      {
+        "quote": "Our simple method achieves competitive performance on Argoverse-HD dataset and improves the AP by 4.9% compared to the strong baseline, validating its effectiveness.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "In contrast, directly forecasting future results achieves significant improvement (+3.0 AP).",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "our method outperforms the 1st place by a significant margin (2.1 sAP).",
+        "location": "Sec 4.4"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors state that the real-time assumption may fail on limited hardware or high-resolution input, and that a large gap to offline perception still remains; they also deliberately shrank the setup (resolution, extra datasets, no augmentation), which lowers raw accuracy.",
+    "items": [
+      "The assumption of real-time processing may be violated in real-world scenarios due to limited hardware resources or high-resolution input.",
+      "A large gap between offline detection and the online streaming model still exists.",
+      "Input resolution was halved to 600x960 and extra pre-training datasets (BDD100K, Cityscapes, nuScenes) and TensorRT speedups were dropped, decreasing detection performance relative to the challenge solutions.",
+      "No data augmentation (Mosaic, Mixup, flips) can be used because adjacent frames must stay aligned."
+    ],
+    "evidence": [
+      {
+        "quote": "In real-world scenarios, the assumption of real-time processing may be violated due to limited hardware resources or high-resolution input.",
+        "location": "Conclusion (Limitations)"
+      },
+      {
+        "quote": "we can see that the gap between offline setting and our model of online perception still exists by a large margin, indicating that there is still unexplored room for streaming perception.",
+        "location": "Conclusion (Limitations)"
+      },
+      {
+        "quote": "These shrinking changes definitely decrease the detection performance compared to [59], but they alleviate the executive burden and allow extensive experiments.",
+        "location": "Sec 3.2"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Motivate further work on streaming perception as a practical, challenging task.",
+      "quote": "We hope that our simple and effective design will motivate future efforts in this practical and challenging perception task.",
+      "location": "Conclusion"
+    },
+      {
+        "direction": "Close the remaining gap between offline and online streaming perception.",
+      "quote": "there is still unexplored room for streaming perception.",
+      "location": "Conclusion (Limitations)"
+    }
+  ],
+  "technical": {
+    "datasets": ["Argoverse-HD", "COCO"],
+    "backbones": ["CSPDarknet-53"],
+    "models": ["StreamYOLO (Ours-S/M/L)", "YOLOX-S", "YOLOX-M", "YOLOX-L", "Mask R-CNN", "Streamer", "Adaptive Streamer"],
+    "algorithms": ["Dual-Flow Perception", "Trend-Aware Loss", "FPN", "PANet", "feature buffering", "Kalman filter forecasting", "SGD with cosine schedule"],
+    "metrics": ["sAP", "sAP50", "sAP75", "sAPs", "sAPm", "sAPl", "latency (ms)", "FPS"],
+    "equations": [
+      { "name": "Matching IoU (trend factor input)", "expr": "mIoU_i = max_j IoU(box_{t+1}^i, box_t^j)", "location": "Eq. (1)" },
+      { "name": "Trend factor", "expr": "omega_i = 1/mIoU_i if mIoU_i >= tau, else 1/nu", "location": "Eq. (2)" },
+      { "name": "Normalized weight", "expr": "omega_hat_i = omega_i * sum_i L_i^reg / sum_i omega_i L_i^reg", "location": "Eq. (3)" },
+      { "name": "Total loss", "expr": "L_total = sum_{i in positive} omega_hat_i L_i^reg + L_i^cls + L_i^obj", "location": "Eq. (4)" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving",
+        "detail": "The paper is motivated by safety-critical low-latency perception for autonomous vehicles and evaluates on a driving dataset with urban scenes.",
+        "quote": "Autonomous driving requires the model to perceive the environment and (re)act within a low latency for safety.",
+        "location": "Abstract"
+      },
+      {
+        "domain": "autonomous driving (streaming perception challenge)",
+        "detail": "Real-time detectors from the CVPR 2021 Workshop on Autonomous Driving Streaming Perception Challenge are the reference systems the method builds on and surpasses.",
+        "quote": "Both the 1st [59] and 2nd [20] place solution of Streaming Perception Challenge (Workshop on Autonomous Driving at CVPR 2021) adopt real-time models YOLOX [13] and YOLOv5 [18] as their base detectors.",
+        "location": "Introduction"
+      }
+    ],
+    "deploymentClaims": [
+      "The feature buffer lets the model run almost at the same speed as the base detector, avoiding double per-frame computation.",
+      "All compared entries run in real time (30 FPS) on the Argoverse-HD setup.",
+      "End-to-end forecasting adds only 0.8 ms extra latency versus 3.11 ms for Kalman-filter forecasting."
+    ],
+    "evidence": [
+      {
+        "quote": "all entries work in real-time (30 FPS) so that the comparison is fair.",
+        "location": "Sec 4.2"
+      },
+      {
+        "quote": "Besides, our model brings less extra latency (0.8 ms v.s. 3.1 ms taking the average of 5 tests).",
+        "location": "Sec 4.4"
+      },
+      {
+        "quote": "For inference, we keep the input size at 600 \u00d7 960 and measure the processing time on a Tesla V100 GPU.",
+        "location": "Sec 4.1"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr52688.2022.00531",
+    "arxivUrl": "https://arxiv.org/abs/2203.12338",
+    "venue": "CVPR 2022",
+    "pdfUrl": "https://arxiv.org/pdf/2203.12338"
+  }
+}

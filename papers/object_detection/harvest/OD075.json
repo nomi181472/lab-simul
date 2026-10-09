@@ -1,0 +1,324 @@
+{
+  "id": "OD075",
+  "arxiv": "2107.08430",
+  "title": "YOLOX: Exceeding YOLO Series in 2021",
+  "year": 2021,
+  "venue": "arXiv (Cornell University)",
+  "problem": {
+    "summary": "YOLOv4 and YOLOv5 are still anchor-based detectors with hand-crafted assigning rules, so recent advances (anchor-free detection, advanced label assignment, NMS-free end-to-end detection) have not reached the YOLO family; anchors themselves need domain-specific clustering, complicate the head, and inflate the prediction traffic that can bottleneck edge devices.",
+    "statements": [
+      "YOLOv4 and YOLOv5 remain anchor-based detectors with hand-crafted assigning rules for training.",
+      "Anchor-based pipelines require clustering analysis to determine optimal anchors before training, and clustered anchors are domain-specific and less generalized.",
+      "The anchor mechanism increases detection-head complexity and the number of predictions per image, which can bottleneck overall latency on edge AI systems moving predictions between devices."
+    ],
+    "problemTags": [
+      "anchor-design",
+      "label-assignment",
+      "speed-latency"
+    ],
+    "evidence": [
+      {
+        "quote": "These have not been integrated into YOLO families yet, as YOLOv4 and YOLOv5",
+        "location": "Introduction"
+      },
+      {
+        "quote": "are still anchor-based detectors with hand-crafted assigning rules for training.",
+        "location": "Introduction"
+      },
+      {
+        "quote": "However, the anchor mechanism has many known problems. First, to achieve optimal detection performance, one needs to conduct clustering analysis to determine a set of optimal anchors before training.",
+        "location": "Sec 2.1"
+      }
+    ]
+  },
+  "background": {
+    "summary": "The report builds on the YOLO series' speed-accuracy tradition, the rapid progress of anchor-free detectors (FCOS, CornerNet, CenterNet), advanced label assignment (OTA and related ATSS/FreeAnchor/AutoAssign work), decoupled heads used in one- and two-stage detectors, and Mosaic/MixUp augmentation; the claimed gap is that none of these has been integrated into YOLO families.",
+    "relatedWork": [
+      {
+        "name": "YOLO series",
+        "relation": "lineage being extended, optimized for real-time speed/accuracy",
+        "quote": "YOLO series [23, 24, 25, 1, 7] always pursuit the optimal speed and accuracy trade-off for real-time applications.",
+        "location": "Introduction"
+      },
+      {
+        "name": "YOLOv5",
+        "relation": "best prior YOLO trade-off and the scaling/architecture source for YOLOX-S/M/L/X",
+        "quote": "Currently, YOLOv5 [7] holds the best trade-off performance with 48.2% AP on COCO at 13.7 ms.",
+        "location": "Introduction"
+      },
+      {
+        "name": "Anchor-free detectors",
+        "relation": "evidence that anchor-free performance can match anchor-based detectors",
+        "quote": "These works have shown that the performance of anchor-free detectors can be on par with anchor-based detectors.",
+        "location": "Sec 2.1"
+      }
+    ],
+    "evidence": [
+      {
+        "quote": "we choose YOLOv3 [25] as our start point",
+        "location": "Introduction"
+      },
+      {
+        "quote": "Considering YOLOv4 and YOLOv5 may be a little over-optimized for the anchor-based pipeline",
+        "location": "Introduction"
+      }
+    ]
+  },
+  "solution": {
+    "summary": "YOLOX upgrades the YOLOv3/YOLOv5 pipelines with a lite decoupled head, an anchor-free single prediction per location, center-based multi-positive sampling, the SimOTA dynamic top-k label assignment, and Mosaic+MixUp strong augmentation, trained from scratch; an optional NMS-free end-to-end module is also studied.",
+    "approach": "Make YOLO anchor-free with one direct box prediction per location, decouple classification/regression heads, and assign positives globally with the simplified SimOTA strategy.",
+    "components": [
+      "lite decoupled head: 1x1 conv to 256 channels, then two parallel 3x3 branches for classification and regression plus an IoU branch",
+      "anchor-free prediction: one prediction per location directly regressing left-top offsets and box height/width",
+      "multi positives: center 3x3 area sampling of positives (center sampling as in FCOS)",
+      "SimOTA label assignment: pairwise classification+regression cost, center prior, dynamic top-k positives, global view"
+    ],
+    "solutionTags": [
+      "anchor-free",
+      "label-assignment-simota",
+      "mosaic-augmentation",
+      "decoupled-head"
+    ],
+    "evidence": [
+      {
+        "quote": "We switch the YOLO detector to an anchor-free manner and conduct other advanced detection techniques, i.e., a decoupled head and the leading label assignment strategy SimOTA",
+        "location": "Abstract"
+      },
+      {
+        "quote": "We reduce the predictions for each location from 3 to 1 and make them directly predict four values, i.e., two offsets in terms of the left-top corner of the grid, and the height and width of the predicted box.",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "it contains a 1 × 1 conv layer to reduce the channel dimension, followed by two parallel branches with two 3 × 3 conv layers respectively.",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "We simply assigns the center 3×3 area as positives, also named “center sampling” in FCOS [29].",
+        "location": "Sec 2.1"
+      }
+    ]
+  },
+  "experiments": {
+    "summary": "Models are trained 300 epochs from scratch on COCO train2017 and evaluated at 640x640 (416 for Tiny/Nano) with FP16 batch=1 on a Tesla V100: a step-by-step roadmap ablation builds YOLOX-DarkNet53, then YOLOX-S/M/L/X are compared with YOLOv5, tiny/nano models with YOLOv4-Tiny/PPYOLO-Tiny/NanoDet, and all models are tabulated against SOTA on test-dev.",
+    "benchmarks": [
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "47.3",
+        "split": "val, YOLOX-DarkNet53, 640",
+        "location": "Table 2"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "39.6",
+        "split": "val, YOLOX-S, 640 (vs YOLOv5-S 36.7)",
+        "location": "Table 3"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "46.4",
+        "split": "val, YOLOX-M, 640 (vs YOLOv5-M 44.5)",
+        "location": "Table 3"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "50.0",
+        "split": "val, YOLOX-L, 640 (vs YOLOv5-L 48.2)",
+        "location": "Table 3"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "51.2",
+        "split": "val, YOLOX-X, 640 (vs YOLOv5-X 50.4)",
+        "location": "Table 3"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "32.8",
+        "split": "val, YOLOX-Tiny, 416 (vs YOLOv4-Tiny 21.7)",
+        "location": "Table 4"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "25.3",
+        "split": "val, YOLOX-Nano, 416 (vs NanoDet 23.5)",
+        "location": "Table 4"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "AP",
+        "value": "51.2",
+        "split": "test-dev, YOLOX-X, 640, 300 epochs",
+        "location": "Table 6"
+      },
+      {
+        "dataset": "MS COCO",
+        "metric": "FPS",
+        "value": "69.0",
+        "split": "test-dev, YOLOX-L, V100, 640",
+        "location": "Table 6"
+      }
+    ],
+    "baselines": [
+      "YOLOv3-ultralytics",
+      "YOLOv3-SPP baseline",
+      "YOLOv5-S",
+      "YOLOv5-M",
+      "YOLOv5-L",
+      "YOLOv5-X",
+      "YOLOv4-Tiny",
+      "PPYOLO-Tiny"
+    ],
+    "evidence": [
+      {
+        "quote": "for YOLOX-L with roughly the same amount of parameters as YOLOv4CSP, YOLOv5-L, we achieve 50.0% AP on COCO at a speed of 68.9 FPS on Tesla V100, exceeding YOLOv5-L by 1.8% AP.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "for YOLOv3, one of the most widely used detectors in industry, we boost it to 47.3% AP on COCO, outperforming the current best practice by 3.0% AP",
+        "location": "Abstract"
+      },
+      {
+        "quote": "SimOTA raises the detector from 45.0% AP to 47.3% AP, higher than the SOTA ultralytics-YOLOv3 by 3.0% AP, showing the power of the advanced assigning strategy.",
+        "location": "Sec 2.1"
+      }
+    ]
+  },
+  "limitations": {
+    "summary": "There is no limitations section; evident constraints are that the NMS-free end-to-end mode degrades both accuracy and speed and is excluded from final models, larger YOLO variants and transformer detectors were not explored due to time and resource limits, and the SOTA table's speed numbers are uncontrolled across software and hardware.",
+    "items": [
+      "The optional end-to-end (NMS-free) configuration lowers AP and slows inference, so it is not part of the released final models.",
+      "Larger models such as Scaled-YOLOv4/YOLOv5-P6 and transformer-based detectors pushing ~60 AP were not explored in this report.",
+      "Speed numbers in the SOTA comparison table are not controlled, as they vary with software and hardware."
+    ],
+    "evidence": [
+      {
+        "quote": "These enable the detector to perform an end-to-end manner, but slightly decreasing the performance and the inference speed, as listed in Tab. 2.",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "Due to the time and resource limitation, we did not explore those important features in this report.",
+        "location": "Sec 3"
+      },
+      {
+        "quote": "the inference speed of the models in this table is often uncontrolled, as speed varies with software and hardware.",
+        "location": "Sec 3"
+      }
+    ]
+  },
+  "futureDirections": [
+    {
+      "direction": "Explore large-size YOLO variants (Scaled-YOLOv4, YOLOv5-P6) and transformer-based detectors that push accuracy toward 60 AP.",
+      "quote": "Due to the time and resource limitation, we did not explore those important features in this report. However, they are already in our scope.",
+      "location": "Sec 3"
+    },
+    {
+      "direction": "Keep developing the NMS-free end-to-end YOLO variant as an optional module.",
+      "quote": "We thus leave it as an optional module which is not involved in our final models.",
+      "location": "Sec 2.1"
+    }
+  ],
+  "technical": {
+    "datasets": [
+      "MS COCO train2017",
+      "MS COCO val2017",
+      "MS COCO test-dev2017"
+    ],
+    "backbones": [
+      "Darknet-53",
+      "Modified CSPNet (YOLOv5)",
+      "CSPDarknet-53",
+      "depthwise-convolution (YOLOX-Nano)"
+    ],
+    "models": [
+      "YOLOX-DarkNet53",
+      "YOLOX-S",
+      "YOLOX-M",
+      "YOLOX-L",
+      "YOLOX-X",
+      "YOLOX-Tiny",
+      "YOLOX-Nano"
+    ],
+    "algorithms": [
+      "SimOTA",
+      "OTA (optimal transport assignment)",
+      "center sampling (3x3 positives)",
+      "Mosaic",
+      "MixUp",
+      "decoupled head",
+      "anchor-free regression",
+      "EMA weights updating"
+    ],
+    "metrics": [
+      "AP",
+      "AP50",
+      "AP75",
+      "AP_S",
+      "AP_M",
+      "AP_L",
+      "FPS",
+      "latency (ms)",
+      "GFLOPs",
+      "parameter count"
+    ],
+    "equations": [
+      {
+        "name": "SimOTA pairwise cost",
+        "expr": "c_ij = L_cls_ij + lambda * L_reg_ij",
+        "location": "Eqn (1), Sec 2.1"
+      }
+    ]
+  },
+  "industry": {
+    "applications": [
+      {
+        "domain": "autonomous driving / streaming perception",
+        "detail": "A single YOLOX-L won 1st place in the Streaming Perception Challenge (WAD at CVPR 2021).",
+        "quote": "we won the 1st Place on Streaming Perception Challenge (Workshop on Autonomous Driving at CVPR 2021) using a single YOLOX-L model.",
+        "location": "Introduction"
+      },
+      {
+        "domain": "edge AI / heterogeneous devices",
+        "detail": "Anchor-based prediction volume can bottleneck latency when predictions move between devices such as NPU and CPU.",
+        "quote": "On some edge AI systems, moving such large amount of predictions between devices (e.g., from NPU to CPU) may become a potential bottleneck in terms of the overall latency.",
+        "location": "Sec 2.1"
+      },
+      {
+        "domain": "industrial computer vision",
+        "detail": "YOLOv3 remains one of the most used detectors in industry due to limited compute and software support.",
+        "quote": "Indeed, YOLOv3 is still one of the most widely used detectors in the industry due to the limited computation resources and the insufficient software support in various practical applications.",
+        "location": "Introduction"
+      }
+    ],
+    "deploymentClaims": [
+      "Deploy versions are provided with ONNX, TensorRT, NCNN and OpenVINO support.",
+      "YOLOX-L reaches 50.0% AP at 68.9 FPS on a Tesla V100 (FP16, batch 1)."
+    ],
+    "evidence": [
+      {
+        "quote": "we also provide deploy versions with ONNX, TensorRT, NCNN, and Openvino supported.",
+        "location": "Abstract"
+      },
+      {
+        "quote": "latency in this report are all measured with FP16-precision and batch=1 on a single Tesla V100.",
+        "location": "Sec 2.1"
+      },
+      {
+        "quote": "the best trade-off point for the metric on 30 FPS data stream is a powerful model with the inference time ≤ 33ms.",
+        "location": "Sec 4"
+      }
+    ]
+  },
+  "citations": {
+    "doi": "10.48550/arxiv.2107.08430",
+    "arxivUrl": "https://arxiv.org/abs/2107.08430",
+    "venue": "arXiv (Cornell University)",
+    "pdfUrl": "https://arxiv.org/pdf/2107.08430"
+  }
+}

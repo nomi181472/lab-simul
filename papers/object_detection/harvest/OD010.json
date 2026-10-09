@@ -1,0 +1,125 @@
+{
+  "id": "OD010",
+  "arxiv": "1612.03144",
+  "title": "Feature Pyramid Networks for Object Detection",
+  "year": 2016,
+  "venue": "CVPR 2017",
+  "problem": {
+    "summary": "Detecting objects at vastly different scales is hard: featurized image pyramids are accurate but too slow and memory-hungry for end-to-end training, while the single-scale feature maps used by Fast/Faster R-CNN sacrifice accuracy, especially on small objects.",
+    "statements": [
+      "Recent deep detectors avoid pyramid representations because they are compute and memory intensive.",
+      "Featurizing every level of an image pyramid raises inference time considerably and makes end-to-end training infeasible in memory, so image pyramids are used only at test time.",
+      "The ConvNet's in-network feature hierarchy has large semantic gaps: high-resolution maps carry low-level features that hurt recognition.",
+      "Single-scale detectors such as Fast/Faster R-CNN underperform multi-scale detection, particularly for small objects."
+    ],
+    "problemTags": ["scale-variance", "small-objects", "speed-latency"],
+    "evidence": [
+      { "quote": "But recent deep learning object detectors have avoided pyramid representations, in part because they are compute and memory intensive.", "location": "Abstract" },
+      { "quote": "Inference time increases considerably (e.g., by four times [11]), making this approach impractical for real applications.", "location": "Introduction" },
+      { "quote": "if exploited, image pyramids are used only at test time [15, 11, 16, 35], which creates an inconsistency between train/test-time inference.", "location": "Introduction" },
+      { "quote": "The high-resolution maps have low-level features that harm their representational capacity for object recognition.", "location": "Introduction" }
+    ]
+  },
+  "background": {
+    "summary": "The paper builds on featurized image pyramids (SIFT/HOG era), region-based detectors (SPPnet, Fast/Faster R-CNN), and multi-layer feature combination methods (HyperNet, ION, U-Net, SSD), arguing that existing pyramidal architectures produce a single high-level map rather than predictions at every level.",
+    "relatedWork": [
+      { "name": "SSD", "relation": "first attempt to reuse the ConvNet feature hierarchy as a pyramid, but starts high in the network and misses high-resolution maps", "quote": "The Single Shot Detector (SSD) [22] is one of the first attempts at using a ConvNet’s pyramidal feature hierarchy as if it were a featurized image pyramid", "location": "Introduction" },
+      { "name": "Fast R-CNN / Faster R-CNN", "relation": "main baselines; use single-scale features by default", "quote": "Fast and Faster R-CNN [11, 29] opt to not use featurized image pyramids under default settings.", "location": "Introduction" },
+      { "name": "SPPnet", "relation": "showed region-based detectors work on single-scale feature maps", "quote": "SPPnet [15] demonstrated that such region-based detectors could be applied much more efficiently on feature maps extracted on a single image scale.", "location": "Sec 2" },
+      { "name": "HyperNet / ParseNet / ION", "relation": "prior multi-layer feature fusion approaches", "quote": "Several other approaches (HyperNet [18], ParseNet [23], and ION [2]) concatenate features of multiple layers before computing predictions, which is equivalent to summing transformed features.", "location": "Sec 2" }
+    ],
+    "evidence": [
+      { "quote": "All recent top entries in the ImageNet [33] and COCO [21] detection challenges use multi-scale testing on featurized image pyramids", "location": "Introduction" },
+      { "quote": "Multi-scale detection, however, still performs better, especially for small objects.", "location": "Sec 2" }
+    ]
+  },
+  "solution": {
+    "summary": "FPN builds a feature pyramid inside a ConvNet by combining the bottom-up pathway with a top-down pathway and lateral connections, yielding semantically strong maps at all resolutions that are used for prediction at every level with shared heads.",
+    "approach": "Upsample coarser semantically strong maps, merge them with same-size bottom-up maps via 1x1 lateral convolutions plus addition, and attach shared prediction heads to each pyramid level.",
+    "components": [
+      "Bottom-up pathway using ResNet stage outputs {C2, C3, C4, C5}",
+      "Top-down pathway with 2x nearest-neighbor upsampling",
+      "Lateral 1x1 convolutions followed by element-wise addition",
+      "3x3 convolution on each merged map with d = 256 channels",
+      "Single-scale anchors per level: areas {32^2..512^2} on {P2..P6}, 3 aspect ratios (15 anchors total)",
+      "RoI-to-level assignment k = floor(k0 + log2(sqrt(wh)/224))",
+      "Parameter-shared RPN and Fast R-CNN heads across levels, with a light 2-fc head"
+    ],
+    "solutionTags": ["feature-pyramid", "feature-fusion", "multi-scale", "anchors", "two-stage"],
+    "evidence": [
+      { "quote": "we rely on an architecture that combines low-resolution, semantically strong features with high-resolution, semantically weak features via a top-down pathway and lateral connections", "location": "Introduction" },
+      { "quote": "The topdown pathway hallucinates higher resolution features by upsampling spatially coarser, but semantically stronger, feature maps from higher pyramid levels.", "location": "Sec 3" },
+      { "quote": "we assign anchors of a single scale to each level", "location": "Sec 4.1" }
+    ]
+  },
+  "experiments": {
+    "summary": "FPN is evaluated on COCO with RPN proposal recall (AR) and Fast/Faster R-CNN detection (AP), ablating top-down and lateral connections against single-scale ResNet baselines, plus mask proposal experiments following DeepMask/SharpMask.",
+    "benchmarks": [
+      { "dataset": "COCO", "metric": "AP", "value": "33.9", "split": "minival, Faster R-CNN + FPN, ResNet-50", "location": "Table 3" },
+      { "dataset": "COCO", "metric": "AP", "value": "35.2", "split": "minival, Faster R-CNN + FPN, ResNet-101", "location": "Table 5" },
+      { "dataset": "COCO", "metric": "AP", "value": "36.2", "split": "test-dev, single-model submission", "location": "Table 4" },
+      { "dataset": "COCO", "metric": "AP@0.5", "value": "59.1", "split": "test-dev, single-model submission", "location": "Table 4" },
+      { "dataset": "COCO", "metric": "AP small", "value": "18.2", "split": "test-dev, single-model submission", "location": "Table 4" },
+      { "dataset": "COCO", "metric": "AR1k", "value": "56.3", "split": "minival, FPN-RPN, ResNet-50", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "AR1k small", "value": "44.9", "split": "minival, FPN-RPN, ResNet-50", "location": "Table 1" },
+      { "dataset": "COCO", "metric": "mask AR (1000 proposals)", "value": "48.1", "split": "first 5k val images, FPN dual-MLP", "location": "Table 6" }
+    ],
+    "baselines": ["Faster R-CNN (ResNet-50/101)", "single-scale RPN on C4/C5", "G-RMI", "Faster R-CNN+++", "ION", "Multipath", "DeepMask", "SharpMask", "InstanceFCN"],
+    "evidence": [
+      { "quote": "our FPN (Table 3(c)) is better than this strong baseline by 2.3 points AP and 3.8 points AP@0.5.", "location": "Sec 5.2.2" },
+      { "quote": "Placing FPN in RPN improves AR1k to 56.3 (Table 1 (c)), which is 8.0 points increase over the single-scale RPN baseline", "location": "Sec 5.1.1" },
+      { "quote": "On the test-dev set, our method increases over the existing best results by 0.5 points of AP (36.2 vs. 35.7) and 3.4 points of AP@0.5 (59.1 vs. 55.7).", "location": "Sec 5.2.3" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors deliberately keep the design simple (leaving better connection modules and heads unexplored), the ResNet-101 model was under-trained with the default schedule, and FPN does not yet incorporate several standard accuracy-boosting tricks.",
+    "items": [
+      "More sophisticated connection blocks were only marginally better and were not studied further.",
+      "A stronger head architecture is expected to improve results but is out of scope.",
+      "The ResNet-101 model needed an extended learning-rate schedule to reach its reported AP.",
+      "Popular improvements (iterative regression, hard negative mining, context modeling, stronger augmentation) are not used."
+    ],
+    "evidence": [
+      { "quote": "Designing better connection modules is not the focus of this paper, so we opt for the simple design described above.", "location": "Sec 3" },
+      { "quote": "We expect a stronger architecture of the head [30] will improve upon our results, which is beyond the focus of this paper.", "location": "Sec 5.2.1 footnote" },
+      { "quote": "We find that our ResNet-101 model in Table 5 is not sufficiently trained with the default learning rate schedule.", "location": "Sec 5.2.3" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Combine FPN with complementary accuracy improvements such as iterative regression, hard negative mining, context modeling and stronger data augmentation.", "quote": "These improvements are complementary to FPNs and should boost accuracy further.", "location": "Sec 5.2.3" },
+    { "direction": "Adopt stronger head architectures on top of the feature pyramid.", "quote": "We expect a stronger architecture of the head [30] will improve upon our results, which is beyond the focus of this paper.", "location": "Sec 5.2.1 footnote" },
+    { "direction": "Use FPN as a practical building block for future detection research and applications.", "quote": "We believe the efficiency and simplicity of our method will benefit future research and applications.", "location": "Sec 5.2.2" }
+  ],
+  "technical": {
+    "datasets": ["COCO", "ImageNet"],
+    "backbones": ["ResNet-50", "ResNet-101"],
+    "models": ["Feature Pyramid Network (FPN)", "Faster R-CNN", "Fast R-CNN", "RPN", "DeepMask", "SharpMask", "InstanceFCN", "G-RMI"],
+    "algorithms": ["RoI pooling", "non-maximum suppression", "synchronized SGD", "nearest-neighbor upsampling", "lateral 1x1 convolution", "anchor-based RPN"],
+    "metrics": ["AP", "AP@0.5", "AP small/medium/large", "AR100", "AR1k", "FPS"],
+    "equations": [
+      { "name": "RoI-to-pyramid-level assignment", "expr": "k = floor(k0 + log2(sqrt(w*h)/224))", "location": "Sec 4.2, Eqn. 1" },
+      { "name": "anchor-to-level IoU labeling", "expr": "positive if best IoU or IoU > 0.7; negative if IoU < 0.3", "location": "Sec 4.1" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "instance segmentation", "detail": "FPN is extended to generate object segment proposals following the DeepMask/SharpMask framework.", "quote": "we use FPNs to generate segmentation proposals, following the DeepMask/SharpMask framework [27, 28].", "location": "Sec 6" },
+      { "domain": "COCO competition tasks", "detail": "FPN underpinned top results in COCO detection, instance segmentation and keypoint estimation tracks.", "quote": "Recently, FPN has enabled new top results in all tracks of the COCO competition, including detection, instance segmentation, and keypoint estimation.", "location": "Sec 5.2.3" }
+    ],
+    "deploymentClaims": [
+      "Runs at 6 FPS on a GPU as a practical multi-scale detection solution.",
+      "Inference takes 0.148 s/image (ResNet-50) and 0.172 s (ResNet-101) on a single NVIDIA M40 GPU, versus 0.32 s for the single-scale ResNet-50 baseline.",
+      "Mask proposal models run at 6 to 7 FPS, substantially faster than image-pyramid-based methods."
+    ],
+    "evidence": [
+      { "quote": "our method can run at 6 FPS on a GPU and thus is a practical and accurate solution to multi-scale object detection.", "location": "Abstract" },
+      { "quote": "Our method introduces small extra cost by the extra layers in the FPN, but has a lighter weight head.", "location": "Sec 5.2.2" }
+    ]
+  },
+  "citations": {
+    "doi": "10.1109/cvpr.2017.106",
+    "arxivUrl": "https://arxiv.org/abs/1612.03144",
+    "venue": "CVPR 2017",
+    "pdfUrl": "https://arxiv.org/pdf/1612.03144"
+  }
+}

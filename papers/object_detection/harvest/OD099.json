@@ -1,0 +1,128 @@
+{
+  "id": "OD099",
+  "arxiv": "2309.11331",
+  "title": "Gold-YOLO: Efficient Object Detector via Gather-and-Distribute Mechanism",
+  "year": 2023,
+  "venue": "NeurIPS 2023",
+  "problem": {
+    "summary": "Single-stage YOLO detectors still suffer an information fusion problem in their FPN/PANet-style necks: cross-level fusion is done recursively, so information not selected by intermediate layers is discarded and lost, hurting fusion across scales.",
+    "statements": [
+      "FPN and PANet improved multi-scale fusion but previous models still suffer from an information fusion problem.",
+      "Conventional FPN-like structures cannot transmit information without loss when fusing non-adjacent levels, which hinders better information fusion.",
+      "Previous FPN-based fusion structures still have drawbacks in low speed, cross-level information exchange, and information loss."
+    ],
+    "problemTags": ["information-fusion-loss", "scale-variance", "speed-latency"],
+    "evidence": [
+      { "quote": "we find previous models still suffer from information fusion problem, although Feature Pyramid Network (FPN) and Path Aggregation Network (PANet) have alleviated this.", "location": "Abstract" },
+      { "quote": "the conventional FPN-like structure fails to transmit information without loss, which hinders YOLOs from better information fusion.", "location": "Introduction" },
+      { "quote": "Information interactions between layers can only exchange information that is selected by intermediate layers, and not selected information is discarded during transmission.", "location": "Sec 3.1" },
+      { "quote": "the previous FPN-based fusion structures still have drawbacks in low speed, cross-level information exchange and information loss.", "location": "Sec 2.3" },
+      { "quote": "This transfer mode can result in a significant loss of information during calculation.", "location": "Sec 3.1" }
+    ]
+  },
+  "background": {
+    "summary": "The work builds on FPN and PANet necks for multi-scale fusion, on the global-fusion idea demonstrated by TopFormer in segmentation, and on reparameterized YOLOv6, claiming prior necks still lose information and exchange across levels poorly.",
+    "relatedWork": [
+      { "name": "FPN", "relation": "prior multi-scale fusion backbone idea being improved", "quote": "The original idea behind Feature Pyramid Networks (FPN) proposed by [34] is that these diverse pieces of information can enhance network performance through mutual assistance.", "location": "Sec 2.3" },
+      { "name": "PANet", "relation": "prior fusion extension adding bottom-up path", "quote": "Based on FPN, the Path Aggregation Network (PANet) [49] incorporates a bottom-up path to make information fusion between different levels more adequate.", "location": "Sec 2.3" },
+      { "name": "TopFormer", "relation": "prior global information fusion design that inspires GD", "quote": "Built upon the concept of global information fusion, TopFormer [58] has achieved remarkable results in semantic segmentation tasks.", "location": "Introduction" },
+      { "name": "YOLOv6", "relation": "contemporary reparameterized YOLO baseline", "quote": "YOLOv6 [32, 31] brings the reparameterization method to YOLO-series models for the first time, proposing EfficientRep Backbone and Rep-PAN Neck.", "location": "Sec 2.1" }
+    ],
+    "evidence": [
+      { "quote": "Single-stage detection models, especially YOLO series models, have been widely welcomed in the industry due to their simple structure and balance between speed and accuracy.", "location": "Introduction" },
+      { "quote": "High-performance and low-latency object detector is receiving increasing attention for deployment on the edge devices.", "location": "Introduction" }
+    ]
+  },
+  "solution": {
+    "summary": "The paper proposes a Gather-and-Distribute (GD) mechanism that globally fuses multi-level features and injects the global information back into higher levels: a shallow convolution-based Low-GD branch and a deep attention-based High-GD branch gather/align/fuse features via FAM and IFM modules, complemented by a lightweight adjacent-layer fusion (LAF) module, forming the end-to-end Gold-YOLO detector.",
+    "approach": "Gather multi-level features into a global representation, distribute (inject) it back into higher levels, and add lightweight adjacent-layer fusion to complete information flow in the neck.",
+    "components": [
+      "Low-GD (convolution-based) gather-and-distribute branch",
+      "High-GD (attention-based/transformer) gather-and-distribute branch",
+      "Feature Alignment Module (FAM)",
+      "Information Fusion Module (IFM)",
+      "Information injection (Inject) modules",
+      "Adjacent-layer fusion (LAF) module",
+      "SparK-style masked image modeling (MIM) pre-training"
+    ],
+    "solutionTags": ["feature-fusion", "feature-pyramid", "self-attention", "multi-scale"],
+    "evidence": [
+      { "quote": "propose a novel Gather-and-Distribute mechanism (GD) for efficient information exchanging in YOLOs by globally fusing multi-level features and injecting the global information into higher levels.", "location": "Introduction" },
+      { "quote": "GD mechanism comprises two branches: a shallow gather-and-distribute branch and a deep gatherand-distribute branch, which extract and fuse feature information via a convolution-based block and an attention-based block, respectively.", "location": "Introduction" },
+      { "quote": "we introduce a lightweight adjacent-layer fusion module which combines features from neighboring levels on a local scale.", "location": "Introduction" },
+      { "quote": "The gather process involves two steps. Firstly, the FAM collects and aligns features from various levels. Secondly, IFM fuses the aligned features to generate global information.", "location": "Sec 3.1" }
+    ]
+  },
+  "experiments": {
+    "summary": "Gold-YOLO is evaluated on COCO val2017 with N/S/M/L scales (with and without self-distillation and MIM pre-training), in transfer experiments with Mask R-CNN and EfficientDet detection backbones and PointRend segmentation, and in T4/V100 latency-throughput comparisons against YOLOv5/6/7/8, YOLOX and PPYOLOE.",
+    "benchmarks": [
+      { "dataset": "COCO val2017", "metric": "AP", "value": "39.9", "split": "Gold-YOLO-N with self-distillation (39.6 without)", "location": "Table 1" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "46.1", "split": "Gold-YOLO-S with self-distillation (45.4 without)", "location": "Table 1" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "50.9", "split": "Gold-YOLO-M with self-distillation (49.8 without)", "location": "Table 1" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "53.2", "split": "Gold-YOLO-L with self-distillation (51.8 without)", "location": "Table 1" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "46.4", "split": "Gold-YOLO-S with MIM pre-training", "location": "Table 7" },
+      { "dataset": "COCO val2017", "metric": "AP", "value": "40.7", "split": "Mask R-CNN + GD, ResNet-50 (bbox)", "location": "Table 4" },
+      { "dataset": "Cityscapes val", "metric": "mIoU", "value": "78.54", "split": "PointRend-R50 + GD", "location": "Table 5" }
+    ],
+    "baselines": ["YOLOv5", "YOLOv6-3.0", "YOLOv7", "YOLOv8", "YOLOX", "PPYOLOE", "EfficientDet", "Mask R-CNN"],
+    "evidence": [
+      { "quote": "Gold-YOLO-N attains an outstanding 39.9% AP on the COCO val2017 datasets and 1030 FPS on a T4 GPU, which outperforms the previous SOTA model YOLOv6-3.0-N with similar FPS by +2.4%.", "location": "Abstract" },
+      { "quote": "our Gold-YOLO-S with pre-training achieves 46.4% AP, which outperforms the previous SOTA YOLOv6-3.0-S with 45.0% AP at similar speed.", "location": "Introduction" },
+      { "quote": "Gold-YOLO-N demonstrates notable advancements, achieving an improvement of 2.6%/2.4%/6.6% compared to YOLOv8-N, YOLOv6-3.0-N, and YOLOv7-Tiny (input size=416), respectively", "location": "Sec 4.2" },
+      { "quote": "The Low-GD predominantly targets small and medium-sized objects, whereas the High-GD primarily detect large-sized objects, and the LAF module bolsters both branches.", "location": "Sec 4.3.1" },
+      { "quote": "All our models are trained on 8 NVIDIA A100 GPUs, and the speed performance is measured on an NVIDIA Tesla T4 GPU with TensorRT.", "location": "Sec 4.1" }
+    ]
+  },
+  "limitations": {
+    "summary": "The authors admit that finer structural adjustments could further improve performance but need significant compute, and that the algorithm's heavy use of attention may be unfriendly to earlier hardware; MIM pre-training was also skipped for the smallest model.",
+    "items": [
+      "Finer structural tuning could help but requires a significant amount of computational resources.",
+      "Heavy usage of attention operations may be unfriendly to some earlier hardware support.",
+      "MIM pre-training was not employed for Gold-YOLO-N due to its small backbone's limited capacity."
+    ],
+    "evidence": [
+      { "quote": "Generally, making finer adjustments on the structure will help further improve the model’s performance, but this requires a significant amount of computational resources.", "location": "Appendix C (Limitations)" },
+      { "quote": "due to our algorithm’s heavy usage of attention operations, it may not be as friendly to some earlier hardware support.", "location": "Appendix C (Limitations)" },
+      { "quote": "MIM pretraining was not employed for Gold-YOLO-N due to the limited capacity of its small backbone.", "location": "Sec 4.1" }
+    ]
+  },
+  "futureDirections": [
+    { "direction": "Further performance improvements while keeping the network built from simple, deployment-friendly, well-validated operators.", "quote": "Moreover, this decision also creates opportunities for future performance enhancements.", "location": "Appendix E.2" }
+  ],
+  "technical": {
+    "datasets": ["COCO", "ImageNet-1K", "Cityscapes"],
+    "backbones": ["EfficientRep Backbone", "Swin-T", "ResNet-50"],
+    "models": ["Gold-YOLO-N", "Gold-YOLO-S", "Gold-YOLO-M", "Gold-YOLO-L", "YOLOv6-3.0", "YOLOv8", "Mask R-CNN", "EfficientDet", "PointRend"],
+    "algorithms": ["Gather-and-Distribute (GD)", "MIM pre-training (SparK)", "self-distillation", "Mosaic", "Mixup", "EMA", "TensorRT"],
+    "metrics": ["AP", "AP50", "FPS", "latency", "mIoU", "mAcc", "FLOPs"],
+    "equations": [
+      { "name": "Low-GD feature alignment", "expr": "F_align = Low_FAM([B2, B3, B4, B5])", "location": "Eq 1, Sec 3.2" },
+      { "name": "Low-GD injection attention", "expr": "F_att_fuse = Conv_local(B_i) * F_global_act + F_global_embed", "location": "Eq 6, Sec 3.2" },
+      { "name": "High-GD transformer fusion", "expr": "F_fuse = Transformer(F_align)", "location": "Eq 9, Sec 3.3" }
+    ]
+  },
+  "industry": {
+    "applications": [
+      { "domain": "general vision applications", "detail": "Intelligent security, autonomous driving, robot navigation, and medical diagnosis", "quote": "It can be widely used in a wide range of applications, such as intelligent security, autonomous driving, robot navigation, and medical diagnosis.", "location": "Introduction" },
+      { "domain": "healthcare", "detail": "Earlier disease diagnosis and lower initial diagnosis cost", "quote": "In the healthcare domain, the YOLO series models can improve the early diagnosis rates of certain diseases and reduce the cost of initial diagnosis, thereby saving more lives.", "location": "Appendix C (Broader impacts)" },
+      { "domain": "intelligent transportation", "detail": "Assists autonomous vehicle driving, traffic safety and efficiency", "quote": "In the field of intelligent transportation, the YOLO model can assist in autonomous driving of vehicles, enhancing traffic safety and efficiency.", "location": "Appendix C (Broader impacts)" },
+      { "domain": "military", "detail": "Authors flag risk of drone target recognition and reconnaissance uses", "quote": "there are also risks associated with the military application of the YOLO model, such as target recognition for drones and assisting military reconnaissance.", "location": "Appendix C (Broader impacts)" }
+    ],
+    "deploymentClaims": [
+      "Gold-YOLO-N: 1030 FPS (bs=32) and 1.7 ms latency (bs=1), FP16 on Tesla T4 with TensorRT 7 (Table 1)",
+      "FP16 latency/throughput measured on T4 (TensorRT 8.2) and V100 (TensorRT 7.2) against YOLO-series detectors",
+      "Network built from simple, validated operators so deployment devices do not miss operator support"
+    ],
+    "evidence": [
+      { "quote": "Single-stage detection models, especially YOLO series models, have been widely welcomed in the industry due to their simple structure and balance between speed and accuracy.", "location": "Introduction" },
+      { "quote": "High-performance and low-latency object detector is receiving increasing attention for deployment on the edge devices.", "location": "Introduction" },
+      { "quote": "we intentionally opted for simple and thoroughly validated structures. This choice serves to prevent potential development and performance issues arising from certain operators being unsupported by deployment devices.", "location": "Appendix E.1" }
+    ]
+  },
+  "citations": {
+    "doi": null,
+    "arxivUrl": "https://arxiv.org/abs/2309.11331",
+    "venue": "NeurIPS 2023",
+    "pdfUrl": "https://arxiv.org/pdf/2309.11331"
+  }
+}
